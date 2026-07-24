@@ -1,0 +1,81 @@
+{
+  "name": "meubolso",
+  "version": "1.0.0",
+  "description": "MeuBolso — gerenciador de finanças pessoais minimalista para dívidas, empréstimos e cartão de crédito (desktop, 100% local)",
+  "main": "main.js",
+  "author": "Marcelo Acácio",
+  "license": "MIT",
+  "homepage": "https://github.com/MeuBolso/MeuBolso#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MeuBolso/MeuBolso.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist:mac": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.meubolso.app",
+    "productName": "MeuBolso",
+    "copyright": "Copyright © 2026 MeuBolso",
+    "publish": {
+      "provider": "github",
+      "owner": "MeuBolso",
+      "repo": "MeuBolso"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{test,tests,doc,docs,example,examples,benchmark,benchmarks}",
+      "!**/*.map",
+      "!**/{.git,.github,tests,test,coverage,docs}"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": "x64" },
+        { "target": "portable", "arch": "x64" }
+      ],
+      "artifactName": "${productName}-${version}-setup.${ext}",
+      "portableArtifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "${productName}-${version}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": "x64" },
+        { "target": "deb", "arch": "x64" }
+      ],
+      "category": "Office",
+      "artifactName": "${productName}-${version}-linux.${ext}"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": "x64" },
+        { "target": "dmg", "arch": "arm64" }
+      ],
+      "category": "public.app-category.finance",
+      "artifactName": "${productName}-${version}-mac.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  }
+}

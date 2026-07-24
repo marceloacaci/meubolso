@@ -1,0 +1,31 @@
+# Dependências
+node_modules/
+
+# Builds / empacotamento
+dist/
+out/
+*.db
+*.db-wal
+*.db-shm
+dados.json
+dados.bak.json
+
+# Dados de usuário do app (AppData em dev)
+*.corrompido-*
+
+# Logs
+*.log
+npm-debug.log*
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Editores / IDE
+.vscode/
+.idea/
+*.swp
+
+# Variáveis de ambiente
+.env
+.env.*

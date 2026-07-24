@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>MeuBolso</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Sidebar retrátil (navegação primária agrupada) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-topo">
+      <div class="logo">
+        <span class="logo-ico">🪙</span>
+        <span class="logo-titulo" id="app-titulo">MeuBolso</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-cta" data-acao="nova-divida">＋ <span class="cta-label" data-i18n="cta.novaDivida">Nova dívida</span></button>
+    <button class="btn btn-primary btn-cta" data-acao="novo-pagamento">＋ <span class="cta-label" data-i18n="cta.novoPagamento">Novo pagamento</span></button>
+
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <div class="nav-grupo">
+        <span class="nav-grupo-titulo" data-i18n="nav.grupo.principal">Principal</span>
+        <button class="nav-item tab active" data-view="painel">
+          <span class="nav-ico">📊</span><span class="nav-label">Painel</span>
+        </button>
+        <button class="nav-item tab" data-view="dividas">
+          <span class="nav-ico">📋</span><span class="nav-label">Dívidas</span>
+          <span class="nav-badge" id="badge-dividas" hidden></span>
+        </button>
+        <button class="nav-item tab" data-view="pagamentos">
+          <span class="nav-ico">💳</span><span class="nav-label">Pagamentos</span>
+          <span class="nav-badge" id="badge-pagamentos" hidden></span>
+        </button>
+        <button class="nav-item tab" data-view="vencimentos">
+          <span class="nav-ico">🗓️</span><span class="nav-label">Vencimentos</span>
+          <span class="nav-badge nav-badge--alerta" id="badge-vencimentos" hidden></span>
+        </button>
+        <button class="nav-item tab" data-view="carteiras">
+          <span class="nav-ico">🪪</span><span class="nav-label" data-i18n="tab.carteiras">Carteiras</span>
+        </button>
+      </div>
+
+      <div class="nav-grupo">
+        <span class="nav-grupo-titulo" data-i18n="nav.grupo.analise">Análise</span>
+        <button class="nav-item tab" data-view="relatorio">
+          <span class="nav-ico">📈</span><span class="nav-label">Relatório</span>
+        </button>
+      </div>
+
+      <div class="nav-grupo">
+        <span class="nav-grupo-titulo" data-i18n="nav.grupo.sistema">Sistema</span>
+        <button class="nav-item tab" data-view="configuracoes">
+          <span class="nav-ico">⚙️</span><span class="nav-label">Configurações</span>
+        </button>
+        <button class="nav-item tab" data-view="sobre">
+          <span class="nav-ico">ℹ️</span><span class="nav-label" data-i18n="tab.sobre">Sobre</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-perfil" id="badge-nivel" aria-label="Nível do usuário"></div>
+  </aside>
+
+  <!-- Conteúdo principal -->
+  <div class="conteudo">
+    <main id="app"></main>
+
+    <!-- Rodapé rolante de dicas (estilo telejornal) -->
+    <footer class="ticker" aria-label="Dicas financeiras">
+      <span class="ticker-tag">Dicas</span>
+      <div class="ticker-viewport">
+        <div class="ticker-track" id="ticker-track"></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- FAB mobile (Nova dívida) -->
+  <button class="fab-mobile" data-acao="nova-divida" title="Nova dívida" aria-label="Nova dívida">＋</button>
+
+  <!-- Relógio de Brasília (canto inferior, não bloqueia a navegação) -->
+  <div class="relogio-brasilia" id="relogio-brasilia" aria-hidden="true"></div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card">
+      <h2 id="modal-titulo">Título</h2>
+      <form id="form-modal">
+        <div id="campos-form"></div>
+        <div class="form-actions">
+          <button type="button" id="btn-cancelar" class="btn btn-ghost">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Overlay de celebração de nível (aparece ao subir de nível) -->
+  <div id="levelup-overlay" class="levelup-overlay" aria-hidden="true" role="dialog" aria-label="Subiu de nível">
+    <canvas id="levelup-confetti" class="levelup-confetti"></canvas>
+    <div class="levelup-card" id="levelup-card">
+      <div class="levelup-burst" aria-hidden="true"></div>
+      <div class="levelup-ico">🏆</div>
+      <div class="levelup-numero" id="levelup-numero">2</div>
+      <h2 class="levelup-titulo" id="levelup-titulo">Nível 2 alcançado!</h2>
+      <p class="levelup-parabens" id="levelup-parabens">Parabéns! Você subiu de nível.</p>
+      <p class="levelup-motivo" id="levelup-motivo">Continue progredindo para desbloquear novos títulos e recompensas!</p>
+      <div class="levelup-titulo-nivel" id="levelup-titulo-nivel">Organizador</div>
+      <button class="btn btn-primary levelup-btn" id="levelup-continuar" data-acao="fechar-levelup" data-i18n="nivel.continuar">Continuar</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
