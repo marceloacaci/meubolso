@@ -5,10 +5,10 @@
   "main": "main.js",
   "author": "Marcelo Acácio",
   "license": "MIT",
-  "homepage": "https://github.com/MeuBolso/MeuBolso#readme",
+  "homepage": "https://github.com/MeuBolso/meubolso#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MeuBolso/MeuBolso.git"
+    "url": "https://github.com/MeuBolso/meubolso.git"
   },
   "scripts": {
     "start": "electron .",
@@ -24,7 +24,7 @@
     "publish": {
       "provider": "github",
       "owner": "MeuBolso",
-      "repo": "MeuBolso"
+      "repo": "meubolso"
     },
     "files": [
       "**/*",

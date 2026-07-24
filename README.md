@@ -20,7 +20,7 @@ npm start
 
 ## Como baixar (usuário final)
 Baixe o instalador ou a versão portátil na página de
-[Releases](https://github.com/MeuBolso/MeuBolso/releases).
+[Releases](https://github.com/MeuBolso/meubolso/releases).
 - **Windows**: `MeuBolso-x.y.z-setup.exe` (instalador) ou `MeuBolso-x.y.z-portable.exe` (portátil, sem instalar)
 - **Linux**: `.AppImage` ou `.deb`
 - **macOS**: `.dmg`
