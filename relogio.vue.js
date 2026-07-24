@@ -98,17 +98,27 @@
           },
           mounted() {
             const self = this;
-            const sinc = () => { try { self.agora = Date.now(); } catch (e) {} };
+            // Ouve mudança de idioma (app.js dispara 'idiomaAlterado').
             if (typeof window.addEventListener === 'function') {
-              window.addEventListener('storage', (e) => { if (e.key === 'appIdioma') sinc(); });
-              window.addEventListener('idiomaAlterado', sinc);
+              window.addEventListener('storage', (e) => { if (e.key === 'appIdioma') self.agora = Date.now(); });
+              window.addEventListener('idiomaAlterado', () => { self.agora = Date.now(); });
             }
-            this._timer = setInterval(sinc, 1000);
+            // storage/idioma não força tick visível; o ticker externo cuida do tick.
           },
-          beforeUnmount() { if (this._timer) clearInterval(this._timer); },
           template: '<span :title="texto" aria-hidden="true">{{ texto }}</span>'
         };
-        Vue.createApp(RelogioBrasilia).mount('#relogio-brasilia');
+        // Captura a instância para o ticker externo empurrar o data.
+        let instancia = null;
+        const app = Vue.createApp(RelogioBrasilia);
+        instancia = app.mount('#relogio-brasilia');
+        // Ticker EXTERNO: não depende do ciclo de vida do Vue
+        // (no Electron com contextIsolation o setInterval do mounted()
+        //  às vezes congela). Este timer vive fora do componente.
+        if (typeof setInterval === 'function') {
+          setInterval(() => {
+            try { if (instancia) instancia.agora = Date.now(); } catch (e) {}
+          }, 1000);
+        }
         return; // Vue assumiu
       } catch (e) {
         console.warn('[relogio.vue] Vue falhou — fallback vanilla.', e);
