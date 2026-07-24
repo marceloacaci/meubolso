@@ -233,19 +233,28 @@ const I18N = {
     'carteira.titulo': 'Carteiras', 'carteira.nova': '+ Nova carteira', 'carteira.nome': 'Nome da carteira',
     'carteira.saldo': 'Saldo', 'carteira.saldoInicial': 'Saldo inicial', 'carteira.total': 'Saldo total',
     'carteira.vazia': 'Nenhuma carteira cadastrada. Crie uma carteira para registrar saldos e usá-los nos pagamentos.',
-    'carteira.editar': 'Editar carteira', 'carteira.excluir': 'Excluir carteira',
+    'carteira.editar': 'Editar carteira', 'carteira.excluir': 'Excluir carteira', 'carteira.confirmExcluir': 'Excluir a carteira "{nome}"? Esta ação não pode ser desfeita.',
+    'form.carteira': 'Carteira de origem', 'carteira.origem': 'Carteira', 'carteira.debitado': 'Débito de',
+    'carteira.saldoInsuficiente': 'Saldo da carteira insuficiente. O saldo ficará negativo. Deseja continuar?',
+    'carteira.comPagamentos': 'Esta carteira possui pagamentos vinculados. Exclua ou reatribua os pagamentos antes de removê-la.',
+    'nenhuma': 'Nenhuma', 'moeda': 'R$',
     'tab.painel': 'Painel', 'tab.resumo': 'Resumo', 'tab.dividas': 'Dívidas', 'tab.pagamentos': 'Pagamentos',
     'tab.vencimentos': 'Vencimentos', 'tab.relatorio': 'Relatório', 'tab.configuracoes': 'Configurações',
     'acao.exportar': '⬇ Exportar', 'acao.importar': '⬆ Importar', 'acao.restaurar': '↩ Restaurar backup',
     'divida.nova': '+ Nova dívida', 'pagamento.novo': '+ Novo pagamento', 'pagamento.gerenciar': 'Gerenciar pagamentos',
     'acao.editar': 'Editar', 'acao.excluir': 'Excluir', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Salvar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Voltar',
+    'acao.fechar': 'Fechar', 'acao.fecharSemSalvar': 'Fechar sem salvar', 'acao.continuarEditando': 'Continuar editando', 'acao.continuar': 'Continuar',
     'acao.concluir': 'Concluir (salvar tudo)', 'acao.salvarParcela': 'Salvar esta parcela',
+    'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar',
+    'divida.excluir': 'Excluir dívida', 'pagamento.excluir': 'Excluir pagamento',
+    'importar.titulo': 'Importar dados', 'restaurar.titulo': 'Restaurar backup',
+    'carteira.saldoInsuficienteTit': 'Saldo insuficiente',
     'form.descricao': 'Descrição', 'form.credor': 'Credor', 'form.categoria': 'Categoria',
     'form.observacao': 'Observação da dívida', 'form.parcelas': 'Parcelas', 'form.divida': 'Dívida',
     'form.valorParcela': 'Valor da parcela', 'form.vencimento': 'Vencimento', 'form.status': 'Status',
     'form.numero': 'Número', 'form.notaParcela': 'Nota da parcela',
-    'form.valorPago': 'Valor pago (R$)', 'form.data': 'Data do pagamento', 'form.nota': 'Nota',
+    'form.valorPago': 'Valor pago', 'form.data': 'Data do pagamento', 'form.nota': 'Nota',
     'label.parcelasPagas': 'Parcelas pagas', 'label.valorPago': 'Valor pago',
     'label.restante': 'Restante', 'label.pagoTotal': '% pago', 'label.restanteTotal': '% restante',
     'empty.dividas': 'Nenhuma dívida cadastrada. Comece adicionando uma.',
@@ -263,7 +272,7 @@ const I18N = {
     'status.pendente': 'Pendente', 'status.pago': 'Pago', 'status.atrasado': 'Atrasado', 'status.negociado': 'Negociado',
     'modal.editarDivida': 'Editar dívida', 'modal.registrarPagamento': 'Registrar pagamento',
     'modal.editarPagamento': 'Editar pagamento', 'aviso.parcelas': 'Preencha os dados de cada uma das ${n} parcela(s).',
-    'toast.dividaAtualizada': 'Dívida atualizada', 'toast.dividaExcluida': 'Dívida excluída',
+    'toast.dividaAtualizada': 'Dívida atualizada', 'toast.dividaExcluida': 'Dívida excluída', 'toast.carteiraExcluida': 'Carteira excluída',
     'gestao.titulo': 'Pagamentos — ', 'gestao.concluir': 'Concluir (salvar tudo)',
     'gestao.valorParcela': 'Valor da parcela', 'gestao.jaPago': 'Já pago nesta parcela', 'gestao.restanteParcela': 'Restante nesta parcela',
     'gestao.salvarParcela': 'Salvar esta parcela', 'gestao.voltar': 'Voltar',
@@ -312,7 +321,7 @@ const I18N = {
     'nivel.continuar': 'Continuar',
     'xp.desconhecido': 'Pontuação',
     'xp.saldoAnterior': 'Pontos acumulados anteriormente', 'xp.saldoAnteriorInfo': 'Antes do registro detalhado',
-    'xp.dividaNova': 'Dívida registrada', 'xp.pagamento': 'Pagamento registrado', 'xp.gestao': 'Gestão realizada', 'xp.acesso': 'Acesso registrado', 'xp.quitou': 'Dívida quitada',
+    'xp.dividaNova': 'Dívida registrada', 'xp.pagamento': 'Pagamento registrado', 'xp.gestao': 'Gestão realizada', 'xp.acesso': 'Acesso registrado', 'xp.quitou': 'Dívida quitada', 'xp.novaCarteira': 'Carteira criada', 'xp.editarCarteira': 'Carteira editada',
     'nivel.nome1': 'Iniciante', 'nivel.nome2': 'Organizador', 'nivel.nome3': 'Controlador', 'nivel.nome4': 'Disciplinado',
     'nivel.nome5': 'Estrategista', 'nivel.nome6': 'Guardião', 'nivel.nome7': 'Mestre', 'nivel.nome8': 'Especialista',
     'nivel.nome9': 'Expert', 'nivel.nome10': 'Lenda das Finanças',
@@ -320,6 +329,7 @@ const I18N = {
     'game.faltamNivel': 'Faltam', 'game.nivel': 'Nível', 'game.log': 'Histórico de pontos', 'game.paraProximo': 'para alcançar o nível', 'game.nivelMax': 'Nível máximo alcançado',
     'game.logVazio': 'Nenhum ponto registrado ainda. Comece cadastrando uma dívida!',
     'game.quests': 'Quests (como pontuar)', 'game.q.nova': 'Cadastrar uma nova dívida', 'game.q.editar': 'Editar uma dívida',
+    'game.q.novaCarteira': 'Criar uma nova carteira', 'game.q.editarCarteira': 'Editar uma carteira',
     'game.q.pag': 'Registrar um pagamento', 'game.q.gestao': 'Concluir a gestão de uma dívida',
     'game.q.quitou': 'Quitar uma dívida por completo', 'game.q.acesso': 'Acesso diário ao app',
     'game.tabela': 'Tabela de níveis', 'game.tituloNivel': 'Título',
@@ -343,19 +353,28 @@ const I18N = {
     'carteira.titulo': 'Wallets', 'carteira.nova': '+ New wallet', 'carteira.nome': 'Wallet name',
     'carteira.saldo': 'Balance', 'carteira.saldoInicial': 'Initial balance', 'carteira.total': 'Total balance',
     'carteira.vazia': 'No wallet registered. Create a wallet to record balances and use them for payments.',
-    'carteira.editar': 'Edit wallet', 'carteira.excluir': 'Delete wallet',
+    'carteira.editar': 'Edit wallet', 'carteira.excluir': 'Delete wallet', 'carteira.confirmExcluir': 'Delete the wallet "{nome}"? This action cannot be undone.',
+    'form.carteira': 'Source wallet', 'carteira.origem': 'Wallet', 'carteira.debitado': 'Debited from',
+    'carteira.saldoInsuficiente': 'Wallet balance is insufficient. The balance will go negative. Continue?',
+    'carteira.comPagamentos': 'This wallet has linked payments. Delete or reassign those payments before removing it.',
+    'nenhuma': 'None', 'moeda': '$',
     'tab.painel': 'Dashboard', 'tab.resumo': 'Summary', 'tab.dividas': 'Debts', 'tab.pagamentos': 'Payments',
     'tab.vencimentos': 'Due dates', 'tab.relatorio': 'Report', 'tab.configuracoes': 'Settings',
     'acao.exportar': '⬇ Export', 'acao.importar': '⬆ Import', 'acao.restaurar': '↩ Restore backup',
     'divida.nova': '+ New debt', 'pagamento.novo': '+ New payment', 'pagamento.gerenciar': 'Manage payments',
     'acao.editar': 'Edit', 'acao.excluir': 'Delete', 'acao.pagar': 'Pay',
     'acao.salvar': 'Save', 'acao.cancelar': 'Cancel', 'acao.voltar': 'Back',
+    'acao.fechar': 'Close', 'acao.fecharSemSalvar': 'Close without saving', 'acao.continuarEditando': 'Keep editing', 'acao.continuar': 'Continue',
+    'acao.importar': 'Import', 'acao.restaurar': 'Restore',
+    'divida.excluir': 'Delete debt', 'pagamento.excluir': 'Delete payment',
+    'importar.titulo': 'Import data', 'restaurar.titulo': 'Restore backup',
+    'carteira.saldoInsuficienteTit': 'Insufficient balance',
     'acao.concluir': 'Finish (save all)', 'acao.salvarParcela': 'Save this installment',
     'form.descricao': 'Description', 'form.credor': 'Creditor', 'form.categoria': 'Category',
     'form.observacao': 'Debt note', 'form.parcelas': 'Installments', 'form.divida': 'Debt',
     'form.valorParcela': 'Installment amount', 'form.vencimento': 'Due date', 'form.status': 'Status',
     'form.numero': 'Number', 'form.notaParcela': 'Installment note',
-    'form.valorPago': 'Amount paid ($)', 'form.data': 'Payment date', 'form.nota': 'Note',
+    'form.valorPago': 'Amount paid', 'form.data': 'Payment date', 'form.nota': 'Note',
     'label.parcelasPagas': 'Paid installments', 'label.valorPago': 'Amount paid',
     'label.restante': 'Remaining', 'label.pagoTotal': '% paid', 'label.restanteTotal': '% remaining',
     'empty.dividas': 'No debts registered. Start by adding one.',
@@ -410,7 +429,7 @@ const I18N = {
     'config.fonte': 'Font size', 'config.idioma': 'Language', 'config.dados': 'Data',
     'nivel.titulo': 'Level', 'nivel.subiu': 'You reached level',
     'xp.dividaNova': 'Debt registered', 'xp.pagamento': 'Payment registered',
-    'xp.gestao': 'Management done', 'xp.acesso': 'Session logged', 'xp.quitou': 'Debt paid off',
+    'xp.gestao': 'Management done', 'xp.acesso': 'Session logged', 'xp.quitou': 'Debt paid off', 'xp.novaCarteira': 'Wallet created', 'xp.editarCarteira': 'Wallet edited',
     'nivel.verDetalhes': 'View details',
     'nivel.celebTitulo': 'Level {n} reached!', 'nivel.celebParabens': 'Congratulations! You leveled up.', 'nivel.celebMotivo': 'Keep progressing to unlock new titles and rewards!',
     'nivel.continuar': 'Continue',
@@ -423,6 +442,7 @@ const I18N = {
     'game.faltamNivel': 'Need', 'game.nivel': 'Level', 'game.log': 'Points history', 'game.paraProximo': 'to reach level', 'game.nivelMax': 'Max level reached',
     'game.logVazio': 'No points recorded yet. Start by adding a debt!',
     'game.quests': 'Quests (how to score)', 'game.q.nova': 'Register a new debt', 'game.q.editar': 'Edit a debt',
+    'game.q.novaCarteira': 'Create a new wallet', 'game.q.editarCarteira': 'Edit a wallet',
     'game.q.pag': 'Record a payment', 'game.q.gestao': 'Finish managing a debt',
     'game.q.quitou': 'Pay off a debt completely', 'game.q.acesso': 'Daily app access',
     'game.tabela': 'Level table', 'game.tituloNivel': 'Title',
@@ -437,7 +457,7 @@ const I18N = {
     'sobre.sistemaOp': 'Operating system', 'sobre.arquitetura': 'Architecture',
     'modal.editarDivida': 'Edit debt', 'modal.registrarPagamento': 'Register payment',
     'modal.editarPagamento': 'Edit payment', 'aviso.parcelas': 'Fill in the data for each of the ${n} installment(s).',
-    'toast.dividaAtualizada': 'Debt updated', 'toast.dividaExcluida': 'Debt deleted',
+    'toast.dividaAtualizada': 'Debt updated', 'toast.dividaExcluida': 'Debt deleted', 'toast.carteiraExcluida': 'Wallet deleted',
     'gestao.titulo': 'Payments — ', 'gestao.concluir': 'Finish (save all)',
     'gestao.valorParcela': 'Installment amount', 'gestao.jaPago': 'Already paid on this installment', 'gestao.restanteParcela': 'Remaining on this installment',
     'gestao.salvarParcela': 'Save this installment', 'gestao.voltar': 'Back',
@@ -453,19 +473,28 @@ const I18N = {
     'carteira.titulo': 'Carteras', 'carteira.nova': '+ Nueva cartera', 'carteira.nome': 'Nombre de la cartera',
     'carteira.saldo': 'Saldo', 'carteira.saldoInicial': 'Saldo inicial', 'carteira.total': 'Saldo total',
     'carteira.vazia': 'Ninguna cartera registrada. Crea una cartera para registrar saldos y usarlos en los pagos.',
-    'carteira.editar': 'Editar cartera', 'carteira.excluir': 'Eliminar cartera',
+    'carteira.editar': 'Editar cartera', 'carteira.excluir': 'Eliminar cartera', 'carteira.confirmExcluir': '¿Eliminar la cartera "{nome}"? Esta acción no se puede deshacer.',
+    'form.carteira': 'Cartera de origen', 'carteira.origem': 'Cartera', 'carteira.debitado': 'Debitado de',
+    'carteira.saldoInsuficiente': 'El saldo de la cartera es insuficiente. Quedará negativo. ¿Continuar?',
+    'carteira.comPagamentos': 'Esta cartera tiene pagos vinculados. Elimina o reasigna esos pagos antes de quitarla.',
+    'nenhuma': 'Ninguna', 'moeda': 'R$',
     'tab.painel': 'Panel', 'tab.resumo': 'Resumen', 'tab.dividas': 'Deudas', 'tab.pagamentos': 'Pagos',
     'tab.vencimentos': 'Vencimientos', 'tab.relatorio': 'Informe', 'tab.configuracoes': 'Ajustes',
     'acao.exportar': '⬇ Exportar', 'acao.importar': '⬆ Importar', 'acao.restaurar': '↩ Restaurar copia',
     'divida.nova': '+ Nueva deuda', 'pagamento.novo': '+ Nuevo pago', 'pagamento.gerenciar': 'Gestionar pagos',
     'acao.editar': 'Editar', 'acao.excluir': 'Eliminar', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Guardar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Volver',
+    'acao.fechar': 'Cerrar', 'acao.fecharSemSalvar': 'Cerrar sin guardar', 'acao.continuarEditando': 'Seguir editando', 'acao.continuar': 'Continuar',
+    'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar',
+    'divida.excluir': 'Eliminar deuda', 'pagamento.excluir': 'Eliminar pago',
+    'importar.titulo': 'Importar datos', 'restaurar.titulo': 'Restaurar copia',
+    'carteira.saldoInsuficienteTit': 'Saldo insuficiente',
     'acao.concluir': 'Finalizar (guardar todo)', 'acao.salvarParcela': 'Guardar esta cuota',
     'form.descricao': 'Descripción', 'form.credor': 'Acreedor', 'form.categoria': 'Categoría',
     'form.observacao': 'Nota de la deuda', 'form.parcelas': 'Cuotas', 'form.divida': 'Deuda',
     'form.valorParcela': 'Importe de la cuota', 'form.vencimento': 'Vencimiento', 'form.status': 'Estado',
     'form.numero': 'Número', 'form.notaParcela': 'Nota de la cuota',
-    'form.valorPago': 'Importe pagado ($)', 'form.data': 'Fecha de pago', 'form.nota': 'Nota',
+    'form.valorPago': 'Importe pagado', 'form.data': 'Fecha de pago', 'form.nota': 'Nota',
     'label.parcelasPagas': 'Cuotas pagadas', 'label.valorPago': 'Importe pagado',
     'label.restante': 'Restante', 'label.pagoTotal': '% pagado', 'label.restanteTotal': '% restante',
     'empty.dividas': 'Ninguna deuda registrada. Empiece agregando una.',
@@ -520,7 +549,7 @@ const I18N = {
     'config.fonte': 'Tamaño de letra', 'config.idioma': 'Idioma', 'config.dados': 'Datos',
     'nivel.titulo': 'Nivel', 'nivel.subiu': 'Subiste al nivel',
     'xp.dividaNova': 'Deuda registrada', 'xp.pagamento': 'Pago registrado',
-    'xp.gestao': 'Gestion completa', 'xp.acesso': 'Acceso registrado', 'xp.quitou': 'Deuda saldada',
+    'xp.gestao': 'Gestion completa', 'xp.acesso': 'Acceso registrado', 'xp.quitou': 'Deuda saldada', 'xp.novaCarteira': 'Cartera creada', 'xp.editarCarteira': 'Cartera editada',
     'nivel.verDetalhes': 'Ver detalles',
     'nivel.celebTitulo': '¡Nivel {n} alcanzado!', 'nivel.celebParabens': '¡Felicidades! Subiste de nivel.', 'nivel.celebMotivo': '¡Sigue progresando para desbloquear nuevos títulos y recompensas!',
     'nivel.continuar': 'Continuar',
@@ -533,6 +562,7 @@ const I18N = {
     'game.faltamNivel': 'Faltan', 'game.nivel': 'Nivel', 'game.log': 'Historial de puntos', 'game.paraProximo': 'para alcanzar el nivel', 'game.nivelMax': 'Nivel máximo alcanzado',
     'game.logVazio': 'Ningún punto registrado aún. ¡Empieza agregando una deuda!',
     'game.quests': 'Misiones (cómo puntuar)', 'game.q.nova': 'Registrar una nueva deuda', 'game.q.editar': 'Editar una deuda',
+    'game.q.novaCarteira': 'Crear una nueva cartera', 'game.q.editarCarteira': 'Editar una cartera',
     'game.q.pag': 'Registrar un pago', 'game.q.gestao': 'Terminar de gestionar una deuda',
     'game.q.quitou': 'Pagar una deuda por completo', 'game.q.acesso': 'Acceso diario a la app',
     'game.tabela': 'Tabla de niveles', 'game.tituloNivel': 'Título',
@@ -547,7 +577,7 @@ const I18N = {
     'sobre.sistemaOp': 'Sistema operativo', 'sobre.arquitetura': 'Arquitectura',
     'modal.editarDivida': 'Editar deuda', 'modal.registrarPagamento': 'Registrar pago',
     'modal.editarPagamento': 'Editar pago', 'aviso.parcelas': 'Complete los datos de cada una de las ${n} cuota(s).',
-    'toast.dividaAtualizada': 'Deuda actualizada', 'toast.dividaExcluida': 'Deuda eliminada',
+    'toast.dividaAtualizada': 'Deuda actualizada', 'toast.dividaExcluida': 'Deuda eliminada', 'toast.carteiraExcluida': 'Cartera eliminada',
     'gestao.titulo': 'Pagos — ', 'gestao.concluir': 'Finalizar (guardar todo)',
     'gestao.valorParcela': 'Importe de la cuota', 'gestao.jaPago': 'Ya pagado en esta cuota', 'gestao.restanteParcela': 'Restante en esta cuota',
     'gestao.salvarParcela': 'Guardar esta cuota', 'gestao.voltar': 'Volver',
@@ -628,18 +658,23 @@ function atualizarBadges() {
   const dividasAtivas = estado.dividas.length;
   const pendentes = estado.dividas.reduce((acc, d) =>
     acc + (d.parcelas || []).filter(p => (p.status || 'pendente') !== 'pago').length, 0);
-  const { atrasadas } = calcularVencimentos();
+  const { proximas, atrasadas } = calcularVencimentos();
 
-  const setBadge = (id, valor) => {
+  const setBadge = (id, valor, alerta = false) => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (!valor) { el.hidden = true; el.textContent = ''; return; }
+    if (!valor) { el.hidden = true; el.textContent = ''; el.classList.remove('nav-badge--alerta'); return; }
     el.hidden = false;
     el.textContent = String(valor);
+    // Vermelho (--alerta) SÓ quando há vencimentos PRÓXIMOS (atenção iminente).
+    el.classList.toggle('nav-badge--alerta', alerta);
   };
   setBadge('badge-dividas', dividasAtivas);
   setBadge('badge-pagamentos', pendentes);
-  setBadge('badge-vencimentos', atrasadas.length);
+  // O badge de vencimentos mostra o total de dívidas próximas E vencidas.
+  // Fica vermelho (--alerta) apenas se houver 1+ (atenção iminente).
+  const totalVenc = proximas.length + atrasadas.length;
+  setBadge('badge-vencimentos', totalVenc, totalVenc > 0);
 }
 
 function calcularMetricas() {
@@ -889,6 +924,8 @@ const MAPA_MOTIVO = {
   'xp.gestao':        { ico: '🗂️', quest: 'game.q.gestao' },
   'xp.quitou':        { ico: '🏁', quest: 'game.q.quitou' },
   'xp.acesso':        { ico: '🚪', quest: 'game.q.acesso' },
+  'xp.novaCarteira':  { ico: '🪪', quest: 'game.q.novaCarteira' },
+  'xp.editarCarteira':{ ico: '✏️', quest: 'game.q.editarCarteira' },
   'xp.desconhecido':  { ico: '✏️', quest: 'game.q.editar' },
   'xp.saldoAnterior': { ico: '📦', quest: null }
 };
@@ -949,21 +986,8 @@ const fmtHoraRelogio = {
   en: new Intl.DateTimeFormat('en-US', { timeZone: 'America/Sao_Paulo', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }),
   es: new Intl.DateTimeFormat('es-ES', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 };
-function atualizarRelogioBrasilia() {
-  const el = document.getElementById('relogio-brasilia');
-  if (!el) return;
-  const lang = (idiomaAtual === 'en' || idiomaAtual === 'es') ? idiomaAtual : 'pt';
-  let txt = '🕐 ';
-  try {
-    const dia = fmtDiaRelogio[lang].format(new Date());
-    const hora = fmtHoraRelogio[lang].format(new Date());
-    // Garante a primeira letra do dia da semana em maiúsculo (independente do idioma/locale).
-    const diaCap = dia.charAt(0).toUpperCase() + dia.slice(1);
-    txt += `${diaCap}, ${hora} (${t('relogio.fuso')})`;
-  }
-  catch (e) { txt += new Date().toLocaleString('pt-BR'); }
-  el.textContent = txt;
-}
+// O relógio de Brasília agora é um componente Vue isolado (relogio.vue.js),
+// montado em #relógio-brasília, fora do <main>. O app vanilla não o toca.
 function ganharXP(pontos, motivo) {
   if (!estado.gamificacao) estado.gamificacao = { xp: 0, nivel: 1, historico: [] };
   if (!estado.gamificacao.historico) estado.gamificacao.historico = [];
@@ -1173,8 +1197,6 @@ function setView(v) {
 
 // ---------- Modal ----------
 function abrirModal(titulo, campos, onSubmit) {
-  document.getElementById('modal-titulo').textContent = titulo;
-
   // Constrói HTML como string. Substitui o modal-card inteiro, garantindo
   // que não haja estado residual entre aberturas (handlers, .value, focus).
   const modalCard = document.querySelector('.modal-card');
@@ -1266,10 +1288,72 @@ function modalFoiAlterado() {
 }
 // Fecha o modal, mas pergunta confirmação se houve alterações não salvas.
 function tentarFecharModal() {
-  if (modalFoiAlterado()) {
-    if (!confirm(t('msg.confirmFecharSemSalvar'))) return;
-  }
-  fecharModal();
+  if (!modalFoiAlterado()) { fecharModal(); return; }
+  abrirConfirmacao({
+    titulo: t('acao.fechar'),
+    mensagem: t('msg.confirmFecharSemSalvar'),
+    textoConfirmar: t('acao.fecharSemSalvar'),
+    textoCancelar: t('acao.continuarEditando'),
+    perigo: false,
+    aoConfirmar: () => fecharModal()
+  });
+}
+
+// ---------- Modal de confirmação customizado (visual consistente com o sistema) ----------
+// Substitui o `confirm()` nativo (janela do SO) por um modal estilizado igual aos
+// demais do app. Reaproveita o overlay #modal e o .modal-card para manter o mesmo
+// visual, elementos e botões (Cancelar = btn-ghost, Confirmar = btn-danger/primary).
+// opções: { titulo, mensagem, textoConfirmar, textoCancelar, perigo, aoConfirmar, aoCancelar }
+// Retorna uma Promise<boolean> que resolve true (confirmou) ou false (cancelou).
+function abrirConfirmacao(opts) {
+  return new Promise((resolve) => {
+    const o = opts || {};
+    const modal = document.getElementById('modal');
+    const modalCard = document.querySelector('.modal-card');
+    if (!modal || !modalCard) { resolve(false); return; }
+    modalCard.classList.remove('modal-card--gestao');
+
+    // Preserva o conteúdo do modal "pai" (ex.: formulário em edição) para
+    // restaurá-lo caso o usuário CANCELE a confirmação (continuar editando).
+    const htmlAnterior = modalCard.innerHTML;
+
+    const escapeAttr = (s) => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const isPerigo = o.perigo !== false; // perigo por padrão (exclusões)
+    const clsConfirmar = isPerigo ? 'btn btn-danger' : 'btn btn-primary';
+    modalCard.innerHTML = `
+      <div class="confirm-card ${isPerigo ? 'confirm-card--perigo' : ''}">
+        <div class="confirm-ico" aria-hidden="true">${isPerigo ? '⚠️' : 'ℹ️'}</div>
+        <h2 id="confirm-titulo" class="confirm-titulo">${escapeHtml(o.titulo || t('acao.excluir'))}</h2>
+        <p class="confirm-msg">${escapeHtml(o.mensagem || '')}</p>
+        <div class="form-actions confirm-acoes">
+          <button type="button" class="btn btn-ghost" id="confirm-cancelar">${escapeHtml(o.textoCancelar || t('acao.cancelar'))}</button>
+          <button type="button" class="btn ${isPerigo ? 'btn-danger' : 'btn-primary'}" id="confirm-ok">${escapeHtml(o.textoConfirmar || t('acao.excluir'))}</button>
+        </div>
+      </div>`;
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+
+    const restaurarAnterior = () => { modalCard.innerHTML = htmlAnterior; };
+
+    const btnCancelar = document.getElementById('confirm-cancelar');
+    const btnOk = document.getElementById('confirm-ok');
+    // Cancelar = NÃO sair: restaura o formulário e mantém o modal aberto.
+    if (btnCancelar) btnCancelar.onclick = () => {
+      restaurarAnterior();
+      if (typeof o.aoCancelar === 'function') o.aoCancelar();
+      resolve(false);
+    };
+    // Confirmar = executa a ação e fecha o modal.
+    if (btnOk) btnOk.onclick = () => {
+      if (typeof o.aoConfirmar === 'function') o.aoConfirmar();
+      fecharModal();
+      resolve(true);
+    };
+    // Foco no botão de confirmação para navegação por teclado.
+    if (btnOk) { window.api.flashFoco(); setTimeout(() => btnOk.focus(), 60); }
+  });
 }
 
 // Delegação: o botão "X" (fechar) em qualquer modal dispara a tentativa de fechar.
@@ -1305,7 +1389,7 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
         <div class="parcela-topo"><span>Parcela ${i + 1}</span></div>
         <div class="parcela-grid">
           <div class="campo">
-            <label>Valor (R$)</label>
+            <label>Valor (${t('moeda')})</label>
             <input type="number" step="0.01" min="0" name="pv${i}" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0) : ''}" />
           </div>
           <div class="campo">
@@ -1460,12 +1544,20 @@ function editarDivida(d) {
 }
 
 function excluirDivida(d) {
-  if (!confirm(t('msg.confirmExcluirDivida'))) return;
-  estado.dividas = estado.dividas.filter(x => x.id !== d.id);
-  estado.pagamentos = estado.pagamentos.filter(p => p.dividaId !== d.id);
-  persistir().then(render);
-  ganharXP(-10);
-  toast(t('toast.dividaExcluida'));
+  abrirConfirmacao({
+    titulo: t('divida.excluir'),
+    mensagem: t('msg.confirmExcluirDivida'),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.dividas = estado.dividas.filter(x => x.id !== d.id);
+      estado.pagamentos = estado.pagamentos.filter(p => p.dividaId !== d.id);
+      await persistir();
+      ganharXP(-10);
+      toast(t('toast.dividaExcluida'));
+      render();
+    }
+  });
 }
 
 // ---------- Ações: Pagamentos ----------
@@ -1496,9 +1588,10 @@ function novoPagamento(dividaPreSelecionada = null) {
   abrirModal(t('modal.registrarPagamento'), [
     { name: 'dividaId', label: t('form.divida'), type: 'select', value: preSelecDiv?.id || opcoes[0].value, options: opcoes },
     { name: 'parcelaId', label: t('pagamento.parcela'), type: 'select', value: parcelaInicial, options: opcoesParcela(preSelecDiv) },
-    { name: 'valor', label: t('form.valorPago'), type: 'number', step: '0.01', placeholder: '0,00', required: true },
+    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', required: true },
     { name: 'data', label: t('form.dataPagamento'), type: 'date', value: hoje(), required: true },
-    { name: 'nota', label: t('form.nota'), type: 'text', placeholder: 'Opcional' }
+    { name: 'nota', label: t('form.nota'), type: 'text', placeholder: 'Opcional' },
+    { name: 'carteiraId', label: t('form.carteira'), type: 'select', value: '', options: [{ value: '', label: t('nenhuma') || '—' }].concat((estado.carteiras || []).map(c => ({ value: c.id, label: c.nome }))) }
   ], async (v) => {
     const divida = estado.dividas.find(d => d.id === v.dividaId);
     if (!divida) return;
@@ -1506,14 +1599,18 @@ function novoPagamento(dividaPreSelecionada = null) {
     // Vincula à parcela escolhida no formulário (cada parcela tratada isoladamente).
     const parcelaId = v.parcelaId || (divida.parcelas?.[0]?.id || null);
 
-    estado.pagamentos.push({
+    const pagamento = {
       id: uid(),
       dividaId: divida.id,
       parcelaId,
       valor: Number(v.valor) || 0,
       data: v.data,
-      nota: v.nota || ''
-    });
+      nota: v.nota || '',
+      carteiraId: v.carteiraId || null
+    };
+    const r = aplicarDebitoCarteira(pagamento, 0, null);
+    if (!r.ok) { render(); return; } // usuário cancelou saldo insuficiente
+    estado.pagamentos.push(pagamento);
     await persistir();
     toast(t('toast.pagamentoRegistrado'), 'success');
     ganharXP(15, t('xp.pagamento'));
@@ -1575,7 +1672,7 @@ function editarPagamento(p) {
       label: `${d.descricao} — ${fmt.format(saldoDivida(d))}`
     })) },
     { name: 'parcelaId', label: t('pagamento.parcela'), type: 'select', value: pagamento.parcelaId || '', options: opcoesParcela(divida) },
-    { name: 'valor', label: t('form.valorPago'), type: 'number', step: '0.01', value: String(Number(pagamento.valor) || 0), required: true },
+    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', value: String(Number(pagamento.valor) || 0), required: true },
     { name: 'data', label: t('form.dataPagamento'), type: 'date', value: pagamento.data || hoje(), required: true },
     { name: 'nota', label: t('form.nota'), type: 'text', value: pagamento.nota || '', placeholder: 'Opcional' }
   ], async (v) => {
@@ -1781,7 +1878,7 @@ function lancarPagamentoParcela(d, parc) {
     <form id="form-parcela" novalidate>
       <div id="campos-form">
         <div class="campo">
-          <label>${t('form.valorPago')}</label>
+          <label>${t('form.valorPago')} (${t('moeda')})</label>
           <input type="number" step="0.01" min="0" name="valor" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0) : ''}" required />
         </div>
         <div class="campo">
@@ -1791,6 +1888,13 @@ function lancarPagamentoParcela(d, parc) {
         <div class="campo full">
           <label>${t('form.nota')}</label>
           <input type="text" name="nota" placeholder="Opcional" value="${existente ? escapeHtml(existente.nota || '') : ''}" />
+        </div>
+        <div class="campo full">
+          <label>${t('form.carteira')}</label>
+          <select name="carteiraId">
+            <option value="">${t('nenhuma') || '—'}</option>
+            ${(estado.carteiras || []).map(c => `<option value="${c.id}" ${existente && existente.carteiraId === c.id ? 'selected' : ''}>${escapeHtml(c.nome)}</option>`).join('')}
+          </select>
         </div>
       </div>
       <div class="form-actions">
@@ -1810,12 +1914,18 @@ function lancarPagamentoParcela(d, parc) {
     const valor = Number(form.querySelector('[name="valor"]').value) || 0;
     const data = form.querySelector('[name="data"]').value || hoje();
     const nota = form.querySelector('[name="nota"]').value || '';
+    const carteiraId = form.querySelector('[name="carteiraId"]').value || null;
+    const valorAntigo = existente ? (Number(existente.valor) || 0) : 0;
+    const carteiraIdAntigo = existente ? (existente.carteiraId || null) : null;
     if (existente) {
-      Object.assign(existente, { valor, data, nota });
+      Object.assign(existente, { valor, data, nota, carteiraId });
+      const r = aplicarDebitoCarteira(existente, valorAntigo, carteiraIdAntigo);
+      if (!r.ok) { abrirGestaoDivida(d); return; } // cancelou saldo insuficiente
     } else {
-      estado.pagamentos.push({
-        id: uid(), dividaId: d.id, parcelaId: parc.id, valor, data, nota
-      });
+      const pagamento = { id: uid(), dividaId: d.id, parcelaId: parc.id, valor, data, nota, carteiraId };
+      const r = aplicarDebitoCarteira(pagamento, 0, null);
+      if (!r.ok) { abrirGestaoDivida(d); return; } // cancelou saldo insuficiente
+      estado.pagamentos.push(pagamento);
     }
     // Atualiza o status da parcela conforme o pagamento (quitada se pago integralmente)
     const novoPago = valorPagoParcela(d, parc.id);
@@ -1838,11 +1948,19 @@ function lancarPagamentoParcela(d, parc) {
 }
 
 function excluirPagamento(p) {
-  if (!confirm(t('msg.confirmExcluirPagamento'))) return;
-  estado.pagamentos = estado.pagamentos.filter(x => x.id !== p.id);
-  persistir().then(render);
-  ganharXP(-5);
-  toast(t('toast.pagamentoExcluido'));
+  abrirConfirmacao({
+    titulo: t('pagamento.excluir'),
+    mensagem: t('msg.confirmExcluirPagamento'),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.pagamentos = estado.pagamentos.filter(x => x.id !== p.id);
+      await persistir();
+      ganharXP(-5);
+      toast(t('toast.pagamentoExcluido'));
+      render();
+    }
+  });
 }
 
 // ---------- Renderização ----------
@@ -2194,8 +2312,10 @@ function renderGamificacao() {
     { ico: '📝', tit: t('game.q.nova'), pts: '+10 XP' },
     { ico: '✏️', tit: t('game.q.editar'), pts: '+5 XP' },
     { ico: '💳', tit: t('game.q.pag'), pts: '+15 XP' },
-    { ico: '🗂️', tit: t('game.q.gestao'), pts: '+30 XP' },
+    { ico: '🗂️', tit: t('game.q.gestao'), pts: '+5 XP' },
     { ico: '🏁', tit: t('game.q.quitou'), pts: '+50 XP' },
+    { ico: '🪪', tit: t('game.q.novaCarteira'), pts: '+20 XP' },
+    { ico: '✏️', tit: t('game.q.editarCarteira'), pts: '+5 XP' },
     { ico: '🚪', tit: t('game.q.acesso'), pts: '+3 XP' }
   ];
   const questsHtml = `
@@ -2337,6 +2457,7 @@ function renderCarteiras() {
              <div class="carteira-info">
                <div class="carteira-nome">${escapeHtml(c.nome)}</div>
                <div class="carteira-saldo">${fmt.format(Number(c.saldo) || 0)}</div>
+              <div class="carteira-meta">${t('carteira.origem')}: ${qtdPagos(c.id)}</div>
              </div>
              <div class="carteira-acoes">
                <button class="btn-icon" data-acao="editar-carteira" data-id="${c.id}" title="${t('carteira.editar')}">${t('acao.editar')}</button>
@@ -2357,10 +2478,59 @@ function renderCarteiras() {
   `;
 }
 
+// ---------- Débito de carteira nos pagamentos ----------
+function qtdPagos(carteiraId) {
+  return (estado.pagamentos || []).filter(p => p.carteiraId === carteiraId).length;
+}
+function carteiraPorId(id) { return (estado.carteiras || []).find(c => c.id === id) || null; }
+
+// Aplica o débito de uma carteira num pagamento (estorna a antiga, debita a nova).
+// É async porque a confirmação de saldo insuficiente usa o modal estilizado
+// (o confirm() nativo não funciona no Electron com contextIsolation).
+// Retorna { ok, insuficiente }.
+async function aplicarDebitoCarteira(pagamento, valorAntigo, carteiraIdAntigo) {
+  const vNovo = Number(pagamento.valor) || 0;
+  const vAntigo = Number(valorAntigo) || 0;
+  const cNova = carteiraPorId(pagamento.carteiraId);
+  const cAntiga = carteiraPorId(carteiraIdAntigo);
+
+  // Estorna da carteira antiga (se havia e é diferente da nova)
+  if (cAntiga && cAntiga.id !== (pagamento.carteiraId || null)) {
+    cAntiga.saldo = (Number(cAntiga.saldo) || 0) + vAntigo;
+  }
+  // Aplica na nova (se informada e for diferente da antiga)
+  if (cNova && cNova.id !== (carteiraIdAntigo || null)) {
+    const saldoFinal = (Number(cNova.saldo) || 0) - vNovo;
+    if (saldoFinal < 0) {
+      const confirmou = await abrirConfirmacao({
+        titulo: t('carteira.saldoInsuficienteTit'),
+        mensagem: t('carteira.saldoInsuficiente'),
+        textoConfirmar: t('acao.continuar'),
+        textoCancelar: t('acao.cancelar'),
+        perigo: true
+      });
+      if (!confirmou) {
+        // Reverte o estorno da antiga e aborta.
+        if (cAntiga && cAntiga.id !== (pagamento.carteiraId || null)) {
+          cAntiga.saldo = (Number(cAntiga.saldo) || 0) - vAntigo;
+        }
+        return { ok: false, insuficiente: true };
+      }
+    }
+    cNova.saldo = saldoFinal;
+  }
+  return { ok: true, insuficiente: false };
+}
+
+function estornarDebitoCarteira(pagamento) {
+  const c = carteiraPorId(pagamento.carteiraId);
+  if (c) c.saldo = (Number(c.saldo) || 0) + (Number(pagamento.valor) || 0);
+}
+
 function novaCarteira() {
   abrirModal(t('carteira.nova').replace(/^\+\s*/, '') || t('carteira.titulo'), [
     { name: 'nome', label: t('carteira.nome'), type: 'text', placeholder: 'Ex: Conta corrente', required: true },
-    { name: 'saldo', label: t('carteira.saldoInicial'), type: 'number', step: '0.01', placeholder: '0,00', value: '0', required: true }
+    { name: 'saldo', label: t('carteira.saldoInicial') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', value: '0', required: true }
   ], async (v) => {
     estado.carteiras.push({
       id: uid(),
@@ -2370,21 +2540,22 @@ function novaCarteira() {
     });
     await persistir();
     toast(t('toast.dividaSalva'), 'success');
+    ganharXP(20, t('xp.novaCarteira'));
     render();
   });
 }
 
-function editarCarteira(id) {
-  const c = estado.carteiras.find(x => x.id === id);
+function editarCarteira(c) {
   if (!c) return;
   abrirModal(t('carteira.editar'), [
     { name: 'nome', label: t('carteira.nome'), type: 'text', value: c.nome, required: true },
-    { name: 'saldo', label: t('carteira.saldo'), type: 'number', step: '0.01', value: String(c.saldo), required: true }
+    { name: 'saldo', label: t('carteira.saldo') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', value: String(c.saldo), required: true }
   ], async (v) => {
     c.nome = v.nome.trim();
     c.saldo = Number(v.saldo) || 0;
     await persistir();
     toast(t('toast.dividaAtualizada'), 'success');
+    ganharXP(5, t('xp.editarCarteira'));
     render();
   });
 }
@@ -2392,11 +2563,18 @@ function editarCarteira(id) {
 async function excluirCarteira(id) {
   const c = estado.carteiras.find(x => x.id === id);
   if (!c) return;
-  if (!confirm(t('msg.confirmExcluirDivida').replace('esta dívida', 'esta carteira'))) return;
-  estado.carteiras = estado.carteiras.filter(x => x.id !== id);
-  await persistir();
-  toast(t('toast.dividaExcluida'), 'success');
-  render();
+  abrirConfirmacao({
+    titulo: t('carteira.excluir'),
+    mensagem: t('carteira.confirmExcluir').replace('{nome}', c.nome),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.carteiras = estado.carteiras.filter(x => x.id !== id);
+      await persistir();
+      toast(t('toast.carteiraExcluida'), 'success');
+      render();
+    }
+  });
 }
 
 function renderDividas() {
@@ -2617,16 +2795,22 @@ async function importarDados() {
   const msg = atuais > 0
     ? `Você já tem ${atuais} registros. Substituir pelos ${novos} do arquivo importado?`
     : `Importar ${novos} registros?`;
-  if (!confirm(msg)) return;
-
-  estado = {
-    dividas: r.dados.dividas,
-    pagamentos: r.dados.pagamentos,
-    configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
-  };
-  await persistir();
-  toast(t('toast.dadosImportados'), 'success');
-  render();
+  abrirConfirmacao({
+    titulo: t('importar.titulo'),
+    mensagem: msg,
+    textoConfirmar: t('acao.importar'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado = {
+        dividas: r.dados.dividas,
+        pagamentos: r.dados.pagamentos,
+        configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
+      };
+      await persistir();
+      toast(t('toast.dadosImportados'), 'success');
+      render();
+    }
+  });
 }
 
 async function restaurarBackup() {
@@ -2640,26 +2824,32 @@ async function restaurarBackup() {
   const msg = atuais > 0
     ? `Backup de ${dataLocal}.\n\nIsso substituirá os ${atuais} registros atuais pelo conteúdo do backup.\n\nContinuar?`
     : `Backup de ${dataLocal}.\n\nRestaurar este backup?`;
-  if (!confirm(msg)) return;
-
-  const r = await window.api.restaurar();
-  if (!r.ok) {
-    toast(r.erro || 'Erro ao restaurar', 'error');
-    return;
-  }
-  estado = {
-    dividas: r.dados.dividas,
-    pagamentos: r.dados.pagamentos,
-    configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
-  };
-  await persistir();
-  // Respiro após IPC pesado para o compositor se estabilizar.
-  await new Promise(resolve => setTimeout(resolve, 300));
-  toast(t('toast.backupRestaurado'), 'success');
-  render();
-  // Destrava o foco dos inputs (equivalente a minimizar/maximizar a janela,
-  // mas sem interação manual do usuário).
-  await window.api.flashFoco();
+  abrirConfirmacao({
+    titulo: t('restaurar.titulo'),
+    mensagem: msg,
+    textoConfirmar: t('acao.restaurar'),
+    perigo: true,
+    aoConfirmar: async () => {
+      const r = await window.api.restaurar();
+      if (!r.ok) {
+        toast(r.erro || 'Erro ao restaurar', 'error');
+        return;
+      }
+      estado = {
+        dividas: r.dados.dividas,
+        pagamentos: r.dados.pagamentos,
+        configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
+      };
+      await persistir();
+      // Respiro após IPC pesado para o compositor se estabilizar.
+      await new Promise(resolve => setTimeout(resolve, 300));
+      toast(t('toast.backupRestaurado'), 'success');
+      render();
+      // Destrava o foco dos inputs (equivalente a minimizar/maximizar a janela,
+      // mas sem interação manual do usuário).
+      await window.api.flashFoco();
+    }
+  });
 }
 
 // ---------- Inicialização ----------
@@ -2731,7 +2921,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     ganharXP(3, t('xp.acesso'));
   }
   render();
-  // Relógio de Brasília: atualiza imediatamente e a cada segundo.
-  atualizarRelogioBrasilia();
-  setInterval(atualizarRelogioBrasilia, 1000);
+  // Relógio de Brasília: atualizado pelo componente Vue (relogio.vue.js).
 });

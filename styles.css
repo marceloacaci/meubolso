@@ -72,6 +72,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .carteira-nome { font-weight: 600; font-size: 14px; color: var(--text); }
 .carteira-saldo { font-weight: 700; font-size: 16px; color: var(--primary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.carteira-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.tag-carteira { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: 11px; background: var(--primary); color: #fff; }
 .carteira-acoes { display: flex; gap: 6px; flex-shrink: 0; }
 
 .sidebar-nav { display: flex; flex-direction: column; gap: 14px; flex: 1; }
@@ -296,6 +298,45 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   gap: 8px;
   margin-top: 20px;
 }
+
+/* Modal de confirmação customizado (substitui o confirm() nativo) */
+.confirm-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centraliza ícone, título e mensagem (em cima) */
+  text-align: center;
+  padding: 12px 8px 4px;
+  gap: 4px;
+}
+.confirm-ico {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.confirm-titulo {
+  font-size: 18px;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+.confirm-msg {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 auto 4px;
+  max-width: 420px;
+  line-height: 1.5;
+}
+.confirm-acoes {
+  justify-content: center;
+  margin-top: 22px;
+}
+.confirm-card--perigo .confirm-ico { filter: none; }
+/* Botão de perigo (exclusão) — usa a cor de perigo do tema */
+.btn-danger {
+  background: var(--danger, #c1121f);
+  color: #fff;
+  border: 1px solid var(--danger, #c1121f);
+}
+.btn-danger:hover { background: #a30d18; }
 
 /* Toast */
 .toast {
