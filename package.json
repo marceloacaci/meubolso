@@ -42,17 +42,15 @@
         { "target": "portable", "arch": "x64" }
       ],
       "artifactName": "${productName}-${version}-setup.${ext}",
-      "portableArtifactName": "${productName}-${version}-portable.${ext}"
+      "portable": {
+        "artifactName": "${productName}-${version}-portable.${ext}"
+      }
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "artifactName": "${productName}-${version}-setup.${ext}"
-    },
-    "portable": {
-      "artifactName": "${productName}-${version}-portable.${ext}"
+      "createDesktopShortcut": true
     },
     "linux": {
       "target": [
