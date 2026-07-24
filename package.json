@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MeuBolso — gerenciador de finanças pessoais minimalista para dívidas, empréstimos e cartão de crédito (desktop, 100% local)",
   "main": "main.js",
-  "author": "Marcelo Acácio",
+  "author": "Marcelo Acácio <dev@meubolso.app>",
   "license": "MIT",
   "homepage": "https://github.com/MeuBolso/meubolso#readme",
   "repository": {
