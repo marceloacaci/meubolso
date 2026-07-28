@@ -9,5 +9,7 @@ contextBridge.exposeInMainWorld('api', {
   importar: () => ipcRenderer.invoke('dados:importar'),
   restaurar: () => ipcRenderer.invoke('dados:restaurar'),
   backupInfo: () => ipcRenderer.invoke('dados:backup-info'),
-  flashFoco: () => ipcRenderer.invoke('janela:flash-foco')
+  flashFoco: () => ipcRenderer.invoke('janela:flash-foco'),
+  // Abre um link externo (http/https) no navegador padrão do sistema.
+  abrirLink: (url) => ipcRenderer.invoke('link:abrir', url)
 });

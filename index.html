@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';" />
   <title>MeuBolso</title>
+  <!-- Bootstrap 5.3.3 (vendored, offline). Carregado ANTES do styles.css para
+       que a paleta customizada do app sobrescreva as variáveis --bs-* do tema. -->
+  <link rel="stylesheet" href="vendor/bootstrap.min.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,52 +15,58 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-topo">
       <div class="logo">
-        <span class="logo-ico">🪙</span>
+        <span class="logo-ico" data-ico="moeda"></span>
         <span class="logo-titulo" id="app-titulo">MeuBolso</span>
       </div>
     </div>
 
-    <button class="btn btn-primary btn-cta" data-acao="nova-divida">＋ <span class="cta-label" data-i18n="cta.novaDivida">Nova dívida</span></button>
-    <button class="btn btn-primary btn-cta" data-acao="novo-pagamento">＋ <span class="cta-label" data-i18n="cta.novoPagamento">Novo pagamento</span></button>
+    <button class="btn btn-primary btn-cta" data-acao="nova-divida"><span data-ico="mais"></span> <span class="cta-label" data-i18n="cta.novaDivida">Nova dívida</span></button>
+    <button class="btn btn-primary btn-cta" data-acao="novo-pagamento"><span data-ico="mais"></span> <span class="cta-label" data-i18n="cta.novoPagamento">Novo pagamento</span></button>
 
     <nav class="sidebar-nav" aria-label="Navegação principal">
       <div class="nav-grupo">
         <span class="nav-grupo-titulo" data-i18n="nav.grupo.principal">Principal</span>
-        <button class="nav-item tab active" data-view="painel">
-          <span class="nav-ico">📊</span><span class="nav-label">Painel</span>
-        </button>
-        <button class="nav-item tab" data-view="dividas">
-          <span class="nav-ico">📋</span><span class="nav-label">Dívidas</span>
-          <span class="nav-badge" id="badge-dividas" hidden></span>
-        </button>
-        <button class="nav-item tab" data-view="pagamentos">
-          <span class="nav-ico">💳</span><span class="nav-label">Pagamentos</span>
-          <span class="nav-badge" id="badge-pagamentos" hidden></span>
-        </button>
-        <button class="nav-item tab" data-view="vencimentos">
-          <span class="nav-ico">🗓️</span><span class="nav-label">Vencimentos</span>
-          <span class="nav-badge nav-badge--alerta" id="badge-vencimentos" hidden></span>
-        </button>
-        <button class="nav-item tab" data-view="carteiras">
-          <span class="nav-ico">🪪</span><span class="nav-label" data-i18n="tab.carteiras">Carteiras</span>
-        </button>
+        <div class="nav nav-pills flex-column">
+          <button class="nav-link tab active" data-view="painel">
+            <span class="nav-ico" data-ico="painel"></span><span class="nav-label">Painel</span>
+          </button>
+          <button class="nav-link tab" data-view="dividas">
+            <span class="nav-ico" data-ico="dividas"></span><span class="nav-label">Dívidas</span>
+            <span class="nav-badge" id="badge-dividas" hidden></span>
+          </button>
+          <button class="nav-link tab" data-view="pagamentos">
+            <span class="nav-ico" data-ico="pagamentos"></span><span class="nav-label">Pagamentos</span>
+            <span class="nav-badge" id="badge-pagamentos" hidden></span>
+          </button>
+          <button class="nav-link tab" data-view="vencimentos">
+            <span class="nav-ico" data-ico="vencimentos"></span><span class="nav-label">Vencimentos</span>
+            <span class="nav-badge" id="badge-vencimentos" hidden></span>
+          </button>
+          <button class="nav-link tab" data-view="carteiras">
+            <span class="nav-ico" data-ico="carteira"></span><span class="nav-label" data-i18n="tab.carteiras">Carteiras</span>
+          </button>
+        </div>
       </div>
 
       <div class="nav-grupo">
         <span class="nav-grupo-titulo" data-i18n="nav.grupo.analise">Análise</span>
-        <button class="nav-item tab" data-view="relatorio">
-          <span class="nav-ico">📈</span><span class="nav-label">Relatório</span>
-        </button>
+        <div class="nav nav-pills flex-column">
+          <button class="nav-link tab" data-view="relatorio">
+            <span class="nav-ico" data-ico="relatorio"></span><span class="nav-label">Relatório</span>
+          </button>
+        </div>
       </div>
 
       <div class="nav-grupo">
         <span class="nav-grupo-titulo" data-i18n="nav.grupo.sistema">Sistema</span>
-        <button class="nav-item tab" data-view="configuracoes">
-          <span class="nav-ico">⚙️</span><span class="nav-label">Configurações</span>
-        </button>
-        <button class="nav-item tab" data-view="sobre">
-          <span class="nav-ico">ℹ️</span><span class="nav-label" data-i18n="tab.sobre">Sobre</span>
-        </button>
+        <div class="nav nav-pills flex-column">
+          <button class="nav-link tab" data-view="configuracoes">
+            <span class="nav-ico" data-ico="config"></span><span class="nav-label">Configurações</span>
+          </button>
+          <button class="nav-link tab" data-view="sobre">
+            <span class="nav-ico" data-ico="sobre"></span><span class="nav-label" data-i18n="tab.sobre">Sobre</span>
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -78,18 +87,48 @@
   </div>
 
   <!-- FAB mobile (Nova dívida) -->
-  <button class="fab-mobile" data-acao="nova-divida" title="Nova dívida" aria-label="Nova dívida">＋</button>
+  <button class="fab-mobile" data-acao="nova-divida" title="Nova dívida" aria-label="Nova dívida"><span data-ico="mais"></span></button>
 
   <!-- Relógio de Brasília (canto inferior, não bloqueia a navegação) -->
-  <div class="relogio-brasilia" id="relogio-brasilia" aria-hidden="true"></div>
+  <div class="relogio-wrap">
+    <div class="relogio-brasilia" id="relogio-brasilia" aria-hidden="true"></div>
+    <button class="relogio-gear" id="btn-gear" type="button" aria-label="Configurações rápidas" aria-expanded="false" title="Configurações rápidas"><span data-ico="engrenagem"></span></button>
+    <div class="gear-panel hidden" id="gear-panel" role="dialog" aria-label="Configurações rápidas">
+      <div class="gear-panel-titulo">Aparência</div>
+      <div class="gear-grupo" role="group" aria-label="Tema">
+        <button class="gear-opt" data-tema="light" title="Tema claro"><span data-ico="sol"></span> Claro</button>
+        <button class="gear-opt" data-tema="dark" title="Tema escuro"><span data-ico="lua"></span> Escuro</button>
+      </div>
+      <div class="gear-panel-titulo">Cor de destaque</div>
+      <div class="gear-grupo gear-cores" role="group" aria-label="Cor de destaque">
+        <button class="gear-cor" data-accent="verde"  style="--sw:#2d6a4f" title="Verde"  aria-label="Verde"></button>
+        <button class="gear-cor" data-accent="azul"   style="--sw:#1d4ed8" title="Azul"   aria-label="Azul"></button>
+        <button class="gear-cor" data-accent="roxo"   style="--sw:#6d28d9" title="Roxo"   aria-label="Roxo"></button>
+        <button class="gear-cor" data-accent="laranja" style="--sw:#c2410c" title="Laranja" aria-label="Laranja"></button>
+        <button class="gear-cor" data-accent="rosa"   style="--sw:#be185d" title="Rosa"   aria-label="Rosa"></button>
+      </div>
+      <div class="gear-panel-titulo">Idioma</div>
+      <div class="gear-grupo" role="group" aria-label="Idioma">
+        <button class="gear-opt" data-idioma="pt" title="Português"><span class="bandeira" data-ico="br"></span> PT</button>
+        <button class="gear-opt" data-idioma="en" title="English"><span class="bandeira" data-ico="us"></span> EN</button>
+        <button class="gear-opt" data-idioma="es" title="Español"><span class="bandeira" data-ico="es"></span> ES</button>
+      </div>
+      <div class="gear-panel-titulo">Fonte
+        <span class="gear-fonte-btns">
+          <button class="gear-opt gear-fonte" data-fonte="diminuir" title="Diminuir fonte"><span data-ico="setaBaixo"></span> A</button>
+          <button class="gear-opt gear-fonte" data-fonte="aumentar" title="Aumentar fonte"><span data-ico="setaCima"></span> A</button>
+        </span>
+      </div>
+    </div>
+  </div>
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card">
+  <!-- Modal (estrutura Bootstrap; abertura/fechamento continua no app.js) -->
+  <div id="modal" class="modal hidden" aria-hidden="true" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-card modal-content">
       <h2 id="modal-titulo">Título</h2>
       <form id="form-modal">
         <div id="campos-form"></div>
-        <div class="form-actions">
+        <div class="form-actions modal-footer" style="border-top:none;padding:0">
           <button type="button" id="btn-cancelar" class="btn btn-ghost">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
@@ -104,7 +143,7 @@
     <canvas id="levelup-confetti" class="levelup-confetti"></canvas>
     <div class="levelup-card" id="levelup-card">
       <div class="levelup-burst" aria-hidden="true"></div>
-      <div class="levelup-ico">🏆</div>
+      <div class="levelup-ico"><span data-ico="trofeu"></span></div>
       <div class="levelup-numero" id="levelup-numero">2</div>
       <h2 class="levelup-titulo" id="levelup-titulo">Nível 2 alcançado!</h2>
       <p class="levelup-parabens" id="levelup-parabens">Parabéns! Você subiu de nível.</p>
@@ -114,6 +153,33 @@
     </div>
   </div>
 
+  <!-- Vue 3 (global build, runtime+compiler) — DONO da view. Deve vir ANTES
+       de app.js e de views/*.js (app.js usa Vue.ref/reactive; views usam
+       window.MeuBolsoViews e window.uiTick montados no DOMContentLoaded). -->
+  <script src="vendor/vue.global.prod.js"></script>
+  <!-- Chart.js (vendored, offline) — gráficos de pizza/rosca com animação de
+       rotação inicial, fade/load suave e efeito hoverOffset (fatias se separam
+       no hover). Carregado ANTES de app.js. -->
+  <script src="vendor/chart.umd.js"></script>
+  <!-- Integração dos gráficos (pizza/rosca) com Chart.js. ANTES de app.js. -->
+  <script src="graficos-chartjs.js"></script>
+  <!-- Bootstrap bundle (Popper + JS: dropdowns, toasts, offcanvas, collapse...) -->
+  <script src="vendor/bootstrap.bundle.min.js"></script>
+  <!-- Biblioteca central de ícones SVG (obrigatório antes de app.js) -->
+  <script src="icons.js"></script>
   <script src="app.js"></script>
-</body>
+  <!-- Componentes de view (Vue). Carregados após app.js; registram
+       window.MeuBolsoViews antes do DOMContentLoaded montar o root. -->
+  <script src="views/painel.js"></script>
+  <script src="views/relatorio.js"></script>
+  <script src="views/vencimentos.js"></script>
+  <script src="views/dividas.js"></script>
+  <script src="views/pagamentos.js"></script>
+  <script src="views/carteiras.js"></script>
+  <script src="views/gamificacao.js"></script>
+  <script src="views/sobre.js"></script>
+  <script src="views/configuracoes.js"></script>
+  <!-- Relógio de Brasília (Vue puro/vanilla, independente da view) -->
+  <script src="relogio.js"></script>
+
 </html>

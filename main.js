@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { DatabaseSync } = require('node:sqlite');
@@ -107,11 +107,27 @@ function saveData(data) {
 }
 
 function createWindow() {
+  // Área de trabalho visível (desconta a barra de tarefas). Usamos para não
+  // criar uma janela maior que a tela (o que a cortaria).
+  let area = { width: 1366, height: 768 };
+  try { if (screen && screen.getPrimaryDisplay) area = screen.getPrimaryDisplay().workAreaSize; } catch (_) {}
+  // Largura alvo 1366: a tabela de Dívidas (a mais larga, 6 colunas + coluna de
+  // ação com 3 botões) cabe sem scroll horizontal (~1120px de conteúdo + sidebar
+  // 248px). Altura 800 cobre o conteúdo comum sem scroll vertical. Nunca maiores
+  // que a área visível; nunca menores que 1024x700 (garante usabilidade).
+  const W = Math.min(1366, Math.max(1024, area.width));
+  const H = Math.min(800, Math.max(700, area.height));
   const win = new BrowserWindow({
-    width: 1100,
-    height: 720,
-    minWidth: 900,
-    minHeight: 600,
+    width: W,
+    height: H,
+    // Piso elevado para que, NA FONTE ORIGINAL (--app-font-scale: 1), nenhum
+    // botão ou informação fique oculto SEM scroll: a tabela de Dívidas é a mais
+    // larga e precisa de ~1120px de conteúdo; com a sidebar (248px) isso dá
+    // ~1368px de janela para a tabela caber sem scroll horizontal e o botão
+    // "Gerenciar pagamentos" ficar visível. A altura cobre o conteúdo comum.
+    // A sidebar rola internamente (overflow-y:auto) se a altura for menor.
+    minWidth: W,
+    minHeight: H,
     title: 'MeuBolso',
     backgroundColor: '#fafafa',
     webPreferences: {
@@ -120,6 +136,14 @@ function createWindow() {
       nodeIntegration: false
     }
   });
+
+  // Força o tamanho mínimo e o tamanho inicial de forma explícita (além das
+  // opções do construtor), para que a janela nunca abra menor que o piso onde
+  // a UI completa (tabela de Dívidas, botões de ação) cabe sem scroll, mesmo
+  // que algum estado de bounds fosse restaurado.
+  win.setMinimumSize(W, H);
+  win.setSize(W, H, false);
+  if (typeof win.center === 'function') win.center();
 
   win.removeMenu();
   win.loadFile('index.html');
@@ -174,6 +198,16 @@ ipcMain.handle('janela:flash-foco', (evt) => {
   if (win.isFocused()) win.blur();
   win.focus();
   return true;
+});
+
+// Abre links externos (http/https) no navegador padrão do sistema,
+// usado pelos links do GitHub na tela "Sobre".
+ipcMain.handle('link:abrir', (_evt, url) => {
+  if (typeof url !== 'string') return false;
+  // Só permite http/https para evitar esquemas perigosos (ex.: file:, javascript:).
+  if (!/^https?:\/\//i.test(url)) return false;
+  try { shell.openExternal(url); return true; }
+  catch (err) { console.error('Falha ao abrir link externo:', err); return false; }
 });
 
 ipcMain.handle('dados:exportar', async (evt) => {
