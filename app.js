@@ -629,7 +629,7 @@ function t(k) {
 // idioma muda.
 function catLabel(c) { return t(CATEGORIAS[c]?.label) || c; }
 window.MeuBolso = {
-  t, fmt, catLabel, totalDivida, totalPago, saldoDivida,
+  t, fmt, catLabel, totalDivida, totalPago, saldoDivida, ganharXP,
   get idioma() { return idiomaAtual; },
   // Referência ao estado reativo (Vue.reactive) para inspeção/extensibilidade.
   // Mutar window.MeuBolso.estado.dividas (push/splice) e chamar render()
@@ -942,6 +942,20 @@ function toast(msg, tipo = '') {
   if (_toastTimer) clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => { el.classList.add('hidden'); el.style.display = ''; }, 2400);
 }
+// Variante que aceita HTML já montado (ex.: toast de XP com ícone SVG).
+// O chamador é responsável por escapar qualquer texto que possa vir de fora
+// (usamos escapeHtml nas partes de texto); o SVG do ícone vem do nosso mapa
+// interno (ICON.*) e é considerado confiável.
+function toastHTML(html, tipo = '') {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.innerHTML = html;
+  el.className = `toast ${tipo}`;
+  el.style.display = 'flex';
+  el.classList.remove('hidden');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.classList.add('hidden'); el.style.display = ''; }, 2400);
+}
 
 // ---------- Persistência ----------
 // ---------- Persistência ----------
@@ -1154,10 +1168,14 @@ function ganharXP(pontos, motivo) {
   // roda antes: se celebrarNivel() lançar (ex.: canvas/confete no Electron), o aviso
   // de XP e a atualização dos pontos/progresso ainda acontecem.
   const res = resolverMotivo(chaveMotivo);
-  const nomeXP = res ? `${res.ico} ${t(res.quest || 'xp.desconhecido')}` : chaveMotivo;
+  // O ícone (ICON.*) é um SVG confiável do nosso mapa interno — entra como HTML.
+  // O texto (pontos + nome traduzido) é escapado para nunca vazar código.
+  const icoHTML = res && res.ico ? res.ico : '';
+  const nomeXP = res ? t(res.quest || 'xp.desconhecido') : chaveMotivo;
   const sinal = pontos >= 0 ? '+' : '';
-  const msgXP = `${sinal}${pontos} XP · ${nomeXP}`;
-  toast(msgXP, 'success');
+  const txtXP = escapeHtml(`${sinal}${pontos} XP · ${nomeXP}`);
+  const msgXP = `<span class="toast-ico">${icoHTML}</span><span class="toast-txt">${txtXP}</span>`;
+  toastHTML(msgXP, 'success');
   // Garante que a view (progress bar, registros, badge) reflita o novo estado,
   // independente de o chamador chamar render() ou não — e ANTES da celebração,
   // para que uma falha na celebração nunca impeça a atualização dos pontos.
