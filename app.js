@@ -2260,20 +2260,8 @@ function renderPainel() {
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="row row-cols-1 row-cols-lg-3 g-3">
-      <div class="col-lg-8">
-        <div class="card h-100">
-          <div class="card-body">
-            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.insights')}</h3>
-            <ul class="list-group list-group-flush">
-              ${insights.map(i => `<li class="list-group-item d-flex gap-2 align-items-start px-0 border-0"><span>${i.ico}</span><span>${i.texto}</span></li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4">
+      <div class="col">
         <div class="card h-100">
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.status')}</h3>
@@ -2281,6 +2269,19 @@ function renderPainel() {
             <div class="legend">
               ${metricas.porStatus.map(s => `<span class="legend-item"><span class="legend-dot" style="background:${s.cor}"></span>${s.label} ${s.qtd}</span>`).join('')}
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.insights')}</h3>
+            <ul class="list-group list-group-flush">
+              ${insights.map(i => `<li class="list-group-item d-flex gap-2 align-items-start px-0 border-0"><span>${i.ico}</span><span>${i.texto}</span></li>`).join('')}
+            </ul>
           </div>
         </div>
       </div>

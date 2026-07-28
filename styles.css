@@ -512,19 +512,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .toast.success { background: var(--success); color: #fff; font-weight: 700; }
 .toast.error { background: var(--danger); color: #fff; font-weight: 700; }
 
-/* Barra de progresso (resumo) */
-.barra-progresso {
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-.barra-progresso > div {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--success-claro));
-  transition: width 0.3s;
-}
+/* Barra de progresso: estilo unico (pill 18px) definido em `.barra-progresso`
+   mais abaixo (na secao de barras de progresso do sistema). */
 
 /* Rodapé rolante de dicas (estilo telejornal) */
 .ticker {
