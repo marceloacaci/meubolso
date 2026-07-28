@@ -110,8 +110,12 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1100,
     height: 720,
-    minWidth: 900,
-    minHeight: 600,
+    // Mínimos calibrados para exibir a UI completa sem omissão de botões/
+    // informações: sidebar (248px) + conteúdo utilizável (~612px) na largura,
+    // e sidebar inteira (logo + CTA + nav + badge de nível) na altura. A
+    // sidebar rola internamente (overflow-y:auto) caso a altura seja menor.
+    minWidth: 860,
+    minHeight: 640,
     title: 'MeuBolso',
     backgroundColor: '#fafafa',
     webPreferences: {
