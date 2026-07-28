@@ -3298,11 +3298,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
   temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';
   acentoAtual = (estado.configuracoes && estado.configuracoes.acento) || 'verde';
-  // Restaura tamanho de fonte salvo
-  try {
-    const fs = localStorage.getItem('appFontScale');
-    if (fs) document.documentElement.style.setProperty('--app-font-scale', fs);
-  } catch (e) {}
+  // Fonte: abre SEMPRE no tamanho original (--app-font-scale: 1, definido no
+  // :root do styles.css). Não restauramos o valor salvo em localStorage, para
+  // que a inspeção do tamanho da janela seja feita na fonte padrão do sistema.
+  // O controle de fonte (engrenagem) continua funcionando em tempo de execução.
   aplicarTema();
   aplicarIdioma();
   aplicarAceno();
