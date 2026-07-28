@@ -505,8 +505,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.hidden { display: none; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
-.toast.success { background: var(--success); }
-.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); color: #fff; font-weight: 700; }
+.toast.error { background: var(--danger); color: #fff; font-weight: 700; }
 
 /* Barra de progresso (resumo) */
 .barra-progresso {
@@ -1481,4 +1481,4 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
 .toast { display: flex; align-items: center; gap: 0.5rem; }
 .toast-ico { display: inline-flex; align-items: center; flex: 0 0 auto; color: inherit; }
 .toast-ico svg { width: 1.15em; height: 1.15em; display: block; }
-.toast-txt { display: inline-flex; align-items: center; min-width: 0; }
+.toast-txt { display: inline-flex; align-items: center; min-width: 0; font-weight: inherit; color: inherit; }
