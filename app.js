@@ -2217,16 +2217,16 @@ function renderPainel() {
     <div class="page-header"><h2>${t('painel.titulo')}</h2></div>
 
     <div class="row row-cols-1 row-cols-lg-3 g-3 mb-4">
-      <div class="col">
-        <div class="card h-100">
+      <div class="col col-lg-6">
+        <div class="card h-100 card-destaque">
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.resumo')}</h3>
-            <div class="h3 mb-1">${fmt.format(metricas.totalDivida)}</div>
+            <div class="h3 mb-1" style="font-size:1.9rem">${fmt.format(metricas.totalDivida)}</div>
             <div class="text-secondary small">${t('painel.totalDividas')} (${estado.dividas.length})</div>
             <div class="d-flex justify-content-between text-secondary small mt-3 mb-1">
               <span>${t('painel.quitado')}</span><span>${metricas.progresso.toFixed(0)}%</span>
             </div>
-            <div class="progress" style="height:8px">
+            <div class="progress" style="height:16px">
               <div class="progress-bar" style="width:${metricas.progresso}%"></div>
             </div>
             <div class="d-flex gap-4 mt-3">
@@ -2237,7 +2237,7 @@ function renderPainel() {
         </div>
       </div>
 
-      <div class="col">
+      <div class="col col-lg-3">
         <div class="card h-100">
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.categoria')}</h3>
@@ -2248,7 +2248,7 @@ function renderPainel() {
         </div>
       </div>
 
-      <div class="col">
+      <div class="col col-lg-3">
         <div class="card h-100">
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.composicao')}</h3>
@@ -2321,7 +2321,7 @@ function renderRelatorio() {
           <div class="card-body">
             <div class="text-secondary text-uppercase small mb-1">${t('resumo.totalDividas')}</div>
             <div class="h4 mb-2">${fmt.format(total)}</div>
-            <div class="progress" role="progressbar" aria-label="${progresso.toFixed(0)}${t('resumo.quitado')}" style="height:6px">
+            <div class="progress" role="progressbar" aria-label="${progresso.toFixed(0)}${t('resumo.quitado')}" style="height:16px">
               <div class="progress-bar" style="width:${progresso}%"></div>
             </div>
             <div class="text-secondary small mt-1">${progresso.toFixed(0)}${t('resumo.quitado')}</div>
