@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { DatabaseSync } = require('node:sqlite');
@@ -107,20 +107,27 @@ function saveData(data) {
 }
 
 function createWindow() {
+  // Área de trabalho visível (desconta a barra de tarefas). Usamos para não
+  // criar uma janela maior que a tela (o que a cortaria).
+  let area = { width: 1366, height: 768 };
+  try { if (screen && screen.getPrimaryDisplay) area = screen.getPrimaryDisplay().workAreaSize; } catch (_) {}
+  // Largura alvo 1366: a tabela de Dívidas (a mais larga, 6 colunas + coluna de
+  // ação com 3 botões) cabe sem scroll horizontal (~1120px de conteúdo + sidebar
+  // 248px). Altura 800 cobre o conteúdo comum sem scroll vertical. Nunca maiores
+  // que a área visível; nunca menores que 1024x700 (garante usabilidade).
+  const W = Math.min(1366, Math.max(1024, area.width));
+  const H = Math.min(800, Math.max(700, area.height));
   const win = new BrowserWindow({
-    width: 1120,
-    height: 800,
+    width: W,
+    height: H,
     // Piso elevado para que, NA FONTE ORIGINAL (--app-font-scale: 1), nenhum
     // botão ou informação fique oculto SEM scroll: a tabela de Dívidas é a mais
-    // larga (6 colunas + coluna de ação com 3 botões: Editar/Excluir/Gerenciar)
-    // e precisa de ~870px de conteúdo; com a sidebar (248px) isso dá ~1118px de
-    // janela para a tabela caber sem scroll horizontal e o botão "Gerenciar
-    // pagamentos" ficar visível. A altura cobre o conteúdo comum sem scroll
-    // vertical. A sidebar rola internamente (overflow-y:auto) se a altura for
-    // menor. Abaixo desse piso o SO pode forçar a janela menor e o layout mobile
-    // (breakpoint 640px) assume com a barra de navegação inferior.
-    minWidth: 1120,
-    minHeight: 800,
+    // larga e precisa de ~1120px de conteúdo; com a sidebar (248px) isso dá
+    // ~1368px de janela para a tabela caber sem scroll horizontal e o botão
+    // "Gerenciar pagamentos" ficar visível. A altura cobre o conteúdo comum.
+    // A sidebar rola internamente (overflow-y:auto) se a altura for menor.
+    minWidth: W,
+    minHeight: H,
     title: 'MeuBolso',
     backgroundColor: '#fafafa',
     webPreferences: {
@@ -134,8 +141,8 @@ function createWindow() {
   // opções do construtor), para que a janela nunca abra menor que o piso onde
   // a UI completa (tabela de Dívidas, botões de ação) cabe sem scroll, mesmo
   // que algum estado de bounds fosse restaurado.
-  win.setMinimumSize(1120, 800);
-  win.setSize(1120, 800, false);
+  win.setMinimumSize(W, H);
+  win.setSize(W, H, false);
   if (typeof win.center === 'function') win.center();
 
   win.removeMenu();
