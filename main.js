@@ -108,17 +108,19 @@ function saveData(data) {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1100,
-    height: 720,
+    width: 1120,
+    height: 800,
     // Piso elevado para que, NA FONTE ORIGINAL (--app-font-scale: 1), nenhum
-    // botão ou informação fique oculto: sidebar (248px) + conteúdo utilizável
-    // (~712px, comporta cards em 2 colunas e botões de ação sem corte) na
-    // largura, e sidebar inteira + área de conteúdo com folga na altura. A
-    // sidebar rola internamente (overflow-y:auto) caso a altura seja menor.
-    // Abaixo desse piso o SO pode forçar a janela menor e o layout mobile
+    // botão ou informação fique oculto SEM scroll: a tabela de Dívidas é a mais
+    // larga (6 colunas + coluna de ação com 3 botões: Editar/Excluir/Gerenciar)
+    // e precisa de ~870px de conteúdo; com a sidebar (248px) isso dá ~1118px de
+    // janela para a tabela caber sem scroll horizontal e o botão "Gerenciar
+    // pagamentos" ficar visível. A altura cobre o conteúdo comum sem scroll
+    // vertical. A sidebar rola internamente (overflow-y:auto) se a altura for
+    // menor. Abaixo desse piso o SO pode forçar a janela menor e o layout mobile
     // (breakpoint 640px) assume com a barra de navegação inferior.
-    minWidth: 960,
-    minHeight: 720,
+    minWidth: 1120,
+    minHeight: 800,
     title: 'MeuBolso',
     backgroundColor: '#fafafa',
     webPreferences: {
