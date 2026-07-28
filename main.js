@@ -110,14 +110,15 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1100,
     height: 720,
-    // Mínimos calibrados para exibir a UI completa sem omissão de botões/
-    // informações: sidebar (248px) + conteúdo utilizável (~652px) na largura,
-    // e sidebar inteira (logo + CTA + nav + badge de nível) na altura. A
+    // Piso elevado para que, NA FONTE ORIGINAL (--app-font-scale: 1), nenhum
+    // botão ou informação fique oculto: sidebar (248px) + conteúdo utilizável
+    // (~712px, comporta cards em 2 colunas e botões de ação sem corte) na
+    // largura, e sidebar inteira + área de conteúdo com folga na altura. A
     // sidebar rola internamente (overflow-y:auto) caso a altura seja menor.
     // Abaixo desse piso o SO pode forçar a janela menor e o layout mobile
     // (breakpoint 640px) assume com a barra de navegação inferior.
-    minWidth: 900,
-    minHeight: 680,
+    minWidth: 960,
+    minHeight: 720,
     title: 'MeuBolso',
     backgroundColor: '#fafafa',
     webPreferences: {
