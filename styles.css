@@ -809,7 +809,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   height: 18px;
   background: var(--border);
   border-radius: 999px;
-  overflow: hidden;
+  /* Sem overflow:hidden de proposito: o preenchimento (.barra-progresso-
+     preenchimento) tem transform persistido (animacao barra-crescer) e, com
+     overflow:hidden + border-radius no pai, o Chromium ignora o raio do filho
+     e deixa a ponta direita QUADRADA. Sem o clip, o proprio border-radius:999px
+     do preenchimento arredonda a ponta em qualquer progresso parcial. */
   margin-bottom: 12px;
 }
 .barra-progresso-preenchimento {
