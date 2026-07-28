@@ -130,6 +130,14 @@ function createWindow() {
     }
   });
 
+  // Força o tamanho mínimo e o tamanho inicial de forma explícita (além das
+  // opções do construtor), para que a janela nunca abra menor que o piso onde
+  // a UI completa (tabela de Dívidas, botões de ação) cabe sem scroll, mesmo
+  // que algum estado de bounds fosse restaurado.
+  win.setMinimumSize(1120, 800);
+  win.setSize(1120, 800, false);
+  if (typeof win.center === 'function') win.center();
+
   win.removeMenu();
   win.loadFile('index.html');
 }
