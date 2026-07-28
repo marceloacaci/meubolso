@@ -240,6 +240,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .sidebar-perfil .nivel-barra > span {
   display: block; height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--success-claro));
+  /* Ponta direita arredondada (pill), igual às barras custom do sistema
+     (.barra-progresso-preenchimento), para ponta suavizada em qualquer
+     progresso parcial. */
+  border-radius: 999px;
   /* Entrada progressiva suave (GPU, igual às demais barras do sistema):
      cresce via transform: scaleX. Garante animação de progresso no card de nível. */
   transform-origin: left center;
@@ -1315,6 +1319,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--success-claro));
+  /* Ponta direita arredondada (pill), igual às barras custom do sistema
+     (.barra-progresso-preenchimento), para ponta suavizada em qualquer
+     progresso parcial. */
+  border-radius: 999px;
   transform-origin: left center;
   /* Entrada progressiva e suave (GPU, sem "engasgos"): cresce via transform
      scaleX, igual às demais barras do sistema. */
