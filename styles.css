@@ -707,7 +707,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .game-table tr.atual td { border-bottom-color: var(--primary); }
 
 /* ---------- Responsividade ---------- */
-@media (max-width: 720px) {
+@media (max-width: 640px) {
   body { flex-direction: column; overflow: auto; }
   .sidebar {
     position: fixed; bottom: 0; left: 0; right: 0; top: auto;
