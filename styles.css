@@ -1308,9 +1308,20 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .badge.text-bg-warning { background-color: var(--warn) !important; color: #fff !important; }
 .badge.text-bg-info { background-color: var(--bs-info) !important; color: #fff !important; }
 
-/* Progress (Bootstrap) reaproveita a cor primária do app. */
-.progress { background-color: var(--border); border-radius: 999px; }
-.progress-bar { background-color: var(--primary); }
+/* Progress (Bootstrap): mesma animação GPU (scaleX) e degradê das barras
+   custom do sistema (.barra-progresso-preenchimento), para consistência
+   visual e de movimento em todo o app. */
+.progress { background-color: var(--border); border-radius: 999px; overflow: hidden; }
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--success-claro));
+  transform-origin: left center;
+  /* Entrada progressiva e suave (GPU, sem "engasgos"): cresce via transform
+     scaleX, igual às demais barras do sistema. */
+  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
 
 /* Formulários: campos Bootstrap com a mesma cor de foco do app. */
 .form-control, .form-select, .form-control:focus, .form-select:focus {
