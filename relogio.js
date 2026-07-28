@@ -40,16 +40,18 @@
     const hora = String(d.getUTCHours()).padStart(2, '0') + ':' +
       String(d.getUTCMinutes()).padStart(2, '0') + ':' +
       String(d.getUTCSeconds()).padStart(2, '0');
-    return '🕐 ' + data + ', ' + hora + ' (' + (FUSO[lang] || FUSO.pt) + ')';
+    const ico = (typeof ICON !== 'undefined' && ICON.relogio) ? ICON.relogio : '';
+    return (ico ? ico + ' ' : '') + data + ', ' + hora + ' (' + (FUSO[lang] || FUSO.pt) + ')';
   }
 
   const el = document.getElementById('relogio-brasilia');
   if (!el) return;
 
   // Escreve DIRETO no DOM a cada segundo (sem reatividade de framework).
+  // Usa innerHTML para permitir o ícone SVG; o texto é montado acima (sem HTML injetado).
   function render() {
     try {
-      el.textContent = texto();
+      el.innerHTML = texto();
       el.title = el.textContent;
     } catch (e) { /* nunca quebra o app */ }
   }

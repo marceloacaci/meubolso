@@ -1,8 +1,14 @@
-// Estado em memória (espelho do arquivo)
-let estado = { dividas: [], pagamentos: [], configuracoes: { moeda: 'BRL' } };
+// Estado em memória (espelho do arquivo). Tornado reativo (Vue.reactive)
+// para que os componentes de view recomputem quando os dados mudam.
+// OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
+// Object.assign(estado, ...) (ver carregar/importar/restaurar).
+let estado = Vue.reactive({ dividas: [], pagamentos: [], configuracoes: { moeda: 'BRL' } });
 
 // ---------- Utilitários ----------
-const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+// Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
+// colar o cifrão ao número ("R$100,00"), conforme padrão de UI solicitado.
+const __fmtIntl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const fmt = { format: (n) => __fmtIntl.format(Number(n) || 0).replace(/R\$\s+/, 'R$') };
 const fmtData = (iso) => {
   if (!iso) return '—';
   const [a, m, d] = iso.split('-');
@@ -223,6 +229,19 @@ const CORES_STATUS = {
 let idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
 let temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';
 
+// Ref reativo (Vue) que dispara a re-renderização das views. Toda ação que
+// antes chamava render() (e reescrevia app.innerHTML) agora incrementa este
+// tick; os componentes de view observam uiTick e recalculam o v-html sozinhos.
+// Isso é o "Vue dono da view" — o app.js NUNCA reescreve o #app; o Vue reage.
+const uiTick = Vue.ref(0);
+window.uiTick = uiTick;
+// Ref reativo dedicado à view atual. O root Vue (<component :is>) observa
+// este ref para TROCAR de view. Mantemos viewAtual (let) em sincronia para
+// o resto do app.js (renderSobre, etc.), mas a TROCA em si usa o ref para
+// garantir reatividade (um plain let sozinho não dispara o Vue).
+const viewRef = Vue.ref('painel');
+window.__viewRef = viewRef;
+
 const I18N = {
   pt: {
     'app.titulo': 'MeuBolso', 'ticker.tag': 'Dicas',
@@ -230,7 +249,7 @@ const I18N = {
     'cta.novaDivida': 'Nova dívida', 'nav.grupo.principal': 'Principal', 'nav.grupo.analise': 'Análise', 'nav.grupo.sistema': 'Sistema',
     'cta.novoPagamento': 'Novo pagamento',
     'tab.carteiras': 'Carteiras',
-    'carteira.titulo': 'Carteiras', 'carteira.nova': '+ Nova carteira', 'carteira.nome': 'Nome da carteira',
+    'carteira.titulo': 'Carteiras', 'carteira.nova': 'Nova carteira', 'carteira.nome': 'Nome da carteira',
     'carteira.saldo': 'Saldo', 'carteira.saldoInicial': 'Saldo inicial', 'carteira.total': 'Saldo total',
     'carteira.vazia': 'Nenhuma carteira cadastrada. Crie uma carteira para registrar saldos e usá-los nos pagamentos.',
     'carteira.editar': 'Editar carteira', 'carteira.excluir': 'Excluir carteira', 'carteira.confirmExcluir': 'Excluir a carteira "{nome}"? Esta ação não pode ser desfeita.',
@@ -240,8 +259,8 @@ const I18N = {
     'nenhuma': 'Nenhuma', 'moeda': 'R$',
     'tab.painel': 'Painel', 'tab.resumo': 'Resumo', 'tab.dividas': 'Dívidas', 'tab.pagamentos': 'Pagamentos',
     'tab.vencimentos': 'Vencimentos', 'tab.relatorio': 'Relatório', 'tab.configuracoes': 'Configurações',
-    'acao.exportar': '⬇ Exportar', 'acao.importar': '⬆ Importar', 'acao.restaurar': '↩ Restaurar backup',
-    'divida.nova': '+ Nova dívida', 'pagamento.novo': '+ Novo pagamento', 'pagamento.gerenciar': 'Gerenciar pagamentos',
+    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar backup',
+    'divida.nova': 'Nova dívida', 'pagamento.novo': 'Novo pagamento', 'pagamento.gerenciar': 'Gerenciar pagamentos',
     'acao.editar': 'Editar', 'acao.excluir': 'Excluir', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Salvar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Voltar',
     'acao.fechar': 'Fechar', 'acao.fecharSemSalvar': 'Fechar sem salvar', 'acao.continuarEditando': 'Continuar editando', 'acao.continuar': 'Continuar',
@@ -308,12 +327,12 @@ const I18N = {
     'painel.totalDividas': 'Total de dívidas',
     'col.divida': 'Dívida', 'col.categoria': 'Categoria', 'col.total': 'Total', 'col.pago': 'Pago', 'col.saldo': 'Saldo', 'col.parcela': 'Parcela', 'col.vencimento': 'Vencimento', 'col.valor': 'Valor', 'col.acao': 'Ação',
     'col.pagoResta': 'Pago / resta', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Quitado', 'grafico.dividaCategoria': 'Dívida por categoria', 'grafico.pagoVsAberto': 'Pago vs em aberto',
+    'grafico.total': 'Total', 'grafico.quitado': 'Quitado', 'grafico.dividaCategoria': 'Dívida por categoria', 'grafico.pagoVsAberto': 'Pago vs em aberto', 'grafico.emAberto': 'Em aberto', 'grafico.pago': 'Pago', 'grafico.semDivida': 'Sem dívidas',
     'relatorio.titulo': 'Relatório financeiro', 'vencimentos.titulo': 'Vencimentos', 'vencimentos.atrasadas': 'Parcelas atrasadas',
     'vencimentos.proximas': 'Vencendo nos próximos 7 dias',
-    'vencimentos.nenhumaAtrasada': 'Nenhuma parcela atrasada. 🎉',
+    'vencimentos.nenhumaAtrasada': 'Nenhuma parcela atrasada.',
     'vencimentos.nenhumaProxima': 'Nenhuma parcela próxima do vencimento.',
-    'config.titulo': 'Configurações', 'config.aparencia': 'Aparência', 'config.tema': 'Tema',
+    'config.titulo': 'Configurações', 'config.aparencia': 'Aparência', 'config.cor': 'Cor de destaque', 'config.corDestaque': 'Selecione a cor de destaque do sistema', 'config.tema': 'Tema',
     'config.fonte': 'Tamanho da fonte', 'config.idioma': 'Idioma', 'config.dados': 'Dados',
     'nivel.titulo': 'Nível', 'nivel.subiu': 'Você subiu para o nível',
     'nivel.verDetalhes': 'Ver detalhes',
@@ -328,6 +347,7 @@ const I18N = {
     'game.titulo': 'Pontuação e Conquistas', 'game.resumo': 'Detalhes da pontuação', 'game.xpAtual': 'XP total',
     'game.faltamNivel': 'Faltam', 'game.nivel': 'Nível', 'game.log': 'Histórico de pontos', 'game.paraProximo': 'para alcançar o nível', 'game.nivelMax': 'Nível máximo alcançado',
     'game.logVazio': 'Nenhum ponto registrado ainda. Comece cadastrando uma dívida!',
+    'game.graficoXP': 'XP por atividade',
     'game.quests': 'Quests (como pontuar)', 'game.q.nova': 'Cadastrar uma nova dívida', 'game.q.editar': 'Editar uma dívida',
     'game.q.novaCarteira': 'Criar uma nova carteira', 'game.q.editarCarteira': 'Editar uma carteira',
     'game.q.pag': 'Registrar um pagamento', 'game.q.gestao': 'Concluir a gestão de uma dívida',
@@ -336,11 +356,15 @@ const I18N = {
     'tab.sobre': 'Sobre',
     'sobre.titulo': 'Sobre o MeuBolso',
     'sobre.resumo': 'Resumo', 'sobre.sistema': 'Informações do sistema', 'sobre.tech': 'Tecnologias',
+    'sobre.bootstrap': 'Framework CSS (componentes e tema)',
     'sobre.creditos': 'Créditos', 'sobre.licenca': 'Licença',
+    'sobre.projeto': 'Projeto', 'sobre.verProjeto': 'Ver projeto no GitHub', 'sobre.verDevGitHub': 'Ver no GitHub',
+    'sobre.idiomas': 'Idiomas',
     'sobre.descricao': 'O MeuBolso é um gerenciador de dívidas minimalista para desktop, voltado a pessoas físicas que querem controlar empréstimos, cartão de crédito e financiamentos em um só lugar. Registre dívidas, acompanhe parcelas e pagamentos, visualize relatórios e mantenha a motivação com um sistema de pontos e níveis — tudo localmente, sem necessidade de conta ou internet.',
     'sobre.dev': 'Desenvolvido por', 'sobre.devNome': 'Marcelo Acácio', 'sobre.devCargo': 'Analista e Desenvolvedor de Sistemas',
     'sobre.copy': '© 2026 MeuBolso. Todos os direitos reservados.',
     'sobre.versaoApp': 'Versão do app', 'sobre.versaoElectron': 'Electron', 'sobre.versaoNode': 'Node.js',
+    'techVue': 'Framework reativo (view)', 'techSQLite': 'Persistência local (SQLite)', 'techChart': 'Gráficos (Chart.js)',
     'sobre.sistemaOp': 'Sistema operacional', 'sobre.arquitetura': 'Arquitetura'
   },
 
@@ -350,7 +374,7 @@ const I18N = {
     'cta.novaDivida': 'New debt', 'nav.grupo.principal': 'Main', 'nav.grupo.analise': 'Analysis', 'nav.grupo.sistema': 'System',
     'cta.novoPagamento': 'New payment',
     'tab.carteiras': 'Wallets',
-    'carteira.titulo': 'Wallets', 'carteira.nova': '+ New wallet', 'carteira.nome': 'Wallet name',
+    'carteira.titulo': 'Wallets', 'carteira.nova': 'New wallet', 'carteira.nome': 'Wallet name',
     'carteira.saldo': 'Balance', 'carteira.saldoInicial': 'Initial balance', 'carteira.total': 'Total balance',
     'carteira.vazia': 'No wallet registered. Create a wallet to record balances and use them for payments.',
     'carteira.editar': 'Edit wallet', 'carteira.excluir': 'Delete wallet', 'carteira.confirmExcluir': 'Delete the wallet "{nome}"? This action cannot be undone.',
@@ -360,8 +384,8 @@ const I18N = {
     'nenhuma': 'None', 'moeda': '$',
     'tab.painel': 'Dashboard', 'tab.resumo': 'Summary', 'tab.dividas': 'Debts', 'tab.pagamentos': 'Payments',
     'tab.vencimentos': 'Due dates', 'tab.relatorio': 'Report', 'tab.configuracoes': 'Settings',
-    'acao.exportar': '⬇ Export', 'acao.importar': '⬆ Import', 'acao.restaurar': '↩ Restore backup',
-    'divida.nova': '+ New debt', 'pagamento.novo': '+ New payment', 'pagamento.gerenciar': 'Manage payments',
+    'acao.exportar': 'Export', 'acao.importar': 'Import', 'acao.restaurar': 'Restore backup',
+    'divida.nova': 'New debt', 'pagamento.novo': 'New payment', 'pagamento.gerenciar': 'Manage payments',
     'acao.editar': 'Edit', 'acao.excluir': 'Delete', 'acao.pagar': 'Pay',
     'acao.salvar': 'Save', 'acao.cancelar': 'Cancel', 'acao.voltar': 'Back',
     'acao.fechar': 'Close', 'acao.fecharSemSalvar': 'Close without saving', 'acao.continuarEditando': 'Keep editing', 'acao.continuar': 'Continue',
@@ -420,12 +444,12 @@ const I18N = {
     'painel.totalDividas': 'Total debts',
     'col.divida': 'Debt', 'col.categoria': 'Category', 'col.total': 'Total', 'col.pago': 'Paid', 'col.saldo': 'Balance', 'col.parcela': 'Installment', 'col.vencimento': 'Due date', 'col.valor': 'Amount', 'col.acao': 'Action',
     'col.pagoResta': 'Paid / remaining', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Paid off', 'grafico.dividaCategoria': 'Debt by category', 'grafico.pagoVsAberto': 'Paid vs outstanding',
+    'grafico.total': 'Total', 'grafico.quitado': 'Paid off', 'grafico.dividaCategoria': 'Debt by category', 'grafico.pagoVsAberto': 'Paid vs outstanding', 'grafico.emAberto': 'Outstanding', 'grafico.pago': 'Paid', 'grafico.semDivida': 'No debt',
     'relatorio.titulo': 'Financial report', 'vencimentos.titulo': 'Due dates', 'vencimentos.atrasadas': 'Overdue installments',
     'vencimentos.proximas': 'Due in the next 7 days',
-    'vencimentos.nenhumaAtrasada': 'No overdue installments. 🎉',
+    'vencimentos.nenhumaAtrasada': 'No overdue installments.',
     'vencimentos.nenhumaProxima': 'No installments due soon.',
-    'config.titulo': 'Settings', 'config.aparencia': 'Appearance', 'config.tema': 'Theme',
+    'config.titulo': 'Settings', 'config.aparencia': 'Appearance', 'config.cor': 'Accent color', 'config.corDestaque': 'Select the system accent color', 'config.tema': 'Theme',
     'config.fonte': 'Font size', 'config.idioma': 'Language', 'config.dados': 'Data',
     'nivel.titulo': 'Level', 'nivel.subiu': 'You reached level',
     'xp.dividaNova': 'Debt registered', 'xp.pagamento': 'Payment registered',
@@ -441,6 +465,7 @@ const I18N = {
     'game.titulo': 'Score & Achievements', 'game.resumo': 'Score details', 'game.xpAtual': 'Total XP',
     'game.faltamNivel': 'Need', 'game.nivel': 'Level', 'game.log': 'Points history', 'game.paraProximo': 'to reach level', 'game.nivelMax': 'Max level reached',
     'game.logVazio': 'No points recorded yet. Start by adding a debt!',
+    'game.graficoXP': 'XP by activity',
     'game.quests': 'Quests (how to score)', 'game.q.nova': 'Register a new debt', 'game.q.editar': 'Edit a debt',
     'game.q.novaCarteira': 'Create a new wallet', 'game.q.editarCarteira': 'Edit a wallet',
     'game.q.pag': 'Record a payment', 'game.q.gestao': 'Finish managing a debt',
@@ -449,11 +474,15 @@ const I18N = {
     'tab.sobre': 'About',
     'sobre.titulo': 'About MeuBolso',
     'sobre.resumo': 'Summary', 'sobre.sistema': 'System information', 'sobre.tech': 'Technologies',
+    'sobre.bootstrap': 'CSS framework (components & theme)',
     'sobre.creditos': 'Credits', 'sobre.licenca': 'License',
+    'sobre.projeto': 'Project', 'sobre.verProjeto': 'View project on GitHub', 'sobre.verDevGitHub': 'View on GitHub',
+    'sobre.idiomas': 'Languages',
     'sobre.descricao': 'MeuBolso is a minimalist desktop debt manager for individuals who want to keep track of loans, credit cards and financing in one place. Register debts, follow installments and payments, view reports, and stay motivated with a points and levels system — all locally, with no account or internet required.',
     'sobre.dev': 'Developed by', 'sobre.devNome': 'Marcelo Acácio', 'sobre.devCargo': 'Systems Analyst and Developer',
     'sobre.copy': '© 2026 MeuBolso. All rights reserved.',
     'sobre.versaoApp': 'App version', 'sobre.versaoElectron': 'Electron', 'sobre.versaoNode': 'Node.js',
+    'techVue': 'Reactive framework (view)', 'techSQLite': 'Local persistence (SQLite)', 'techChart': 'Charts (Chart.js)',
     'sobre.sistemaOp': 'Operating system', 'sobre.arquitetura': 'Architecture',
     'modal.editarDivida': 'Edit debt', 'modal.registrarPagamento': 'Register payment',
     'modal.editarPagamento': 'Edit payment', 'aviso.parcelas': 'Fill in the data for each of the ${n} installment(s).',
@@ -470,7 +499,7 @@ const I18N = {
     'cta.novaDivida': 'Nueva deuda', 'nav.grupo.principal': 'Principal', 'nav.grupo.analise': 'Análisis', 'nav.grupo.sistema': 'Sistema',
     'cta.novoPagamento': 'Nuevo pago',
     'tab.carteiras': 'Carteras',
-    'carteira.titulo': 'Carteras', 'carteira.nova': '+ Nueva cartera', 'carteira.nome': 'Nombre de la cartera',
+    'carteira.titulo': 'Carteras', 'carteira.nova': 'Nueva cartera', 'carteira.nome': 'Nombre de la cartera',
     'carteira.saldo': 'Saldo', 'carteira.saldoInicial': 'Saldo inicial', 'carteira.total': 'Saldo total',
     'carteira.vazia': 'Ninguna cartera registrada. Crea una cartera para registrar saldos y usarlos en los pagos.',
     'carteira.editar': 'Editar cartera', 'carteira.excluir': 'Eliminar cartera', 'carteira.confirmExcluir': '¿Eliminar la cartera "{nome}"? Esta acción no se puede deshacer.',
@@ -480,8 +509,8 @@ const I18N = {
     'nenhuma': 'Ninguna', 'moeda': 'R$',
     'tab.painel': 'Panel', 'tab.resumo': 'Resumen', 'tab.dividas': 'Deudas', 'tab.pagamentos': 'Pagos',
     'tab.vencimentos': 'Vencimientos', 'tab.relatorio': 'Informe', 'tab.configuracoes': 'Ajustes',
-    'acao.exportar': '⬇ Exportar', 'acao.importar': '⬆ Importar', 'acao.restaurar': '↩ Restaurar copia',
-    'divida.nova': '+ Nueva deuda', 'pagamento.novo': '+ Nuevo pago', 'pagamento.gerenciar': 'Gestionar pagos',
+    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar copia',
+    'divida.nova': 'Nueva deuda', 'pagamento.novo': 'Nuevo pago', 'pagamento.gerenciar': 'Gestionar pagos',
     'acao.editar': 'Editar', 'acao.excluir': 'Eliminar', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Guardar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Volver',
     'acao.fechar': 'Cerrar', 'acao.fecharSemSalvar': 'Cerrar sin guardar', 'acao.continuarEditando': 'Seguir editando', 'acao.continuar': 'Continuar',
@@ -540,12 +569,12 @@ const I18N = {
     'painel.totalDividas': 'Total de deudas',
     'col.divida': 'Deuda', 'col.categoria': 'Categoría', 'col.total': 'Total', 'col.pago': 'Pagado', 'col.saldo': 'Saldo', 'col.parcela': 'Cuota', 'col.vencimento': 'Vencimiento', 'col.valor': 'Importe', 'col.acao': 'Acción',
     'col.pagoResta': 'Pagado / resta', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Saldado', 'grafico.dividaCategoria': 'Deuda por categoría', 'grafico.pagoVsAberto': 'Pagado vs pendiente',
+    'grafico.total': 'Total', 'grafico.quitado': 'Saldado', 'grafico.dividaCategoria': 'Deuda por categoría', 'grafico.pagoVsAberto': 'Pagado vs pendiente', 'grafico.emAberto': 'Pendiente', 'grafico.pago': 'Pagado', 'grafico.semDivida': 'Sin deudas',
     'relatorio.titulo': 'Informe financiero', 'vencimentos.titulo': 'Vencimientos', 'vencimentos.atrasadas': 'Cuotas atrasadas',
     'vencimentos.proximas': 'Vencen en los próximos 7 días',
-    'vencimentos.nenhumaAtrasada': 'Ninguna cuota atrasada. 🎉',
+    'vencimentos.nenhumaAtrasada': 'Ninguna cuota atrasada.',
     'vencimentos.nenhumaProxima': 'Ninguna cuota próxima al vencimiento.',
-    'config.titulo': 'Ajustes', 'config.aparencia': 'Apariencia', 'config.tema': 'Tema',
+    'config.titulo': 'Ajustes', 'config.aparencia': 'Apariencia', 'config.cor': 'Color de destaque', 'config.corDestaque': 'Selecciona el color de destaque del sistema', 'config.tema': 'Tema',
     'config.fonte': 'Tamaño de letra', 'config.idioma': 'Idioma', 'config.dados': 'Datos',
     'nivel.titulo': 'Nivel', 'nivel.subiu': 'Subiste al nivel',
     'xp.dividaNova': 'Deuda registrada', 'xp.pagamento': 'Pago registrado',
@@ -561,6 +590,7 @@ const I18N = {
     'game.titulo': 'Puntos y Logros', 'game.resumo': 'Detalles de la puntuación', 'game.xpAtual': 'XP total',
     'game.faltamNivel': 'Faltan', 'game.nivel': 'Nivel', 'game.log': 'Historial de puntos', 'game.paraProximo': 'para alcanzar el nivel', 'game.nivelMax': 'Nivel máximo alcanzado',
     'game.logVazio': 'Ningún punto registrado aún. ¡Empieza agregando una deuda!',
+    'game.graficoXP': 'XP por actividad',
     'game.quests': 'Misiones (cómo puntuar)', 'game.q.nova': 'Registrar una nueva deuda', 'game.q.editar': 'Editar una deuda',
     'game.q.novaCarteira': 'Crear una nueva cartera', 'game.q.editarCarteira': 'Editar una cartera',
     'game.q.pag': 'Registrar un pago', 'game.q.gestao': 'Terminar de gestionar una deuda',
@@ -569,11 +599,15 @@ const I18N = {
     'tab.sobre': 'Acerca de',
     'sobre.titulo': 'Acerca de MeuBolso',
     'sobre.resumo': 'Resumen', 'sobre.sistema': 'Información del sistema', 'sobre.tech': 'Tecnologías',
+    'sobre.bootstrap': 'Framework CSS (componentes y tema)',
     'sobre.creditos': 'Créditos', 'sobre.licenca': 'Licencia',
+    'sobre.projeto': 'Proyecto', 'sobre.verProjeto': 'Ver proyecto en GitHub', 'sobre.verDevGitHub': 'Ver en GitHub',
+    'sobre.idiomas': 'Idiomas',
     'sobre.descricao': 'MeuBolso es un gestor de deudas minimalista para escritorio, dirigido a personas físicas que quieren controlar préstamos, tarjeta de crédito y financiaciones en un solo lugar. Registre deudas, siga cuotas y pagos, vea informes y mantenga la motivación con un sistema de puntos y niveles — todo de forma local, sin cuenta ni internet.',
     'sobre.dev': 'Desarrollado por', 'sobre.devNome': 'Marcelo Acácio', 'sobre.devCargo': 'Analista y Desarrollador de Sistemas',
     'sobre.copy': '© 2026 MeuBolso. Todos los derechos reservados.',
     'sobre.versaoApp': 'Versión de la app', 'sobre.versaoElectron': 'Electron', 'sobre.versaoNode': 'Node.js',
+    'techVue': 'Framework reactivo (vista)', 'techSQLite': 'Persistencia local (SQLite)', 'techChart': 'Gráficos (Chart.js)',
     'sobre.sistemaOp': 'Sistema operativo', 'sobre.arquitetura': 'Arquitectura',
     'modal.editarDivida': 'Editar deuda', 'modal.registrarPagamento': 'Registrar pago',
     'modal.editarPagamento': 'Editar pago', 'aviso.parcelas': 'Complete los datos de cada una de las ${n} cuota(s).',
@@ -589,6 +623,20 @@ const I18N = {
 function t(k) {
   return (I18N[idiomaAtual] && I18N[idiomaAtual][k] != null) ? I18N[idiomaAtual][k] : (I18N.pt[k] != null ? I18N.pt[k] : k);
 }
+
+// Expõe helpers para o restante do app (render de views, gráficos, badges)
+// consumir sem acoplar ao escopo fechado do app.js. Atualizado quando o
+// idioma muda.
+function catLabel(c) { return t(CATEGORIAS[c]?.label) || c; }
+window.MeuBolso = {
+  t, fmt, catLabel, totalDivida, totalPago, saldoDivida,
+  get idioma() { return idiomaAtual; },
+  // Referência ao estado reativo (Vue.reactive) para inspeção/extensibilidade.
+  // Mutar window.MeuBolso.estado.dividas (push/splice) e chamar render()
+  // faz a view recalcular sozinha — é isso que torna o Vue "dono da view".
+  estado
+};
+function atualizarMeuBolso() { window.MeuBolso = { t, fmt, catLabel, totalDivida, totalPago, saldoDivida, get idioma() { return idiomaAtual; }, estado }; }
 // Tradução com interpolação de variáveis: ti('chave', {n: 3}) substitui {n}.
 function ti(k, vars) {
   let s = t(k);
@@ -598,22 +646,55 @@ function ti(k, vars) {
 
 // Aplica tema e idioma persistidos ao carregar
 function aplicarTema() {
-  document.documentElement.setAttribute('data-theme', temaAtual === 'dark' ? 'dark' : 'light');
-  document.querySelectorAll('.prefs-btn[data-tema]').forEach(b => {
-    b.classList.toggle('ativo', b.dataset.tema === temaAtual);
+  const isDark = temaAtual === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  // Bootstrap 5.3 usa data-bs-theme para modo escuro nativo dos componentes.
+  document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+  document.querySelectorAll('[data-tema]').forEach(b => {
+    const on = b.dataset.tema === temaAtual;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 }
 function aplicarIdioma() {
   document.documentElement.setAttribute('lang', idiomaAtual === 'pt' ? 'pt-BR' : idiomaAtual);
-  document.querySelectorAll('.prefs-btn[data-idioma]').forEach(b => {
-    b.classList.toggle('ativo', b.dataset.idioma === idiomaAtual);
+  document.querySelectorAll('[data-idioma]').forEach(b => {
+    const on = b.dataset.idioma === idiomaAtual;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   traduzirEstaticos();
+}
+
+// Paleta de cores de destaque (cor primária do app + mapeamento Bootstrap).
+const ACENTOS = {
+  verde:   { primary: '#2d6a4f', hover: '#1b4332', rgb: '45,106,79',  textEmph: '#1b4332', bgSubtle: '#e6f3ec', borderSubtle: '#b7ddc9' },
+  azul:    { primary: '#1d4ed8', hover: '#1e40af', rgb: '29,78,216',  textEmph: '#13347f', bgSubtle: '#e6ecfd', borderSubtle: '#b7c5f2' },
+  roxo:    { primary: '#6d28d9', hover: '#5b21b6', rgb: '109,40,217', textEmph: '#4c1d95', bgSubtle: '#ece4fd', borderSubtle: '#cbbdf2' },
+  laranja: { primary: '#c2410c', hover: '#9a3412', rgb: '194,65,12', textEmph: '#7c2d12', bgSubtle: '#fbe6db', borderSubtle: '#f2c3aa' },
+  rosa:    { primary: '#be185d', hover: '#9d174d', rgb: '190,24,93',  textEmph: '#831843', bgSubtle: '#fbe3ee', borderSubtle: '#f2bcd4' }
+};
+let acentoAtual = (estado.configuracoes && estado.configuracoes.acento) || 'verde';
+
+function aplicarAceno() {
+  const a = ACENTOS[acentoAtual] || ACENTOS.verde;
+  const root = document.documentElement.style;
+  root.setProperty('--primary', a.primary);
+  root.setProperty('--primary-hover', a.hover);
+  root.setProperty('--bs-primary', a.primary);
+  root.setProperty('--bs-primary-rgb', a.rgb);
+  root.setProperty('--bs-primary-text-emphasis', a.textEmph);
+  root.setProperty('--bs-primary-bg-subtle', a.bgSubtle);
+  root.setProperty('--bs-primary-border-subtle', a.borderSubtle);
+  document.querySelectorAll('[data-accent]').forEach(b => {
+    b.classList.toggle('active', b.dataset.accent === acentoAtual);
+  });
 }
 function salvarPrefs() {
   estado.configuracoes = estado.configuracoes || {};
   estado.configuracoes.tema = temaAtual;
   estado.configuracoes.idioma = idiomaAtual;
+  estado.configuracoes.acento = acentoAtual;
   persistir();
 }
 // Traduz os textos estáticos do topbar e tabs (fora do #app, não re-renderizados)
@@ -713,109 +794,168 @@ function calcularMetricas() {
 function gerarInsights(m) {
   const out = [];
   if (m.totalDivida === 0) {
-    out.push({ tipo: 'neutro', ico: '📭', texto: ti('insight.vazio') });
+    out.push({ tipo: 'neutro', ico: ICON.vazio, texto: ti('insight.vazio') });
     return out;
   }
-  if (m.progresso >= 75) out.push({ tipo: 'bom', ico: '🎉', texto: ti('insight.quitadoAlto', { p: m.progresso.toFixed(0) }) });
-  else if (m.progresso >= 40) out.push({ tipo: 'bom', ico: '💪', texto: ti('insight.quitadoMedio', { p: m.progresso.toFixed(0) }) });
-  else if (m.progresso > 0) out.push({ tipo: 'aten', ico: '⏳', texto: ti('insight.quitadoBaixo', { p: m.progresso.toFixed(0) }) });
-  else out.push({ tipo: 'ruim', ico: '🚨', texto: ti('insight.nenhumPagamento') });
+  if (m.progresso >= 75) out.push({ tipo: 'bom', ico: ICON.festa, texto: ti('insight.quitadoAlto', { p: m.progresso.toFixed(0) }) });
+  else if (m.progresso >= 40) out.push({ tipo: 'bom', ico: ICON.forca, texto: ti('insight.quitadoMedio', { p: m.progresso.toFixed(0) }) });
+  else if (m.progresso > 0) out.push({ tipo: 'aten', ico: ICON.ampulheta, texto: ti('insight.quitadoBaixo', { p: m.progresso.toFixed(0) }) });
+  else out.push({ tipo: 'ruim', ico: ICON.alerta, texto: ti('insight.nenhumPagamento') });
 
   const atrasadas = (m.porStatus.find(s => s.key === 'atrasado') || {}).qtd || 0;
-  if (atrasadas > 0) out.push({ tipo: 'ruim', ico: '⚠️', texto: ti('insight.atrasadas', { n: atrasadas }) });
+  if (atrasadas > 0) out.push({ tipo: 'ruim', ico: ICON.alerta, texto: ti('insight.atrasadas', { n: atrasadas }) });
 
   const maior = estado.dividas.reduce((max, d) => (totalDivida(d) > totalDivida(max) ? d : max), estado.dividas[0]);
-  if (maior) out.push({ tipo: 'neutro', ico: '📌', texto: ti('insight.maior', { d: escapeHtml(maior.descricao), v: fmt.format(totalDivida(maior)) }) });
+  if (maior) out.push({ tipo: 'neutro', ico: ICON.marcador, texto: ti('insight.maior', { d: escapeHtml(maior.descricao), v: fmt.format(totalDivida(maior)) }) });
 
   const cartao = (m.porCategoria.find(c => c.key === 'cartao') || {}).valor || 0;
-  if (cartao > 0) out.push({ tipo: 'aten', ico: '💳', texto: ti('insight.cartao', { p: ((cartao / m.totalDivida) * 100).toFixed(0) }) });
+  if (cartao > 0) out.push({ tipo: 'aten', ico: ICON.cartao, texto: ti('insight.cartao', { p: ((cartao / m.totalDivida) * 100).toFixed(0) }) });
 
   const negociadas = (m.porStatus.find(s => s.key === 'negociado') || {}).qtd || 0;
-  if (negociadas > 0) out.push({ tipo: 'bom', ico: '🤝', texto: ti('insight.negociadas', { n: negociadas }) });
+  if (negociadas > 0) out.push({ tipo: 'bom', ico: ICON.acordo, texto: ti('insight.negociadas', { n: negociadas }) });
 
   const totalParcelas = estado.dividas.reduce((acc, d) => acc + (d.parcelas || []).length, 0);
-  if (totalParcelas > 12) out.push({ tipo: 'aten', ico: '🧩', texto: ti('insight.muitasParcelas', { n: totalParcelas }) });
+  if (totalParcelas > 12) out.push({ tipo: 'aten', ico: ICON.quebra, texto: ti('insight.muitasParcelas', { n: totalParcelas }) });
 
   return out;
 }
 
-// Gráfico de pizza (categorias)
+// Ícone SVG de carteira semi-aberta (neutro, em currentColor) — substitui o emoji.
+
+// Gráficos de pizza/rosca agora usam Chart.js (ver graficos-chartjs.js):
+// rotação inicial a partir do topo (como um relógio), fade/load suave e
+// hoverOffset (fatias se separam no hover). Cada função devolve um <canvas> e
+// registra os dados para montagem pós-render (Vue.nextTick).
+let __graficoSeq = 0;
 function graficoPizza(dados) {
   if (!dados.length) return '<p class="stat-sub">' + t('painel.semDados') + '</p>';
-  const total = dados.reduce((a, d) => a + d.valor, 0);
-  const cx = 90, cy = 90, r = 80;
-  let ang = -Math.PI / 2;
-  const fatias = dados.map(d => {
-    const frac = d.valor / total;
-    const a2 = ang + frac * Math.PI * 2;
-    const x1 = cx + r * Math.cos(ang), y1 = cy + r * Math.sin(ang);
-    const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
-    const large = frac > 0.5 ? 1 : 0;
-    const path = `M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} Z`;
-    ang = a2;
-    return `<path d="${path}" fill="${d.cor}"><title>${d.label}: ${fmt.format(d.valor)}</title></path>`;
-  }).join('');
-  return `<svg viewBox="0 0 180 180" role="img" aria-label="${t('grafico.dividaCategoria')}">${fatias}<circle cx="${cx}" cy="${cy}" r="34" fill="#fff"/><text x="90" y="86" text-anchor="middle" font-size="11" fill="#6b6b6b">${t('grafico.total')}</text><text x="90" y="100" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a1a">${fmt.format(total)}</text></svg>`;
-}
-
-// Gráfico de rosca (pago vs em aberto)
-function graficoRosca(m) {
-  const cx = 90, cy = 90, r = 80, rin = 50;
-  const pago = m.totalDivida > 0 ? m.totalPago / m.totalDivida : 0;
-  const aberto = 1 - pago;
-  const fatias = [];
-  if (m.totalDivida > 0) {
-    let ang = -Math.PI / 2;
-    const segs = [{ v: aberto, c: '#c1121f' }, { v: pago, c: '#2d6a4f' }];
-    for (const s of segs) {
-      if (s.v <= 0) continue;
-      const a2 = ang + s.v * Math.PI * 2;
-      const large = s.v > 0.5 ? 1 : 0;
-      const x1 = cx + r * Math.cos(ang), y1 = cy + r * Math.sin(ang);
-      const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
-      const xi2 = cx + rin * Math.cos(a2), yi2 = cy + rin * Math.sin(a2);
-      const xi1 = cx + rin * Math.cos(ang), yi1 = cy + rin * Math.sin(ang);
-      fatias.push({ path: `M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${rin},${rin} 0 ${large},0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z`, cor: s.c });
-      ang = a2;
-    }
+  // Ordena do MAIOR para o MENOR (maior fatia no topo, varrendo como relógio).
+  const ordenado = [...dados].sort((a, b) => b.valor - a.valor);
+  const total = ordenado.reduce((a, d) => a + d.valor, 0);
+  const id = 'chart-pizza-' + (__graficoSeq++);
+  if (window.ChartGraficos) {
+    window.ChartGraficos.registrar(id, {
+      tipo: 'doughnut',
+      labels: ordenado.map(d => d.label),
+      valores: ordenado.map(d => d.valor),
+      cores: ordenado.map(d => d.cor),
+      centroLabel: t('grafico.total'),
+      centroValor: fmt.format(total),
+      fmt: (v) => fmt.format(v)
+    });
   }
-  const paths = fatias.length ? fatias.map(f => `<path d="${f.path}" fill="${f.cor}"/>`).join('')
-    : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#e5e7eb"/>`;
-  return `<svg viewBox="0 0 180 180" role="img" aria-label="${t('grafico.pagoVsAberto')}">${paths}<circle cx="${cx}" cy="${cy}" r="${rin}" fill="#fff"/><text x="90" y="86" text-anchor="middle" font-size="11" fill="#6b6b6b">${t('grafico.quitado')}</text><text x="90" y="100" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a1a">${m.progresso.toFixed(0)}%</text></svg>`;
+  return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.dividaCategoria')}"></canvas></div>`;
 }
 
-// Gráfico de barras (status das parcelas)
+// Gráfico de rosca (pago vs em aberto).
+function graficoRosca(m) {
+  const id = 'chart-rosca-' + (__graficoSeq++);
+  if (window.ChartGraficos) {
+    const segs = [];
+    if (m.totalDivida > 0) {
+      const pago = m.totalPago / m.totalDivida;
+      const aberto = 1 - pago;
+      if (aberto > 0) segs.push({ label: t('grafico.emAberto'), v: aberto, c: '#c1121f' });
+      if (pago > 0) segs.push({ label: t('grafico.pago'), v: pago, c: '#2d6a4f' });
+      if (!segs.length) segs.push({ label: t('grafico.pago'), v: 1, c: '#2d6a4f' });
+    } else {
+      segs.push({ label: t('grafico.semDivida'), v: 1, c: '#e5e7eb' });
+    }
+    window.ChartGraficos.registrar(id, {
+      tipo: 'doughnut',
+      labels: segs.map(s => s.label),
+      valores: segs.map(s => s.v),
+      cores: segs.map(s => s.c),
+      centroLabel: t('grafico.quitado'),
+      centroValor: m.progresso.toFixed(0) + '%',
+      fmt: (v) => (v * 100).toFixed(0) + '%'
+    });
+  }
+  return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.pagoVsAberto')}"></canvas></div>`;
+}
+
+// Gráfico de barras (status das parcelas) — agora Chart.js (tipo 'bar'):
+// cada barra cresce de baixo p/ cima, com tooltip e hover. Cores por status.
 function graficoBarrasStatus(dados) {
   if (!dados.length) return '<p class="stat-sub">Sem parcelas.</p>';
-  const max = Math.max(...dados.map(d => d.qtd), 1);
-  const w = 240, h = 140, pad = 20;
-  const bw = (w - pad * 2) / dados.length - 10;
-  const bars = dados.map((d, i) => {
-    const bh = (d.qtd / max) * (h - pad * 2);
-    const x = pad + i * ((w - pad * 2) / dados.length) + 5;
-    const y = h - pad - bh;
-    return `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${d.cor}"><title>${d.label}: ${d.qtd}</title></rect>
-      <text x="${x + bw / 2}" y="${h - 6}" text-anchor="middle" font-size="10" fill="#6b6b6b">${d.label}</text>
-      <text x="${x + bw / 2}" y="${y - 4}" text-anchor="middle" font-size="11" font-weight="600" fill="#1a1a1a">${d.qtd}</text>`;
-  }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Status das parcelas">${bars}</svg>`;
+  const id = 'chart-barras-status-' + (__graficoSeq++);
+  if (window.ChartGraficos) {
+    window.ChartGraficos.registrar(id, {
+      tipo: 'bar',
+      labels: dados.map(d => d.label),
+      valores: dados.map(d => d.qtd),
+      cores: dados.map(d => d.cor),
+      fmt: (v) => v + ' parcelas'
+    });
+  }
+  return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="Status das parcelas"></canvas></div>`;
+}
+
+// Gráfico de barras de XP por motivo (tela de detalhes de pontos).
+// Usa o MESMO degradê da barra do menu (primary -> success-claro) e a
+// animação .chart-bar (cresce de baixo para cima, suave).
+function graficoBarrasXP(historico) {
+  if (!historico || !historico.length) return '<p class="stat-sub">' + t('game.logVazio') + '</p>';
+  // Agrega XP positivo por motivo (categoria).
+  const agregado = {};
+  for (const h of historico) {
+    if ((h.pontos || 0) <= 0) continue;
+    const chave = normalizarMotivoChave(h.motivo);
+    agregado[chave] = (agregado[chave] || 0) + h.pontos;
+  }
+  let dados = Object.entries(agregado)
+    .map(([chave, xp]) => {
+      const res = resolverMotivo(chave);
+      const label = res ? (res.quest ? t(res.quest) : t(chave)) : t(chave);
+      return { label, xp };
+    })
+    .sort((a, b) => b.xp - a.xp)
+    .slice(0, 6);
+  if (!dados.length) return '<p class="stat-sub">' + t('game.logVazio') + '</p>';
+
+  const id = 'chart-barras-xp-' + (__graficoSeq++);
+  if (window.ChartGraficos) {
+    window.ChartGraficos.registrar(id, {
+      tipo: 'bar',
+      degrade: true, // gradiente primário -> success-claro por barra
+      labels: dados.map(d => d.label),
+      valores: dados.map(d => d.xp),
+      fmt: (v) => '+' + v + ' XP'
+    });
+  }
+  return `<div class="game-grafico-wrap"><canvas id="${id}" role="img" aria-label="${t('game.graficoXP')}"></canvas></div>`;
 }
 
 let _toastTimer = null;
 function toast(msg, tipo = '') {
   const el = document.getElementById('toast');
+  if (!el) return;
   el.textContent = msg;
   el.className = `toast ${tipo}`;
-  // Garante que apareça (remove a classe hidden imediatamente)
+  // Garante que apareça: força display inline (especificidade máxima), o que
+  // SEMPRE vence o "display: none" que o Bootstrap 5 define na classe .toast
+  // (e qualquer outro CSS conflitante), independente da ordem de carregamento
+  // das folhas de estilo. Sem isso, o aviso de XP ficava invisível no Electron.
+  el.style.display = 'flex';
   el.classList.remove('hidden');
   // Cancela o timer anterior para não esconder um toast novo cedo demais
   if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+  _toastTimer = setTimeout(() => { el.classList.add('hidden'); el.style.display = ''; }, 2400);
 }
 
 // ---------- Persistência ----------
+// ---------- Persistência ----------
 async function carregar() {
-  estado = await window.api.carregar();
+  // NÃO reatribui `estado = ...` (perderia a reatividade do Vue.reactive).
+  // Carrega em um objeto temporário e faz merge no estado reativo.
+  const novo = await window.api.carregar();
+  Object.assign(estado, {
+    configuracoes: novo.configuracoes || { moeda: 'BRL' },
+    dividas: novo.dividas || [],
+    pagamentos: novo.pagamentos || [],
+    carteiras: novo.carteiras || [],
+    gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
+  });
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
   if (!estado.dividas) estado.dividas = [];
   if (!estado.pagamentos) estado.pagamentos = [];
@@ -919,15 +1059,15 @@ function tituloNivel(n) {
 // - 'quest' define o nome exibido no histórico (igual à lista de quests).
 // - 'quest: null' significa manter o nome original do motivo (apenas adiciona o ícone).
 const MAPA_MOTIVO = {
-  'xp.dividaNova':    { ico: '📝', quest: 'game.q.nova' },
-  'xp.pagamento':     { ico: '💳', quest: 'game.q.pag' },
-  'xp.gestao':        { ico: '🗂️', quest: 'game.q.gestao' },
-  'xp.quitou':        { ico: '🏁', quest: 'game.q.quitou' },
-  'xp.acesso':        { ico: '🚪', quest: 'game.q.acesso' },
-  'xp.novaCarteira':  { ico: '🪪', quest: 'game.q.novaCarteira' },
-  'xp.editarCarteira':{ ico: '✏️', quest: 'game.q.editarCarteira' },
-  'xp.desconhecido':  { ico: '✏️', quest: 'game.q.editar' },
-  'xp.saldoAnterior': { ico: '📦', quest: null }
+  'xp.dividaNova':    { ico: ICON.documento, quest: 'game.q.nova' },
+  'xp.pagamento':     { ico: ICON.cartao, quest: 'game.q.pag' },
+  'xp.gestao':        { ico: ICON.pasta, quest: 'game.q.gestao' },
+  'xp.quitou':        { ico: ICON.chegada, quest: 'game.q.quitou' },
+  'xp.acesso':        { ico: ICON.porta, quest: 'game.q.acesso' },
+  'xp.novaCarteira':  { ico: ICON.carteira, quest: 'game.q.novaCarteira' },
+  'xp.editarCarteira':{ ico: ICON.editar, quest: 'game.q.editarCarteira' },
+  'xp.desconhecido':  { ico: ICON.editar, quest: 'game.q.editar' },
+  'xp.saldoAnterior': { ico: ICON.caixa, quest: null }
 };
 
 // Resolve o ícone + nome a exibir para um motivo (aceita chave i18n OU texto já traduzido em pt/en/es).
@@ -1005,18 +1145,29 @@ function ganharXP(pontos, motivo) {
   });
   // Mantém no máximo 100 registros.
   if (estado.gamificacao.historico.length > 100) estado.gamificacao.historico.length = 100;
-  persistir();
+  // Salva em silêncio: o aviso de XP (toast abaixo) não deve ser sobrescrito
+  // por um eventual toast de "erro ao salvar" caso o salvamento falhe.
+  persistir(true);
   atualizarBadgeNivel();
-  // Mensagem de XP ganha — sempre exibida, mesmo quando há outra mensagem do sistema.
+  // Mensagem de XP (ganho OU perda) — sempre exibida, mesmo quando há outra
+  // mensagem do sistema. Exibida ANTES da celebração de nível, e o render() também
+  // roda antes: se celebrarNivel() lançar (ex.: canvas/confete no Electron), o aviso
+  // de XP e a atualização dos pontos/progresso ainda acontecem.
   const res = resolverMotivo(chaveMotivo);
   const nomeXP = res ? `${res.ico} ${t(res.quest || 'xp.desconhecido')}` : chaveMotivo;
-  const msgXP = `+${pontos} XP · ${nomeXP}`;
+  const sinal = pontos >= 0 ? '+' : '';
+  const msgXP = `${sinal}${pontos} XP · ${nomeXP}`;
+  toast(msgXP, 'success');
+  // Garante que a view (progress bar, registros, badge) reflita o novo estado,
+  // independente de o chamador chamar render() ou não — e ANTES da celebração,
+  // para que uma falha na celebração nunca impeça a atualização dos pontos.
+  render();
   if (estado.gamificacao.nivel > antes) {
     // Celebração centralizada e animada ao subir de nível (mostra o novo nível alcançado).
-    celebrarNivel(estado.gamificacao.nivel);
+    // Envolve em try/catch: um erro no confete/canvas não pode quebrar o fluxo de XP.
+    try { celebrarNivel(estado.gamificacao.nivel); }
+    catch (e) { console.error('Falha na celebração de nível:', e); }
   }
-  // Aviso de XP ganha é sempre exibido (mesmo ao subir de nível).
-  toast(msgXP, 'success');
 }
 // ---------- Celebração de subida de nível ----------
 // Exibe um overlay centralizado, destacado e animado mostrando o novo nível
@@ -1052,9 +1203,8 @@ function celebrarNivel(nivel) {
   // Dispara o confete brilhoso.
   iniciarConfete();
 
-  // Fecha automaticamente após alguns segundos (mantém o foco na celebração).
-  if (_levelupTimer) clearTimeout(_levelupTimer);
-  _levelupTimer = setTimeout(fecharLevelUp, 5200);
+  // NÃO fecha automaticamente: o overlay de parabenização permanece visível
+  // até o usuário clicar no botão "Seguir" (ou no próprio overlay / Esc).
 }
 
 let _levelupTimer = null;
@@ -1151,6 +1301,18 @@ document.addEventListener('click', (e) => {
     fecharLevelUp();
   }
 });
+
+// Abre links externos (http/https) no navegador padrão via preload (api.abrirLink),
+// em vez de tentar navegar dentro do Electron. Evita quebra de segurança (contextIsolation).
+document.addEventListener('click', (e) => {
+  const a = e.target && e.target.closest('a[href]');
+  if (!a) return;
+  const href = a.getAttribute('href') || '';
+  if (/^https?:\/\//i.test(href)) {
+    e.preventDefault();
+    if (window.api && window.api.abrirLink) window.api.abrirLink(href);
+  }
+});
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const overlay = document.getElementById('levelup-overlay');
@@ -1173,25 +1335,40 @@ function atualizarBadgeNivel() {
   } else {
     const proximoThreshold = NIVEIS[proximo - 1].xp; // xp necessário para o próximo nível
     const faltam = Math.max(0, proximoThreshold - xpTotal);
-    txtProgresso = `${xpTotal} / ${proximoThreshold} ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
+    txtProgresso = `${xpTotal} / ${proximoThreshold} XP ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
   }
-  el.innerHTML = `<div class='perfil-texto'><span class='nivel-ico'>🏆</span> ${t('nivel.titulo')} ${nivel} · ${tituloNivel(nivel)}</div>` +
+  el.innerHTML = `<div class='perfil-texto'><span class='nivel-ico'>${ICON.trofeu}</span> ${t('nivel.titulo')} ${nivel} · ${tituloNivel(nivel)}</div>` +
     `<span class='nivel-barra'><span style='width:${(resto / XP_POR_NIVEL) * 100}%'></span></span>` +
     `<span class='nivel-xp'>${txtProgresso}</span>` +
-    `<button class='nivel-btn' data-view='gamificacao' title='${t('nivel.verDetalhes')}'>${t('nivel.verDetalhes')} →</button>`;
+    `<button class='nivel-btn' data-view='gamificacao'>${t('nivel.verDetalhes')} ${ICON.setaDireita}</button>`;
 }
-async function persistir() {
-  const ok = await window.api.salvar(estado);
-  if (!ok) toast(t('toast.erroSalvar'), 'error');
+async function persistir(silencio = false) {
+  try {
+    const ok = await window.api.salvar(estado);
+    if (!ok && !silencio) toast(t('toast.erroSalvar'), 'error');
+  } catch (e) {
+    // NÃO deixa uma falha de salvamento (ex.: api.salvar rejeita no Electron)
+    // interromper o fluxo que chamou persistir() — caso contrário o ganho de XP,
+    // o toast e a atualização da progress bar/registros deixariam de acontecer.
+    console.error('Falha ao persistir estado:', e);
+    if (!silencio) toast(t('toast.erroSalvar'), 'error');
+  }
 }
 
 // ---------- Roteamento de views ----------
 let viewAtual = 'painel';
 function setView(v) {
   viewAtual = v;
+  if (window.__viewRef) window.__viewRef.value = v; // ref reativo: troca a view no root Vue
   document.querySelectorAll('.tab').forEach(t => {
     t.classList.toggle('active', t.dataset.view === v);
   });
+  // Ao abrir "Sobre", busca as informações reais do sistema (versões) via IPC.
+  // O render() só incrementa o tick; quando as infos chegarem, render() roda
+  // de novo e a view "Sobre" exibe os dados atualizados.
+  if (v === 'sobre' && !_sobreInfoCache) {
+    obterInfoSistema().then(() => { if (viewAtual === 'sobre') render(); });
+  }
   render();
 }
 
@@ -1213,16 +1390,27 @@ function abrirModal(titulo, campos, onSubmit) {
         const sel = String(opt.value) === String(c.value) ? ' selected' : '';
         return `<option value="${escapeAttr(opt.value)}"${sel}>${escapeHtml(opt.label)}</option>`;
       }).join('');
-      inputHtml = `<select name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
+      inputHtml = `<select class="form-select" name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
     } else if (c.type === 'textarea') {
-      inputHtml = `<textarea name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
+      inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
     } else {
-      inputHtml = `<input type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
+      inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
     }
-    return `<div class="campo"><label>${escapeHtml(c.label)}</label>${inputHtml}</div>`;
+    return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
   }).join('');
 
-  modalCard.innerHTML = `\n    <button type="button" class="modal-fechar" data-acao="fechar-modal-x" aria-label="${escapeAttr(t('modal.fechar'))}">×</button>\n    <h2 id="modal-titulo">${escapeHtml(titulo)}</h2>\n    <form id="form-modal" novalidate>\n      <div id="campos-form">${camposHtml}</div>\n      <div id="resumo-parcelas"></div>\n      <div class="form-actions">\n        <button type="button" id="btn-cancelar" class="btn btn-ghost">Cancelar</button>\n        <button type="submit" id="btn-salvar" class="btn btn-primary">Salvar</button>\n      </div>\n    </form>\n  `;
+  modalCard.innerHTML = `
+    <button type="button" class="modal-fechar" data-acao="fechar-modal-x" aria-label="${escapeAttr(t('modal.fechar'))}">×</button>
+    <h2 id="modal-titulo">${escapeHtml(titulo)}</h2>
+    <form id="form-modal" novalidate>
+      <div id="campos-form">${camposHtml}</div>
+      <div id="resumo-parcelas"></div>
+      <div class="form-actions">
+        <button type="button" id="btn-cancelar" class="btn btn-ghost">Cancelar</button>
+        <button type="submit" id="btn-salvar" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  `;
 
   // Mostra o modal
   const modal = document.getElementById('modal');
@@ -1324,7 +1512,7 @@ function abrirConfirmacao(opts) {
     const clsConfirmar = isPerigo ? 'btn btn-danger' : 'btn btn-primary';
     modalCard.innerHTML = `
       <div class="confirm-card ${isPerigo ? 'confirm-card--perigo' : ''}">
-        <div class="confirm-ico" aria-hidden="true">${isPerigo ? '⚠️' : 'ℹ️'}</div>
+        <div class="confirm-ico" aria-hidden="true">${isPerigo ? ICON.alerta : ICON.info}</div>
         <h2 id="confirm-titulo" class="confirm-titulo">${escapeHtml(o.titulo || t('acao.excluir'))}</h2>
         <p class="confirm-msg">${escapeHtml(o.mensagem || '')}</p>
         <div class="form-actions confirm-acoes">
@@ -1608,7 +1796,10 @@ function novoPagamento(dividaPreSelecionada = null) {
       nota: v.nota || '',
       carteiraId: v.carteiraId || null
     };
-    const r = aplicarDebitoCarteira(pagamento, 0, null);
+    // IMPORTANTE: aplicarDebitoCarteira é async (pode abrir confirmação de
+    // saldo insuficiente). Precisa de await, senão r é uma Promise e r.ok é
+    // undefined -> o pagamento nunca era salvo.
+    const r = await aplicarDebitoCarteira(pagamento, 0, null);
     if (!r.ok) { render(); return; } // usuário cancelou saldo insuficiente
     estado.pagamentos.push(pagamento);
     await persistir();
@@ -1909,7 +2100,7 @@ function lancarPagamentoParcela(d, parc) {
   modalSnapshotInicial = capturarModalSnapshot();
 
   const form = document.getElementById('form-parcela');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const valor = Number(form.querySelector('[name="valor"]').value) || 0;
     const data = form.querySelector('[name="data"]').value || hoje();
@@ -1919,11 +2110,11 @@ function lancarPagamentoParcela(d, parc) {
     const carteiraIdAntigo = existente ? (existente.carteiraId || null) : null;
     if (existente) {
       Object.assign(existente, { valor, data, nota, carteiraId });
-      const r = aplicarDebitoCarteira(existente, valorAntigo, carteiraIdAntigo);
+      const r = await aplicarDebitoCarteira(existente, valorAntigo, carteiraIdAntigo);
       if (!r.ok) { abrirGestaoDivida(d); return; } // cancelou saldo insuficiente
     } else {
       const pagamento = { id: uid(), dividaId: d.id, parcelaId: parc.id, valor, data, nota, carteiraId };
-      const r = aplicarDebitoCarteira(pagamento, 0, null);
+      const r = await aplicarDebitoCarteira(pagamento, 0, null);
       if (!r.ok) { abrirGestaoDivida(d); return; } // cancelou saldo insuficiente
       estado.pagamentos.push(pagamento);
     }
@@ -1987,29 +2178,16 @@ function calcularVencimentos() {
 }
 
 function render() {
-  const app = document.getElementById('app');
-  if (viewAtual === 'painel') app.innerHTML = renderPainel();
-  else if (viewAtual === 'relatorio') app.innerHTML = renderRelatorio();
-  else if (viewAtual === 'dividas') app.innerHTML = renderDividas();
-  else if (viewAtual === 'pagamentos') app.innerHTML = renderPagamentos();
-  else if (viewAtual === 'vencimentos') app.innerHTML = renderVencimentos();
-  else if (viewAtual === 'gamificacao') app.innerHTML = renderGamificacao();
-  else if (viewAtual === 'sobre') app.innerHTML = renderSobre();
-  else if (viewAtual === 'carteiras') app.innerHTML = renderCarteiras();
-  else app.innerHTML = renderConfiguracoes();
-  // Ao abrir "Sobre", busca as informações reais do sistema (versões) via IPC.
-  if (viewAtual === 'sobre' && !_sobreInfoCache) {
-    obterInfoSistema().then(() => { if (viewAtual === 'sobre') render(); });
+  // Vue é DONO da view: NUNCA reescrevemos o #app aqui. Apenas incrementamos
+  // o tick reativo — o root <component :is> e os componentes de view observam
+  // uiTick e recalculam o v-html sozinhos (sem congelamento no Electron).
+  if (typeof window.uiTick !== 'undefined') window.uiTick.value++;
+  // Os gráficos Chart.js (pizza/rosca) usam <canvas> dentro do v-html; precisam
+  // ser montados APÓS o Vue atualizar o DOM. Agendamos via nextTick.
+  if (typeof Vue !== 'undefined' && Vue.nextTick && window.ChartGraficos) {
+    Vue.nextTick(() => { try { window.ChartGraficos.montar(); } catch (_) {} });
   }
-  // re-amarra os handlers APENAS dentro do <main> recém-renderizado
-  app.querySelectorAll('[data-acao]').forEach(b => {
-    b.addEventListener('click', () => {
-      const acao = b.dataset.acao;
-      const id = b.dataset.id;
-      handlers[acao]?.(id, b);
-    });
-  });
-  // Atualiza os contadores da sidebar a cada render.
+  // Atualiza os contadores da sidebar a cada "render".
   atualizarBadges();
 }
 
@@ -2020,52 +2198,72 @@ function renderPainel() {
   return `
     <div class="page-header"><h2>${t('painel.titulo')}</h2></div>
 
-    <div class="grid-dash">
-      <div class="panel">
-        <h3>${t('painel.resumo')}</h3>
-        <div class="stat-big">${fmt.format(metricas.totalDivida)}</div>
-        <div class="stat-sub">${t('painel.totalDividas')} (${estado.dividas.length})</div>
-        <div style="margin-top:14px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted)">
-            <span>${t('painel.quitado')}</span><span>${metricas.progresso.toFixed(0)}%</span>
+    <div class="row row-cols-1 row-cols-lg-3 g-3 mb-4">
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.resumo')}</h3>
+            <div class="h3 mb-1">${fmt.format(metricas.totalDivida)}</div>
+            <div class="text-secondary small">${t('painel.totalDividas')} (${estado.dividas.length})</div>
+            <div class="d-flex justify-content-between text-secondary small mt-3 mb-1">
+              <span>${t('painel.quitado')}</span><span>${metricas.progresso.toFixed(0)}%</span>
+            </div>
+            <div class="progress" style="height:8px">
+              <div class="progress-bar" style="width:${metricas.progresso}%"></div>
+            </div>
+            <div class="d-flex gap-4 mt-3">
+              <div><div class="text-secondary small">${t('painel.pago')}</div><div class="fw-semibold text-success">${fmt.format(metricas.totalPago)}</div></div>
+              <div><div class="text-secondary small">${t('painel.saldo')}</div><div class="fw-semibold text-danger">${fmt.format(metricas.saldo)}</div></div>
+            </div>
           </div>
-          <div class="barra-progresso"><div style="width:${metricas.progresso}%"></div></div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:14px">
-          <div><div class="stat-sub">${t('painel.pago')}</div><div style="font-weight:600;color:var(--success)">${fmt.format(metricas.totalPago)}</div></div>
-          <div><div class="stat-sub">${t('painel.saldo')}</div><div style="font-weight:600;color:var(--danger)">${fmt.format(metricas.saldo)}</div></div>
         </div>
       </div>
 
-      <div class="panel">
-        <h3>${t('painel.categoria')}</h3>
-        <div class="chart-wrap">${graficoPizza(metricas.porCategoria)}</div>
-        ${metricas.porCategoria.length ? `<div class="legend">${metricas.porCategoria.map(c => `
-          <span class="legend-item"><span class="legend-dot" style="background:${c.cor}"></span>${c.label} ${fmt.format(c.valor)}</span>`).join('')}</div>` : `<p class="stat-sub">${t('painel.semDados')}</p>`}
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.categoria')}</h3>
+            <div class="chart-wrap">${graficoPizza(metricas.porCategoria)}</div>
+            ${metricas.porCategoria.length ? `<div class="legend">${metricas.porCategoria.map(c => `
+              <span class="legend-item"><span class="legend-dot" style="background:${c.cor}"></span>${c.label} ${fmt.format(c.valor)}</span>`).join('')}</div>` : `<p class="text-secondary small mb-0">${t('painel.semDados')}</p>`}
+          </div>
+        </div>
       </div>
 
-      <div class="panel">
-        <h3>${t('painel.composicao')}</h3>
-        <div class="chart-wrap">${graficoRosca(metricas)}</div>
-        <div class="legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#2d6a4f"></span>${t('painel.pago')} ${fmt.format(metricas.totalPago)}</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#c1121f"></span>${t('painel.emAberto')} ${fmt.format(metricas.saldo)}</span>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.composicao')}</h3>
+            <div class="chart-wrap">${graficoRosca(metricas)}</div>
+            <div class="legend">
+              <span class="legend-item"><span class="legend-dot" style="background:#2d6a4f"></span>${t('painel.pago')} ${fmt.format(metricas.totalPago)}</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#c1121f"></span>${t('painel.emAberto')} ${fmt.format(metricas.saldo)}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="grid-dash">
-      <div class="panel" style="grid-column: span 2">
-        <h3>${t('painel.insights')}</h3>
-        <ul class="insights">
-          ${insights.map(i => `<li class="insight ${i.tipo}"><span class="ico">${i.ico}</span><span>${i.texto}</span></li>`).join('')}
-        </ul>
+    <div class="row row-cols-1 row-cols-lg-3 g-3">
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.insights')}</h3>
+            <ul class="list-group list-group-flush">
+              ${insights.map(i => `<li class="list-group-item d-flex gap-2 align-items-start px-0 border-0"><span>${i.ico}</span><span>${i.texto}</span></li>`).join('')}
+            </ul>
+          </div>
+        </div>
       </div>
-      <div class="panel">
-        <h3>${t('painel.status')}</h3>
-        <div class="chart-wrap">${graficoBarrasStatus(metricas.porStatus)}</div>
-        <div class="legend">
-          ${metricas.porStatus.map(s => `<span class="legend-item"><span class="legend-dot" style="background:${s.cor}"></span>${s.label} ${s.qtd}</span>`).join('')}
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.status')}</h3>
+            <div class="chart-wrap">${graficoBarrasStatus(metricas.porStatus)}</div>
+            <div class="legend">
+              ${metricas.porStatus.map(s => `<span class="legend-item"><span class="legend-dot" style="background:${s.cor}"></span>${s.label} ${s.qtd}</span>`).join('')}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2099,53 +2297,82 @@ function renderRelatorio() {
 
   return `
     <div class="page-header"><h2>${t('relatorio.titulo')}</h2></div>
-    <div class="cards">
-      <div class="card">
-        <div class="label">${t('resumo.totalDividas')}</div>
-        <div class="valor">${fmt.format(total)}</div>
-        <div class="barra-progresso"><div style="width:${progresso}%"></div></div>
-        <div class="label" style="margin-top:6px">${progresso.toFixed(0)}% ${t('resumo.quitado')}</div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-secondary text-uppercase small mb-1">${t('resumo.totalDividas')}</div>
+            <div class="h4 mb-2">${fmt.format(total)}</div>
+            <div class="progress" role="progressbar" aria-label="${progresso.toFixed(0)}${t('resumo.quitado')}" style="height:6px">
+              <div class="progress-bar" style="width:${progresso}%"></div>
+            </div>
+            <div class="text-secondary small mt-1">${progresso.toFixed(0)}${t('resumo.quitado')}</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="label">${t('resumo.totalPago')}</div>
-        <div class="valor positivo">${fmt.format(pago)}</div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-secondary text-uppercase small mb-1">${t('resumo.totalPago')}</div>
+            <div class="h4 mb-0 text-success">${fmt.format(pago)}</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="label">${t('resumo.saldoPagar')}</div>
-        <div class="valor negativo">${fmt.format(saldo)}</div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-secondary text-uppercase small mb-1">${t('resumo.saldoPagar')}</div>
+            <div class="h4 mb-0 text-danger">${fmt.format(saldo)}</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="label">${t('resumo.dividasAtivas')}</div>
-        <div class="valor">${restantes}</div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-secondary text-uppercase small mb-1">${t('resumo.dividasAtivas')}</div>
+            <div class="h4 mb-0">${restantes}</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="page-header"><h2 style="font-size:16px">${t('resumo.proximos7')}</h2></div>
+    <h3 class="h6 text-secondary mb-2">${t('resumo.proximos7')}</h3>
     ${proximas.length === 0 ? `
-      <div class="lista"><div class="empty">
-        <div class="emoji">✓</div>
+      <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+        <span style="font-size:18px">${ICON.check}</span>
         <div>${t('resumo.nenhumaProxima')}</div>
-      </div></div>
+      </div>
     ` : `
-      <div class="lista">
-        <div class="lista-header" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 100px">
-          <div>${t('col.divida')}</div><div>${t('col.parcela')}</div><div>${t('col.vencimento')}</div><div>${t('col.valor')}</div><div>${t('col.acao')}</div>
+      <div class="card shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>${t('col.divida')}</th>
+                <th>${t('col.parcela')}</th>
+                <th>${t('col.vencimento')}</th>
+                <th class="text-end">${t('col.valor')}</th>
+                <th class="text-end">${t('col.acao')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${proximas.map(({divida, parcela}) => `
+                <tr>
+                  <td>
+                    <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
+                    <div class="text-secondary small">${escapeHtml(divida.credor)}</div>
+                  </td>
+                  <td>${parcela.numero}</td>
+                  <td>${fmtData(parcela.vencimento)}</td>
+                  <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
-        ${proximas.map(({divida, parcela}) => `
-          <div class="item-linha" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 100px">
-            <div>
-              <div class="titulo">${escapeHtml(divida.descricao)}</div>
-              <div class="subtitulo">${escapeHtml(divida.credor)}</div>
-            </div>
-            <div>${parcela.numero}</div>
-            <div>${fmtData(parcela.vencimento)}</div>
-            <div class="valor-saldo pendente">${fmt.format(parcela.valor)}</div>
-            <div>
-              <button class="btn btn-primary" style="font-size:12px;padding:4px 8px"
-                data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
-            </div>
-          </div>
-        `).join('')}
       </div>
     `}
   `;
@@ -2155,36 +2382,49 @@ function renderRelatorio() {
 function renderVencimentos() {
   const { proximas, atrasadas } = calcularVencimentos();
   const linha = ({ divida, parcela }, atrasada) => `
-    <div class="item-linha" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 100px">
-      <div>
-        <div class="titulo">${escapeHtml(divida.descricao)}</div>
-        <div class="subtitulo">${escapeHtml(divida.credor)}</div>
-      </div>
-      <div>${parcela.numero}</div>
-      <div>${fmtData(parcela.vencimento)}</div>
-      <div class="valor-saldo ${atrasada ? 'atrasado' : 'pendente'}">${fmt.format(parcela.valor)}</div>
-      <div>
-        <button class="btn btn-primary" style="font-size:12px;padding:4px 8px"
-          data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
-      </div>
-    </div>`;
+    <tr>
+      <td>
+        <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
+        <div class="text-secondary small">${escapeHtml(divida.credor)}</div>
+      </td>
+      <td>${parcela.numero}</td>
+      <td>${fmtData(parcela.vencimento)}</td>
+      <td class="text-end ${atrasada ? 'text-danger fw-bold' : 'text-danger'}">${fmt.format(parcela.valor)}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
+      </td>
+    </tr>`;
 
   const bloco = (titulo, itens, atrasada, vazio) => `
-    <div class="page-header"><h2 style="font-size:16px">${titulo}</h2></div>
+    <h3 class="h6 ${atrasada ? 'text-danger' : 'text-secondary'} mb-2">${titulo}</h3>
     ${itens.length === 0 ? `
-      <div class="lista"><div class="empty"><div class="emoji">✓</div><div>${vazio}</div></div></div>
+      <div class="alert ${atrasada ? 'alert-danger' : 'alert-success'} d-flex align-items-center gap-2" role="status">
+        <span style="font-size:18px">${ICON.check}</span>
+        <div>${vazio}</div>
+      </div>
     ` : `
-      <div class="lista">
-        <div class="lista-header" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 100px">
-          <div>${t('col.divida')}</div><div>${t('col.parcela')}</div><div>${t('col.vencimento')}</div><div>${t('col.valor')}</div><div>${t('col.acao')}</div>
+      <div class="card shadow-sm mb-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>${t('col.divida')}</th>
+                <th>${t('col.parcela')}</th>
+                <th>${t('col.vencimento')}</th>
+                <th class="text-end">${t('col.valor')}</th>
+                <th class="text-end">${t('col.acao')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itens.map(i => linha(i, atrasada)).join('')}
+            </tbody>
+          </table>
         </div>
-        ${itens.map(i => linha(i, atrasada)).join('')}
       </div>`}`;
 
   return `
     <div class="page-header"><h2>${t('vencimentos.titulo')}</h2></div>
     ${bloco(t('vencimentos.atrasadas'), atrasadas, true, t('vencimentos.nenhumaAtrasada'))}
-    <div style="height:18px"></div>
     ${bloco(t('vencimentos.proximas'), proximas, false, t('vencimentos.nenhumaProxima'))}
   `;
 }
@@ -2195,45 +2435,67 @@ function renderConfiguracoes() {
   const tamFonte = fs > 1.15 ? 'Grande' : fs < 0.95 ? 'Pequena' : 'Padrão';
   return `
     <div class="page-header"><h2>${t('config.titulo')}</h2></div>
-    <div class="config-grid">
-      <section class="config-secao">
-        <h3>${t('config.aparencia')}</h3>
-        <div class="config-linha">
-          <span>${t('config.tema')}</span>
-          <div class="prefs-grupo" role="group" aria-label="Tema">
-            <button class="prefs-btn ${temaAtual === 'light' ? 'ativo' : ''}" data-tema="light" title="Tema claro">☀️ Claro</button>
-            <button class="prefs-btn ${temaAtual === 'dark' ? 'ativo' : ''}" data-tema="dark" title="Tema escuro">🌙 Escuro</button>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" style="max-width:1000px">
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('config.aparencia')}</h3>
+          <div class="config-linha">
+            <span>${t('config.tema')}</span>
+            <div class="btn-group" role="group" aria-label="Tema">
+              <button class="btn btn-outline-secondary ${temaAtual === 'light' ? 'active' : ''}" data-tema="light">${ICON.sol} Claro</button>
+              <button class="btn btn-outline-secondary ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark">${ICON.lua} Escuro</button>
+            </div>
           </div>
-        </div>
-        <div class="config-linha">
-          <span>${t('config.fonte')} (${tamFonte})</span>
-          <div class="prefs-grupo" role="group" aria-label="Tamanho da fonte">
-            <button class="prefs-btn" data-fonte="aumentar" title="Aumentar fonte">🔼 A</button>
-            <button class="prefs-btn" data-fonte="diminuir" title="Diminuir fonte">🔽 a</button>
+          <div class="config-linha">
+            <span>${t('config.fonte')} (${tamFonte})</span>
+            <div class="btn-group" role="group" aria-label="Tamanho da fonte">
+              <button class="btn btn-outline-secondary" data-fonte="aumentar" title="Aumentar fonte">${ICON.setaCima} A</button>
+              <button class="btn btn-outline-secondary" data-fonte="diminuir" title="Diminuir fonte">${ICON.setaBaixo} a</button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="config-secao">
-        <h3>${t('config.idioma')}</h3>
-        <div class="config-linha">
-          <span>${t('config.idioma')}</span>
-          <div class="prefs-grupo" role="group" aria-label="Idioma">
-            <button class="prefs-btn ${idiomaAtual === 'pt' ? 'ativo' : ''}" data-idioma="pt" title="Português"><span class="bandeira">🇧🇷</span> PT</button>
-            <button class="prefs-btn ${idiomaAtual === 'en' ? 'ativo' : ''}" data-idioma="en" title="English"><span class="bandeira">🇺🇸</span> EN</button>
-            <button class="prefs-btn ${idiomaAtual === 'es' ? 'ativo' : ''}" data-idioma="es" title="Español"><span class="bandeira">🇪🇸</span> ES</button>
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('config.cor')}</h3>
+          <div class="config-linha">
+            <span>${t('config.corDestaque')}</span>
+            <div class="gear-grupo gear-cores" role="group" aria-label="Cor de destaque">
+              <button class="gear-cor ${acentoAtual === 'verde' ? 'active' : ''}" data-accent="verde" style="--sw:#2d6a4f" title="Verde" aria-label="Verde"></button>
+              <button class="gear-cor ${acentoAtual === 'azul' ? 'active' : ''}" data-accent="azul" style="--sw:#1d4ed8" title="Azul" aria-label="Azul"></button>
+              <button class="gear-cor ${acentoAtual === 'roxo' ? 'active' : ''}" data-accent="roxo" style="--sw:#6d28d9" title="Roxo" aria-label="Roxo"></button>
+              <button class="gear-cor ${acentoAtual === 'laranja' ? 'active' : ''}" data-accent="laranja" style="--sw:#c2410c" title="Laranja" aria-label="Laranja"></button>
+              <button class="gear-cor ${acentoAtual === 'rosa' ? 'active' : ''}" data-accent="rosa" style="--sw:#be185d" title="Rosa" aria-label="Rosa"></button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="config-secao">
-        <h3>${t('config.dados')}</h3>
-        <div class="config-acoes">
-          <button class="btn btn-ghost" data-acao="exportar" title="Exportar dados para um arquivo JSON">⬇️ ${t('acao.exportar')}</button>
-          <button class="btn btn-ghost" data-acao="importar" title="Importar dados de um arquivo JSON">⬆️ ${t('acao.importar')}</button>
-          <button class="btn btn-ghost" data-acao="restaurar" title="Restaurar a partir do backup automático local">♻️ ${t('acao.restaurar')}</button>
-        </div>
-      </section>
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('config.idioma')}</h3>
+          <div class="config-linha">
+            <span>${t('config.idioma')}</span>
+            <div class="btn-group" role="group" aria-label="Idioma">
+              <button class="btn btn-outline-secondary ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="Português"><span class="bandeira">${ICON.br}</span> PT</button>
+              <button class="btn btn-outline-secondary ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="English"><span class="bandeira">${ICON.us}</span> EN</button>
+              <button class="btn btn-outline-secondary ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="Español"><span class="bandeira">${ICON.es}</span> ES</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('config.dados')}</h3>
+          <div class="config-acoes">
+            <button class="btn btn-outline-secondary" data-acao="exportar" title="Exportar dados para um arquivo JSON">${ICON.exportar} ${t('acao.exportar')}</button>
+            <button class="btn btn-outline-secondary" data-acao="importar" title="Importar dados de um arquivo JSON">${ICON.importar} ${t('acao.importar')}</button>
+            <button class="btn btn-outline-secondary" data-acao="restaurar" title="Restaurar a partir do backup automático local">${ICON.reciclar} ${t('acao.restaurar')}</button>
+          </div>
+        </section>
+      </div>
     </div>
   `;
 }
@@ -2258,15 +2520,15 @@ function renderGamificacao() {
     // Mesma base do card do menu: progresso DENTRO do nível atual (resto / XP_POR_NIVEL),
     // para que a barra zere ao subir de nível e seja consistente entre as telas.
     pctBarra = (resto / XP_POR_NIVEL) * 100;
-    txtProgresso = `${xpTotal} / ${proximoThreshold} ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
+    txtProgresso = `${xpTotal} / ${proximoThreshold} XP ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
   }
 
   // --- Detalhes da pontuação ---
   const detalhes = `
     <section class="config-secao game-resumo">
       <h3>${t('game.resumo')}</h3>
-      <div class="game-nivel-grande">🏆 ${t('nivel.titulo')} ${nivel} — ${tituloNivel(nivel)}</div>
-      <div class="barra-progresso"><div style="width:${pctBarra}%"></div></div>
+      <div class="game-nivel-grande">${ICON.trofeu} ${t('nivel.titulo')} ${nivel} — ${tituloNivel(nivel)}</div>
+      <div class="barra-progresso barra-pontos"><div class="barra-progresso-preenchimento" style="width:${pctBarra}%"></div></div>
       <div class="game-xp-linha">
         <span>${t('game.xpAtual')}: <b>${xpTotal}</b></span>
         <span>${xpTotal} / ${proximoThreshold} XP</span>
@@ -2274,7 +2536,12 @@ function renderGamificacao() {
       <p class="game-faltam"><b>${txtProgresso}</b></p>
     </section>`;
 
-  // --- Log de pontos obtidos ---
+  // --- Gráfico de barras: XP por motivo (mesmo degradê da barra do menu) ---
+  const graficoXP = `
+    <section class="config-secao game-grafico">
+      <h3>${t('game.graficoXP')}</h3>
+      <div class="game-grafico-wrap">${graficoBarrasXP(g.historico)}</div>
+    </section>`;
   const historico = (g.historico || []).slice(0, 30);
   const log = `
     <section class="config-secao">
@@ -2309,14 +2576,14 @@ function renderGamificacao() {
 
   // --- Quests (desafios) que geram pontos ---
   const quests = [
-    { ico: '📝', tit: t('game.q.nova'), pts: '+10 XP' },
-    { ico: '✏️', tit: t('game.q.editar'), pts: '+5 XP' },
-    { ico: '💳', tit: t('game.q.pag'), pts: '+15 XP' },
-    { ico: '🗂️', tit: t('game.q.gestao'), pts: '+5 XP' },
-    { ico: '🏁', tit: t('game.q.quitou'), pts: '+50 XP' },
-    { ico: '🪪', tit: t('game.q.novaCarteira'), pts: '+20 XP' },
-    { ico: '✏️', tit: t('game.q.editarCarteira'), pts: '+5 XP' },
-    { ico: '🚪', tit: t('game.q.acesso'), pts: '+3 XP' }
+    { ico: ICON.documento, tit: t('game.q.nova'), pts: '+10 XP' },
+    { ico: ICON.editar, tit: t('game.q.editar'), pts: '+5 XP' },
+    { ico: ICON.cartao, tit: t('game.q.pag'), pts: '+15 XP' },
+    { ico: ICON.pasta, tit: t('game.q.gestao'), pts: '+5 XP' },
+    { ico: ICON.chegada, tit: t('game.q.quitou'), pts: '+50 XP' },
+    { ico: ICON.carteira, tit: t('game.q.novaCarteira'), pts: '+20 XP' },
+    { ico: ICON.editar, tit: t('game.q.editarCarteira'), pts: '+5 XP' },
+    { ico: ICON.porta, tit: t('game.q.acesso'), pts: '+3 XP' }
   ];
   const questsHtml = `
     <section class="config-secao">
@@ -2350,6 +2617,7 @@ function renderGamificacao() {
     <div class="page-header"><h2>${t('game.titulo')}</h2></div>
     <div class="config-grid config-grid--wide">
       ${detalhes}
+      ${graficoXP}
       ${log}
       ${questsHtml}
       ${tabela}
@@ -2372,6 +2640,8 @@ async function obterInfoSistema() {
 
 function renderSobre() {
   const info = _sobreInfoCache || {};
+  const REPO_URL = 'https://github.com/marceloacaci/meubolso';
+  const DEV_URL = 'https://github.com/marceloacaci';
   const linha = (rotulo, valor) => `
     <div class="sobre-linha">
       <span class="sobre-rotulo">${rotulo}</span>
@@ -2379,54 +2649,66 @@ function renderSobre() {
     </div>`;
 
   const techs = [
-    { ico: '⚡', nome: 'Electron', desc: t('sobre.versaoElectron') + (info.electron ? ' ' + info.electron : '') },
-    { ico: '🟢', nome: 'Node.js', desc: t('sobre.versaoNode') + (info.node ? ' ' + info.node : '') },
-    { ico: '🌐', nome: 'Chromium', desc: info.chrome ? 'v' + info.chrome : 'Browser engine' },
-    { ico: '🟨', nome: 'JavaScript (ES2022)', desc: 'Vanilla JS' },
-    { ico: '🎨', nome: 'HTML5 + CSS3', desc: 'Sem frameworks de UI' },
-    { ico: '🔒', nome: 'Context Isolation', desc: 'Electron preload + ipcRenderer' }
+    { ico: ICON.raio, nome: 'Electron', desc: t('sobre.versaoElectron') + (info.electron ? ' ' + info.electron : '') },
+    { ico: ICON.nodejs, nome: 'Node.js', desc: t('sobre.versaoNode') + (info.node ? ' ' + info.node : '') },
+    { ico: ICON.globo, nome: 'Chromium', desc: info.chrome ? 'v' + info.chrome : 'Browser engine' },
+    { ico: ICON.javascript, nome: 'JavaScript (ES2022)', desc: 'Vanilla JS' },
+    { ico: ICON.bootstrap, nome: 'Bootstrap 5.3', desc: t('sobre.bootstrap') },
+    { ico: ICON.cadeado, nome: 'Context Isolation', desc: 'Electron preload + ipcRenderer' },
+    { ico: ICON.engrenagem, nome: 'Vue 3', desc: t('techVue') },
+    { ico: ICON.documento, nome: 'SQLite', desc: t('techSQLite') },
+    { ico: ICON.grafico || ICON.relatorio, nome: 'Chart.js', desc: t('techChart') }
   ];
 
   return `
-    <div class="page-header"><h2>ℹ️ ${t('sobre.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.sobre} ${t('sobre.titulo')}</h2></div>
 
     <div class="config-grid sobre-grid">
 
       <section class="config-secao sobre-secao">
-        <h3>💡 ${t('sobre.resumo')}</h3>
+        <h3>${ICON.lampada} ${t('sobre.resumo')}</h3>
         <p class="sobre-descricao">${t('sobre.descricao')}</p>
+        <div class="sobre-link-repo">
+          <a href="${REPO_URL}" target="_blank" rel="noopener noreferrer" class="sobre-link">
+            ${ICON.github} <span>${t('sobre.verProjeto')}</span>
+          </a>
+        </div>
       </section>
 
       <section class="config-secao sobre-secao">
-        <h3>🛠️ ${t('sobre.tech')}</h3>
-        <ul class="sobre-tech">
+        <h3>${ICON.ferramenta} ${t('sobre.tech')}</h3>
+        <ul class="list-group">
           ${techs.map(te => `
-            <li><span class="sobre-tech-ico">${te.ico}</span>
+            <li class="list-group-item d-flex align-items-center gap-3"><span class="sobre-tech-ico">${te.ico}</span>
               <span class="sobre-tech-nome">${te.nome}</span>
-              <span class="sobre-tech-desc">${escapeHtml(te.desc)}</span></li>`).join('')}
+              <span class="sobre-tech-desc ms-auto">${escapeHtml(te.desc)}</span></li>`).join('')}
         </ul>
       </section>
 
       <section class="config-secao sobre-secao" id="sobre-sistema">
-        <h3>🖥️ ${t('sobre.sistema')}</h3>
+        <h3>${ICON.monitor} ${t('sobre.sistema')}</h3>
         ${linha(t('sobre.versaoApp'), info.appVersion)}
         ${linha(t('sobre.versaoElectron'), info.electron)}
         ${linha(t('sobre.versaoNode'), info.node)}
         ${linha('Chromium', info.chrome)}
         ${linha(t('sobre.sistemaOp'), info.so)}
         ${linha(t('sobre.arquitetura'), info.arquitetura)}
+        ${linha(t('sobre.idiomas'), 'Português · English · Español')}
       </section>
 
       <section class="config-secao sobre-secao">
-        <h3>👤 ${t('sobre.creditos')}</h3>
+        <h3>${ICON.pessoa} ${t('sobre.creditos')}</h3>
         <div class="sobre-creditos">
           <div class="sobre-dev-rotulo">${t('sobre.dev')}: ${t('sobre.devNome')}</div>
           <div class="sobre-dev-cargo">${t('sobre.devCargo')}</div>
+          <a href="${DEV_URL}" target="_blank" rel="noopener noreferrer" class="sobre-link sobre-link-dev">
+            ${ICON.github} <span>${t('sobre.verDevGitHub')}</span>
+          </a>
         </div>
       </section>
 
       <section class="config-secao sobre-secao sobre-licenca">
-        <h3>📄 ${t('sobre.licenca')}</h3>
+        <h3>${ICON.documento} ${t('sobre.licenca')}</h3>
         <p class="sobre-copy">${t('sobre.copy')}</p>
       </section>
 
@@ -2447,31 +2729,32 @@ function renderCarteiras() {
   const total = saldoTotalCarteiras();
 
   const lista = carteiras.length === 0
-    ? `<div class="lista"><div class="empty">
-         <div class="emoji">🪪</div>
-         <div>${t('carteira.vazia')}</div>
-       </div></div>`
-    : `<div class="lista carteiras-lista">
+    ? `<div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+       <span style="font-size:20px">${ICON.carteira}</span>
+       <div>${t('carteira.vazia')}</div>
+     </div>`
+    : `<div class="vstack gap-2">
          ${carteiras.map(c => `
-           <div class="carteira-card">
-             <div class="carteira-info">
-               <div class="carteira-nome">${escapeHtml(c.nome)}</div>
-               <div class="carteira-saldo">${fmt.format(Number(c.saldo) || 0)}</div>
-              <div class="carteira-meta">${t('carteira.origem')}: ${qtdPagos(c.id)}</div>
-             </div>
-             <div class="carteira-acoes">
-               <button class="btn-icon" data-acao="editar-carteira" data-id="${c.id}" title="${t('carteira.editar')}">${t('acao.editar')}</button>
-               <button class="btn-icon danger" data-acao="excluir-carteira" data-id="${c.id}" title="${t('carteira.excluir')}">${t('acao.excluir')}</button>
+           <div class="card shadow-sm">
+             <div class="card-body d-flex align-items-center justify-content-between gap-3">
+               <div>
+                 <div class="fw-semibold">${escapeHtml(c.nome)}</div>
+                 <div class="h5 mb-1 text-primary">${fmt.format(Number(c.saldo) || 0)}</div>
+               </div>
+               <div class="d-flex gap-2">
+                 <button class="btn btn-sm btn-outline-secondary" data-acao="editar-carteira" data-id="${c.id}" title="${t('carteira.editar')}">${t('acao.editar')}</button>
+                 <button class="btn btn-sm btn-outline-danger" data-acao="excluir-carteira" data-id="${c.id}" title="${t('carteira.excluir')}">${t('acao.excluir')}</button>
+               </div>
              </div>
            </div>`).join('')}
        </div>`;
 
   return `
     <div class="page-header">
-      <h2>🪪 ${t('carteira.titulo')}</h2>
-      <button class="btn btn-primary" data-acao="nova-carteira">${t('carteira.nova')}</button>
+      <h2>${ICON.carteira} ${t('carteira.titulo')}</h2>
+      <button class="btn btn-primary" data-acao="nova-carteira">${ICON.mais} ${t('carteira.nova')}</button>
     </div>
-    <div class="carteira-resumo">
+    <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-3" role="status">
       <span>${t('carteira.total')}:</span> <b>${fmt.format(total)}</b>
     </div>
     ${lista}
@@ -2479,9 +2762,6 @@ function renderCarteiras() {
 }
 
 // ---------- Débito de carteira nos pagamentos ----------
-function qtdPagos(carteiraId) {
-  return (estado.pagamentos || []).filter(p => p.carteiraId === carteiraId).length;
-}
 function carteiraPorId(id) { return (estado.carteiras || []).find(c => c.id === id) || null; }
 
 // Aplica o débito de uma carteira num pagamento (estorna a antiga, debita a nova).
@@ -2528,7 +2808,7 @@ function estornarDebitoCarteira(pagamento) {
 }
 
 function novaCarteira() {
-  abrirModal(t('carteira.nova').replace(/^\+\s*/, '') || t('carteira.titulo'), [
+  abrirModal(t('carteira.nova') || t('carteira.titulo'), [
     { name: 'nome', label: t('carteira.nome'), type: 'text', placeholder: 'Ex: Conta corrente', required: true },
     { name: 'saldo', label: t('carteira.saldoInicial') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', value: '0', required: true }
   ], async (v) => {
@@ -2582,40 +2862,53 @@ function renderDividas() {
     return `
       <div class="page-header">
         <h2>${t('dividas.titulo')}</h2>
-        <button class="btn btn-primary" data-acao="nova-divida">${t('divida.nova')}</button>
+        <button class="btn btn-primary" data-acao="nova-divida">${ICON.mais} ${t('divida.nova')}</button>
       </div>
-      <div class="lista"><div class="empty">
-        <div class="emoji">📋</div>
+      <div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+        <span style="font-size:20px">${ICON.dividas}</span>
         <div>${t('empty.dividas')}</div>
-      </div></div>
+      </div>
     `;
   }
   return `
     <div class="page-header">
       <h2>${t('dividas.titulo')}</h2>
-      <button class="btn btn-primary" data-acao="nova-divida">${t('divida.nova')}</button>
+      <button class="btn btn-primary" data-acao="nova-divida">${ICON.mais} ${t('divida.nova')}</button>
     </div>
-    <div class="lista">
-      <div class="lista-header" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 150px">
-        <div>${t('col.divida')}</div><div>${t('col.categoria')}</div><div>${t('col.total')}</div><div>${t('col.pago')}</div><div>${t('col.saldo')}</div><div></div>
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>${t('col.divida')}</th>
+              <th>${t('col.categoria')}</th>
+              <th class="text-end">${t('col.total')}</th>
+              <th class="text-end">${t('col.pago')}</th>
+              <th class="text-end">${t('col.saldo')}</th>
+              <th class="text-end">${t('col.acao')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${estado.dividas.map(d => `
+              <tr>
+                <td>
+                  <div class="fw-semibold">${escapeHtml(d.descricao)}</div>
+                  <div class="text-secondary small">${escapeHtml(d.credor)} · ${(d.parcelas||[]).length} ${t('divida.parcelas')}${(d.parcelas||[]).some(p => (p.status || 'pendente') === 'atrasado') ? ' · <span class="text-danger fw-semibold">' + t('divida.comAtraso') + '</span>' : ''}${d.observacao ? ` · <span class="text-secondary">${escapeHtml(d.observacao)}</span>` : ''}</div>
+                </td>
+                <td><span class="badge rounded-pill text-bg-secondary">${t(CATEGORIAS[d.categoria]?.label) || d.categoria}</span></td>
+                <td class="text-end">${fmt.format(totalDivida(d))}</td>
+                <td class="text-end text-success">${fmt.format(totalPago(d))}</td>
+                <td class="text-end ${saldoDivida(d) > 0 ? 'text-danger' : 'text-success'}">${fmt.format(saldoDivida(d))}</td>
+                <td class="text-end text-nowrap">
+                  <button class="btn btn-sm btn-outline-secondary" data-acao="editar-divida" data-id="${d.id}">${t('acao.editar')}</button>
+                  <button class="btn btn-sm btn-outline-danger" data-acao="excluir-divida" data-id="${d.id}">${t('acao.excluir')}</button>
+                  <button class="btn btn-sm btn-primary" data-acao="gerenciar-pagamentos" data-id="${d.id}">${t('pagamento.gerenciar')}</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
       </div>
-      ${estado.dividas.map(d => `
-        <div class="item-linha" style="grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 150px">
-          <div>
-            <div class="titulo">${escapeHtml(d.descricao)}</div>
-            <div class="subtitulo">${escapeHtml(d.credor)} · ${(d.parcelas||[]).length} ${t('divida.parcelas')}${(d.parcelas||[]).some(p => (p.status || 'pendente') === 'atrasado') ? ' · <span style="color:var(--danger);font-weight:600">' + t('divida.comAtraso') + '</span>' : ''}${d.observacao ? ` · <span style="color:var(--text-muted)">${escapeHtml(d.observacao)}</span>` : ''}</div>
-          </div>
-          <div><span class="tag ${d.categoria}">${t(CATEGORIAS[d.categoria]?.label) || d.categoria}</span></div>
-          <div>${fmt.format(totalDivida(d))}</div>
-          <div class="valor-saldo pago">${fmt.format(totalPago(d))}</div>
-          <div class="valor-saldo ${saldoDivida(d) > 0 ? 'pendente' : 'pago'}">${fmt.format(saldoDivida(d))}</div>
-          <div>
-            <button class="btn-icon" data-acao="editar-divida" data-id="${d.id}">${t('acao.editar')}</button>
-            <button class="btn-icon danger" data-acao="excluir-divida" data-id="${d.id}">${t('acao.excluir')}</button>
-            <button class="btn-icon" data-acao="gerenciar-pagamentos" data-id="${d.id}" style="margin-top:4px">${t('pagamento.gerenciar')}</button>
-          </div>
-        </div>
-      `).join('')}
     </div>
   `;
 }
@@ -2628,7 +2921,7 @@ function renderPagamentos() {
         <button class="btn btn-primary" data-acao="novo-pagamento">${t('pagamento.novo')}</button>
       </div>
       <div class="lista"><div class="empty">
-        <div class="emoji">💸</div>
+        <div class="emoji">${ICON.dinheiro}</div>
         <div>${t('empty.pagamentos1')}</div>
       </div></div>
     `;
@@ -2667,27 +2960,39 @@ function renderPagamentos() {
           <div class="campo"><label>${t('label.pagoTotal')}</label><span>${r.percentualPago}%</span></div>
           <div class="campo"><label>${t('label.restanteTotal')}</label><span>${r.percentualRestante}%</span></div>
         </div>
-        <div class="lista" style="border:none;box-shadow:none;margin-top:8px">
-          <div class="lista-header" style="grid-template-columns: 1.4fr 1fr 1fr 1.4fr 90px">
-            <div>${t('col.parcela')}</div><div>${t('label.valorPago')}</div><div>${t('form.data')}</div><div>${t('form.nota')}</div><div></div>
+        <div class="card shadow-sm mt-2">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>${t('col.parcela')}</th>
+                  <th>${t('label.valorPago')}</th>
+                  <th>${t('form.data')}</th>
+                  <th>${t('form.nota')}</th>
+                  <th class="text-end">${t('col.acao')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pagosDesta.map(p => {
+                  const parc = (d.parcelas || []).find(x => x.id === p.parcelaId);
+                  return `
+                    <tr>
+                      <td>
+                        <div class="fw-semibold">${parc ? 'Parcela ' + parc.numero : '(parcela)'}</div>
+                        <div class="text-secondary small">${escapeHtml(d.credor || '')}</div>
+                      </td>
+                      <td class="text-success">${fmt.format(p.valor)}</td>
+                      <td>${fmtData(p.data)}</td>
+                      <td>${escapeHtml(p.nota || '')}</td>
+                      <td class="text-end text-nowrap">
+                        <button class="btn btn-sm btn-outline-secondary" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
+                        <button class="btn btn-sm btn-outline-danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
+                      </td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
           </div>
-          ${pagosDesta.map(p => {
-            const parc = (d.parcelas || []).find(x => x.id === p.parcelaId);
-            return `
-              <div class="item-linha" style="grid-template-columns: 1.4fr 1fr 1fr 1.4fr 90px">
-                <div>
-                  <div class="titulo">${parc ? 'Parcela ' + parc.numero : '(parcela)'}</div>
-                  <div class="subtitulo">${escapeHtml(d.credor || '')}</div>
-                </div>
-                <div class="valor-saldo pago">${fmt.format(p.valor)}</div>
-                <div>${fmtData(p.data)}</div>
-                <div>${escapeHtml(p.nota || '')}</div>
-                <div>
-                  <button class="btn-icon" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
-                  <button class="btn-icon danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
-                </div>
-              </div>`;
-          }).join('')}
         </div>
       </div>`;
   };
@@ -2695,13 +3000,13 @@ function renderPagamentos() {
   return `
     <div class="page-header">
       <h2>${t('pagamentos.titulo')}</h2>
-      <button class="btn btn-primary" data-acao="novo-pagamento">${t('pagamento.novo')}</button>
+      <button class="btn btn-primary" data-acao="novo-pagamento">${ICON.mais} ${t('pagamento.novo')}</button>
     </div>
     ${comPagamento.length === 0 ? `
-      <div class="lista"><div class="empty">
-        <div class="emoji">💸</div>
+      <div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+        <span style="font-size:20px">${ICON.dinheiro}</span>
         <div>${t('empty.pagamentos2')}<br/>${t('empty.pagamentos3')}</div>
-      </div></div>
+      </div>
     ` : comPagamento.map(blocoDivida).join('')}
   `;
 }
@@ -2721,7 +3026,7 @@ function initTicker() {
   // Duplica a lista embaralhada para o scroll ser contínuo (translateX -50%)
   const umaVolta = ordemTicker.map(d => {
     const texto = (d[idiomaAtual] || d.pt || d);
-    return `<span class="ticker-item"><span class="star">★</span>${escapeHtml(texto)}</span>`;
+    return `<span class="ticker-item"><span class="star">${ICON.estrela}</span>${escapeHtml(texto)}</span>`;
   }).join('');
   track.innerHTML = umaVolta + umaVolta;
   // Duração proporcional à quantidade, com velocidade mais lenta (mais leitura)
@@ -2736,6 +3041,22 @@ function escapeHtml(s) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c]));
 }
+
+// ---------- Ponte de render para os componentes Vue ----------
+// As funções renderX() (HTML puro) são expostas para os componentes de view
+// (views/*.js) injetarem via v-html. O Vue reage ao uiTick e recalcula.
+window.__mbRender = {
+  painel: renderPainel,
+  relatorio: renderRelatorio,
+  vencimentos: renderVencimentos,
+  dividas: renderDividas,
+  pagamentos: renderPagamentos,
+  carteiras: renderCarteiras,
+  gamificacao: renderGamificacao,
+  sobre: renderSobre,
+  configuracoes: renderConfiguracoes
+};
+
 
 // ---------- Handlers ----------
 const handlers = {
@@ -2801,11 +3122,12 @@ async function importarDados() {
     textoConfirmar: t('acao.importar'),
     perigo: true,
     aoConfirmar: async () => {
-      estado = {
+      // Mantém a reatividade do estado (Vue.reactive): faz merge, não reatribui.
+      Object.assign(estado, {
         dividas: r.dados.dividas,
         pagamentos: r.dados.pagamentos,
         configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
-      };
+      });
       await persistir();
       toast(t('toast.dadosImportados'), 'success');
       render();
@@ -2835,11 +3157,12 @@ async function restaurarBackup() {
         toast(r.erro || 'Erro ao restaurar', 'error');
         return;
       }
-      estado = {
+      // Mantém a reatividade do estado (Vue.reactive): faz merge, não reatribui.
+      Object.assign(estado, {
         dividas: r.dados.dividas,
         pagamentos: r.dados.pagamentos,
         configuracoes: r.dados.configuracoes || { moeda: 'BRL' }
-      };
+      });
       await persistir();
       // Respiro após IPC pesado para o compositor se estabilizar.
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -2854,6 +3177,22 @@ async function restaurarBackup() {
 
 // ---------- Inicialização ----------
 document.addEventListener('DOMContentLoaded', async () => {
+  // Guard contra re-entrada: em alguns ambientes (ex.: jsdom em testes) o
+  // DOMContentLoaded pode disparar mais de uma vez, o que duplicaria os
+  // listeners e quebraria toggles (tema/engrenagem). No Electron real só
+  // dispara uma vez, mas o guard mantém o app robusto.
+  if (window.__appInicializado) return;
+  window.__appInicializado = true;
+
+  // Preenche os ícones SVG marcados com data-ico no HTML estático
+  // (o HTML não avalia ${...}; os SVGs vêm da biblioteca icons.js).
+  if (typeof ICON !== 'undefined') {
+    document.querySelectorAll('[data-ico]').forEach((el) => {
+      const svg = ICON[el.getAttribute('data-ico')];
+      if (svg) el.innerHTML = svg;
+    });
+  }
+
   // Navegação: cliques nos itens da sidebar (data-view).
   document.querySelectorAll('.tab').forEach(t => {
     t.addEventListener('click', () => setView(t.dataset.view));
@@ -2899,6 +3238,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       render(); // atualiza o rótulo "Padrão/Grande/Pequena"
       return;
     }
+    const acento = e.target.closest('[data-accent]');
+    if (acento) {
+      acentoAtual = acento.dataset.accent;
+      aplicarAceno();
+      salvarPrefs();
+      return;
+    }
+    // Alterna o painel de configurações rápidas (engrenagem ao lado do relógio).
+    const gearBtn = e.target.closest('#btn-gear');
+    if (gearBtn) {
+      const panel = document.getElementById('gear-panel');
+      const aberto = panel.classList.toggle('hidden') === false;
+      gearBtn.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      return;
+    }
+    // Fecha o painel ao clicar fora dele (e fora da engrenagem).
+    const panel = document.getElementById('gear-panel');
+    if (panel && !panel.classList.contains('hidden') && !e.target.closest('.relogio-wrap')) {
+      panel.classList.add('hidden');
+      const gb = document.getElementById('btn-gear');
+      if (gb) gb.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Fecha o painel de configurações com a tecla Escape.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const panel = document.getElementById('gear-panel');
+      if (panel && !panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        const gb = document.getElementById('btn-gear');
+        if (gb) gb.setAttribute('aria-expanded', 'false');
+      }
+    }
   });
 
   initTicker();
@@ -2906,6 +3279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Lê preferências persistidas e aplica
   idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
   temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';
+  acentoAtual = (estado.configuracoes && estado.configuracoes.acento) || 'verde';
   // Restaura tamanho de fonte salvo
   try {
     const fs = localStorage.getItem('appFontScale');
@@ -2913,6 +3287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (e) {}
   aplicarTema();
   aplicarIdioma();
+  aplicarAceno();
   atualizarBadgeNivel();
   // XP de login diário (1x por dia)
   const dataHoje = hoje();
@@ -2920,6 +3295,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (estado.gamificacao) estado.gamificacao.ultimoAcesso = dataHoje;
     ganharXP(3, t('xp.acesso'));
   }
+
+  // ---------- Monta o app Vue (DONO da view) ----------
+  // Root com <component :is="currentView">: troca o componente de view de
+  // forma reativa. currentView é um computed (em setup) que lê o ref
+  // __viewRef (troca de view) + uiTick (re-render ao mudar dados), então
+  // navegação e qualquer render() forçam a troca/recálculo. NÃO congela no
+  // Electron: o Vue reage a si próprio; o app.js só incrementa o tick /
+  // troca o ref.
+  if (typeof Vue !== 'undefined') {
+    const RootApp = {
+      components: window.MeuBolsoViews || {},
+      setup() {
+        const currentView = Vue.computed(() => {
+          const v = window.__viewRef ? window.__viewRef.value : viewAtual;
+          if (window.uiTick) window.uiTick.value; // dependência reativa p/ dados
+          return v;
+        });
+        return { currentView };
+      },
+      template: '<component :is="currentView"></component>'
+    };
+    Vue.createApp(RootApp).mount('#app');
+  }
   render();
-  // Relógio de Brasília: atualizado pelo componente Vue (relogio.vue.js).
 });

@@ -9,6 +9,7 @@
   --danger: #c1121f;
   --warn: #b45309;
   --success: #166534;
+  --success-claro: #4ade80; /* verde claro usado no final do degradê da barra de progresso */
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --radius: 8px;
   --app-font-scale: 1;
@@ -26,7 +27,108 @@
   --danger: #e35d6a;
   --warn: #e0924a;
   --success: #5fd28d;
+  --success-claro: #86efac; /* verde claro usado no final do degradê da barra de progresso */
   --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ============================================================
+   Ponte de tema Bootstrap 5.3 -> paleta do MeuBolso
+   Bootstrap é carregado ANTES deste arquivo, então estas
+   redefinições de --bs-* vencem as do framework e mantêm os
+   componentes (btn, card, table, badge, modal, toast, alert...)
+   na mesma identidade visual (verde) do app, nos modos claro
+   e escuro. data-bs-theme é alternado em app.js (aplicarTema).
+   ============================================================ */
+:root {
+  --bs-body-bg: #fafafa;
+  --bs-body-bg-rgb: 250,250,250;
+  --bs-body-color: #1a1a1a;
+  --bs-body-color-rgb: 26,26,26;
+  --bs-emphasis-color: #1a1a1a;
+  --bs-emphasis-color-rgb: 26,26,26;
+  --bs-tertiary-bg: #f2f3f5;
+  --bs-border-color: #e6e6e6;
+  --bs-border-color-translucent: rgba(0,0,0,0.10);
+  --bs-secondary-color: #6b6b6b;
+  --bs-secondary-color-rgb: 107,107,107;
+  --bs-secondary-bg: #f2f2f2;
+  --bs-secondary-bg-rgb: 242,242,242;
+  --bs-link-color: #2d6a4f;
+  --bs-link-hover-color: #1b4332;
+  /* Cores semânticas da marca */
+  --bs-primary: #2d6a4f;
+  --bs-primary-rgb: 45,106,79;
+  --bs-primary-text-emphasis: #1b4332;
+  --bs-primary-bg-subtle: #e6f3ec;
+  --bs-primary-border-subtle: #b7ddc9;
+  --bs-success: #166534;
+  --bs-success-rgb: 22,101,52;
+  --bs-success-text-emphasis: #0f3d1f;
+  --bs-success-bg-subtle: #e6f2ea;
+  --bs-success-border-subtle: #b6dcc3;
+  --bs-danger: #c1121f;
+  --bs-danger-rgb: 193,18,31;
+  --bs-danger-text-emphasis: #8a0c16;
+  --bs-danger-bg-subtle: #fbe7e9;
+  --bs-danger-border-subtle: #f2bcc1;
+  --bs-warning: #b45309;
+  --bs-warning-rgb: 180,83,9;
+  --bs-warning-text-emphasis: #7c3906;
+  --bs-warning-bg-subtle: #fbeed7;
+  --bs-warning-border-subtle: #f2d3aa;
+  --bs-info: #1d4ed8;
+  --bs-info-rgb: 29,78,216;
+  --bs-info-text-emphasis: #13347f;
+  --bs-info-bg-subtle: #e6ecfd;
+  --bs-info-border-subtle: #b7c5f2;
+  /* Cantos suaves, consistentes com --radius do app */
+  --bs-border-radius: 0.5rem;
+  --bs-border-radius-sm: 0.375rem;
+  --bs-border-radius-lg: 0.625rem;
+  --bs-border-radius-xl: 0.75rem;
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #14161a;
+  --bs-body-bg-rgb: 20,22,26;
+  --bs-body-color: #e8eaed;
+  --bs-body-color-rgb: 232,234,237;
+  --bs-emphasis-color: #f3f5f7;
+  --bs-emphasis-color-rgb: 243,245,247;
+  --bs-tertiary-bg: #181b21;
+  --bs-border-color: #2c3038;
+  --bs-border-color-translucent: rgba(255,255,255,0.10);
+  --bs-secondary-color: #9aa0a6;
+  --bs-secondary-color-rgb: 154,160,166;
+  --bs-secondary-bg: #23272f;
+  --bs-secondary-bg-rgb: 35,39,47;
+  --bs-link-color: #56c998;
+  --bs-link-hover-color: #7be0b4;
+  --bs-primary: #3fb985;
+  --bs-primary-rgb: 63,185,133;
+  --bs-primary-text-emphasis: #8ce0bb;
+  --bs-primary-bg-subtle: #14271f;
+  --bs-primary-border-subtle: #1f3d30;
+  --bs-success: #5fd28d;
+  --bs-success-rgb: 95,210,141;
+  --bs-success-text-emphasis: #a7e8c4;
+  --bs-success-bg-subtle: #14271f;
+  --bs-success-border-subtle: #1f3d30;
+  --bs-danger: #e35d6a;
+  --bs-danger-rgb: 227,93,106;
+  --bs-danger-text-emphasis: #f2a3aa;
+  --bs-danger-bg-subtle: #2c171a;
+  --bs-danger-border-subtle: #46262a;
+  --bs-warning: #e0924a;
+  --bs-warning-rgb: 224,146,74;
+  --bs-warning-text-emphasis: #f0bd8e;
+  --bs-warning-bg-subtle: #2c2114;
+  --bs-warning-border-subtle: #46341f;
+  --bs-info: #6aa0ef;
+  --bs-info-rgb: 106,160,239;
+  --bs-info-text-emphasis: #aac8f5;
+  --bs-info-bg-subtle: #14202c;
+  --bs-info-border-subtle: #1f3346;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,6 +159,20 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .sidebar-topo { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; }
 .logo { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .logo-ico { font-size: 20px; }
+/* Ícones SVG inline (biblioteca icons.js) — herdam currentColor e se ajustam ao container */
+.ico-svg { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: -0.18em; flex-shrink: 0; }
+.logo-ico .ico-svg { width: 22px; height: 22px; }
+.btn-cta .ico-svg { width: 18px; height: 18px; }
+.nav-ico .ico-svg { width: 18px; height: 18px; }
+.nivel-ico .ico-svg, .game-quest-ico .ico-svg, .sobre-tech-ico .ico-svg { width: 1em; height: 1em; }
+.confirm-ico .ico-svg { width: 34px; height: 34px; }
+.confirm-card--perigo .confirm-ico .ico-svg { color: inherit; }
+.levelup-ico .ico-svg { width: 56px; height: 56px; color: var(--primary); }
+.game-nivel-grande .ico-svg { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
+.ticker-item .star .ico-svg { width: 14px; height: 14px; color: #fbbf24; vertical-align: -0.1em; }
+.relogio-brasilia .ico-svg { width: 15px; height: 15px; vertical-align: -0.2em; }
+.empty .emoji .ico-svg { width: 40px; height: 40px; }
+.bandeira .ico-svg, .bandeira-svg { width: 26px; height: 18px; border-radius: 2px; display: inline-block; vertical-align: -0.15em; }
 .logo-titulo { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .btn-cta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; font-weight: 600; }
@@ -92,6 +208,17 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .nav-item.active { background: var(--primary); color: #fff; }
 .nav-item.active .nav-ico { filter: none; }
 .nav-ico { font-size: 17px; flex-shrink: 0; width: 20px; text-align: center; }
+/* Ícone SVG (carteira semi-aberta) — herda o box do .nav-ico e usa currentColor */
+.nav-ico.ic, .ic {
+  display: inline-block;
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  vertical-align: -0.25em;
+  color: inherit;
+}
+.nav-ico.ic svg, .ic svg { width: 100%; height: 100%; display: block; }
+.nav-link.active .ic { color: #fff; }
+.nav-link:hover .ic { color: var(--primary); }
 .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nav-badge {
   min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
@@ -112,7 +239,12 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .sidebar-perfil .nivel-barra > span {
   display: block; height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.3s ease;
+  background: linear-gradient(90deg, var(--primary), var(--success-claro));
+  /* Entrada progressiva suave (GPU, igual às demais barras do sistema):
+     cresce via transform: scaleX. Garante animação de progresso no card de nível. */
+  transform-origin: left center;
+  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform;
 }
 .sidebar-perfil .nivel-xp { font-variant-numeric: tabular-nums; display: block; margin-top: 4px; }
 .perfil-texto { display: flex; align-items: center; gap: 6px; }
@@ -147,6 +279,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-radius: var(--radius);
   padding: 16px 20px;
   box-shadow: var(--shadow);
+  min-width: 0; /* permite encolher no grid/flex sem estourar o layout */
 }
 .card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .card .valor { font-size: 24px; font-weight: 600; margin-top: 4px; }
@@ -309,21 +442,33 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   gap: 4px;
 }
 .confirm-ico {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
   font-size: 40px;
   line-height: 1;
   margin-bottom: 8px;
 }
 .confirm-titulo {
+  width: 100%;
+  text-align: center;
   font-size: 18px;
   margin: 0 0 8px;
   color: var(--text);
 }
+/* O padding-right:36px do .modal-card h2 (feito para o botão "fechar" dos
+   formulários) NÃO se aplica aqui: o modal de confirmação não tem botão X,
+   e esse padding deslocava o título para a esquerda do ícone. */
+.modal-card .confirm-titulo { padding-right: 0; }
 .confirm-msg {
   font-size: 14px;
   color: var(--text-muted);
   margin: 0 auto 4px;
   max-width: 420px;
   line-height: 1.5;
+  text-align: center;        /* centraliza o texto principal do aviso */
+  text-wrap: balance;
 }
 .confirm-acoes {
   justify-content: center;
@@ -340,6 +485,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* Toast */
 .toast {
+  display: flex; align-items: center; gap: 6px; justify-content: center;
   position: fixed;
   bottom: 24px;
   left: 50%;
@@ -349,11 +495,16 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 10px 18px;
   border-radius: var(--radius);
   font-size: 14px;
-  z-index: 200;
+  text-align: center;
+  text-wrap: balance;
+  max-width: calc(100vw - 32px);
+  /* Acima do overlay de celebração de nível (z-index:300) para que o aviso de
+     XP continue visível mesmo ao subir de nível. */
+  z-index: 400;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: opacity 0.2s, transform 0.2s;
 }
-.toast.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
+.toast.hidden { display: none; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
 .toast.success { background: var(--success); }
 .toast.error { background: var(--danger); }
 
@@ -367,7 +518,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .barra-progresso > div {
   height: 100%;
-  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary), var(--success-claro));
   transition: width 0.3s;
 }
 
@@ -451,8 +602,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.chart-wrap { width: 100%; }
-.chart-wrap svg { width: 100%; height: auto; display: block; }
+.chart-wrap { width: 100%; height: 230px; position: relative; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; display: block; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
 .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
@@ -531,6 +682,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .game-nivel-grande { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
 .game-xp-linha { display: flex; justify-content: space-between; font-size: 13px; margin-top: 10px; }
 .game-faltam { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.game-grafico-wrap { display: flex; justify-content: center; padding: 8px 0 4px; width: 100%; height: 200px; position: relative; }
+.game-grafico-wrap canvas { width: 100% !important; height: 100% !important; max-width: 340px; display: block; }
 .game-log { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
 .game-log li {
   display: grid; grid-template-columns: 1fr auto; grid-template-areas: "motivo pontos" "meta meta";
@@ -564,13 +717,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
     align-items: stretch;
   }
   .sidebar-topo, .btn-cta, .sidebar-perfil, .nav-grupo-titulo { display: none; }
-  .sidebar-nav { flex-direction: row; gap: 0; flex: 1; width: 100%; }
-  .nav-grupo { flex-direction: row; flex: 1; }
-  .nav-item {
+  .sidebar-nav { flex-direction: row; gap: 0; flex: 1; width: 100%; align-items: stretch; }
+  .nav-grupo { flex-direction: row; flex: 1; gap: 0; }
+  .nav-grupo .nav { flex-direction: row; flex: 1; gap: 0; }
+  .sidebar-nav .nav-link {
     flex-direction: column; gap: 2px; justify-content: center;
     border-radius: 0; font-size: 11px; padding: 6px 4px; flex: 1;
   }
-  .nav-item.active { background: var(--surface); color: var(--primary); border-top: 3px solid var(--primary); }
+  .sidebar-nav .nav-link.active { background: var(--surface); color: var(--primary); border-top: 3px solid var(--primary); }
   .nav-ico { font-size: 18px; }
   .nav-badge { position: absolute; top: 6px; right: 50%; transform: translateX(14px); }
   .conteudo { height: auto; min-height: 100vh; }
@@ -667,9 +821,19 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .barra-progresso-preenchimento {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--success));
+  background: linear-gradient(90deg, var(--primary), var(--success-claro));
   border-radius: 999px;
+  transform-origin: left center;
   transition: width 0.3s ease;
+  /* Entrada progressiva e suave (GPU, sem "engasgos"): cresce via
+     transform: scaleX em vez de width, igual aos gráficos de barras
+     do painel (.chart-bar). Aplica a TODAS as barras do sistema. */
+  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform;
+}
+@keyframes barra-crescer {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 .barra-progresso-texto {
   position: absolute;
@@ -773,11 +937,17 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .prefs-btn .bandeira { font-size: 15px; }
 
 /* Relógio de Brasília (canto inferior direito, acima da barra de dicas) */
-.relogio-brasilia {
+/* ---------- Relógio + engrenagem de configurações rápidas ---------- */
+.relogio-wrap {
   position: fixed;
   bottom: 46px;   /* acima da barra rolante de dicas (38px + respiro) */
   right: 16px;
   z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.relogio-brasilia {
   pointer-events: none;            /* nunca interfere na navegação/cliques */
   user-select: none;
   font-size: 12px;
@@ -793,6 +963,92 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   white-space: nowrap;
 }
 [data-theme="dark"] .relogio-brasilia { color: var(--text-muted); }
+
+/* Botão de engrenagem ao lado do relógio */
+.relogio-gear {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 999px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, color 0.2s, background 0.2s;
+}
+.relogio-gear:hover { color: var(--primary); transform: rotate(35deg); }
+.relogio-gear[aria-expanded="true"] { color: var(--primary); background: var(--bs-primary-bg-subtle, #e6f3ec); }
+
+/* Painel que se expande ao clicar na engrenagem */
+.gear-panel {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  width: 248px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.22);
+  padding: 14px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform-origin: bottom right;
+  animation: gear-expand 0.18s ease-out;
+}
+.gear-panel.hidden { display: none; }
+@keyframes gear-expand {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.gear-panel-titulo {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gear-grupo { display: flex; gap: 6px; flex-wrap: wrap; }
+.gear-opt {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.gear-opt:hover { border-color: var(--primary); color: var(--primary); }
+.gear-opt.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.gear-fonte-btns { display: inline-flex; gap: 4px; }
+.gear-fonte { padding: 3px 8px; }
+.gear-cores { gap: 8px; }
+.gear-cor {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--sw);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.gear-cor:hover { transform: scale(1.12); }
+.gear-cor.active { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--sw); border-color: var(--sw); }
 
 /* ---------- Celebração de subida de nível ---------- */
 .levelup-overlay {
@@ -869,6 +1125,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   font-weight: 700;
   margin: 8px 0 4px;
   color: var(--text);
+  text-align: center;
+  width: 100%;
 }
 .levelup-parabens {
   font-size: 15px;
@@ -890,7 +1148,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   text-transform: uppercase;
   padding: 5px 14px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--primary), var(--success));
+  background: linear-gradient(90deg, var(--primary), var(--success-claro));
   color: #fff;
   margin-bottom: 20px;
   box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12), 0 4px 14px rgba(45, 106, 79, 0.25);
@@ -979,4 +1237,243 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .sobre-dev-rotulo { font-weight: 700; font-size: 14px; color: var(--text); }
 .sobre-dev-cargo { color: var(--accent, #6366f1); font-size: 13px; }
 .sobre-licenca p { margin: 0; line-height: 1.5; font-size: 13px; }
+.sobre-link-repo { margin-top: 12px; }
+.sobre-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.sobre-link:hover { background: var(--hover, #f1f5f9); border-color: var(--accent, #6366f1); transform: translateY(-1px); }
+.sobre-link .ico-svg { width: 18px; height: 18px; color: var(--text); }
+.sobre-link-dev { margin-top: 10px; align-self: flex-start; }
 .sobre-copy { color: var(--text); font-weight: 600; }
+
+/* ============================================================
+   Integração Bootstrap 5.3 — harmonização com o layout do app
+   (regras após o Bootstrap para vencerem em especificidade/ordem)
+   ============================================================ */
+
+/* Mantém o container de conteúdo alinhado com o padrão anterior do app. */
+#app { max-width: 1200px; }
+
+/* Botões: herda o raio do app e garante foco visível acessível. */
+.btn { border-radius: var(--radius); font-family: inherit; }
+.btn:focus-visible { box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.35); }
+.btn-primary { --bs-btn-bg: var(--primary); --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: var(--primary-hover); --bs-btn-hover-border-color: var(--primary-hover);
+  --bs-btn-active-bg: var(--primary-hover); --bs-btn-active-border-color: var(--primary-hover); }
+.btn-danger { --bs-btn-bg: var(--danger); --bs-btn-border-color: var(--danger);
+  --bs-btn-hover-bg: #a30d18; --bs-btn-hover-border-color: #a30d18; }
+.btn-outline-primary { --bs-btn-color: var(--primary); --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: var(--primary); --bs-btn-hover-border-color: var(--primary);
+  --bs-btn-active-bg: var(--primary); --bs-btn-active-border-color: var(--primary); }
+.btn-sm { font-size: 0.8rem; }
+
+/* Nav da sidebar: reaproveita o .nav do Bootstrap sem perder o visual do app. */
+.sidebar-nav .nav { gap: 14px; }
+.sidebar-nav .nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border: none; border-radius: 8px;
+  color: var(--text-muted); font-size: 14px; font-weight: 500;
+  cursor: pointer; width: 100%; text-align: left; background: transparent;
+}
+.sidebar-nav .nav-link:hover { background: var(--bg); color: var(--text); }
+.sidebar-nav .nav-link.active { background: var(--primary); color: #fff; }
+.sidebar-nav .nav-link .nav-ico { font-size: 17px; flex-shrink: 0; width: 20px; text-align: center; }
+.sidebar-nav .nav-link .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Cards Bootstrap alinhados ao estilo de cartão do app. */
+.card { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow); }
+.card .label, .card .stat-sub { color: var(--text-muted); }
+.card .valor { color: var(--text); }
+.card .valor.positivo { color: var(--success); }
+.card .valor.negativo { color: var(--danger); }
+.card .valor.atencao { color: var(--warn); }
+
+/* Tabelas Bootstrap dentro do app (striped + hover + bordas suaves). */
+.table { --bs-table-bg: var(--surface); --bs-table-color: var(--text);
+  --bs-table-border-color: var(--border); margin-bottom: 0; }
+.table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); border-bottom-width: 1px; }
+.table > :not(caption) > * > * { background: transparent; }
+.table-hover > tbody > tr:hover > * { --bs-table-accent-bg: var(--bg); }
+
+/* Badges Bootstrap na paleta da marca. */
+.badge { font-weight: 600; }
+.badge.text-bg-primary { background-color: var(--primary) !important; }
+.badge.text-bg-success { background-color: var(--success) !important; }
+.badge.text-bg-danger { background-color: var(--danger) !important; }
+.badge.text-bg-warning { background-color: var(--warn) !important; color: #fff !important; }
+.badge.text-bg-info { background-color: var(--bs-info) !important; color: #fff !important; }
+
+/* Progress (Bootstrap) reaproveita a cor primária do app. */
+.progress { background-color: var(--border); border-radius: 999px; }
+.progress-bar { background-color: var(--primary); }
+
+/* Formulários: campos Bootstrap com a mesma cor de foco do app. */
+.form-control, .form-select, .form-control:focus, .form-select:focus {
+  background-color: var(--surface); color: var(--text);
+  border-color: var(--border); box-shadow: none;
+}
+.form-control:focus, .form-select:focus { border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.form-text { color: var(--text-muted); }
+
+/* Alertas Bootstrap na paleta da marca. */
+.alert-primary { --bs-alert-color: var(--primary-text-emphasis); --bs-alert-bg: var(--bs-primary-bg-subtle); --bs-alert-border-color: var(--bs-primary-border-subtle); }
+.alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle); }
+.alert-danger { --bs-alert-color: var(--danger-text-emphasis); --bs-alert-bg: var(--bs-danger-bg-subtle); --bs-alert-border-color: var(--bs-danger-border-subtle); }
+.alert-warning { --bs-alert-color: var(--warning-text-emphasis); --bs-alert-bg: var(--bs-warning-bg-subtle); --bs-alert-border-color: var(--bs-warning-border-subtle); }
+.alert-info { --bs-alert-color: var(--info-text-emphasis); --bs-alert-bg: var(--bs-info-bg-subtle); --bs-alert-border-color: var(--bs-info-border-subtle); }
+
+/* Dropdown Bootstrap respeita o tema escuro do app. */
+.dropdown-menu { background-color: var(--surface); border-color: var(--border);
+  box-shadow: var(--shadow); color: var(--text); }
+.dropdown-item { color: var(--text); }
+.dropdown-item:hover, .dropdown-item:focus { background-color: var(--bg); color: var(--text); }
+.dropdown-divider { border-color: var(--border); }
+
+/* Offcanvas (menu mobile) integrado ao tema. */
+.offcanvas { background-color: var(--surface); color: var(--text); }
+
+/* List-group na paleta do app. */
+.list-group-item { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+.list-group-item-action:hover { background-color: var(--bg); }
+.list-group-item.active { background-color: var(--primary); border-color: var(--primary); }
+
+/* Accordion na paleta do app. */
+.accordion-button:not(.collapsed) { background-color: var(--bs-primary-bg-subtle); color: var(--primary-text-emphasis); }
+.accordion-button:focus { box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
+.accordion-item, .accordion-button { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+
+/* Toast do Bootstrap: usa o mesmo posicionamento do app (base central). */
+.toast { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+.toast-container { z-index: 200; }
+
+/* ============================================================
+   Anti-estouro / responsividade de textos e cards
+   - valores monetários grandes truncam em vez de estourar o card
+   - títulos de linha/coluna não quebram palavras no meio
+   - colunas flex/grid podem encolher sem empurrar o layout
+   ============================================================ */
+#app { min-width: 0; }
+#app .card, #app .col, #app [class*="col-"] { min-width: 0; }
+#app .table { table-layout: auto; }
+#app .table td, #app .table th { min-width: 0; }
+#app .table .fw-semibold,
+#app .table .titulo,
+#app .fw-semibold { overflow-wrap: anywhere; }
+
+/* Valores monetários: números tabulares e truncagem com reticências */
+.valor, .h4, .h3, .stat-big,
+td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+/* Permite quebra controlada (não no meio de palavra) quando realmente necessário */
+.card-body .h4, .card-body .h3, .valor {
+  overflow-wrap: normal;
+}
+
+/* Títulos de dívida/linha: mantém em uma linha com reticência */
+#app .table td .fw-semibold {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Subtítulos pequenos não forçam largura mínima estranha */
+.text-secondary.small, .subtitulo, .text-secondary {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Em telas estreitas, empilha os cards do dashboard sem estouro */
+@media (max-width: 575px) {
+  #app { padding: 12px; }
+  .row { --bs-gutter-x: 0.75rem; }
+  .card-body .h4, .card-body .h3 { font-size: 1.15rem; }
+}
+
+/* Modal: garante que o modal customizado do app conviva com o do Bootstrap.
+   Mantém o overlay e o card do app; apenas evita conflito de fundo. */
+.modal-content { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+.modal-header, .modal-footer { border-color: var(--border); }
+
+/* ============================================================
+   Animação dos gráficos do dashboard
+   Pizza/Rosca: cada fatia "cresce" do ponto inicial até sua
+   porcentagem (stroke-dasharray), de forma suave.
+   Barras: crescem de baixo para cima (scaleY).
+   ============================================================ */
+@keyframes chart-slice-grow {
+  from { stroke-dasharray: 0 1000; }
+  to   { stroke-dasharray: var(--len) calc(1000 - var(--len)); }
+}
+@keyframes chart-bar-grow {
+  from { transform: scaleY(0); opacity: 0.4; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+/* Pizza/Rosca: a rotação de -90° (iniciar no topo) é feita no <g> do SVG,
+   NÃO via CSS transform aqui — animar stroke-dasharray em um elemento com
+   transform CSS causa o "bug" de renderização no Chromium.
+   Varredura 360° tipo relógio: cada fatia inicia no momento em que a "agulha"
+   chega à sua posição (animation-delay proporcional à posição angular) e sua
+   duração é proporcional ao seu tamanho (animation-duration vinda do app.js),
+   mantendo velocidade angular constante — a ponta de préenchimento desliza em
+   círculo do topo, contínuo e fluido. */
+.chart-slice {
+  animation-name: chart-slice-grow;
+  /* Varredura de relógio = velocidade angular CONSTANTE, portanto LINEAR.
+     Um ease-out por fatia fazia a ponta "parar" no fim de cada fatia (engasgo);
+     linear mantém a ponta deslizando de forma contínua a partir do topo. */
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-delay: 0ms;
+}
+.chart-bar {
+  transform-box: view-box;
+  animation: chart-bar-grow 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Valores monetários/números: nunca quebram a linha nem são cortados —
+   apenas diminuem a fonte (fluida via container query) para caber na janela.
+   Cards, modais e tabelas viram containers para que a fonte escale com a
+   largura disponível; os grids de cards realocam (auto-fit) em telas estreitas. */
+.card, .modal-card, .table, .table-responsive { container-type: inline-size; }
+.card .h3, .card .h4, .card .h5,
+.modal-card .h3, .modal-card .h4, .modal-card .h5,
+.valor, .stat-valor, .valor-saldo, .campo > span,
+.col.total, .col.saldo, .col.valor, td .vlr-num {
+  white-space: nowrap;
+  font-size: clamp(0.78rem, 8cqi, 1.5rem);
+  line-height: 1.15;
+}
+/* Células de tabela com valor: também fluidas e sem quebra. */
+.table td, .table th { container-type: inline-size; }
+.table td.col-total, .table td.col-saldo, .table td.col-valor,
+.table td.col-pago, .table td.col-resta {
+  white-space: nowrap;
+  font-size: clamp(0.72rem, 7cqi, 1rem);
+}
+@container (max-width: 220px) {
+  .card .h3, .card .h4, .card .h5, .modal-card .h3, .modal-card .h4, .modal-card .h5,
+  .valor, .stat-valor, .valor-saldo, .campo > span,
+  .col.total, .col.saldo, .col.valor, td .vlr-num {
+    font-size: clamp(0.7rem, 10cqi, 1.15rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-slice, .chart-bar { animation: none; }
+  /* Garante estado final visível sem animação. */
+  .chart-slice { stroke-dasharray: var(--len) calc(1000 - var(--len)); opacity: 1; }
+  .chart-bar { transform: scaleY(1); opacity: 1; }
+  .barra-progresso-preenchimento { animation: none; transform: scaleX(1); }
+}

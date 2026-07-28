@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { DatabaseSync } = require('node:sqlite');
@@ -174,6 +174,16 @@ ipcMain.handle('janela:flash-foco', (evt) => {
   if (win.isFocused()) win.blur();
   win.focus();
   return true;
+});
+
+// Abre links externos (http/https) no navegador padrão do sistema,
+// usado pelos links do GitHub na tela "Sobre".
+ipcMain.handle('link:abrir', (_evt, url) => {
+  if (typeof url !== 'string') return false;
+  // Só permite http/https para evitar esquemas perigosos (ex.: file:, javascript:).
+  if (!/^https?:\/\//i.test(url)) return false;
+  try { shell.openExternal(url); return true; }
+  catch (err) { console.error('Falha ao abrir link externo:', err); return false; }
 });
 
 ipcMain.handle('dados:exportar', async (evt) => {
