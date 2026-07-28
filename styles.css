@@ -1312,32 +1312,6 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .badge.text-bg-warning { background-color: var(--warn) !important; color: #fff !important; }
 .badge.text-bg-info { background-color: var(--bs-info) !important; color: #fff !important; }
 
-/* Progress (Bootstrap): mesma animação GPU (scaleX) e degradê das barras
-   custom do sistema (.barra-progresso-preenchimento), para consistência
-   visual e de movimento em todo o app. */
-.progress { background-color: var(--border); border-radius: 999px; overflow: hidden; }
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--success-claro));
-  /* Ponta direita arredondada (pill), igual às barras custom do sistema
-     (.barra-progresso-preenchimento), para ponta suavizada em qualquer
-     progresso parcial. */
-  border-radius: 999px;
-  transform-origin: left center;
-  /* Entrada progressiva e suave (GPU, sem "engasgos"): cresce via transform
-     scaleX, igual às demais barras do sistema. */
-  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
-}
-
-/* Card em destaque (ex.: resumo do painel): maior e com realce visual. */
-.card-destaque {
-  border: 1px solid var(--primary);
-  border-left: 4px solid var(--primary);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.10);
-}
-
 /* Formulários: campos Bootstrap com a mesma cor de foco do app. */
 .form-control, .form-select, .form-control:focus, .form-select:focus {
   background-color: var(--surface); color: var(--text);
