@@ -1457,7 +1457,7 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
   /* Garante estado final visível sem animação. */
   .chart-slice { stroke-dasharray: var(--len) calc(1000 - var(--len)); opacity: 1; }
   .chart-bar { transform: scaleY(1); opacity: 1; }
-  .barra-progresso-preenchimento { animation: none; transform: scaleX(1); }
+  .barra-progresso-preenchimento { animation: none; }
 }
 /* Toast de XP: ícone SVG + texto alinhados (o ícone entra como HTML confiável). */
 .toast { display: flex; align-items: center; gap: 0.5rem; }
