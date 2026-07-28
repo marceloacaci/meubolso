@@ -240,15 +240,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .sidebar-perfil .nivel-barra > span {
   display: block; height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--success-claro));
-  /* Ponta direita arredondada (pill), igual às barras custom do sistema
-     (.barra-progresso-preenchimento), para ponta suavizada em qualquer
-     progresso parcial. */
+  /* Ponta arredondada (pill) igual as barras do sistema; sem transform/
+     will-change para o border-radius nao ser ignorado pelo overflow:hidden. */
   border-radius: 999px;
-  /* Entrada progressiva suave (GPU, igual às demais barras do sistema):
-     cresce via transform: scaleX. Garante animação de progresso no card de nível. */
-  transform-origin: left center;
-  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .sidebar-perfil .nivel-xp { font-variant-numeric: tabular-nums; display: block; margin-top: 4px; }
 .perfil-texto { display: flex; align-items: center; gap: 6px; }
@@ -809,24 +804,18 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   height: 18px;
   background: var(--border);
   border-radius: 999px;
-  /* Sem overflow:hidden de proposito: o preenchimento (.barra-progresso-
-     preenchimento) tem transform persistido (animacao barra-crescer) e, com
-     overflow:hidden + border-radius no pai, o Chromium ignora o raio do filho
-     e deixa a ponta direita QUADRADA. Sem o clip, o proprio border-radius:999px
-     do preenchimento arredonda a ponta em qualquer progresso parcial. */
+  overflow: hidden;
   margin-bottom: 12px;
 }
 .barra-progresso-preenchimento {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--success-claro));
   border-radius: 999px;
-  transform-origin: left center;
-  transition: width 0.3s ease;
-  /* Entrada progressiva e suave (GPU, sem "engasgos"): cresce via
-     transform: scaleX em vez de width, igual aos gráficos de barras
-     do painel (.chart-bar). Aplica a TODAS as barras do sistema. */
-  animation: barra-crescer 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform;
+  /* Sem transform/will-change: um filho transformado + overflow:hidden no pai
+     faz o Chromium IGNORAR o border-radius do filho (ponta quadrada). Sem camada
+     de transform, o border-radius:999px do preenchimento arredonda a ponta em
+     qualquer progresso parcial. Atualizacoes de largura animam via transition. */
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes barra-crescer {
   from { transform: scaleX(0); }
