@@ -38,8 +38,14 @@
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": "x64" },
-        { "target": "portable", "arch": "x64" }
+        {
+          "target": "nsis",
+          "arch": "x64"
+        },
+        {
+          "target": "portable",
+          "arch": "x64"
+        }
       ],
       "artifactName": "${productName}-${version}-setup.${ext}"
     },
@@ -54,16 +60,28 @@
     },
     "linux": {
       "target": [
-        { "target": "AppImage", "arch": "x64" },
-        { "target": "deb", "arch": "x64" }
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        },
+        {
+          "target": "deb",
+          "arch": "x64"
+        }
       ],
       "category": "Office",
       "artifactName": "${productName}-${version}-linux.${ext}"
     },
     "mac": {
       "target": [
-        { "target": "dmg", "arch": "x64" },
-        { "target": "dmg", "arch": "arm64" }
+        {
+          "target": "dmg",
+          "arch": "x64"
+        },
+        {
+          "target": "dmg",
+          "arch": "arm64"
+        }
       ],
       "category": "public.app-category.finance",
       "artifactName": "${productName}-${version}-mac.${ext}"

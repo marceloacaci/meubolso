@@ -1,83 +1,26 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { DatabaseSync } = require('node:sqlite');
 
-// Caminhos de dados — só podem ser resolvidos APÓS o app estar pronto.
-// Chamar app.getPath() antes de app.whenReady() lança e derruba o processo.
-let userDataPath, db, dbFile, dataFile, backupFile;
+// ============================================================
+// MEUBOLSO - Persistência simples com JSON
+// ============================================================
+// Salva os dados do app diretamente como arquivo JSON no
+// diretório userData do Electron. Simples, confiável e sem
+// dependências externas de banco de dados.
+// ============================================================
+
+let userDataPath, dbFile, dataFile, backupFile;
+
+// Caminhos de dados
 function initPaths() {
   userDataPath = app.getPath('userData');
-  dbFile = path.join(userDataPath, 'meubolso.db');
-  // Mantidos para exportar/importar legado (JSON) e recuperação.
+  dbFile = path.join(userDataPath, 'meubolso.json');
   dataFile = path.join(userDataPath, 'dados.json');
   backupFile = path.join(userDataPath, 'dados.bak.json');
 }
 
-// ---------- Persistência com SQLite (node:sqlite, embarcado, sem deps) ----------
-// O estado inteiro do app é serializado em uma única linha da tabela kv(chave='estado').
-// Isso troca o JSON monolítico gravado a cada ação por escrita incremental e atômica,
-// além de permitir, no futuro, consultas por coluna e sincronização.
-function openDb() {
-  const tmp = dbFile + '.tmp';
-  // Garante permissão de escrita (resolve locked/corrompido renomeando o antigo).
-  if (fs.existsSync(dbFile)) {
-    try { fs.accessSync(dbFile, fs.constants.W_OK); }
-    catch (_) {
-      try { fs.renameSync(dbFile, dbFile + '.corrompido-' + Date.now()); } catch (_) {}
-    }
-  }
-  db = new DatabaseSync(dbFile);
-  db.exec('PRAGMA journal_mode = WAL;');
-  db.exec('PRAGMA synchronous = NORMAL;');
-  db.exec(`CREATE TABLE IF NOT EXISTS kv (
-    k TEXT PRIMARY KEY,
-    v TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-  );`);
-  db.exec(`CREATE TABLE IF NOT EXISTS meta (
-    k TEXT PRIMARY KEY,
-    v TEXT NOT NULL
-  );`);
-}
-
-function loadData() {
-  const padrao = { dividas: [], pagamentos: [], carteiras: [], configuracoes: { moeda: 'BRL' } };
-  // 1) Tenta o SQLite (fonte de verdade atual)
-  try {
-    if (db) {
-      const row = db.prepare('SELECT v FROM kv WHERE k = ?').get('estado');
-      if (row && row.v) {
-        const parsed = JSON.parse(row.v);
-        if (parsed && Array.isArray(parsed.dividas) && Array.isArray(parsed.pagamentos)) {
-          return normalizar(parsed);
-        }
-      }
-    }
-  } catch (err) {
-    console.error('Erro ao ler SQLite:', err);
-  }
-  // 2) Fallback: migra do JSON legado (dados.json / dados.bak.json) se existir
-  for (const file of [dataFile, backupFile]) {
-    try {
-      if (fs.existsSync(file)) {
-        const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-        if (parsed && Array.isArray(parsed.dividas) && Array.isArray(parsed.pagamentos)) {
-          console.log('Migrando dados do JSON legado para SQLite:', file);
-          if (db) {
-            db.prepare('INSERT INTO kv(k, v, updated_at) VALUES(?, ?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v, updated_at = excluded.updated_at')
-              .run('estado', JSON.stringify(parsed), new Date().toISOString());
-          }
-          return normalizar(parsed);
-        }
-      }
-    } catch (err) {
-      console.error(`Erro ao ler ${file}:`, err);
-    }
-  }
-  return padrao;
-}
-
+// ---------- Normalizar dados ----------
 function normalizar(d) {
   d.dividas = Array.isArray(d.dividas) ? d.dividas : [];
   d.pagamentos = Array.isArray(d.pagamentos) ? d.pagamentos : [];
@@ -86,46 +29,61 @@ function normalizar(d) {
   return d;
 }
 
-// Debounce de gravação: evita reescrever o estado várias vezes em sequência de cliques.
-let saveTimer = null;
-function scheduleSave(data) {
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => { saveData(data); saveTimer = null; }, 400);
-}
-
-function saveData(data) {
+// ---------- Salvar dados IMEDIATAMENTE no disco ----------
+function saveToDB(data) {
+  if (!data) {
+    console.error('[DB] × Nenhum dado para salvar');
+    return false;
+  }
   try {
-    if (!db) return false;
     const json = JSON.stringify(normalizar(data));
-    db.prepare('INSERT INTO kv(k, v, updated_at) VALUES(?, ?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v, updated_at = excluded.updated_at')
-      .run('estado', json, new Date().toISOString());
+    fs.writeFileSync(dbFile, json, 'utf8');
+    console.log('[DB] ✓ Dados salvos (' + json.length + ' bytes)');
     return true;
   } catch (err) {
-    console.error('Erro ao salvar no SQLite:', err);
+    console.error('[DB] ✗ Erro ao salvar:', err.message);
     return false;
   }
 }
 
+// ---------- Carregar dados do JSON ----------
+function loadFromDB() {
+  if (!fs.existsSync(dbFile)) {
+    console.log('[DB] ℹ Nenhum arquivo de dados encontrado');
+    return null;
+  }
+  try {
+    const content = fs.readFileSync(dbFile, 'utf8');
+    const parsed = JSON.parse(content);
+    if (parsed && Array.isArray(parsed.dividas) && Array.isArray(parsed.pagamentos)) {
+      console.log('[DB] ✓ Dados carregados:', parsed.dividas.length, 'dívidas');
+      return normalizar(parsed);
+    }
+    console.log('[DB] ⚠ Formato de dados inválido');
+    return null;
+  } catch (err) {
+    console.error('[DB] ✗ Erro ao carregar:', err.message);
+    return null;
+  }
+}
+
+function fallbackData() {
+  return { dividas: [], pagamentos: [], carteiras: [], configuracoes: { moeda: 'BRL' } };
+}
+
+// ============================================================
+// JANELA PRINCIPAL
+// ============================================================
 function createWindow() {
-  // Área de trabalho visível (desconta a barra de tarefas). Usamos para não
-  // criar uma janela maior que a tela (o que a cortaria).
   let area = { width: 1366, height: 768 };
   try { if (screen && screen.getPrimaryDisplay) area = screen.getPrimaryDisplay().workAreaSize; } catch (_) {}
-  // Largura alvo 1366: a tabela de Dívidas (a mais larga, 6 colunas + coluna de
-  // ação com 3 botões) cabe sem scroll horizontal (~1120px de conteúdo + sidebar
-  // 248px). Altura 800 cobre o conteúdo comum sem scroll vertical. Nunca maiores
-  // que a área visível; nunca menores que 1024x700 (garante usabilidade).
+
   const W = Math.min(1366, Math.max(1024, area.width));
   const H = Math.min(800, Math.max(700, area.height));
+
   const win = new BrowserWindow({
     width: W,
     height: H,
-    // Piso elevado para que, NA FONTE ORIGINAL (--app-font-scale: 1), nenhum
-    // botão ou informação fique oculto SEM scroll: a tabela de Dívidas é a mais
-    // larga e precisa de ~1120px de conteúdo; com a sidebar (248px) isso dá
-    // ~1368px de janela para a tabela caber sem scroll horizontal e o botão
-    // "Gerenciar pagamentos" ficar visível. A altura cobre o conteúdo comum.
-    // A sidebar rola internamente (overflow-y:auto) se a altura for menor.
     minWidth: W,
     minHeight: H,
     title: 'MeuBolso',
@@ -133,33 +91,50 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 
-  // Força o tamanho mínimo e o tamanho inicial de forma explícita (além das
-  // opções do construtor), para que a janela nunca abra menor que o piso onde
-  // a UI completa (tabela de Dívidas, botões de ação) cabe sem scroll, mesmo
-  // que algum estado de bounds fosse restaurado.
   win.setMinimumSize(W, H);
   win.setSize(W, H, false);
   if (typeof win.center === 'function') win.center();
-
   win.removeMenu();
   win.loadFile('index.html');
 }
 
-ipcMain.handle('dados:carregar', () => loadData());
-// Salvar com debounce (gravação eficiente e incremental).
-ipcMain.handle('dados:salvar', (_evt, data) => { scheduleSave(data); return true; });
+// ============================================================
+// IPC HANDLERS
+// ============================================================
+ipcMain.handle('dados:carregar', async () => {
+  console.log('[IPC] dados:carregar');
+  const data = loadFromDB() || fallbackData();
+  console.log('[IPC] dados:carregar - retornando', data.dividas.length, 'dívidas');
+  return data;
+});
+
+ipcMain.handle('dados:salvar', (_evt, data) => {
+  console.log('[IPC] dados:salvar (IMEDIATO)');
+  const ok = saveToDB(data);
+  return ok;
+});
+
+ipcMain.handle('dados:salvar-agora', async (_evt, data) => {
+  console.log('[IPC] dados:salvar-agora - SALVANDO IMEDIATAMENTE');
+  const ok = saveToDB(data);
+  console.log('[IPC] dados:salvar-agora - resultado:', ok ? 'OK' : 'FALHA');
+  return ok;
+});
+
 ipcMain.handle('dados:caminho', () => dbFile);
+
 ipcMain.handle('sistema:info', () => ({
   appVersion: app.getVersion(),
   electron: process.versions.electron,
   node: process.versions.node,
   chrome: process.versions.chrome,
   so: `${process.platform} ${process.arch}`,
-  arquitetura: process.arch
+  arquitetura: process.arch,
+  dbType: 'JSON (arquivo simples)',
 }));
 
 ipcMain.handle('dados:backup-info', () => {
@@ -172,9 +147,9 @@ ipcMain.handle('dados:backup-info', () => {
   }
 });
 
-ipcMain.handle('dados:restaurar', async (evt) => {
+ipcMain.handle('dados:restaurar', async () => {
   if (!fs.existsSync(backupFile)) {
-    return { ok: false, erro: 'Não há backup local. O backup é criado automaticamente a partir do segundo salvamento.' };
+    return { ok: false, erro: 'Não há backup local.' };
   }
   try {
     const conteudo = fs.readFileSync(backupFile, 'utf8');
@@ -188,9 +163,6 @@ ipcMain.handle('dados:restaurar', async (evt) => {
   }
 });
 
-// Workaround para bug do Electron/Chromium: após IPC pesado, o foco do
-// input fica "preso" e não aceita novas teclas. Minimizar e maximizar
-// a janela resolve — aqui simulamos o mesmo efeito com invalidate + focus.
 ipcMain.handle('janela:flash-foco', (evt) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   if (!win) return false;
@@ -200,26 +172,24 @@ ipcMain.handle('janela:flash-foco', (evt) => {
   return true;
 });
 
-// Abre links externos (http/https) no navegador padrão do sistema,
-// usado pelos links do GitHub na tela "Sobre".
 ipcMain.handle('link:abrir', (_evt, url) => {
   if (typeof url !== 'string') return false;
-  // Só permite http/https para evitar esquemas perigosos (ex.: file:, javascript:).
   if (!/^https?:\/\//i.test(url)) return false;
   try { shell.openExternal(url); return true; }
-  catch (err) { console.error('Falha ao abrir link externo:', err); return false; }
+  catch (err) { console.error('Falha ao abrir link:', err); return false; }
 });
 
 ipcMain.handle('dados:exportar', async (evt) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const result = await dialog.showSaveDialog(win, {
     title: 'Exportar dados',
-    defaultPath: `meubolso-${new Date().toISOString().slice(0, 10)}.json`,
-    filters: [{ name: 'JSON', extensions: ['json'] }]
+    defaultPath: 'meubolso-' + new Date().toISOString().slice(0, 10) + '.json',
+    filters: [{ name: 'JSON', extensions: ['json'] }],
   });
   if (result.canceled || !result.filePath) return { ok: false, cancelado: true };
   try {
-    fs.writeFileSync(result.filePath, JSON.stringify(loadData(), null, 2), 'utf8');
+    const data = loadFromDB() || fallbackData();
+    fs.writeFileSync(result.filePath, JSON.stringify(data, null, 2), 'utf8');
     return { ok: true, caminho: result.filePath };
   } catch (err) {
     return { ok: false, erro: err.message };
@@ -231,7 +201,7 @@ ipcMain.handle('dados:importar', async (evt) => {
   const result = await dialog.showOpenDialog(win, {
     title: 'Importar dados',
     properties: ['openFile'],
-    filters: [{ name: 'JSON', extensions: ['json'] }]
+    filters: [{ name: 'JSON', extensions: ['json'] }],
   });
   if (result.canceled || !result.filePaths[0]) return { ok: false, cancelado: true };
   try {
@@ -242,14 +212,12 @@ ipcMain.handle('dados:importar', async (evt) => {
     }
     return { ok: true, dados: parsed, caminho: result.filePaths[0] };
   } catch (err) {
-    return { ok: false, erro: `Não foi possível ler o arquivo: ${err.message}` };
+    return { ok: false, erro: 'Não foi possível ler o arquivo: ' + err.message };
   }
 });
 
-// ---------- Auto-update (só em produção/empacotado) ----------
-// Verifica novas versões nos GitHub Releases e instala silenciosamente.
 function iniciarAutoUpdate() {
-  if (!app.isPackaged) return; // em dev, não verifica
+  if (!app.isPackaged) return;
   try {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.autoDownload = true;
@@ -264,9 +232,16 @@ function iniciarAutoUpdate() {
   }
 }
 
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 app.whenReady().then(() => {
+  console.log('========================================');
+  console.log('[APP] MeuBolso iniciando...');
+  console.log('[APP] Backend de persistência: JSON (arquivo simples)');
+  console.log('========================================');
+
   initPaths();
-  openDb();
   iniciarAutoUpdate();
   createWindow();
 });
@@ -279,7 +254,10 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// Garante flush do debounce pendente ao fechar.
+// ============================================================
+// ENCERRAMENTO - Garantir que dados sejam salvos
+// ============================================================
 app.on('before-quit', () => {
-  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  console.log('[APP] before-quit - dados já salvos no disco na última chamada de persistir()');
+  console.log('[APP] ✓ Aplicação encerrada');
 });

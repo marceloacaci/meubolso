@@ -117,6 +117,7 @@
             },
             options: {
               responsive: true, maintainAspectRatio: false,
+              layout: { padding: 16 }, // folga p/ o hoverOffset (fatias se separam) não estourar o canvas
               rotation: -Math.PI / 2,   // início no topo (0°), varrendo como relógio
               cutout: '62%',
               animation: { animateRotate: true, animateScale: true, duration: 1100, easing: 'easeOutQuart' },

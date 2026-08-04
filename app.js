@@ -173,9 +173,9 @@ function resumoParcelas(d) {
 function resumoParcelasHtml(d, r) {
   return `
     <div class="resumo-parcelas">
-      <div class="campo"><label>Parcelas pagas</label><span>${r.pagas} de ${r.total} paga(s)</span></div>
-      <div class="campo"><label>Valor pago</label><span>${fmt.format(r.valorPago)} de ${fmt.format(r.valorTotal)} (${r.percentualPago}%)</span></div>
-      <div class="campo"><label>Restante</label><span>${fmt.format(r.valorRestante)} (${r.percentualRestante}%)</span></div>
+      <div class="campo"><label>${t('label.parcelasPagas')}</label><span>${r.pagas} de ${r.total} paga(s)</span></div>
+      <div class="campo"><label>${t('label.valorPago')}</label><span>${fmt.format(r.valorPago)} de ${fmt.format(r.valorTotal)} (${r.percentualPago}%)</span></div>
+      <div class="campo"><label>${t('label.restante')}</label><span>${fmt.format(r.valorRestante)} (${r.percentualRestante}%)</span></div>
     </div>
   `;
 }
@@ -204,8 +204,8 @@ function pagamentosParcelaHtml(d, parcelaId) {
   const percRestante = valorParcela > 0 ? ((restanteParcela / valorParcela) * 100).toFixed(0) : 0;
   return `
     <div class="pagamento-parcela">
-      <div class="campo"><label>Pago nesta parcela</label><span>${fmt.format(pagoParcela)} de ${fmt.format(valorParcela)} (${percPago}%)</span></div>
-      <div class="campo"><label>Restante nesta parcela</label><span>${fmt.format(restanteParcela)} (${percRestante}%)</span></div>
+      <div class="campo"><label>${t('label.pagoParcela')}</label><span>${fmt.format(pagoParcela)} de ${fmt.format(valorParcela)} (${percPago}%)</span></div>
+      <div class="campo"><label>${t('label.restanteParcela')}</label><span>${fmt.format(restanteParcela)} (${percRestante}%)</span></div>
     </div>
   `;
 }
@@ -276,6 +276,10 @@ const I18N = {
     'form.valorPago': 'Valor pago', 'form.data': 'Data do pagamento', 'form.nota': 'Nota',
     'label.parcelasPagas': 'Parcelas pagas', 'label.valorPago': 'Valor pago',
     'label.restante': 'Restante', 'label.pagoTotal': '% pago', 'label.restanteTotal': '% restante',
+    'label.pagoParcela': 'Pago nesta parcela', 'label.restanteParcela': 'Restante nesta parcela',
+    'tema.claro': 'Claro', 'tema.escuro': 'Escuro', 'acao.quitada': 'Quitada', 'form.opcional': 'opcional',
+    'form.exDescricao': 'Ex: Empréstimo bancário', 'form.exCredor': 'Ex: Banco X', 'carteira.exNome': 'Ex: Conta corrente',
+    'grafico.semParcelas': 'Sem parcelas.', 'form.exValorParcela': 'Ex: 150,00', 'form.exNota': 'Ex: pagou via PIX',
     'empty.dividas': 'Nenhuma dívida cadastrada. Comece adicionando uma.',
     'empty.pagamentos1': 'Cadastre uma dívida primeiro para registrar pagamentos.',
     'empty.pagamentos2': 'Nenhuma dívida com pagamento registrado ainda.',
@@ -327,7 +331,7 @@ const I18N = {
     'painel.totalDividas': 'Total de dívidas',
     'col.divida': 'Dívida', 'col.categoria': 'Categoria', 'col.total': 'Total', 'col.pago': 'Pago', 'col.saldo': 'Saldo', 'col.parcela': 'Parcela', 'col.vencimento': 'Vencimento', 'col.valor': 'Valor', 'col.acao': 'Ação',
     'col.pagoResta': 'Pago / resta', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Quitado', 'grafico.dividaCategoria': 'Dívida por categoria', 'grafico.pagoVsAberto': 'Pago vs em aberto', 'grafico.emAberto': 'Em aberto', 'grafico.pago': 'Pago', 'grafico.semDivida': 'Sem dívidas',
+    'grafico.total': 'Total', 'grafico.quitado': 'Quitado', 'grafico.dividaCategoria': 'Dívida por categoria', 'grafico.pagoVsAberto': 'Pago vs em aberto', 'grafico.emAberto': 'Em aberto', 'grafico.pago': 'Pago', 'grafico.semDivida': 'Sem dívidas', 'grafico.status': 'Status das parcelas',
     'relatorio.titulo': 'Relatório financeiro', 'vencimentos.titulo': 'Vencimentos', 'vencimentos.atrasadas': 'Parcelas atrasadas',
     'vencimentos.proximas': 'Vencendo nos próximos 7 dias',
     'vencimentos.nenhumaAtrasada': 'Nenhuma parcela atrasada.',
@@ -401,6 +405,10 @@ const I18N = {
     'form.valorPago': 'Amount paid', 'form.data': 'Payment date', 'form.nota': 'Note',
     'label.parcelasPagas': 'Paid installments', 'label.valorPago': 'Amount paid',
     'label.restante': 'Remaining', 'label.pagoTotal': '% paid', 'label.restanteTotal': '% remaining',
+    'label.pagoParcela': 'Paid in this installment', 'label.restanteParcela': 'Remaining in this installment',
+    'tema.claro': 'Light', 'tema.escuro': 'Dark', 'acao.quitada': 'Paid off', 'form.opcional': 'optional',
+    'form.exDescricao': 'Ex: Bank loan', 'form.exCredor': 'Ex: Bank X', 'carteira.exNome': 'Ex: Checking account',
+    'grafico.semParcelas': 'No installments.', 'form.exValorParcela': 'Ex: 150.00', 'form.exNota': 'Ex: paid via PIX',
     'empty.dividas': 'No debts registered. Start by adding one.',
     'empty.pagamentos1': 'Register a debt first to record payments.',
     'empty.pagamentos2': 'No debt with payments recorded yet.',
@@ -444,7 +452,7 @@ const I18N = {
     'painel.totalDividas': 'Total debts',
     'col.divida': 'Debt', 'col.categoria': 'Category', 'col.total': 'Total', 'col.pago': 'Paid', 'col.saldo': 'Balance', 'col.parcela': 'Installment', 'col.vencimento': 'Due date', 'col.valor': 'Amount', 'col.acao': 'Action',
     'col.pagoResta': 'Paid / remaining', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Paid off', 'grafico.dividaCategoria': 'Debt by category', 'grafico.pagoVsAberto': 'Paid vs outstanding', 'grafico.emAberto': 'Outstanding', 'grafico.pago': 'Paid', 'grafico.semDivida': 'No debt',
+    'grafico.total': 'Total', 'grafico.quitado': 'Paid off', 'grafico.dividaCategoria': 'Debt by category', 'grafico.pagoVsAberto': 'Paid vs outstanding', 'grafico.emAberto': 'Outstanding', 'grafico.pago': 'Paid', 'grafico.semDivida': 'No debt', 'grafico.status': 'Installment status',
     'relatorio.titulo': 'Financial report', 'vencimentos.titulo': 'Due dates', 'vencimentos.atrasadas': 'Overdue installments',
     'vencimentos.proximas': 'Due in the next 7 days',
     'vencimentos.nenhumaAtrasada': 'No overdue installments.',
@@ -526,6 +534,10 @@ const I18N = {
     'form.valorPago': 'Importe pagado', 'form.data': 'Fecha de pago', 'form.nota': 'Nota',
     'label.parcelasPagas': 'Cuotas pagadas', 'label.valorPago': 'Importe pagado',
     'label.restante': 'Restante', 'label.pagoTotal': '% pagado', 'label.restanteTotal': '% restante',
+    'label.pagoParcela': 'Pagado en esta cuota', 'label.restanteParcela': 'Restante en esta cuota',
+    'tema.claro': 'Claro', 'tema.escuro': 'Oscuro', 'acao.quitada': 'Pagada', 'form.opcional': 'opcional',
+    'form.exDescricao': 'Ej: Préstamo bancario', 'form.exCredor': 'Ej: Banco X', 'carteira.exNome': 'Ej: Cuenta corriente',
+    'grafico.semParcelas': 'Sin cuotas.', 'form.exValorParcela': 'Ej: 150,00', 'form.exNota': 'Ej: pagó vía PIX',
     'empty.dividas': 'Ninguna deuda registrada. Empiece agregando una.',
     'empty.pagamentos1': 'Registre una deuda primero para anotar pagos.',
     'empty.pagamentos2': 'Ninguna deuda con pagos registrados aún.',
@@ -569,7 +581,7 @@ const I18N = {
     'painel.totalDividas': 'Total de deudas',
     'col.divida': 'Deuda', 'col.categoria': 'Categoría', 'col.total': 'Total', 'col.pago': 'Pagado', 'col.saldo': 'Saldo', 'col.parcela': 'Cuota', 'col.vencimento': 'Vencimiento', 'col.valor': 'Importe', 'col.acao': 'Acción',
     'col.pagoResta': 'Pagado / resta', 'col.pct': '%',
-    'grafico.total': 'Total', 'grafico.quitado': 'Saldado', 'grafico.dividaCategoria': 'Deuda por categoría', 'grafico.pagoVsAberto': 'Pagado vs pendiente', 'grafico.emAberto': 'Pendiente', 'grafico.pago': 'Pagado', 'grafico.semDivida': 'Sin deudas',
+    'grafico.total': 'Total', 'grafico.quitado': 'Saldado', 'grafico.dividaCategoria': 'Deuda por categoría', 'grafico.pagoVsAberto': 'Pagado vs pendiente', 'grafico.emAberto': 'Pendiente', 'grafico.pago': 'Pagado', 'grafico.semDivida': 'Sin deudas', 'grafico.status': 'Estado de las cuotas',
     'relatorio.titulo': 'Informe financiero', 'vencimentos.titulo': 'Vencimientos', 'vencimentos.atrasadas': 'Cuotas atrasadas',
     'vencimentos.proximas': 'Vencen en los próximos 7 días',
     'vencimentos.nenhumaAtrasada': 'Ninguna cuota atrasada.',
@@ -874,10 +886,9 @@ function graficoRosca(m) {
   return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.pagoVsAberto')}"></canvas></div>`;
 }
 
-// Gráfico de barras (status das parcelas) — agora Chart.js (tipo 'bar'):
 // cada barra cresce de baixo p/ cima, com tooltip e hover. Cores por status.
 function graficoBarrasStatus(dados) {
-  if (!dados.length) return '<p class="stat-sub">Sem parcelas.</p>';
+  if (!dados.length) return '<p class="stat-sub">' + t('grafico.semParcelas') + '</p>';
   const id = 'chart-barras-status-' + (__graficoSeq++);
   if (window.ChartGraficos) {
     window.ChartGraficos.registrar(id, {
@@ -888,7 +899,7 @@ function graficoBarrasStatus(dados) {
       fmt: (v) => v + ' parcelas'
     });
   }
-  return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="Status das parcelas"></canvas></div>`;
+  return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.status')}"></canvas></div>`;
 }
 
 // Gráfico de barras de XP por motivo (tela de detalhes de pontos).
@@ -1362,7 +1373,13 @@ function atualizarBadgeNivel() {
 }
 async function persistir(silencio = false) {
   try {
-    const ok = await window.api.salvar(estado);
+    // `estado` é um Proxy reativo do Vue. O ipcRenderer.invoke usa clone
+    // estruturado, que NÃO clona Proxies — lançaria "An object could not be
+    // cloned" e o salvamento falharia silenciosamente (nada gravado no disco).
+    // Por isso desserializamos para um objeto plano antes de enviar.
+    const plano = JSON.parse(JSON.stringify(estado));
+    // Salva imediatamente para garantir persistência ao fechar
+    const ok = await window.api.salvarAgora(plano);
     if (!ok && !silencio) toast(t('toast.erroSalvar'), 'error');
   } catch (e) {
     // NÃO deixa uma falha de salvamento (ex.: api.salvar rejeita no Electron)
@@ -1424,8 +1441,8 @@ function abrirModal(titulo, campos, onSubmit) {
       <div id="campos-form">${camposHtml}</div>
       <div id="resumo-parcelas"></div>
       <div class="form-actions">
-        <button type="button" id="btn-cancelar" class="btn btn-ghost">Cancelar</button>
-        <button type="submit" id="btn-salvar" class="btn btn-primary">Salvar</button>
+        <button type="button" id="btn-cancelar" class="btn btn-ghost">${t('acao.cancelar')}</button>
+        <button type="submit" id="btn-salvar" class="btn btn-primary">${t('acao.salvar')}</button>
       </div>
     </form>
   `;
@@ -1571,10 +1588,10 @@ document.addEventListener('click', (e) => {
 
 // ---------- Ações: Dívidas ----------
 const STATUS_OPTIONS = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'pago', label: 'Pago' },
-  { value: 'atrasado', label: 'Atrasado' },
-  { value: 'negociado', label: 'Negociado' }
+  { value: 'pendente' },
+  { value: 'pago' },
+  { value: 'atrasado' },
+  { value: 'negociado' }
 ];
 
 // Lê as parcelas preenchidas no formulário dinâmico
@@ -1589,25 +1606,25 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
       return dt.toISOString().slice(0, 10);
     })();
     const opts = STATUS_OPTIONS.map(o =>
-      `<option value="${o.value}"${o.value === (existente?.status || 'pendente') ? ' selected' : ''}>${o.label}</option>`).join('');
+      `<option value="${o.value}"${o.value === (existente?.status || 'pendente') ? ' selected' : ''}>${t('status.' + o.value)}</option>`).join('');
     html += `
       <div class="parcela-item">
-        <div class="parcela-topo"><span>Parcela ${i + 1}</span></div>
+        <div class="parcela-topo"><span>${t('pagamento.parcela')} ${i + 1}</span></div>
         <div class="parcela-grid">
           <div class="campo">
-            <label>Valor (${t('moeda')})</label>
+            <label>${t('form.valorParcela')} (${t('moeda')})</label>
             <input type="number" step="0.01" min="0" name="pv${i}" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0) : ''}" />
           </div>
           <div class="campo">
-            <label>Vencimento</label>
+            <label>${t('form.vencimento')}</label>
             <input type="date" name="pd${i}" value="${existente ? existente.vencimento : dataPadrao}" />
           </div>
           <div class="campo full">
-            <label>Status</label>
+            <label>${t('form.status')}</label>
             <select name="ps${i}">${opts}</select>
           </div>
           <div class="campo full">
-            <label>Nota da parcela (opcional)</label>
+            <label>${t('form.notaParcela')} (${t('form.opcional')})</label>
             <input type="text" name="pn${i}" placeholder="Ex: pagou via PIX" value="${existente ? escapeHtml(existente.nota || '') : ''}" />
           </div>
         </div>
@@ -1638,8 +1655,8 @@ function lerParcelasDoForm(form, n, parcelasExistentes = []) {
 
 function novaDivida() {
   abrirModal(t('divida.nova').replace(/^\+\s*/, '') || 'Nova dívida', [
-    { name: 'descricao', label: t('form.descricao'), type: 'text', placeholder: 'Ex: Empréstimo bancário', required: true },
-    { name: 'credor', label: t('form.credor'), type: 'text', placeholder: 'Ex: Banco X', required: true },
+    { name: 'descricao', label: t('form.descricao'), type: 'text', placeholder: t('form.exDescricao'), required: true },
+    { name: 'credor', label: t('form.credor'), type: 'text', placeholder: t('form.exCredor'), required: true },
     { name: 'categoria', label: t('form.categoria'), type: 'select', value: 'emprestimo', options: [
       { value: 'emprestimo', label: t(CATEGORIAS.emprestimo.label) },
       { value: 'cartao', label: t(CATEGORIAS.cartao.label) },
@@ -2003,9 +2020,9 @@ function abrirGestaoDivida(d) {
     const restante = Math.max(0, (Number(parc.valor) || 0) - pago);
     const pct = (Number(parc.valor) || 0) > 0 ? Math.round((pago / (Number(parc.valor) || 0)) * 100) : 0;
     const pagamentoExistente = estado.pagamentos.find(x => x.dividaId === d.id && x.parcelaId === parc.id);
-    const acao = pagamentoExistente ? 'Editar' : 'Pagar';
+    const acao = pagamentoExistente ? t('acao.editar') : t('acao.pagar');
     const statusPago = pago >= (Number(parc.valor) || 0) && (Number(parc.valor) || 0) > 0
-      ? '<span class="tag pago" style="margin-left:6px">quitada</span>' : '';
+      ? '<span class="tag pago" style="margin-left:6px">' + t('acao.quitada') + '</span>' : '';
     return `
       <div class="item-linha gestao-parcela">
         <div>
@@ -2200,11 +2217,12 @@ function render() {
   // o tick reativo — o root <component :is> e os componentes de view observam
   // uiTick e recalculam o v-html sozinhos (sem congelamento no Electron).
   if (typeof window.uiTick !== 'undefined') window.uiTick.value++;
-  // Os gráficos Chart.js (pizza/rosca) usam <canvas> dentro do v-html; precisam
-  // ser montados APÓS o Vue atualizar o DOM. Agendamos via nextTick.
-  if (typeof Vue !== 'undefined' && Vue.nextTick && window.ChartGraficos) {
-    Vue.nextTick(() => { try { window.ChartGraficos.montar(); } catch (_) {} });
-  }
+  // A montagem dos gráficos Chart.js (canvas dentro do v-html) é feita no hook
+  // updated() de cada view que os usa (painel/relatorio/gamificacao). O updated()
+  // roda APÓS o Vue aplicar o novo v-html e popular os pendentes — garantindo que
+  // o <canvas> exista e o gráfico seja desenhado. Agendar montar() aqui via
+  // nextTick disparava uma segunda chamada que destruía os gráficos já montados
+  // (o nextTick do render rodava DEPOIS do updated(), apagando o canvas).
   // Atualiza os contadores da sidebar a cada "render".
   atualizarBadges();
 }
@@ -2460,14 +2478,14 @@ function renderConfiguracoes() {
           <h3>${t('config.aparencia')}</h3>
           <div class="config-linha">
             <span>${t('config.tema')}</span>
-            <div class="btn-group" role="group" aria-label="Tema">
-              <button class="btn btn-outline-secondary ${temaAtual === 'light' ? 'active' : ''}" data-tema="light">${ICON.sol} Claro</button>
-              <button class="btn btn-outline-secondary ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark">${ICON.lua} Escuro</button>
+            <div class="btn-group" role="group" aria-label="${t('config.tema')}">
+              <button class="btn btn-outline-secondary ${temaAtual === 'light' ? 'active' : ''}" data-tema="light">${ICON.sol} ${t('tema.claro')}</button>
+              <button class="btn btn-outline-secondary ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark">${ICON.lua} ${t('tema.escuro')}</button>
             </div>
           </div>
           <div class="config-linha">
             <span>${t('config.fonte')} (${tamFonte})</span>
-            <div class="btn-group" role="group" aria-label="Tamanho da fonte">
+            <div class="btn-group" role="group" aria-label="${t('config.fonte')}">
               <button class="btn btn-outline-secondary" data-fonte="aumentar" title="Aumentar fonte">${ICON.setaCima} A</button>
               <button class="btn btn-outline-secondary" data-fonte="diminuir" title="Diminuir fonte">${ICON.setaBaixo} a</button>
             </div>
@@ -2480,7 +2498,7 @@ function renderConfiguracoes() {
           <h3>${t('config.cor')}</h3>
           <div class="config-linha">
             <span>${t('config.corDestaque')}</span>
-            <div class="gear-grupo gear-cores" role="group" aria-label="Cor de destaque">
+            <div class="gear-grupo gear-cores" role="group" aria-label="${t('config.corDestaque')}">
               <button class="gear-cor ${acentoAtual === 'verde' ? 'active' : ''}" data-accent="verde" style="--sw:#2d6a4f" title="Verde" aria-label="Verde"></button>
               <button class="gear-cor ${acentoAtual === 'azul' ? 'active' : ''}" data-accent="azul" style="--sw:#1d4ed8" title="Azul" aria-label="Azul"></button>
               <button class="gear-cor ${acentoAtual === 'roxo' ? 'active' : ''}" data-accent="roxo" style="--sw:#6d28d9" title="Roxo" aria-label="Roxo"></button>
@@ -2496,7 +2514,7 @@ function renderConfiguracoes() {
           <h3>${t('config.idioma')}</h3>
           <div class="config-linha">
             <span>${t('config.idioma')}</span>
-            <div class="btn-group" role="group" aria-label="Idioma">
+            <div class="btn-group" role="group" aria-label="${t('config.idioma')}">
               <button class="btn btn-outline-secondary ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="Português"><span class="bandeira">${ICON.br}</span> PT</button>
               <button class="btn btn-outline-secondary ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="English"><span class="bandeira">${ICON.us}</span> EN</button>
               <button class="btn btn-outline-secondary ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="Español"><span class="bandeira">${ICON.es}</span> ES</button>
@@ -2828,7 +2846,7 @@ function estornarDebitoCarteira(pagamento) {
 
 function novaCarteira() {
   abrirModal(t('carteira.nova') || t('carteira.titulo'), [
-    { name: 'nome', label: t('carteira.nome'), type: 'text', placeholder: 'Ex: Conta corrente', required: true },
+    { name: 'nome', label: t('carteira.nome'), type: 'text', placeholder: t('carteira.exNome'), required: true },
     { name: 'saldo', label: t('carteira.saldoInicial') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', value: '0', required: true }
   ], async (v) => {
     estado.carteiras.push({
