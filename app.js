@@ -292,7 +292,7 @@ const I18N = {
     'toast.exportado': 'Exportado para ',
     'toast.dividaSalva': 'Dívida salva',
     'toast.erroSalvar': 'Erro ao salvar dados',
-    'status.pendente': 'Pendente', 'status.pago': 'Pago', 'status.atrasado': 'Atrasado', 'status.negociado': 'Negociado',
+    'status.pendente': 'Pendente', 'status.pago': 'Pago', 'status.atrasado': 'Atrasado', 'status.negociado': 'Negociado', 'status.parcial': 'Pago parcialmente',
     'modal.editarDivida': 'Editar dívida', 'modal.registrarPagamento': 'Registrar pagamento',
     'modal.editarPagamento': 'Editar pagamento', 'aviso.parcelas': 'Preencha os dados de cada uma das ${n} parcela(s).',
     'toast.dividaAtualizada': 'Dívida atualizada', 'toast.dividaExcluida': 'Dívida excluída', 'toast.carteiraExcluida': 'Carteira excluída',
@@ -317,7 +317,7 @@ const I18N = {
     'resumo.dividasAtivas': 'Dívidas ativas', 'resumo.quitado': '% quitado', 'resumo.proximos7': 'Vencendo nos próximos 7 dias',
     'resumo.nenhumaProxima': 'Nenhuma parcela próxima do vencimento.',
     'cat.emprestimo': 'Empréstimo', 'cat.cartao': 'Cartão', 'cat.servico': 'Serviço', 'cat.outro': 'Outro',
-    'status.pendente': 'Pendente', 'status.pago': 'Pago', 'status.atrasado': 'Atrasado', 'status.negociado': 'Negociado',
+    'status.pendente': 'Pendente', 'status.pago': 'Pago', 'status.atrasado': 'Atrasado', 'status.negociado': 'Negociado', 'status.parcial': 'Pago parcialmente',
     'insight.vazio': 'Você não tem dívidas cadastradas. Que tal começar uma reserva de emergência?',
     'insight.quitadoAlto': '<b>{p}%</b> da dívida total já foi quitado. Você está no caminho certo!',
     'insight.quitadoMedio': 'Você já quitou <b>{p}%</b> das dívidas. Mantenha o ritmo de pagamentos.',
@@ -422,7 +422,7 @@ const I18N = {
     'toast.dividaSalva': 'Debt saved',
     'toast.erroSalvar': 'Error saving data',
     'divida.parcelas': 'installment(s)', 'divida.comAtraso': 'overdue',
-    'status.pendente': 'Pending', 'status.pago': 'Paid', 'status.atrasado': 'Overdue', 'status.negociado': 'Renegotiated',
+    'status.pendente': 'Pending', 'status.pago': 'Paid', 'status.atrasado': 'Overdue', 'status.negociado': 'Renegotiated', 'status.parcial': 'Partially paid',
     'pagamentos.titulo': 'Payments', 'dividas.titulo': 'My Debts',
     'painel.titulo': 'Dashboard', 'resumo.titulo': 'Financial Summary',
     'col.parcela': 'Installment',
@@ -438,7 +438,7 @@ const I18N = {
     'resumo.dividasAtivas': 'Active debts', 'resumo.quitado': '% paid off', 'resumo.proximos7': 'Due in the next 7 days',
     'resumo.nenhumaProxima': 'No installments due soon.',
     'cat.emprestimo': 'Loan', 'cat.cartao': 'Card', 'cat.servico': 'Service', 'cat.outro': 'Other',
-    'status.pendente': 'Pending', 'status.pago': 'Paid', 'status.atrasado': 'Overdue', 'status.negociado': 'Renegotiated',
+    'status.pendente': 'Pending', 'status.pago': 'Paid', 'status.atrasado': 'Overdue', 'status.negociado': 'Renegotiated', 'status.parcial': 'Partially paid',
     'insight.vazio': 'You have no registered debts. How about starting an emergency fund?',
     'insight.quitadoAlto': '<b>{p}%</b> of your total debt is already paid off. You are on the right track!',
     'insight.quitadoMedio': 'You have already paid off <b>{p}%</b> of your debts. Keep up the payment pace.',
@@ -551,7 +551,7 @@ const I18N = {
     'toast.dividaSalva': 'Deuda guardada',
     'toast.erroSalvar': 'Error al guardar datos',
     'divida.parcelas': 'cuota(s)', 'divida.comAtraso': 'atrasada',
-    'status.pendente': 'Pendiente', 'status.pago': 'Pagado', 'status.atrasado': 'Atrasado', 'status.negociado': 'Renegociado',
+    'status.pendente': 'Pendiente', 'status.pago': 'Pagado', 'status.atrasado': 'Atrasado', 'status.negociado': 'Renegociado', 'status.parcial': 'Pagado parcialmente',
     'pagamentos.titulo': 'Pagos', 'dividas.titulo': 'Mis Deudas',
     'painel.titulo': 'Panel', 'resumo.titulo': 'Resumen Financiero',
     'col.parcela': 'Cuota',
@@ -567,7 +567,7 @@ const I18N = {
     'resumo.dividasAtivas': 'Deudas activas', 'resumo.quitado': '% saldado', 'resumo.proximos7': 'Vencen en los próximos 7 días',
     'resumo.nenhumaProxima': 'Ninguna cuota próxima al vencimiento.',
     'cat.emprestimo': 'Préstamo', 'cat.cartao': 'Tarjeta', 'cat.servico': 'Servicio', 'cat.outro': 'Otro',
-    'status.pendente': 'Pendiente', 'status.pago': 'Pagada', 'status.atrasado': 'Atrasada', 'status.negociado': 'Renegociada',
+    'status.pendente': 'Pendiente', 'status.pago': 'Pagada', 'status.atrasado': 'Atrasada', 'status.negociado': 'Renegociada', 'status.parcial': 'Pagado parcialmente',
     'insight.vazio': 'No tienes deudas registradas. ¿Qué tal empezar un fondo de emergencia?',
     'insight.quitadoAlto': '<b>{p}%</b> de la deuda total ya está pagado. ¡Vas por buen camino!',
     'insight.quitadoMedio': 'Ya pagaste <b>{p}%</b> de tus deudas. Mantén el ritmo de pagos.',
@@ -1590,12 +1590,13 @@ document.addEventListener('click', (e) => {
 const STATUS_OPTIONS = [
   { value: 'pendente' },
   { value: 'pago' },
+  { value: 'parcial' },
   { value: 'atrasado' },
   { value: 'negociado' }
 ];
 
 // Lê as parcelas preenchidas no formulário dinâmico
-// Monta o HTML dos formulários de parcelas (valor, vencimento, status)
+// Monta o HTML dos formulários de parcelas (valor, vencimento, status, pagamento)
 function parcelasParaFormulario(n, parcelasExistentes = []) {
   let html = '';
   for (let i = 0; i < n; i++) {
@@ -1607,13 +1608,17 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
     })();
     const opts = STATUS_OPTIONS.map(o =>
       `<option value="${o.value}"${o.value === (existente?.status || 'pendente') ? ' selected' : ''}>${t('status.' + o.value)}</option>`).join('');
+    // Campos de pagamento (valor pago + data) ficam ocultos quando o status é 'pendente'
+    // e são revelados ao selecionar 'pago'/'parcial' (ou 'atrasado'/'negociado').
+    const statusAtual = existente?.status || 'pendente';
+    const mostraPagamento = statusAtual !== 'pendente';
     html += `
       <div class="parcela-item">
         <div class="parcela-topo"><span>${t('pagamento.parcela')} ${i + 1}</span></div>
         <div class="parcela-grid">
           <div class="campo">
             <label>${t('form.valorParcela')} (${t('moeda')})</label>
-            <input type="number" step="0.01" min="0" name="pv${i}" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0) : ''}" />
+            <input type="number" step="0.01" min="0" name="pv${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valor) || 0) : ''}" />
           </div>
           <div class="campo">
             <label>${t('form.vencimento')}</label>
@@ -1623,9 +1628,15 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
             <label>${t('form.status')}</label>
             <select name="ps${i}">${opts}</select>
           </div>
+          <div class="campo full parcela-pagamento" id="pagamento-parcela-${i}" style="${mostraPagamento ? '' : 'display:none'}">
+            <label>${t('form.valorPago')} (${t('moeda')})</label>
+            <input type="number" step="0.01" min="0" name="pvpg${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valorPago) || 0) : ''}" />
+            <label>${t('form.dataPagamento')}</label>
+            <input type="date" name="pdpg${i}" value="${existente ? (existente.dataPagamento || '') : ''}" />
+          </div>
           <div class="campo full">
             <label>${t('form.notaParcela')} (${t('form.opcional')})</label>
-            <input type="text" name="pn${i}" placeholder="Ex: pagou via PIX" value="${existente ? escapeHtml(existente.nota || '') : ''}" />
+            <input type="text" name="pn${i}" placeholder="${t('form.exNota') || 'Ex: pagou via PIX'}" value="${existente ? escapeHtml(existente.nota || '') : ''}" />
           </div>
         </div>
       </div>`;
@@ -1633,6 +1644,8 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
   return html;
 }
 
+// Lê as parcelas preenchidas no formulário dinâmico e DERIVA o status a partir
+// do valor pago (fonte única de verdade), garantindo coerência financeira.
 function lerParcelasDoForm(form, n, parcelasExistentes = []) {
   const parcelas = [];
   for (let i = 0; i < n; i++) {
@@ -1640,17 +1653,67 @@ function lerParcelasDoForm(form, n, parcelasExistentes = []) {
     const d = form.querySelector(`[name="pd${i}"]`)?.value;
     const s = form.querySelector(`[name="ps${i}"]`)?.value || 'pendente';
     const nt = form.querySelector(`[name="pn${i}"]`)?.value || '';
+    const vp = form.querySelector(`[name="pvpg${i}"]`)?.value;
+    const dp = form.querySelector(`[name="pdpg${i}"]`)?.value;
     const existente = parcelasExistentes[i];
+    const valor = Math.max(0, Number(String(v).replace(',', '.')) || 0);
+    const valorPago = Math.max(0, Number(String(vp).replace(',', '.')) || 0);
+    // Status derivado do valor pago, exceto categorias manuais de gestão.
+    let status = s;
+    if (s !== 'atrasado' && s !== 'negociado') {
+      if (valorPago <= 0) status = 'pendente';
+      else if (valorPago >= valor) status = 'pago';
+      else status = 'parcial';
+    }
     parcelas.push({
       id: existente?.id || uid(),
       numero: i + 1,
-      valor: Number(v) || 0,
+      valor,
       vencimento: d || hoje(),
-      status: s,
+      status,
+      valorPago: valorPago > 0 ? valorPago : 0,
+      dataPagamento: valorPago > 0 ? (dp || hoje()) : '',
       nota: nt.trim()
     });
   }
   return parcelas;
+}
+// Conecta os eventos das parcelas (toggle de pagamento e derivação de status)
+// após o HTML ser injetado no DOM — evita handlers inline com aspas aninhadas.
+function conectarEventosParcelas(wrap) {
+  if (!wrap) return;
+  wrap.querySelectorAll('.parcela-item').forEach((item) => {
+    const sel = item.querySelector('select[name^="ps"]');
+    const pagBloco = item.querySelector('.parcela-pagamento');
+    const vInput = item.querySelector('input[name^="pvpg"]');
+    const valorInput = item.querySelector('input[name^="pv"]');
+    const sanitizar = (el) => { if (el) el.addEventListener('input', () => {
+      if (/^-/.test(el.value)) el.value = '0';
+      else el.value = el.value.replace(/[^0-9.,]/g, '');
+    }); };
+    sanitizar(vInput);
+    sanitizar(valorInput);
+    if (sel && pagBloco) {
+      const toggle = () => {
+        pagBloco.style.display = (sel.value === 'pendente') ? 'none' : '';
+        if (sel.value === 'pago' && vInput && !vInput.value && valorInput && valorInput.value) {
+          vInput.value = valorInput.value;
+        }
+      };
+      sel.addEventListener('change', toggle);
+    }
+    if (vInput && sel) {
+      vInput.addEventListener('input', () => {
+        const v = parseFloat((vInput.value || '0').replace(',', '.')) || 0;
+        const val = parseFloat((valorInput && valorInput.value || '0').replace(',', '.')) || 0;
+        if (sel.value !== 'atrasado' && sel.value !== 'negociado') {
+          if (v <= 0) sel.value = 'pendente';
+          else if (v >= val) sel.value = 'pago';
+          else sel.value = 'parcial';
+        }
+      });
+    }
+  });
 }
 
 function novaDivida() {
@@ -1663,14 +1726,14 @@ function novaDivida() {
       { value: 'servico', label: t(CATEGORIAS.servico.label) },
       { value: 'outro', label: t(CATEGORIAS.outro.label) }
     ]},
-    { name: 'numParcelas', label: t('form.numero') + ' de parcelas', type: 'number', step: '1', placeholder: '1', value: '1', required: true, id: 'num-parcelas-input' },
+    { name: 'numParcelas', label: t('form.numero') + ' de parcelas', type: 'number', step: '1', min: '1', placeholder: '1', value: '1', required: true, id: 'num-parcelas-input' },
     { name: 'observacao', label: t('form.observacao'), type: 'textarea', value: '' }
   ], async (v) => {
     const n = Math.max(1, parseInt(v.numParcelas, 10) || 1);
     const form = document.getElementById('form-modal');
     const parcelas = lerParcelasDoForm(form, n);
     const total = parcelas.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-    estado.dividas.push({
+    const divida = {
       id: uid(),
       descricao: v.descricao.trim(),
       credor: v.credor.trim(),
@@ -1679,7 +1742,22 @@ function novaDivida() {
       parcelas,
       observacao: v.observacao || '',
       criadaEm: hoje()
+    };
+    // Cria registros de pagamento para parcelas já pagas no cadastro,
+    // integrando com o gráfico de composição (Pago vs Em aberto) e a barra Quitado.
+    parcelas.forEach(p => {
+      if (p.valorPago > 0) {
+        estado.pagamentos.push({
+          id: uid(),
+          dividaId: divida.id,
+          parcelaId: p.id,
+          valor: p.valorPago,
+          data: p.dataPagamento || hoje(),
+          criadoEm: hoje()
+        });
+      }
     });
+    estado.dividas.push(divida);
     await persistir();
     toast(t('toast.dividaSalva'), 'success');
     ganharXP(10, t('xp.dividaNova'));
@@ -1692,6 +1770,7 @@ function novaDivida() {
     const wrap = document.getElementById('parcelas-dinamicas');
     if (!wrap) return;
     wrap.innerHTML = parcelasParaFormulario(n);
+    conectarEventosParcelas(wrap);
     const aviso = document.getElementById('aviso-parcelas');
     if (aviso) aviso.textContent = t('aviso.parcelas').replace('${n}', n);
   };
@@ -1721,7 +1800,7 @@ function editarDivida(d) {
       { value: 'servico', label: t(CATEGORIAS.servico.label) },
       { value: 'outro', label: t(CATEGORIAS.outro.label) }
     ]},
-    { name: 'numParcelas', label: t('form.numero') + ' de parcelas', type: 'number', step: '1', placeholder: '1', value: String(parcelasAtuais.length || 1), required: true, id: 'num-parcelas-input' },
+    { name: 'numParcelas', label: t('form.numero') + ' de parcelas', type: 'number', step: '1', min: '1', placeholder: '1', value: String(parcelasAtuais.length || 1), required: true, id: 'num-parcelas-input' },
     { name: 'observacao', label: t('form.observacao'), type: 'textarea', value: d.observacao || '' }
   ], async (v) => {
     const n = Math.max(1, parseInt(v.numParcelas, 10) || 1);
@@ -1749,6 +1828,7 @@ function editarDivida(d) {
     const wrap = document.getElementById('parcelas-dinamicas');
     if (!wrap) return;
     wrap.innerHTML = parcelasParaFormulario(n, parcelasAtuais);
+    conectarEventosParcelas(wrap);
     const aviso = document.getElementById('aviso-parcelas');
     if (aviso) aviso.textContent = t('aviso.parcelas').replace('${n}', n);
   };
