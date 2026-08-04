@@ -10,7 +10,7 @@ const fs = require('fs');
 // dependências externas de banco de dados.
 // ============================================================
 
-let userDataPath, dbFile, dataFile, backupFile;
+let userDataPath, dbFile, dataFile, backupFile, pontosFile;
 
 // Caminhos de dados
 function initPaths() {
@@ -18,6 +18,7 @@ function initPaths() {
   dbFile = path.join(userDataPath, 'meubolso.json');
   dataFile = path.join(userDataPath, 'dados.json');
   backupFile = path.join(userDataPath, 'dados.bak.json');
+  pontosFile = path.join(userDataPath, 'pontos.bak.json');
 }
 
 // ---------- Normalizar dados ----------
@@ -39,6 +40,14 @@ function fazerBackup() {
     const stat = fs.statSync(dbFile);
     if (stat.size === 0) return false; // não backupa arquivo vazio
     fs.copyFileSync(dbFile, backupFile);
+    // Backup separado da pontuação (XP, nível e histórico de conquistas),
+    // conforme solicitado — garante resiliência do "game" mesmo se o JSON
+    // principal for corrompido.
+    try {
+      const conteudo = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
+      const g = conteudo.gamificacao || { xp: 0, nivel: 1, historico: [] };
+      fs.writeFileSync(pontosFile, JSON.stringify(g, null, 2), 'utf8');
+    } catch (_) { /* gamificacao ausente ou ilegível: ignora */ }
     return true;
   } catch (err) {
     console.warn('[DB] ⚠ Falha ao fazer backup automático:', err.message);

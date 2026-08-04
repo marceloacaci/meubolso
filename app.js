@@ -193,6 +193,27 @@ function valorPagoParcela(d, parcelaId) {
     .reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
 }
 
+// Recalcula os campos em cache da parcela (valorPago, dataPagamento, status)
+// a partir de TODOS os pagamentos vinculados a ela. É a única fonte de verdade
+// para o "pago" da parcela — usada ao registrar, editar e excluir pagamentos,
+// evitando incrementos frágeis que dessincronizam após edições/exclusões.
+function sincronizarParcela(divida, parcelaId) {
+  const parc = (divida.parcelas || []).find(p => p.id === parcelaId);
+  if (!parc) return;
+  const pagos = estado.pagamentos.filter(p => p.dividaId === divida.id && p.parcelaId === parcelaId);
+  const valParc = Number(parc.valor) || 0;
+  parc.valorPago = pagos.reduce((a, p) => a + (Number(p.valor) || 0), 0);
+  // Data do pagamento mais recente (para o resumo da parcela).
+  let dataRecente = '';
+  for (const p of pagos) {
+    if (!dataRecente || (p.data || '') > dataRecente) dataRecente = p.data || '';
+  }
+  parc.dataPagamento = dataRecente;
+  if (valParc > 0 && parc.valorPago >= valParc) parc.status = 'pago';
+  else if (parc.valorPago > 0) parc.status = 'parcial';
+  else parc.status = 'pendente';
+}
+
 // Monta o bloco de resumo de UMA parcela selecionada, exibindo o quanto
 // JÁ foi pago nela (individual) vs. o valor da própria parcela.
 function pagamentosParcelaHtml(d, parcelaId) {
@@ -353,7 +374,7 @@ const I18N = {
     'game.logVazio': 'Nenhum ponto registrado ainda. Comece cadastrando uma dívida!',
     'game.graficoXP': 'XP por atividade',
     'game.quests': 'Quests (como pontuar)', 'game.q.nova': 'Cadastrar uma nova dívida', 'game.q.editar': 'Editar uma dívida',
-    'game.q.novaCarteira': 'Criar uma nova carteira', 'game.q.editarCarteira': 'Editar uma carteira',
+    'game.q.novaCarteira': 'Criar uma nova carteira', 'game.q.editarCarteira': 'Editar uma carteira', 'game.q.editarPagamento': 'Editar um pagamento',
     'game.q.pag': 'Registrar um pagamento', 'game.q.gestao': 'Concluir a gestão de uma dívida',
     'game.q.quitou': 'Quitar uma dívida por completo', 'game.q.acesso': 'Acesso diário ao app',
     'game.tabela': 'Tabela de níveis', 'game.tituloNivel': 'Título',
@@ -475,7 +496,7 @@ const I18N = {
     'game.logVazio': 'No points recorded yet. Start by adding a debt!',
     'game.graficoXP': 'XP by activity',
     'game.quests': 'Quests (how to score)', 'game.q.nova': 'Register a new debt', 'game.q.editar': 'Edit a debt',
-    'game.q.novaCarteira': 'Create a new wallet', 'game.q.editarCarteira': 'Edit a wallet',
+    'game.q.novaCarteira': 'Create a new wallet', 'game.q.editarCarteira': 'Edit a wallet', 'game.q.editarPagamento': 'Edit a payment',
     'game.q.pag': 'Record a payment', 'game.q.gestao': 'Finish managing a debt',
     'game.q.quitou': 'Pay off a debt completely', 'game.q.acesso': 'Daily app access',
     'game.tabela': 'Level table', 'game.tituloNivel': 'Title',
@@ -604,7 +625,7 @@ const I18N = {
     'game.logVazio': 'Ningún punto registrado aún. ¡Empieza agregando una deuda!',
     'game.graficoXP': 'XP por actividad',
     'game.quests': 'Misiones (cómo puntuar)', 'game.q.nova': 'Registrar una nueva deuda', 'game.q.editar': 'Editar una deuda',
-    'game.q.novaCarteira': 'Crear una nueva cartera', 'game.q.editarCarteira': 'Editar una cartera',
+    'game.q.novaCarteira': 'Crear una nueva cartera', 'game.q.editarCarteira': 'Editar una cartera', 'game.q.editarPagamento': 'Editar un pago',
     'game.q.pag': 'Registrar un pago', 'game.q.gestao': 'Terminar de gestionar una deuda',
     'game.q.quitou': 'Pagar una deuda por completo', 'game.q.acesso': 'Acceso diario a la app',
     'game.tabela': 'Tabla de niveles', 'game.tituloNivel': 'Título',
@@ -1618,7 +1639,7 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
         <div class="parcela-grid">
           <div class="campo">
             <label>${t('form.valorParcela')} (${t('moeda')})</label>
-            <input type="number" step="0.01" min="0" name="pv${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valor) || 0) : ''}" />
+            <input type="text" inputmode="decimal" step="0.01" min="0" name="pv${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valor) || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : ''}" />
           </div>
           <div class="campo">
             <label>${t('form.vencimento')}</label>
@@ -1630,7 +1651,7 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
           </div>
           <div class="campo full parcela-pagamento" id="pagamento-parcela-${i}" style="${mostraPagamento ? '' : 'display:none'}">
             <label>${t('form.valorPago')} (${t('moeda')})</label>
-            <input type="number" step="0.01" min="0" name="pvpg${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valorPago) || 0) : ''}" />
+            <input type="text" inputmode="decimal" step="0.01" min="0" name="pvpg${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valorPago) || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : ''}" />
             <label>${t('form.dataPagamento')}</label>
             <input type="date" name="pdpg${i}" value="${existente ? (existente.dataPagamento || '') : ''}" />
           </div>
@@ -1688,8 +1709,13 @@ function conectarEventosParcelas(wrap) {
     const vInput = item.querySelector('input[name^="pvpg"]');
     const valorInput = item.querySelector('input[name^="pv"]');
     const sanitizar = (el) => { if (el) el.addEventListener('input', () => {
-      if (/^-/.test(el.value)) el.value = '0';
-      else el.value = el.value.replace(/[^0-9.,]/g, '');
+      // permite dígitos, vírgula ou ponto; bloqueia negativo e limita a 2 casas decimais
+      let v = el.value.replace(/[^0-9.,]/g, '').replace(/-/g, '');
+      const partes = v.split(/[,.]/);
+      if (partes.length > 1) {
+        v = partes[0] + '.' + partes.slice(1).join('').slice(0, 2);
+      }
+      el.value = v;
     }); };
     sanitizar(vInput);
     sanitizar(valorInput);
@@ -1893,7 +1919,7 @@ function novoPagamento(dividaPreSelecionada = null) {
     { name: 'parcelaId', label: t('pagamento.parcela'), type: 'select', value: parcelaInicial, options: opcoesParcela(preSelecDiv) },
     { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', required: true },
     { name: 'data', label: t('form.dataPagamento'), type: 'date', value: hoje(), required: true },
-    { name: 'nota', label: t('form.nota'), type: 'text', placeholder: 'Opcional' },
+    { name: 'nota', label: t('form.nota'), type: 'text', placeholder: 'Opcional', value: preSelecDiv?.observacao || '' },
     { name: 'carteiraId', label: t('form.carteira'), type: 'select', value: '', options: [{ value: '', label: t('nenhuma') || '—' }].concat((estado.carteiras || []).map(c => ({ value: c.id, label: c.nome }))) }
   ], async (v) => {
     const divida = estado.dividas.find(d => d.id === v.dividaId);
@@ -1917,6 +1943,14 @@ function novoPagamento(dividaPreSelecionada = null) {
     const r = await aplicarDebitoCarteira(pagamento, 0, null);
     if (!r.ok) { render(); return; } // usuário cancelou saldo insuficiente
     estado.pagamentos.push(pagamento);
+
+    // Mantém a parcela vinculada em sincronia com os pagamentos (fonte de verdade:
+    // recalcula valorPago/status/data a partir de TODOS os pagamentos da parcela).
+    sincronizarParcela(divida, parcelaId);
+    // Nota unificada: o pagamento e a dívida compartilham a mesma observação.
+    // Se o usuário informou nota no pagamento, ela vira a observação da dívida.
+    if (v.nota) divida.observacao = v.nota;
+
     await persistir();
     toast(t('toast.pagamentoRegistrado'), 'success');
     ganharXP(15, t('xp.pagamento'));
@@ -2004,6 +2038,12 @@ function editarPagamento(p) {
       data: v.data,
       nota: v.nota || ''
     });
+    // Recalcula a parcela de ORIGEM (se mudou de parcela/dívida) e a de DESTINO,
+    // para manter valorPago/status/data consistentes após a edição.
+    if (pagamento.parcelaId && pagamento.parcelaId !== parcelaId) {
+      sincronizarParcela(divida, pagamento.parcelaId);
+    }
+    sincronizarParcela(novaDivida, parcelaId);
     await persistir();
     toast(t('toast.pagamentoAtualizado'), 'success');
     ganharXP(8);
@@ -2260,7 +2300,9 @@ function excluirPagamento(p) {
     textoConfirmar: t('acao.excluir'),
     perigo: true,
     aoConfirmar: async () => {
+      const divida = estado.dividas.find(d => d.id === p.dividaId);
       estado.pagamentos = estado.pagamentos.filter(x => x.id !== p.id);
+      if (divida) sincronizarParcela(divida, p.parcelaId);
       await persistir();
       ganharXP(-5);
       toast(t('toast.pagamentoExcluido'));
@@ -2697,6 +2739,7 @@ function renderGamificacao() {
     { ico: ICON.documento, tit: t('game.q.nova'), pts: '+10 XP' },
     { ico: ICON.editar, tit: t('game.q.editar'), pts: '+5 XP' },
     { ico: ICON.cartao, tit: t('game.q.pag'), pts: '+15 XP' },
+    { ico: ICON.editar, tit: t('game.q.editarPagamento'), pts: '+8 XP' },
     { ico: ICON.pasta, tit: t('game.q.gestao'), pts: '+5 XP' },
     { ico: ICON.chegada, tit: t('game.q.quitou'), pts: '+50 XP' },
     { ico: ICON.carteira, tit: t('game.q.novaCarteira'), pts: '+20 XP' },
