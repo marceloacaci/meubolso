@@ -29,12 +29,31 @@ function normalizar(d) {
   return d;
 }
 
+// ---------- Backup automático (cópia da última versão válida) ----------
+// Antes de sobrescrever o arquivo principal, copia o conteúdo atual para
+// dados.bak.json. Assim, se a gravação falhar ou os dados ficarem
+// corrompidos, há sempre a última versão íntegra para restaurar.
+function fazerBackup() {
+  try {
+    if (!fs.existsSync(dbFile)) return false;
+    const stat = fs.statSync(dbFile);
+    if (stat.size === 0) return false; // não backupa arquivo vazio
+    fs.copyFileSync(dbFile, backupFile);
+    return true;
+  } catch (err) {
+    console.warn('[DB] ⚠ Falha ao fazer backup automático:', err.message);
+    return false;
+  }
+}
+
 // ---------- Salvar dados IMEDIATAMENTE no disco ----------
 function saveToDB(data) {
   if (!data) {
     console.error('[DB] × Nenhum dado para salvar');
     return false;
   }
+  // Backup da versão anterior antes de sobrescrever
+  fazerBackup();
   try {
     const json = JSON.stringify(normalizar(data));
     fs.writeFileSync(dbFile, json, 'utf8');
@@ -135,7 +154,13 @@ ipcMain.handle('sistema:info', () => ({
   so: `${process.platform} ${process.arch}`,
   arquitetura: process.arch,
   dbType: 'JSON (arquivo simples)',
+  backup: 'automático (dados.bak.json a cada salvamento) + exportar/importar manual',
 }));
+
+ipcMain.handle('dados:fazer-backup', async () => {
+  const ok = fazerBackup();
+  return { ok, caminho: ok ? backupFile : null };
+});
 
 ipcMain.handle('dados:backup-info', () => {
   if (!fs.existsSync(backupFile)) return { existe: false };

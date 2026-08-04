@@ -259,7 +259,7 @@ const I18N = {
     'nenhuma': 'Nenhuma', 'moeda': 'R$',
     'tab.painel': 'Painel', 'tab.resumo': 'Resumo', 'tab.dividas': 'Dívidas', 'tab.pagamentos': 'Pagamentos',
     'tab.vencimentos': 'Vencimentos', 'tab.relatorio': 'Relatório', 'tab.configuracoes': 'Configurações',
-    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar backup',
+    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar backup', 'acao.fazerBackup': 'Fazer backup agora',
     'divida.nova': 'Nova dívida', 'pagamento.novo': 'Novo pagamento', 'pagamento.gerenciar': 'Gerenciar pagamentos',
     'acao.editar': 'Editar', 'acao.excluir': 'Excluir', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Salvar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Voltar',
@@ -287,7 +287,7 @@ const I18N = {
     'toast.pagamentoRegistrado': 'Pagamento registrado',
     'toast.pagamentoAtualizado': 'Pagamento da parcela atualizado',
     'toast.pagamentoParcelaRegistrado': 'Pagamento da parcela registrado',
-    'toast.pagamentoExcluido': 'Pagamento excluído', 'toast.backupRestaurado': 'Backup restaurado',
+    'toast.pagamentoExcluido': 'Pagamento excluído', 'toast.backupRestaurado': 'Backup restaurado', 'toast.backupFeito': 'Backup local criado',
     'toast.dadosImportados': 'Dados importados', 'toast.erroPagamento': 'A dívida vinculada a este pagamento não existe mais',
     'toast.exportado': 'Exportado para ',
     'toast.dividaSalva': 'Dívida salva',
@@ -388,7 +388,7 @@ const I18N = {
     'nenhuma': 'None', 'moeda': '$',
     'tab.painel': 'Dashboard', 'tab.resumo': 'Summary', 'tab.dividas': 'Debts', 'tab.pagamentos': 'Payments',
     'tab.vencimentos': 'Due dates', 'tab.relatorio': 'Report', 'tab.configuracoes': 'Settings',
-    'acao.exportar': 'Export', 'acao.importar': 'Import', 'acao.restaurar': 'Restore backup',
+    'acao.exportar': 'Export', 'acao.importar': 'Import', 'acao.restaurar': 'Restore backup', 'acao.fazerBackup': 'Backup now',
     'divida.nova': 'New debt', 'pagamento.novo': 'New payment', 'pagamento.gerenciar': 'Manage payments',
     'acao.editar': 'Edit', 'acao.excluir': 'Delete', 'acao.pagar': 'Pay',
     'acao.salvar': 'Save', 'acao.cancelar': 'Cancel', 'acao.voltar': 'Back',
@@ -416,7 +416,7 @@ const I18N = {
     'toast.pagamentoRegistrado': 'Payment registered',
     'toast.pagamentoAtualizado': 'Installment payment updated',
     'toast.pagamentoParcelaRegistrado': 'Installment payment registered',
-    'toast.pagamentoExcluido': 'Payment deleted', 'toast.backupRestaurado': 'Backup restored',
+    'toast.pagamentoExcluido': 'Payment deleted', 'toast.backupRestaurado': 'Backup restored', 'toast.backupFeito': 'Local backup created',
     'toast.dadosImportados': 'Data imported', 'toast.erroPagamento': 'The debt linked to this payment no longer exists',
     'toast.exportado': 'Exported to ',
     'toast.dividaSalva': 'Debt saved',
@@ -517,7 +517,7 @@ const I18N = {
     'nenhuma': 'Ninguna', 'moeda': 'R$',
     'tab.painel': 'Panel', 'tab.resumo': 'Resumen', 'tab.dividas': 'Deudas', 'tab.pagamentos': 'Pagos',
     'tab.vencimentos': 'Vencimientos', 'tab.relatorio': 'Informe', 'tab.configuracoes': 'Ajustes',
-    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar copia',
+    'acao.exportar': 'Exportar', 'acao.importar': 'Importar', 'acao.restaurar': 'Restaurar copia', 'acao.fazerBackup': 'Facer copia agora',
     'divida.nova': 'Nueva deuda', 'pagamento.novo': 'Nuevo pago', 'pagamento.gerenciar': 'Gestionar pagos',
     'acao.editar': 'Editar', 'acao.excluir': 'Eliminar', 'acao.pagar': 'Pagar',
     'acao.salvar': 'Guardar', 'acao.cancelar': 'Cancelar', 'acao.voltar': 'Volver',
@@ -545,7 +545,7 @@ const I18N = {
     'toast.pagamentoRegistrado': 'Pago registrado',
     'toast.pagamentoAtualizado': 'Pago de cuota actualizado',
     'toast.pagamentoParcelaRegistrado': 'Pago de cuota registrado',
-    'toast.pagamentoExcluido': 'Pago eliminado', 'toast.backupRestaurado': 'Copia restaurada',
+    'toast.pagamentoExcluido': 'Pago eliminado', 'toast.backupRestaurado': 'Copia restaurada', 'toast.backupFeito': 'Copia local creada',
     'toast.dadosImportados': 'Datos importados', 'toast.erroPagamento': 'La deuda vinculada a este pago ya no existe',
     'toast.exportado': 'Exportado a ',
     'toast.dividaSalva': 'Deuda guardada',
@@ -2527,6 +2527,7 @@ function renderConfiguracoes() {
         <section class="config-secao h-100">
           <h3>${t('config.dados')}</h3>
           <div class="config-acoes">
+            <button class="btn btn-outline-secondary" data-acao="fazerBackup" title="Fazer um backup local agora (copia meubolso.json para dados.bak.json)">${ICON.reciclar} ${t('acao.fazerBackup')}</button>
             <button class="btn btn-outline-secondary" data-acao="exportar" title="Exportar dados para um arquivo JSON">${ICON.exportar} ${t('acao.exportar')}</button>
             <button class="btn btn-outline-secondary" data-acao="importar" title="Importar dados de um arquivo JSON">${ICON.importar} ${t('acao.importar')}</button>
             <button class="btn btn-outline-secondary" data-acao="restaurar" title="Restaurar a partir do backup automático local">${ICON.reciclar} ${t('acao.restaurar')}</button>
@@ -3131,7 +3132,8 @@ const handlers = {
   },
   'exportar': () => exportarDados(),
   'importar': () => importarDados(),
-  'restaurar': () => restaurarBackup()
+  'restaurar': () => restaurarBackup(),
+  'fazerBackup': () => fazerBackupManual()
 };
 
 async function exportarDados() {
@@ -3210,6 +3212,12 @@ async function restaurarBackup() {
       await window.api.flashFoco();
     }
   });
+}
+
+async function fazerBackupManual() {
+  const r = await window.api.fazerBackup();
+  if (r.ok) toast(t('toast.backupFeito'), 'success');
+  else toast(r.erro || 'Erro ao fazer backup', 'error');
 }
 
 // ---------- Inicialização ----------
