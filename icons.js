@@ -23,18 +23,6 @@
     );
   }
 
-  // Atalho para montar um SVG PREENCHIDO (sólido, "bold") — silhuetas fechadas
-  // com fill+stroke na mesma cor, sem detalhes internos que exigiriam cor de
-  // fundo. Mais grossículo e legível que o estilo de linha fina.
-  function solid(paths, extra) {
-    return (
-      '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" ' +
-      'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" ' +
-      'aria-hidden="true" class="ico-svg ico-filled' + (extra ? ' ' + extra : '') + '">' +
-      paths + '</svg>'
-    );
-  }
-
   const ICONS = {
     // --- Marca / logo ---
     moeda: line('<circle cx="12" cy="12" r="8.2"/><path d="M12 7.5v9"/><path d="M9.5 9.6c0-1 1.1-1.6 2.5-1.6s2.5.6 2.5 1.6-1.1 1.4-2.5 1.4-2.5.6-2.5 1.6 1.1 1.6 2.5 1.6 2.5-.6 2.5-1.6"/>'),
