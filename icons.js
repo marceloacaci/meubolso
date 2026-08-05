@@ -110,6 +110,16 @@
     br: line('<rect x="3" y="3.5" width="18" height="14" rx="2"/><path d="M12 4.8 19.5 10.5 12 16.2 4.5 10.5Z" fill="none"/><circle cx="12" cy="10.5" r="3.4"/><path d="M8.8 10 Q12 12.6 15.2 10" fill="none"/>'),
     us: line('<rect x="3" y="3.5" width="18" height="14" rx="2"/><line x1="3" y1="6.4" x2="21" y2="6.4"/><line x1="3" y1="9.3" x2="21" y2="9.3"/><line x1="3" y1="12.2" x2="21" y2="12.2"/><line x1="3" y1="15.1" x2="21" y2="15.1"/><rect x="3" y="3.5" width="8.2" height="7.6" rx="1" fill="none"/>'),
     es: line('<rect x="3" y="3.5" width="18" height="14" rx="2"/><line x1="3" y1="8.5" x2="21" y2="8.5"/><line x1="3" y1="12.5" x2="21" y2="12.5"/>'),
+
+    // --- Quests (ícones compostos, distintos e representativos) ---
+    // Cadastrar nova dívida: folha de documento com sinal de "+" (novo).
+    dividaNova: line('<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.5 3.5V8h4.5"/><path d="M9 12.5h6M9 15.5h6"/><path d="M17.5 14v5M15 16.5h5"/>'),
+    // Editar um pagamento: cédula de dinheiro com lápis pequeno (pagamento + edição).
+    editarPagamento: line('<circle cx="12" cy="12" r="8.2"/><path d="M12 7.5v9"/><path d="M9.5 9.6c0-1 1.1-1.6 2.5-1.6s2.5.6 2.5 1.6-1.1 1.4-2.5 1.4-2.5.6-2.5 1.6 1.1 1.6 2.5 1.6 2.5-.6 2.5-1.6"/><path d="M15 4.5 19.5 9 18 10.5 13.5 6Z"/><path d="M14 6l3.5 3.5"/>'),
+    // Concluir a gestão de uma dívida: pasta com check (gestão concluída).
+    gestao: line('<path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h3.2l1.6 2h7.2A1.5 1.5 0 0 1 19 8.5v8A1.5 1.5 0 0 1 17.5 18h-13A1.5 1.5 0 0 1 3 16.5V6.5"/><path d="M4 8.5h16"/><path d="M14.5 14.5l1.8 1.8 3-3.5"/>'),
+    // Editar uma carteira: carteira com lápis pequeno (carteira + edição).
+    editarCarteira: line('<path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h13a1.5 1.5 0 0 1 1.5 1.5V9"/><path d="M3 8.5V17a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 19 17v-6"/><path d="M4.5 7C4.5 5.6 5.6 4.5 7 4.5h6c1.4 0 2.2.6 3 1.6.8 1 1.6 1.4 2.5 1.4H17"/><circle cx="15.6" cy="13.5" r="0.9" fill="currentColor" stroke="none"/><path d="M15 4.5 19.5 9 18 10.5 13.5 6Z"/><path d="M14 6l3.5 3.5"/>'),
   };
 
   // Acesso conveniente: ICON.nome ou ICON('nome') ou ICON.svg('nome','classe').
