@@ -13,6 +13,9 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --radius: 8px;
   --app-font-scale: 1;
+  /* Realce das LINHAS dos desenhos (contorno do SVG) na página de Gamificação:
+     contorno ESCURO no tema claro para destacar sobre o fundo claro. */
+  --quest-outline: #1a1a1a;
 }
 
 /* Tema escuro */
@@ -29,6 +32,9 @@
   --success: #5fd28d;
   --success-claro: #86efac; /* verde claro usado no final do degradê da barra de progresso */
   --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  /* Realce das LINHAS dos desenhos (contorno do SVG) na página de Gamificação:
+     contorno BRANCO no tema escuro para destacar sobre o fundo escuro. */
+  --quest-outline: #ffffff;
 }
 
 /* ============================================================
@@ -164,7 +170,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .logo-ico .ico-svg { width: 22px; height: 22px; }
 .btn-cta .ico-svg { width: 18px; height: 18px; }
 .nav-ico .ico-svg { width: 18px; height: 18px; }
-.nivel-ico .ico-svg, .game-quest-ico .ico-svg, .sobre-tech-ico .ico-svg { width: 1em; height: 1em; }
+.nivel-ico .ico-svg, .sobre-tech-ico .ico-svg { width: 1em; height: 1em; }
+/* Ícone de LINHA da quest: 22px (igual ao antigo preenchido) + realce de contorno.
+   O drop-shadow segue o FORMATO do ícone (não uma caixa) e o traço mais grosso
+   destaca os detalhes INTERNOS do desenho (branco no escuro, escuro no claro). */
+.game-quest-ico .ico-svg { width: 22px; height: 22px; vertical-align: -4px; filter: drop-shadow(0 0 0.9px var(--quest-outline)); stroke-width: 2.1px; }
 .confirm-ico .ico-svg { width: 34px; height: 34px; }
 .confirm-card--perigo .confirm-ico .ico-svg { color: inherit; }
 .levelup-ico .ico-svg { width: 56px; height: 56px; color: var(--primary); }
@@ -175,12 +185,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .bandeira .ico-svg, .bandeira-svg { width: 26px; height: 18px; border-radius: 2px; display: inline-block; vertical-align: -0.15em; }
 .logo-titulo { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Ícones PREENCHIDOS (sólidos) das quests: maiores e com cor de destaque
-   para ficarem bem legíveis (substituem o estilo de linha fina). */
-.ico-filled { width: 1.4em; height: 1.4em; vertical-align: -0.28em; color: var(--primary); }
-.game-quest-ico .ico-filled { width: 22px; height: 22px; vertical-align: -4px; }
-.game-log .ico-filled, .game-log-ico .ico-filled { width: 18px; height: 18px; vertical-align: -3px; }
-.toast-ico .ico-filled { width: 18px; height: 18px; vertical-align: -3px; }
+/* Ícones de LINHA (contorno) das quests: o realce do contorno (--quest-outline)
+   dá a mesma legibilidade dos antigos ícones preenchidos. Veja os ajustes de
+   tamanho/realce em .game-quest-ico e .game-log-motivo abaixo. */
 
 .btn-cta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; font-weight: 600; }
 
@@ -675,7 +682,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .config-grid--wide { max-width: 1000px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .sobre-grid { max-width: 760px; grid-template-columns: 1fr; }
 .game-resumo { text-align: center; }
-.game-nivel-grande { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+.game-nivel-grande { font-size: 22px; font-weight: 700; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 12px; }
+.game-nivel-grande .ico-svg { filter: drop-shadow(0 0 0.9px var(--quest-outline)); stroke-width: 2.2px; }
 .game-xp-linha { display: flex; justify-content: space-between; font-size: 13px; margin-top: 10px; }
 .game-faltam { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 .game-grafico-wrap { display: flex; justify-content: center; padding: 8px 0 4px; width: 100%; height: 200px; position: relative; }
@@ -685,7 +693,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: grid; grid-template-columns: 1fr auto; grid-template-areas: "motivo pontos" "meta meta";
   gap: 2px 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
 }
-.game-log-motivo { grid-area: motivo; font-weight: 600; font-size: 13px; }
+.game-log-motivo { grid-area: motivo; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+.game-log-motivo .ico-svg { width: 18px; height: 18px; vertical-align: -3px; filter: drop-shadow(0 0 0.8px var(--quest-outline)); stroke-width: 1.6px; }
 .game-log-pontos { grid-area: pontos; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
 .game-log-pontos.pos { color: var(--success); }
 .game-log-pontos.neg { color: var(--danger); }
