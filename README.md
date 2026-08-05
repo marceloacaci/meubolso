@@ -20,7 +20,7 @@ que cobre o domínio financeiro e de gamificação, além da escrita atômica de
 
 - `src/dominio.js` — funções puras de cálculo (dívidas, pagamentos, níveis/XP).
 - `src/persistencia.js` — escrita atômica de arquivos (`writeFileSync` + `renameSync`).
-- `tests/*.test.js` — 62 testes (financeiro, gamificação, persistência).
+- `tests/*.test.js` — 74 testes (financeiro, gamificação, persistência, integridade).
 
 Para rodar localmente:
 

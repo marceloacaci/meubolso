@@ -17,7 +17,9 @@
 | 05/ago/2026 | **Etapa 1** extração do domínio para `src/dominio.js` + suíte Vitest (58 testes) | `src/dominio.js`, `tests/*.test.js`, `index.html` |
 | 05/ago/2026 | **Etapa 2** escrita atômica (`src/persistencia.js`) + CI (`ci.yml`) | `src/persistencia.js`, `.github/workflows/ci.yml` |
 
-> Status verificado por suíte automatizada: **62/62 testes** Vitest verdes (`npm run test`) em 05/ago/2026.
+| 05/ago/2026 | **Etapa 3** integridade de dados: `schemaVersion` + JSON Schema (ajv) + `migrarSchema` idempotente + recuperação automática de backup (`loadFromDB`) | `src/integridade.js`, `docs/schema/meubolso.schema.json`, `tests/integridade.test.js` |
+
+> Status verificado por suíte automatizada: **74/74 testes** Vitest verdes (`npm run test`) em 05/ago/2026.
 
 ---
 
@@ -285,16 +287,16 @@ npm run dist:win|linux|mac → electron-builder
 
 ## 12. Lacunas conhecidas (resumo executivo)
 
-| # | Lacuna | Severidade |
-|---|--------|-----------|
+| # | Lacuna | Severidade | Estado |
+|---|--------|-----------|-------|
 | L1 | Nenhum teste automatizado em 4.400 LOC de lógica financeira | 🔴 Alta | ✅ **Resolvido** (S1-1..S1-4: 58 testes) |
 | L2 | Escrita de arquivo não atômica (risco de corrupção) | 🔴 Alta | ✅ **Resolvido** (S1-5: src/persistencia.js + CI S1-6) |
 | **D-01** | **Datas gravadas em UTC, não local (§8.1)** — ✅ corrigido em 05/ago | ~~🔴 Alta~~ Resolvido |
 | **D-02** | **Aritmética financeira em float (§8.1)** — ✅ corrigido em 05/ago | ~~🔴 Alta~~ Resolvido |
-| L3 | `app.js` monolítico com 3.519 linhas | 🟠 Média |
-| L4 | Fallback automático para backup não implementado na carga | 🟠 Média |
+| L3 | `app.js` monolítico com 3.519 linhas | 🟠 Média | ⬜ |
+| L4 | Fallback automático para backup não implementado na carga | 🟠 Média | ✅ **Resolvido** (S2-4: loadFromDB recupera dados.bak.json) |
 | L5 | Incoerência entre tabela `NIVEIS` e `nivelDe()` | 🟠 Média | ✅ **Corrigido** (05/ago) |
-| L6 | CSP com `unsafe-eval`/`unsafe-inline` | 🟠 Média |
-| L7 | Sem CHANGELOG, sem ADRs, sem JSON Schema versionado | 🟡 Baixa |
-| L8 | Handlers IPC duplicados (`dados:salvar` vs `dados:salvar-agora`) | 🟡 Baixa |
-| L9 | Sem versionamento/migração de schema dos dados | 🟠 Média |
+| L6 | CSP com `unsafe-eval`/`unsafe-inline` | 🟠 Média | ⬜ |
+| L7 | Sem CHANGELOG, sem ADRs, sem JSON Schema versionado | 🟡 Baixa | ✅ **Resolvido** (docs/schema/meubolso.schema.json + S2-2) |
+| L8 | Handlers IPC duplicados (`dados:salvar` vs `dados:salvar-agora`) | 🟡 Baixa | ⬜ |
+| L9 | Sem versionamento/migração de schema dos dados | 🟠 Média | ✅ **Resolvido** (S2-1/S2-3: schemaVersion + migrarSchema idempotente) |

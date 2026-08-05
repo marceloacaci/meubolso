@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { salvarArquivoAtomico } = require('./src/persistencia.js');
+const { migrarSchema, definirSchemaVersion, carregarComRecuperacao, CURRENT_SCHEMA_VERSION } = require('./src/integridade.js');
 
 // ============================================================
 // MEUBOLSO - Persistência simples com JSON
@@ -27,6 +29,9 @@ function normalizar(d) {
   d.pagamentos = Array.isArray(d.pagamentos) ? d.pagamentos : [];
   d.carteiras = Array.isArray(d.carteiras) ? d.carteiras : [];
   d.configuracoes = d.configuracoes || { moeda: 'BRL' };
+  // Garante versão de schema e aplica migrações pendentes (idempotente).
+  definirSchemaVersion(d);
+  migrarSchema(d);
   return d;
 }
 
@@ -58,7 +63,6 @@ function fazerBackup() {
 
 // ---------- Escrita ATÔMICA de arquivo ----------
 // (Implementação em src/persistencia.js — testável em Node, sem Electron.)
-const { salvarArquivoAtomico } = require('./src/persistencia.js');
 function saveToDB(data) {
   if (!data) {
     console.error('[DB] × Nenhum dado para salvar');
@@ -77,25 +81,32 @@ function saveToDB(data) {
   }
 }
 
-// ---------- Carregar dados do JSON ----------
+// ---------- Carregar dados do JSON (com recuperação automática) ----------
+// Se o arquivo principal estiver corrompido/inválido, tenta automaticamente o
+// backup (dados.bak.json) — lacuna L4 do AS-BUILT. Não deixa o app abrir vazio
+// se houver um backup íntegro.
 function loadFromDB() {
   if (!fs.existsSync(dbFile)) {
     console.log('[DB] ℹ Nenhum arquivo de dados encontrado');
     return null;
   }
-  try {
-    const content = fs.readFileSync(dbFile, 'utf8');
-    const parsed = JSON.parse(content);
-    if (parsed && Array.isArray(parsed.dividas) && Array.isArray(parsed.pagamentos)) {
-      console.log('[DB] ✓ Dados carregados:', parsed.dividas.length, 'dívidas');
-      return normalizar(parsed);
-    }
-    console.log('[DB] ⚠ Formato de dados inválido');
-    return null;
-  } catch (err) {
-    console.error('[DB] ✗ Erro ao carregar:', err.message);
-    return null;
+  const resultado = carregarComRecuperacao({
+    principal: dbFile,
+    backup: backupFile,
+    normalizar
+  });
+  if (resultado.origem === 'principal') {
+    console.log('[DB] ✓ Dados carregados:', resultado.dados.dividas.length, 'dívidas');
+    return resultado.dados;
   }
+  if (resultado.origem === 'backup') {
+    console.warn('[DB] ⚠ Principal inválido; recuperado do backup:', resultado.aviso);
+    // Re-salva a versão recuperada como principal (corrige o arquivo quebrado).
+    saveToDB(resultado.dados);
+    return resultado.dados;
+  }
+  console.error('[DB] ✗ Falha ao carregar (principal e backup inválidos):', resultado.aviso);
+  return null;
 }
 
 function fallbackData() {

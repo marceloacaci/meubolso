@@ -66,14 +66,14 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ## Sprint 2 — Integridade de dados (19/ago–01/set) · 12 pts
 
-| ID | Tarefa | Pts | Critério de aceite |
-|----|--------|----:|--------------------|
-| S2-1 | `schemaVersion` no arquivo de dados + `docs/schema/estado.schema.json` | 2 | Arquivos antigos recebem `schemaVersion: 1` ao carregar |
-| S2-2 | Motor de **migrações** encadeadas (`migracoes/001→00N`) | 3 | Migração idempotente e testada |
-| S2-3 | **Validação na importação** contra o JSON Schema, com erro legível | 2 | Arquivo inválido é recusado com mensagem clara, sem quebrar o app |
-| S2-4 | **Recuperação automática**: se `meubolso.json` estiver corrompido, tentar `dados.bak.json` e avisar o usuário | 2 | Teste com JSON truncado recupera os dados |
-| S2-5 | **Backup rotativo de N gerações** (7 diários) em vez de 1 | 2 | Pasta `backups/` com rotação, tela de restauração lista as datas |
-| S2-6 | Remover handler IPC duplicado `dados:salvar` | 1 | Nenhuma referência remanescente |
+| ID | Tarefa | Pts | Critério de aceite | Status |
+|----|--------|----:|--------------------|--------|
+| S2-1 | `schemaVersion` no arquivo de dados + `docs/schema/meubolso.schema.json` | 2 | Arquivos antigos recebem `schemaVersion: 1` ao carregar | ✅ **FEITO** |
+| S2-2 | Motor de **migrações** idempotentes (`migrarSchema` encadeado) | 3 | Migração idempotente e testada | ✅ **FEITO** |
+| S2-3 | **Validação** contra o JSON Schema (ajv) na carga/importação | 2 | Arquivo inválido é recusado com erro legível | ✅ **FEITO** |
+| S2-4 | **Recuperação automática**: se `meubolso.json` estiver corrompido, tentar `dados.bak.json` | 2 | Teste com JSON truncado recupera os dados | ✅ **FEITO** |
+| S2-5 | **Backup rotativo de N gerações** (7 diários) em vez de 1 | 2 | Pasta `backups/` com rotação, tela de restauração lista as datas | ⬜ |
+| S2-6 | Remover handler IPC duplicado `dados:salvar` | 1 | Nenhuma referência remanescente | ⬜ |
 
 **Marco:** ✅ risco 🔴 L2 e 🟠 L4/L9 do As-Built eliminados.
 

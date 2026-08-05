@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/marceloacaci/meubolso/schema/meubolso.schema.json",
+  "title": "MeuBolso Data",
+  "description": "Schema versionado dos dados do MeuBolso (schemaVersion 1).",
+  "type": "object",
+  "required": ["schemaVersion", "dividas", "pagamentos", "carteiras", "configuracoes"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "dividas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "descricao", "valor", "parcelas", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "descricao": { "type": "string" },
+          "valor": { "type": "number" },
+          "credor": { "type": "string" },
+          "tipo": { "type": "string" },
+          "dataInicio": { "type": "string" },
+          "observacao": { "type": "string" },
+          "status": { "type": "string", "enum": ["ativa", "quitada", "atrasada"] },
+          "parcelas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "numero", "valor", "vencimento", "status"],
+              "properties": {
+                "id": { "type": "string" },
+                "numero": { "type": "integer" },
+                "valor": { "type": "number" },
+                "vencimento": { "type": "string" },
+                "dataPagamento": { "type": ["string", "null"] },
+                "valorPago": { "type": "number" },
+                "status": { "type": "string", "enum": ["pendente", "parcial", "pago", "atrasado"] }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "pagamentos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "dividaId", "valor", "data"],
+        "properties": {
+          "id": { "type": "string" },
+          "dividaId": { "type": "string" },
+          "parcelaId": { "type": ["string", "null"] },
+          "valor": { "type": "number" },
+          "data": { "type": "string" },
+          "carteiraId": { "type": ["string", "null"] },
+          "observacao": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "carteiras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nome", "saldo"],
+        "properties": {
+          "id": { "type": "string" },
+          "nome": { "type": "string" },
+          "saldo": { "type": "number" },
+          "cor": { "type": "string" },
+          "icone": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "configuracoes": {
+      "type": "object",
+      "properties": {
+        "moeda": { "type": "string" },
+        "idioma": { "type": "string" },
+        "tema": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

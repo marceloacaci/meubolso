@@ -89,6 +89,7 @@
     }
   },
   "devDependencies": {
+    "ajv": "^8.20.0",
     "electron": "^43.2.0",
     "electron-builder": "^25.1.8",
     "vitest": "^2.1.9"
