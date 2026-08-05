@@ -23,6 +23,18 @@
     );
   }
 
+  // Atalho para montar um SVG PREENCHIDO (sólido, "bold") — silhuetas fechadas
+  // com fill+stroke na mesma cor, sem detalhes internos que exigiriam cor de
+  // fundo. Mais grossículo e legível que o estilo de linha fina.
+  function solid(paths, extra) {
+    return (
+      '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" ' +
+      'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" ' +
+      'aria-hidden="true" class="ico-svg ico-filled' + (extra ? ' ' + extra : '') + '">' +
+      paths + '</svg>'
+    );
+  }
+
   const ICONS = {
     // --- Marca / logo ---
     moeda: line('<circle cx="12" cy="12" r="8.2"/><path d="M12 7.5v9"/><path d="M9.5 9.6c0-1 1.1-1.6 2.5-1.6s2.5.6 2.5 1.6-1.1 1.4-2.5 1.4-2.5.6-2.5 1.6 1.1 1.6 2.5 1.6 2.5-.6 2.5-1.6"/>'),
@@ -120,6 +132,28 @@
     gestao: line('<path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h3.2l1.6 2h7.2A1.5 1.5 0 0 1 19 8.5v8A1.5 1.5 0 0 1 17.5 18h-13A1.5 1.5 0 0 1 3 16.5V6.5"/><path d="M4 8.5h16"/><path d="M14.5 14.5l1.8 1.8 3-3.5"/>'),
     // Editar uma carteira: carteira com lápis pequeno (carteira + edição).
     editarCarteira: line('<path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h13a1.5 1.5 0 0 1 1.5 1.5V9"/><path d="M3 8.5V17a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 19 17v-6"/><path d="M4.5 7C4.5 5.6 5.6 4.5 7 4.5h6c1.4 0 2.2.6 3 1.6.8 1 1.6 1.4 2.5 1.4H17"/><circle cx="15.6" cy="13.5" r="0.9" fill="currentColor" stroke="none"/><path d="M15 4.5 19.5 9 18 10.5 13.5 6Z"/><path d="M14 6l3.5 3.5"/>'),
+
+    // --- Quests em estilo PREENCHIDO (sólido) para melhor legibilidade ---
+    // Cadastrar nova dívida: documento com sinal de "+".
+    dividaNovaFill: solid('<path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M13 3v4h4"/><rect x="15" y="14" width="2.2" height="6" rx="0.6"/><rect x="12.9" y="16.1" width="6" height="2.2" rx="0.6"/>'),
+    // Registrar pagamento: cédula com disco central.
+    dinheiroFill: solid('<rect x="3" y="6" width="18" height="12" rx="2.6"/><circle cx="12" cy="12" r="3.1"/>'),
+    // Editar um pagamento: cédula com lápis diagonal.
+    editarPagamentoFill: solid('<rect x="3" y="6" width="18" height="12" rx="2.6"/><circle cx="11" cy="12" r="2.6"/><path d="M14.5 4 20 9.5 17.5 12 12 6.5Z"/><path d="M12 6.5 17.5 12"/>'),
+    // Concluir a gestão: pasta.
+    gestaoFill: solid('<path d="M4 6.2A1.5 1.5 0 0 1 5.5 4.7h3.2l1.6 2H19A1.5 1.5 0 0 1 20.5 8.2v8.8A1.5 1.5 0 0 1 19 18.5H5.5A1.5 1.5 0 0 1 4 17V6.2Z"/>'),
+    // Quitar dívida: troféu.
+    trofeuFill: solid('<path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5.5H4.4V7A2.6 2.6 0 0 0 7 9.6"/><path d="M17 5.5h2.6V7A2.6 2.6 0 0 1 17 9.6"/><path d="M12 13v3.2"/><path d="M8.4 19.5h7.2l-1-3.4h-5.2l-1 3.4Z"/>'),
+    // Criar carteira: carteira (corpo + aba).
+    carteiraFill: solid('<rect x="3" y="7.5" width="18" height="11.5" rx="2.6"/><path d="M14.5 11.5h3.5a1.2 1.2 0 0 1 1.2 1.2v1.6A1.2 1.2 0 0 1 18 15.5h-3.5"/>'),
+    // Editar carteira: carteira com lápis.
+    editarCarteiraFill: solid('<rect x="3" y="7.5" width="18" height="11.5" rx="2.6"/><path d="M14.5 11.5h3.5a1.2 1.2 0 0 1 1.2 1.2v1.6A1.2 1.2 0 0 1 18 15.5h-3.5"/><path d="M13 3.5 19 9.5 16.5 12 11 6.5Z"/><path d="M11 6.5 16.5 12"/>'),
+    // Editar (genérico): lápis.
+    editarFill: solid('<path d="M4 20l1.1-4.2L16 4.9l3.1 3.1L8.3 18.9 4 20Z"/><path d="M14.5 6.4l3.1 3.1"/>'),
+    // Acesso diário: seta de entrada (login).
+    acessoFill: solid('<path d="M11 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h6"/><path d="M9 12h11"/><path d="M16 8l4 4-4 4"/>'),
+    // Saldo anterior (log): cofre/caixa.
+    caixaFill: solid('<path d="M12 3l9 5v8l-9 5-9-5V8Z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>'),
   };
 
   // Acesso conveniente: ICON.nome ou ICON('nome') ou ICON.svg('nome','classe').

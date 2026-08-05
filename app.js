@@ -1105,16 +1105,16 @@ function tituloNivel(n) {
 // - 'quest' define o nome exibido no histórico (igual à lista de quests).
 // - 'quest: null' significa manter o nome original do motivo (apenas adiciona o ícone).
 const MAPA_MOTIVO = {
-  'xp.dividaNova':    { ico: ICON.dividaNova, quest: 'game.q.nova' },
-  'xp.pagamento':     { ico: ICON.dinheiro, quest: 'game.q.pag' },
-  'xp.editarPagamento':{ ico: ICON.editarPagamento, quest: 'game.q.editarPagamento' },
-  'xp.gestao':        { ico: ICON.gestao, quest: 'game.q.gestao' },
-  'xp.quitou':        { ico: ICON.trofeu, quest: 'game.q.quitou' },
-  'xp.acesso':        { ico: ICON.relogio, quest: 'game.q.acesso' },
-  'xp.novaCarteira':  { ico: ICON.carteira, quest: 'game.q.novaCarteira' },
-  'xp.editarCarteira':{ ico: ICON.editarCarteira, quest: 'game.q.editarCarteira' },
-  'xp.desconhecido':  { ico: ICON.editar, quest: 'game.q.editar' },
-  'xp.saldoAnterior': { ico: ICON.caixa, quest: null }
+  'xp.dividaNova':    { ico: ICON.dividaNovaFill, quest: 'game.q.nova' },
+  'xp.pagamento':     { ico: ICON.dinheiroFill, quest: 'game.q.pag' },
+  'xp.editarPagamento':{ ico: ICON.editarPagamentoFill, quest: 'game.q.editarPagamento' },
+  'xp.gestao':        { ico: ICON.gestaoFill, quest: 'game.q.gestao' },
+  'xp.quitou':        { ico: ICON.trofeuFill, quest: 'game.q.quitou' },
+  'xp.acesso':        { ico: ICON.acessoFill, quest: 'game.q.acesso' },
+  'xp.novaCarteira':  { ico: ICON.carteiraFill, quest: 'game.q.novaCarteira' },
+  'xp.editarCarteira':{ ico: ICON.editarCarteiraFill, quest: 'game.q.editarCarteira' },
+  'xp.desconhecido':  { ico: ICON.editarFill, quest: 'game.q.editar' },
+  'xp.saldoAnterior': { ico: ICON.caixaFill, quest: null }
 };
 
 // Resolve o ícone + nome a exibir para um motivo (aceita chave i18n OU texto já traduzido em pt/en/es).
@@ -2766,15 +2766,15 @@ function renderGamificacao() {
 
   // --- Quests (desafios) que geram pontos ---
   const quests = [
-    { ico: ICON.dividaNova, tit: t('game.q.nova'), pts: '+10 XP' },
-    { ico: ICON.editar, tit: t('game.q.editar'), pts: '+5 XP' },
-    { ico: ICON.dinheiro, tit: t('game.q.pag'), pts: '+15 XP' },
-    { ico: ICON.editarPagamento, tit: t('game.q.editarPagamento'), pts: '+8 XP' },
-    { ico: ICON.gestao, tit: t('game.q.gestao'), pts: '+5 XP' },
-    { ico: ICON.trofeu, tit: t('game.q.quitou'), pts: '+50 XP' },
-    { ico: ICON.carteira, tit: t('game.q.novaCarteira'), pts: '+20 XP' },
-    { ico: ICON.editarCarteira, tit: t('game.q.editarCarteira'), pts: '+5 XP' },
-    { ico: ICON.relogio, tit: t('game.q.acesso'), pts: '+3 XP' }
+    { ico: ICON.dividaNovaFill, tit: t('game.q.nova'), pts: '+10 XP' },
+    { ico: ICON.editarFill, tit: t('game.q.editar'), pts: '+5 XP' },
+    { ico: ICON.dinheiroFill, tit: t('game.q.pag'), pts: '+15 XP' },
+    { ico: ICON.editarPagamentoFill, tit: t('game.q.editarPagamento'), pts: '+8 XP' },
+    { ico: ICON.gestaoFill, tit: t('game.q.gestao'), pts: '+5 XP' },
+    { ico: ICON.trofeuFill, tit: t('game.q.quitou'), pts: '+50 XP' },
+    { ico: ICON.carteiraFill, tit: t('game.q.novaCarteira'), pts: '+20 XP' },
+    { ico: ICON.editarCarteiraFill, tit: t('game.q.editarCarteira'), pts: '+5 XP' },
+    { ico: ICON.acessoFill, tit: t('game.q.acesso'), pts: '+3 XP' }
   ];
   const questsHtml = `
     <section class="config-secao">
