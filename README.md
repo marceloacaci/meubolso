@@ -50,7 +50,20 @@ Dados de implementação:
   relatórios e telas de configuração.
 - Respeita `prefers-reduced-motion` (desliga animações para quem prefere menos movimento).
 
+## Documentação
+
+Índice completo em [`docs/README.md`](docs/README.md).
+
+| Documento | Para quem | Conteúdo |
+|-----------|-----------|----------|
+| [Manual do Usuário](docs/MANUAL-DO-USUARIO.md) | Usuário final | Instalação, todas as telas, backup, FAQ, troubleshooting |
+| [AS-BUILT](docs/AS-BUILT.md) | Dev / analista | Arquitetura real, modelo de dados, contrato IPC, regras de negócio, defeitos e lacunas |
+| [Artefatos recomendados](docs/ARTEFATOS-RECOMENDADOS.md) | Dev / analista | Quais artefatos manter e quais não produzir |
+| [Cronograma 3 meses](docs/CRONOGRAMA-3-MESES.md) | Dev / gestão | 6 sprints, OKRs, riscos, Definition of Done |
+| [Brainstorm de melhorias](docs/BRAINSTORM-MELHORIAS.md) | Dev / produto | ~80 ideias priorizadas por esforço × impacto |
+
 ## Documentação do sistema (UML)
+
 
 Os diagramas abaixo documentam o funcionamento real do MeuBolso (mapeados
 diretamente do código-fonte) e ficam em [`docs/uml/`](docs/uml):
