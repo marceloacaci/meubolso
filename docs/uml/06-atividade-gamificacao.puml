@@ -1,0 +1,38 @@
+@startuml 06-atividade-gamificacao
+title MeuBolso — Atividade: Fluxo de gamificação
+
+start
+:Usuário realiza ação no app;
+switch (tipo de ação)
+case ( "Cadastrar dívida" )
+  :ganharXP(+10, 'xp.dividaNova');
+case ( "Registrar pagamento" )
+  :ganharXP(+15, 'xp.pagamento');
+case ( "Editar pagamento" )
+  :ganharXP(+8, 'xp.editarPagamento');
+case ( "Gestão de dívida" )
+  :ganharXP(+5, 'xp.gestao');
+case ( "Quitar dívida (100% paga)" )
+  :ganharXP(+50, 'xp.quitou');
+case ( "Criar carteira" )
+  :ganharXP(+20, 'xp.novaCarteira');
+case ( "Editar carteira" )
+  :ganharXP(+5, 'xp.editarCarteira');
+case ( "Acesso diário" )
+  :ganharXP(+3, 'xp.acesso');
+endswitch
+:xp = xp + pontos;
+:nivel = 1 + floor(xp / 100);
+:historico.unshift({ pontos, motivo, nivel, horario });
+if (historico.length > 100) then (sim)
+  :trunca em 100 registros (mantém mais recentes);
+else (não)
+endif
+:persistir(true)  ' salva silencioso;
+:render() + toast("+N XP · nome");
+if (nivel > nivel_anterior) then (sim)
+  :celebrarNivel(nivel)  ' overlay + confete;
+else (não)
+endif
+stop
+@enduml

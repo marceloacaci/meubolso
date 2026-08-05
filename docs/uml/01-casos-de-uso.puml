@@ -1,0 +1,78 @@
+@startuml 01-casos-de-uso
+title MeuBolso — Diagrama de Casos de Uso (Use Case)
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Usuário" as U
+
+rectangle "MeuBolso" {
+  rectangle "Dívidas" {
+    usecase "Cadastrar dívida" as UC1
+    usecase "Editar dívida" as UC2
+    usecase "Excluir dívida" as UC3
+    usecase "Ver dívidas / Painel" as UC4
+  }
+  rectangle "Pagamentos" {
+    usecase "Registrar pagamento" as UC5
+    usecase "Editar pagamento" as UC6
+    usecase "Excluir pagamento" as UC7
+    usecase "Lançar pagamento de parcela" as UC8
+    usecase "Quitar dívida (100% paga)" as UC9
+  }
+  rectangle "Carteiras" {
+    usecase "Criar carteira" as UC10
+    usecase "Editar carteira" as UC11
+    usecase "Excluir carteira" as UC12
+    usecase "Debitar saldo ao pagar" as UC13
+  }
+  rectangle "Gamificação" {
+    usecase "Ganhar XP por ação" as UC14
+    usecase "Subir de nível" as UC15
+    usecase "Ver progresso / histórico" as UC16
+  }
+  rectangle "Dados" {
+    usecase "Exportar dados" as UC17
+    usecase "Importar dados" as UC18
+    usecase "Restaurar backup" as UC19
+  }
+  rectangle "Preferências" {
+    usecase "Trocar tema (claro/escuro)" as UC20
+    usecase "Trocar idioma (PT/EN/ES)" as UC21
+  }
+}
+
+U --> UC1
+U --> UC2
+U --> UC3
+U --> UC4
+U --> UC5
+U --> UC6
+U --> UC7
+U --> UC8
+U --> UC9
+U --> UC10
+U --> UC11
+U --> UC12
+U --> UC16
+U --> UC17
+U --> UC18
+U --> UC19
+U --> UC20
+U --> UC21
+
+' Relacionamentos de inclusão/extensão (mapeados do app.js)
+UC5 ..> UC13 : <<include>>
+UC8 ..> UC13 : <<include>>
+UC5 ..> UC14 : <<include>> (+15 XP)
+UC8 ..> UC14 : <<include>> (+15 XP)
+UC6 ..> UC14 : <<include>> (+8 XP)
+UC1 ..> UC14 : <<include>> (+10 XP)
+UC9 ..> UC14 : <<extend>> (+50 XP)
+UC10 ..> UC14 : <<include>> (+20 XP)
+UC11 ..> UC14 : <<include>> (+5 XP)
+UC2 ..> UC14 : <<include>> (+5 XP "gestão")
+UC14 ..> UC15 : <<extend>> (cruza limite de 100 XP)
+UC1 ..> UC5 : <<extend>> (parcelas já pagas viram pagamentos)
+@enduml

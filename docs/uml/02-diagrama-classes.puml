@@ -1,0 +1,103 @@
+@startuml 02-diagrama-classes
+title MeuBolso — Diagrama de Classes (modelo de dados persistido)
+
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+
+class Estado {
+  + dividas: Dívida[]
+  + pagamentos: Pagamento[]
+  + carteiras: Carteira[]
+  + configuracoes: Configuracoes
+  + gamificacao: Gamificacao
+}
+
+class Dívida {
+  + id: string
+  + descricao: string
+  + credor: string
+  + categoria: 'emprestimo'|'cartao'|'servico'|'outro'
+  + valorTotal: number
+  + parcelas: Parcela[]
+  + observacao: string
+  + criadaEm: string (data)
+  + valorPagoTotal(): number
+  + saldo(): number   ' total - pago
+  + quitada(): boolean ' 100% paga
+}
+
+class Parcela {
+  + id: string
+  + numero: number
+  + valor: number
+  + vencimento: string (data)
+  + valorPago: number   ' derivado
+  + dataPagamento: string ' derivado (mais recente)
+  + status: 'pendente'|'parcial'|'pago'  ' derivado
+  + nota: string
+}
+
+class Pagamento {
+  + id: string
+  + dividaId: string
+  + parcelaId: string | null
+  + valor: number
+  + data: string (data)
+  + nota: string
+  + carteiraId: string | null
+  + criadoEm: string
+}
+
+class Carteira {
+  + id: string
+  + nome: string
+  + saldo: number
+  + criadaEm: string
+}
+
+class Configuracoes {
+  + moeda: 'BRL' (default)
+  + tema: 'claro'|'escuro'
+  + idioma: 'pt'|'en'|'es'
+}
+
+class Gamificacao {
+  + xp: number
+  + nivel: number
+  + ultimoAcesso: string
+  + historico: RegistroXP[]
+}
+
+class RegistroXP {
+  + pontos: number
+  + motivo: string (chave i18n, ex: 'xp.pagamento')
+  + nivel: number
+  + horario: string
+}
+
+' Relacionamentos
+Estado "1" *-- "0..*" Dívida
+Estado "1" *-- "0..*" Pagamento
+Estado "1" *-- "0..*" Carteira
+Estado "1" *-- "1" Configuracoes
+Estado "1" *-- "1" Gamificacao
+
+Dívida "1" *-- "1..*" Parcela
+Pagamento "n" --> "1" Dívida : dividaId
+Pagamento "n" --> "0..1" Parcela : parcelaId
+Pagamento "n" --> "0..1" Carteira : carteiraId (débito)
+Gamificacao "1" *-- "0..100" RegistroXP
+
+note right of Parcela
+  status, valorPago e dataPagamento são
+  DERIVADOS (não persistidos como fonte de
+  verdade). sincronizarParcela() recalcula
+  a partir de TODOS os pagamentos da parcela.
+end note
+
+note right of Gamificacao
+  nivel = 1 + floor(xp / 100)
+  (XP_POR_NIVEL = 100). histórico limitado
+  a 100 registros (mais recente primeiro).
+end note
+@enduml

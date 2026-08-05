@@ -50,6 +50,30 @@ Dados de implementação:
   relatórios e telas de configuração.
 - Respeita `prefers-reduced-motion` (desliga animações para quem prefere menos movimento).
 
+## Documentação do sistema (UML)
+
+Os diagramas abaixo documentam o funcionamento real do MeuBolso (mapeados
+diretamente do código-fonte) e ficam em [`docs/uml/`](docs/uml):
+
+| Arquivo | Tipo | Foco |
+|---------|------|------|
+| `01-casos-de-uso.puml` | Casos de Uso | Ações do usuário no app |
+| `02-diagrama-classes.puml` | Classes | Modelo de dados persistido (Estado, Dívida, Parcela, Pagamento, Carteira, Gamificação) |
+| `03-sequencia-pagamento.puml` | Sequência | Registrar pagamento de parcela + sincronia de parcela |
+| `04-sequencia-xp.puml` | Sequência | Ganho de XP e subida de nível |
+| `05-estado-divida.puml` | Estados | Ciclo de vida da dívida e da parcela |
+| `06-atividade-gamificacao.puml` | Atividade | Fluxo de gamificação (ações → XP → nível) |
+
+Cada `.puml` tem um PNG já renderizado ao lado. Para regenerar (precisa de Java):
+
+```bash
+cd docs/uml
+java -jar plantuml.jar -charset UTF-8 0*.puml
+```
+
+> Observação: o `plantuml.jar` está listado no `.gitignore` (binário grande, não
+> versionado). Os `.puml` e `.png` **são** versionados.
+
 ## Como usar (desenvolvimento)
 ```bash
 npm install

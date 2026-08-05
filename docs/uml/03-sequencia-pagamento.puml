@@ -1,0 +1,56 @@
+@startuml 03-sequencia-pagamento
+title MeuBolso — Sequência: Registrar pagamento de parcela
+
+actor Usuario
+participant "View (app.js)" as V
+participant "Estado (Vue reactive)" as E
+participant "aplicarDebitoCarteira()" as C
+participant "sincronizarParcela()" as S
+participant "ganharXP()" as G
+participant "persistir()" as P
+participant "Preload (api)" as A
+participant "Main (saveToDB)" as M
+participant "Disco (JSON)" as D
+
+Usuario -> V: clica "Registrar pagamento"
+V -> V: novoPagamento() — abre modal
+V -> E: lê dívidas, parcelas, carteiras p/ opções
+Usuario -> V: preenche valor, data, nota, carteira
+Usuario -> V: confirma (submit)
+V -> C: await aplicarDebitoCarteira(pagamento, 0, null)
+C -> E: verifica saldo da carteira
+alt saldo insuficiente
+  C -> V: pede confirmação (overlay)
+  alt usuário cancela
+    C -->> V: { ok: false }
+    V -> V: render(); retorna (não salva)
+  else usuário confirma
+    C -> E: debita carteira (saldo -= valor)
+    C -->> V: { ok: true }
+  end
+else saldo ok
+  C -> E: debita carteira
+  C -->> V: { ok: true }
+end
+V -> E: pagamentos.push(pagamento)
+V -> S: sincronizarParcela(divida, parcelaId)
+S -> E: recalcula valorPago / data / status da parcela
+S -->> V: parcela atualizada (pendente|parcial|pago)
+opt usuário informou nota
+  V -> E: divida.observacao = nota
+end
+V -> P: await persistir()
+P -> P: JSON.parse(JSON.stringify(estado))  ' desserializa Proxy
+P -> A: api.salvarAgora(plano)
+A -> M: ipc 'dados:salvar-agora'
+M -> M: fazerBackup() (cópia p/ .bak.json)
+M -> D: writeFileSync(meubolso.json)
+M -->> A: true
+A -->> P: true
+P -->> V: toast "Pagamento registrado"
+V -> G: ganharXP(15, 'xp.pagamento')
+G -> E: xp += 15; nivel = nivelDe(xp)
+G -> E: historico.unshift({pontos, motivo, nivel, horario})
+G -> V: render() + toast XP + (se subiu) celebrarNivel()
+V -> V: render()
+@enduml

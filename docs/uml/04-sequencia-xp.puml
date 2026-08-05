@@ -1,0 +1,46 @@
+@startuml 04-sequencia-xp
+title MeuBolso — Sequência: Ganho de XP e subida de nível
+
+actor Usuario
+participant "Ação (novoPagamento/novaDivida/...)" as A
+participant "ganharXP(pontos, motivo)" as G
+participant "Estado (gamificacao)" as E
+participant "persistir()" as P
+participant "Preload (api)" as API
+participant "Main" as M
+participant "Disco" as D
+
+Usuario -> A: executa ação que gera XP
+A -> G: ganharXP(pontos, 'xp.<motivo>')  ' +10/+15/+50/...
+G -> E: antes = gamificacao.nivel
+G -> E: gamificacao.xp += pontos
+G -> E: gamificacao.nivel = nivelDe(xp)  ' 1 + floor(xp/100)
+G -> E: historico.unshift({ pontos, motivo, nivel, horario })
+G -> E: if historico.length > 100: corta
+G -> P: persistir(true)  ' silencioso (não sobrescreve toast de XP)
+P -> P: JSON.parse(JSON.stringify(estado))
+P -> API: api.salvarAgora(plano)
+API -> M: ipc 'dados:salvar-agora'
+M -> D: writeFileSync
+M -->> API: ok
+API -->> P: ok
+G -> G: resolverMotivo(motivo) -> ícone + nome i18n
+G -> A: toastHTML("+N XP · <nome>")
+G -> A: render()  ' atualiza barra de progresso/badge
+alt gamificacao.nivel > antes
+  G -> G: celebrarNivel(nivel)  ' overlay + confete
+  note right of G
+    envolve em try/catch: falha no
+    confete NÃO impede o XP/atualização
+  end note
+end
+G -->> A: retorna
+
+note over E
+  TABELA DE XP (app.js):
+  dividaNova +10, pagamento +15, editarPagamento +8,
+  gestao +5, quitou +50, novaCarteira +20,
+  editarCarteira +5, acesso +3.
+  Níveis: 1..10 (limites 0,100,200,...,1600).
+end note
+@enduml

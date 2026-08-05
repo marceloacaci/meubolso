@@ -1,0 +1,37 @@
+@startuml 05-estado-divida
+title MeuBolso — Máquina de estados: Dívida e Parcela
+
+state "Dívida" as D {
+  [*] --> Cadastrada
+  Cadastrada --> EmAberto : tem parcelas não pagas
+  EmAberto --> Quitada : saldo() == 0  (100% paga)
+  Quitada --> EmAberto : estorna/exclui pagamento (saldo > 0)
+  EmAberto --> Excluida : excluirDivida()
+  Quitada --> Excluida : excluirDivida()
+  Excluida --> [*]
+}
+
+state "Parcela (status derivado)" as P {
+  [*] --> Pendente : valorPago == 0
+  Pendente --> Parcial : 0 < valorPago < valor
+  Parcial --> Pago : valorPago >= valor
+  Pago --> Parcial : estorna parte do pagamento
+  Parcial --> Pendente : estorna pagamento inteiro
+  Pago --> Pendente : estorna pagamento inteiro
+}
+
+note right of P
+  status é DERIVADO em sincronizarParcela():
+    valParc>0 e valorPago>=valParc  -> 'pago'
+    valorPago>0                     -> 'parcial'
+    caso contrário                  -> 'pendente'
+  A dívida só fica 'quitada' quando
+  TODAS as parcelas estão 'pago'
+  (ou saldo()==0 por pagamentos avulsos).
+end note
+
+note right of D
+  Quitar dispara ganharXP(50, 'xp.quitou')
+  (bônus único por dívida 100% paga).
+end note
+@enduml

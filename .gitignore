@@ -29,3 +29,7 @@ Thumbs.db
 # Variáveis de ambiente
 .env
 .env.*
+
+# Ferramentas de documentação (binários grandes não versionados)
+plantuml.jar
+
