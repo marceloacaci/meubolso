@@ -365,7 +365,7 @@ const I18N = {
     'nivel.continuar': 'Continuar',
     'xp.desconhecido': 'Pontuação',
     'xp.saldoAnterior': 'Pontos acumulados anteriormente', 'xp.saldoAnteriorInfo': 'Antes do registro detalhado',
-    'xp.dividaNova': 'Dívida registrada', 'xp.pagamento': 'Pagamento registrado', 'xp.gestao': 'Gestão realizada', 'xp.acesso': 'Acesso registrado', 'xp.quitou': 'Dívida quitada', 'xp.novaCarteira': 'Carteira criada', 'xp.editarCarteira': 'Carteira editada',
+    'xp.dividaNova': 'Dívida registrada', 'xp.pagamento': 'Pagamento registrado', 'xp.editarPagamento': 'Pagamento editado', 'xp.gestao': 'Gestão realizada', 'xp.acesso': 'Acesso registrado', 'xp.quitou': 'Dívida quitada', 'xp.novaCarteira': 'Carteira criada', 'xp.editarCarteira': 'Carteira editada',
     'nivel.nome1': 'Iniciante', 'nivel.nome2': 'Organizador', 'nivel.nome3': 'Controlador', 'nivel.nome4': 'Disciplinado',
     'nivel.nome5': 'Estrategista', 'nivel.nome6': 'Guardião', 'nivel.nome7': 'Mestre', 'nivel.nome8': 'Especialista',
     'nivel.nome9': 'Expert', 'nivel.nome10': 'Lenda das Finanças',
@@ -481,7 +481,7 @@ const I18N = {
     'config.titulo': 'Settings', 'config.aparencia': 'Appearance', 'config.cor': 'Accent color', 'config.corDestaque': 'Select the system accent color', 'config.tema': 'Theme',
     'config.fonte': 'Font size', 'config.idioma': 'Language', 'config.dados': 'Data',
     'nivel.titulo': 'Level', 'nivel.subiu': 'You reached level',
-    'xp.dividaNova': 'Debt registered', 'xp.pagamento': 'Payment registered',
+    'xp.dividaNova': 'Debt registered', 'xp.pagamento': 'Payment registered', 'xp.editarPagamento': 'Payment edited',
     'xp.gestao': 'Management done', 'xp.acesso': 'Session logged', 'xp.quitou': 'Debt paid off', 'xp.novaCarteira': 'Wallet created', 'xp.editarCarteira': 'Wallet edited',
     'nivel.verDetalhes': 'View details',
     'nivel.celebTitulo': 'Level {n} reached!', 'nivel.celebParabens': 'Congratulations! You leveled up.', 'nivel.celebMotivo': 'Keep progressing to unlock new titles and rewards!',
@@ -610,7 +610,7 @@ const I18N = {
     'config.titulo': 'Ajustes', 'config.aparencia': 'Apariencia', 'config.cor': 'Color de destaque', 'config.corDestaque': 'Selecciona el color de destaque del sistema', 'config.tema': 'Tema',
     'config.fonte': 'Tamaño de letra', 'config.idioma': 'Idioma', 'config.dados': 'Datos',
     'nivel.titulo': 'Nivel', 'nivel.subiu': 'Subiste al nivel',
-    'xp.dividaNova': 'Deuda registrada', 'xp.pagamento': 'Pago registrado',
+    'xp.dividaNova': 'Deuda registrada', 'xp.pagamento': 'Pago registrado', 'xp.editarPagamento': 'Pago editado',
     'xp.gestao': 'Gestion completa', 'xp.acesso': 'Acceso registrado', 'xp.quitou': 'Deuda saldada', 'xp.novaCarteira': 'Cartera creada', 'xp.editarCarteira': 'Cartera editada',
     'nivel.verDetalhes': 'Ver detalles',
     'nivel.celebTitulo': '¡Nivel {n} alcanzado!', 'nivel.celebParabens': '¡Felicidades! Subiste de nivel.', 'nivel.celebMotivo': '¡Sigue progresando para desbloquear nuevos títulos y recompensas!',
@@ -1107,6 +1107,7 @@ function tituloNivel(n) {
 const MAPA_MOTIVO = {
   'xp.dividaNova':    { ico: ICON.documento, quest: 'game.q.nova' },
   'xp.pagamento':     { ico: ICON.cartao, quest: 'game.q.pag' },
+  'xp.editarPagamento':{ ico: ICON.editar, quest: 'game.q.editarPagamento' },
   'xp.gestao':        { ico: ICON.pasta, quest: 'game.q.gestao' },
   'xp.quitou':        { ico: ICON.chegada, quest: 'game.q.quitou' },
   'xp.acesso':        { ico: ICON.porta, quest: 'game.q.acesso' },
@@ -1450,7 +1451,7 @@ function abrirModal(titulo, campos, onSubmit) {
     } else if (c.type === 'textarea') {
       inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
     } else {
-      inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
+      inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
     }
     return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
   }).join('');
@@ -1709,13 +1710,15 @@ function conectarEventosParcelas(wrap) {
     const vInput = item.querySelector('input[name^="pvpg"]');
     const valorInput = item.querySelector('input[name^="pv"]');
     const sanitizar = (el) => { if (el) el.addEventListener('input', () => {
-      // permite dígitos, vírgula ou ponto; bloqueia negativo e limita a 2 casas decimais
+      // permite dígitos, vírgula ou ponto; bloqueia negativo e limita a 2 casas
+      // decimais. Mantém a VÍRGULA pt-BR visível enquanto digita (não converte
+      // para ponto), para o usuário ver "12,50" e não "12.50".
       let v = el.value.replace(/[^0-9.,]/g, '').replace(/-/g, '');
       const partes = v.split(/[,.]/);
       if (partes.length > 1) {
-        v = partes[0] + '.' + partes.slice(1).join('').slice(0, 2);
+        v = partes[0] + ',' + partes.slice(1).join('').slice(0, 2);
       }
-      el.value = v;
+      if (el.value !== v) el.value = v;
     }); };
     sanitizar(vInput);
     sanitizar(valorInput);
@@ -1740,6 +1743,28 @@ function conectarEventosParcelas(wrap) {
       });
     }
   });
+}
+
+// Sanitiza um input de valor decimal (type="text" + inputmode="decimal"),
+// permitindo digitação livre de centavos com vírgula pt-BR ou ponto. Mantém a
+// vírgula visível enquanto digita e bloqueia negativos/caracteres inválidos.
+// Usado nos campos de valor de pagamento (abrirModal e lançamento de parcela),
+// que antes eram type="number" e só aceitavam centavos pelas setas (step).
+function sanitizarDecimalInput(el) {
+  if (!el) return;
+  el.addEventListener('input', () => {
+    let v = el.value.replace(/[^0-9.,]/g, '').replace(/-/g, '');
+    const partes = v.split(/[,.]/);
+    if (partes.length > 1) {
+      v = partes[0] + ',' + partes.slice(1).join('').slice(0, 2);
+    }
+    if (el.value !== v) el.value = v;
+  });
+}
+
+// Normaliza um valor digitado (vírgula pt-BR ou ponto) para Number.
+function numeroDeInput(val) {
+  return Number(String(val == null ? '' : val).replace(',', '.')) || 0;
 }
 
 function novaDivida() {
@@ -1917,7 +1942,7 @@ function novoPagamento(dividaPreSelecionada = null) {
   abrirModal(t('modal.registrarPagamento'), [
     { name: 'dividaId', label: t('form.divida'), type: 'select', value: preSelecDiv?.id || opcoes[0].value, options: opcoes },
     { name: 'parcelaId', label: t('pagamento.parcela'), type: 'select', value: parcelaInicial, options: opcoesParcela(preSelecDiv) },
-    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', placeholder: '0,00', required: true },
+    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'text', inputmode: 'decimal', step: '0.01', placeholder: '0,00', required: true },
     { name: 'data', label: t('form.dataPagamento'), type: 'date', value: hoje(), required: true },
     { name: 'nota', label: t('form.nota'), type: 'text', placeholder: 'Opcional', value: preSelecDiv?.observacao || '' },
     { name: 'carteiraId', label: t('form.carteira'), type: 'select', value: '', options: [{ value: '', label: t('nenhuma') || '—' }].concat((estado.carteiras || []).map(c => ({ value: c.id, label: c.nome }))) }
@@ -1932,7 +1957,7 @@ function novoPagamento(dividaPreSelecionada = null) {
       id: uid(),
       dividaId: divida.id,
       parcelaId,
-      valor: Number(v.valor) || 0,
+      valor: numeroDeInput(v.valor),
       data: v.data,
       nota: v.nota || '',
       carteiraId: v.carteiraId || null
@@ -1988,6 +2013,8 @@ function novoPagamento(dividaPreSelecionada = null) {
   }
   // Exibe o resumo inicial já com a parcela pré-selecionada
   atualizarResumoParcela();
+  // Permite digitar centavos com vírgula pt-BR no campo de valor (text+inputmode).
+  sanitizarDecimalInput(document.getElementById('modal')?.querySelector('[name="valor"]'));
 }
 
 function editarPagamento(p) {
@@ -2012,7 +2039,7 @@ function editarPagamento(p) {
       label: `${d.descricao} — ${fmt.format(saldoDivida(d))}`
     })) },
     { name: 'parcelaId', label: t('pagamento.parcela'), type: 'select', value: pagamento.parcelaId || '', options: opcoesParcela(divida) },
-    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', value: String(Number(pagamento.valor) || 0), required: true },
+    { name: 'valor', label: t('form.valorPago') + ' (' + t('moeda') + ')', type: 'text', inputmode: 'decimal', step: '0.01', value: String(Number(pagamento.valor) || 0), required: true },
     { name: 'data', label: t('form.dataPagamento'), type: 'date', value: pagamento.data || hoje(), required: true },
     { name: 'nota', label: t('form.nota'), type: 'text', value: pagamento.nota || '', placeholder: 'Opcional' }
   ], async (v) => {
@@ -2034,7 +2061,7 @@ function editarPagamento(p) {
     Object.assign(pagamento, {
       dividaId: novaDivida.id,
       parcelaId,
-      valor: Number(v.valor) || 0,
+      valor: numeroDeInput(v.valor),
       data: v.data,
       nota: v.nota || ''
     });
@@ -2044,9 +2071,11 @@ function editarPagamento(p) {
       sincronizarParcela(divida, pagamento.parcelaId);
     }
     sincronizarParcela(novaDivida, parcelaId);
+    // Nota unificada: o pagamento e a dívida compartilham a mesma observação.
+    if (v.nota) novaDivida.observacao = v.nota;
     await persistir();
     toast(t('toast.pagamentoAtualizado'), 'success');
-    ganharXP(8);
+    ganharXP(8, t('xp.editarPagamento'));
     render();
   });
 
@@ -2122,6 +2151,8 @@ function editarPagamento(p) {
   }
   // Ao abrir, os campos mostram os dados do próprio pagamento em edição.
   preencherCamposDaParcela(true);
+  // Permite digitar centavos com vírgula pt-BR no campo de valor (text+inputmode).
+  sanitizarDecimalInput(document.getElementById('modal')?.querySelector('[name="valor"]'));
 }
 
 // ---------- Gestão de pagamentos de UMA dívida (fluxo por parcela) ----------
@@ -2225,7 +2256,7 @@ function lancarPagamentoParcela(d, parc) {
       <div id="campos-form">
         <div class="campo">
           <label>${t('form.valorPago')} (${t('moeda')})</label>
-          <input type="number" step="0.01" min="0" name="valor" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0) : ''}" required />
+          <input type="text" inputmode="decimal" step="0.01" min="0" name="valor" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : ''}" required />
         </div>
         <div class="campo">
           <label>${t('form.dataPagamento')}</label>
@@ -2257,7 +2288,7 @@ function lancarPagamentoParcela(d, parc) {
   const form = document.getElementById('form-parcela');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const valor = Number(form.querySelector('[name="valor"]').value) || 0;
+    const valor = numeroDeInput(form.querySelector('[name="valor"]').value);
     const data = form.querySelector('[name="data"]').value || hoje();
     const nota = form.querySelector('[name="nota"]').value || '';
     const carteiraId = form.querySelector('[name="carteiraId"]').value || null;
@@ -2273,15 +2304,14 @@ function lancarPagamentoParcela(d, parc) {
       if (!r.ok) { abrirGestaoDivida(d); return; } // cancelou saldo insuficiente
       estado.pagamentos.push(pagamento);
     }
-    // Atualiza o status da parcela conforme o pagamento (quitada se pago integralmente)
-    const novoPago = valorPagoParcela(d, parc.id);
-    if (novoPago >= valorParcela && valorParcela > 0) {
-      parc.status = 'pago';
-    } else if (parc.status === 'pago') {
-      parc.status = 'pendente';
-    }
+    // Recalcula o cache da parcela (valorPago, dataPagamento, status) a partir de
+    // TODOS os pagamentos vinculados — fonte de verdade única. Garante que, ao
+    // editar a dívida depois, o campo "valor pago" da parcela esteja correto.
+    sincronizarParcela(d, parc.id);
+    // Nota unificada: o pagamento e a dívida compartilham a mesma observação.
+    if (nota) d.observacao = nota;
     persistir();
-    ganharXP(15);
+    ganharXP(existente ? 8 : 15, existente ? t('xp.editarPagamento') : t('xp.pagamento'));
     toast(existente ? t('toast.pagamentoAtualizado') : t('toast.pagamentoParcelaRegistrado'), 'success');
     abrirGestaoDivida(d); // volta para a janela da dívida, atualizada
   });
