@@ -42,11 +42,12 @@ function fazerBackup() {
     fs.copyFileSync(dbFile, backupFile);
     // Backup separado da pontuação (XP, nível e histórico de conquistas),
     // conforme solicitado — garante resiliência do "game" mesmo se o JSON
-    // principal for corrompido.
+    // principal for corrompido. Escrita atômica para não deixar pontos.bak.json
+    // pela metade.
     try {
       const conteudo = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
       const g = conteudo.gamificacao || { xp: 0, nivel: 1, historico: [] };
-      fs.writeFileSync(pontosFile, JSON.stringify(g, null, 2), 'utf8');
+      salvarArquivoAtomico(pontosFile, JSON.stringify(g, null, 2));
     } catch (_) { /* gamificacao ausente ou ilegível: ignora */ }
     return true;
   } catch (err) {
@@ -55,7 +56,9 @@ function fazerBackup() {
   }
 }
 
-// ---------- Salvar dados IMEDIATAMENTE no disco ----------
+// ---------- Escrita ATÔMICA de arquivo ----------
+// (Implementação em src/persistencia.js — testável em Node, sem Electron.)
+const { salvarArquivoAtomico } = require('./src/persistencia.js');
 function saveToDB(data) {
   if (!data) {
     console.error('[DB] × Nenhum dado para salvar');
@@ -65,7 +68,7 @@ function saveToDB(data) {
   fazerBackup();
   try {
     const json = JSON.stringify(normalizar(data));
-    fs.writeFileSync(dbFile, json, 'utf8');
+    salvarArquivoAtomico(dbFile, json);
     console.log('[DB] ✓ Dados salvos (' + json.length + ' bytes)');
     return true;
   } catch (err) {

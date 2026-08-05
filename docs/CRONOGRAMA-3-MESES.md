@@ -49,8 +49,8 @@
 | S1-2 | Extrair funções puras de cálculo para `src/dominio.js` | 3 | App funciona idêntico; funções importáveis | ✅ **FEITO** |
 | S1-3 | Testes unitários do domínio financeiro | 3 | 26 casos verdes | ✅ **FEITO** |
 | S1-4 | Testes de gamificação | 2 | 32 casos verdes | ✅ **FEITO** |
-| S1-5 | **Escrita atômica**: `writeFileSync(tmp)` + `renameSync` em `saveToDB()` | 1 | Kill do processo durante escrita não corrompe o JSON |
-| S1-6 | GitHub Action de CI: lint + test em push/PR | 1 | Badge verde no README |
+| S1-5 | **Escrita atômica**: `writeFileSync(tmp)` + `renameSync` em `saveToDB()` | 1 | Kill do processo durante escrita não corrompe o JSON | ✅ **FEITO** |
+| S1-6 | GitHub Action de CI: lint + test em push/PR | 1 | Badge verde no README | ✅ **FEITO** |
 | **S1-7** | **Corrigir D-01**: `hoje()` deve usar data **local**, não `toISOString()` (UTC) | 1 | Teste com fuso UTC−3 às 23h30 retorna o dia corrente | ✅ **FEITO** |
 | **S1-8** | **Corrigir D-02**: arredondar somatórios a 2 casas / migrar para centavos inteiros | 2 | Soma de 0,1 + 0,2 fecha em 0,30; dívida quitada zera exatamente | ✅ **FEITO** |
 
