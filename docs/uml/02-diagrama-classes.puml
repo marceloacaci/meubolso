@@ -96,8 +96,8 @@ note right of Parcela
 end note
 
 note right of Gamificacao
-  nivel = 1 + floor(xp / 100)
-  (XP_POR_NIVEL = 100). histórico limitado
-  a 100 registros (mais recente primeiro).
+  nivelDe(xp) segue os limiares da tabela NIVEIS
+  (0,100,200,300,400,600,800,1000,1300,1600).
+  histórico limitado a 100 registros (mais recente primeiro).
 end note
 @enduml

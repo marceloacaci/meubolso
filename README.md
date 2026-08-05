@@ -5,12 +5,32 @@ empréstimos, cartão de crédito e carteiras, **100% local e offline**.
 
 ![Plataformas](https://img.shields.io/badge/Windows-Linux-macOS-blue)
 ![Status](https://img.shields.io/badge/versão-1.0.0%20Beta-yellow)
+![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)
 
 > ⚠️ **Versão 1.0 — BETA**
 > A release `1.0.0` é uma **versão Beta** de testes. Está funcional para uso
 > diário, mas pode conter ajustes de interface, comportamentos em evolução e
 > possíveis instabilidades. Use com cautela e mantenha backups dos seus dados.
 > Feedbacks e relatos de bugs são muito bem-vindos.
+
+## Qualidade e testes
+
+O projeto possui uma suíte automatizada de testes unitários ([Vitest](https://vitest.dev/))
+que cobre o domínio financeiro e de gamificação, além da escrita atômica de arquivos:
+
+- `src/dominio.js` — funções puras de cálculo (dívidas, pagamentos, níveis/XP).
+- `src/persistencia.js` — escrita atômica de arquivos (`writeFileSync` + `renameSync`).
+- `tests/*.test.js` — 62 testes (financeiro, gamificação, persistência).
+
+Para rodar localmente:
+
+```bash
+npm install
+npm run test
+```
+
+Toda alteração em `master`/`main` dispara o workflow de CI
+(.github/workflows/ci.yml) que valida a sintaxe dos scripts e executa a suíte.
 
 ## Recursos
 - Cadastro de dívidas com parcelas e acompanhamento de pagamentos

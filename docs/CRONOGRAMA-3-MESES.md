@@ -81,14 +81,14 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ## Sprint 3 — Refatoração do monólito (02–15/set) · 12 pts · **release v1.1.0**
 
-| ID | Tarefa | Pts | Critério de aceite |
-|----|--------|----:|--------------------|
-| S3-1 | Extrair **i18n** (~1.100 linhas de dicionários) para `src/i18n/{pt,en,es}.js` | 2 | `app.js` reduz ~30%; troca de idioma inalterada |
-| S3-2 | Extrair **gamificação** para `src/dominio/gamificacao.js` | 2 | Testes da S1-4 continuam verdes |
-| S3-3 | Extrair **modais/confirmação** para `src/ui/modais.js` | 2 | Fluxos de dívida/pagamento inalterados |
-| S3-4 | Extrair cada `renderX()` para o `views/*.js` correspondente | 3 | `app.js` < 800 LOC |
-| S3-5 | Script de verificação por render real no Electron (canvas pixel count) como *smoke test* | 2 | Detecta gráfico em branco |
-| S3-6 | Corrigir a incoerência **`NIVEIS` × `nivelDe()`** (limiares não lineares vs. 100 em 100) | 1 | Decisão registrada em ADR + teste |
+| ID | Tarefa | Pts | Critério de aceite | Status |
+|----|--------|----:|--------------------|--------|
+| S3-1 | Extrair **i18n** (~1.100 linhas de dicionários) para `src/i18n/{pt,en,es}.js` | 2 | `app.js` reduz ~30%; troca de idioma inalterada | ⬜ |
+| S3-2 | Extrair **gamificação** para `src/dominio.js` | 2 | Testes da S1-4 continuam verdes | ✅ **FEITO** (Etapa 1 / S1-2) |
+| S3-3 | Extrair **modais/confirmação** para `src/ui/modais.js` | 2 | Fluxos de dívida/pagamento inalterados | ⬜ |
+| S3-4 | Extrair cada `renderX()` para o `views/*.js` correspondente | 3 | `app.js` < 800 LOC | ⬜ |
+| S3-5 | Script de verificação por render real no Electron (canvas pixel count) como *smoke test* | 2 | Detecta gráfico em branco | ⬜ |
+| S3-6 | Corrigir a incoerência **`NIVEIS` × `nivelDe()`** (limiares não lineares vs. 100 em 100) | 1 | Decisão registrada em ADR + teste | ✅ **FEITO** (D-03 / Etapa 1) |
 
 **Release v1.1.0** — sem feature nova visível; nota de release honesta:
 "estabilidade, integridade de dados e base de testes".

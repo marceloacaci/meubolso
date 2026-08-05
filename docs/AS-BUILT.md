@@ -12,10 +12,12 @@
 | Data | Correção | Refs |
 |------|----------|------|
 | 05/ago/2026 | **D-01** data local (fim do `toISOString` UTC) em `hoje()` + datas dos formulários | `app.js:17`, `app.js:parcelasParaFormulario` |
-| 05/ago/2026 | **D-02** somatórios monetários em centavos (`somaDinheiro`/`numDinheiro`) | `app.js` (totalDivida, totalPago, valorPagoParcela, sincronizarParcela, calcularMetricas, renderRelatorio, formulários) |
-| 05/ago/2026 | **D-03** `nivelDe()` passou a seguir a tabela `NIVEIS`; barra de XP via `progressoNivel()` | `app.js:nivelDe`, `app.js:progressoNivel` |
+| 05/ago/2026 | **D-02** somatórios monetários em centavos (`somaDinheiro`/`numDinheiro`) | `src/dominio.js` (totalDivida, totalPago, saldoDivida, valorPagoParcela, sincronizarParcela); usados por `app.js` via wrappers |
+| 05/ago/2026 | **D-03** `nivelDe()` passou a seguir a tabela `NIVEIS`; barra de XP via `progressoNivel()` | `src/dominio.js:nivelDe`, `src/dominio.js:progressoNivel` |
+| 05/ago/2026 | **Etapa 1** extração do domínio para `src/dominio.js` + suíte Vitest (58 testes) | `src/dominio.js`, `tests/*.test.js`, `index.html` |
+| 05/ago/2026 | **Etapa 2** escrita atômica (`src/persistencia.js`) + CI (`ci.yml`) | `src/persistencia.js`, `.github/workflows/ci.yml` |
 
-> Status verificado por execução ad-hoc (20/20 testes) em 05/ago/2026.
+> Status verificado por suíte automatizada: **62/62 testes** Vitest verdes (`npm run test`) em 05/ago/2026.
 
 ---
 
@@ -205,9 +207,10 @@ Localização dos dados:
 - Carteiras: pagamento debita a carteira (`aplicarDebitoCarteira`, `app.js:2962`),
   exclusão/edição estorna (`estornarDebitoCarteira`, `app.js:2996`).
 
-**Gamificação** (`app.js:1028-1300`)
-- `XP_POR_NIVEL = 100`; `nivelDe(xp) = 1 + floor(xp/100)`.
-- Tabela `NIVEIS` com 10 títulos (Iniciante → Lenda das Finanças).
+**Gamificação** (`src/dominio.js`, extraída de `app.js` na Etapa 1 — S1-2)
+- `nivelDe(xp)` segue os **limiares da tabela `NIVEIS`** (não-lineares: 0, 100, 200, 300, 400, 600, 800, 1000, 1300, 1600). ✅ Defeito D-03 corrigido.
+- `progressoNivel(xp)` retorna o progresso (0..1) **dentro** do nível atual usando o intervalo real da tabela — a barra de XP zera ao subir de nível.
+- `NIVEIS` (10 títulos, Iniciante → Lenda das Finanças) permanece declarada em `app.js` por causa dos rótulos `titulo`, usados por `tituloNivel()`.
 - Tabela de pontuação efetiva:
 
 | Ação | XP | Linha |
@@ -224,16 +227,16 @@ Localização dos dados:
 | Editar carteira | +5 | `app.js:3029` |
 | Acesso ao app | +3 | `app.js:3493` |
 
-- Histórico limitado a 100 entradas; `migrarXPgestao()` (`app.js:1053`) faz migração
-  retroativa idempotente (gestão 30→5) e **recalcula o nível de cada entrada**.
-- Subida de nível dispara overlay `celebrarNivel()` + confete em canvas, protegido por
-  `try/catch` para não quebrar o fluxo de XP.
+- Histórico limitado a 100 entradas (`truncarHistorico`); `recalcularHistorico()` faz migração retroativa idempotente (gestão 30→5) e **recalcula o nível de cada entrada**.
+- Subida de nível dispara overlay `celebrarNivel()` + confete em canvas, protegido por `try/catch`.
 
-⚠️ **Inconsistência CONFIRMADA:** a tabela `NIVEIS` declara limiares não lineares
-(600, 800, 1000, 1300, 1600), mas `nivelDe()` usa progressão **linear de 100 em 100**.
-Verificado por execução: com **600 XP** a tabela diz "nível 6" e a função retorna **7**;
-com **1600 XP** a tabela diz 10 e a função retorna **17**. A divergência começa no
-nível 6. Ver Cronograma, Sprint 3 (S3-6).
+✅ **Inconsistência D-03 RESOLVIDA** (05/ago): `nivelDe()` passou a seguir os limiares da tabela `NIVEIS`; antes usava progressão linear de 100 em 100 (600 XP → função retornava 7, tabela dizia 6). Verificado por teste (`tests/gamificacao.test.js`).
+
+**Cálculo financeiro** (extraído para `src/dominio.js` na Etapa 1 — S1-2; `app.js` mantém wrappers finos que injetam `estado.pagamentos` via `globalThis`)
+- `somaDinheiro()` (centavos inteiros) + `numDinheiro()` eliminam erros de float (D-02). ✅ Corrigido.
+- `totalDivida`, `totalPago`, `saldoDivida`, `valorPagoParcela`, `sincronizarParcela`, `resumoParcelas` operam sobre os pagamentos da dívida.
+- `valorPagoParcela()` / `sincronizarParcela()`: status da parcela derivado do pago acumulado (pendente → parcial → pago; vencido e não quitado → atrasado).
+- Carteiras: pagamento debita a carteira (`aplicarDebitoCarteira`, `app.js:2962`), exclusão/edição estorna (`estornarDebitoCarteira`, `app.js:2996`).
 
 ## 8.1 Defeitos latentes (CORRIGIDOS em 05/ago/2026)
 
