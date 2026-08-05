@@ -172,12 +172,6 @@ ipcMain.handle('dados:carregar', async () => {
   return data;
 });
 
-ipcMain.handle('dados:salvar', (_evt, data) => {
-  console.log('[IPC] dados:salvar (IMEDIATO)');
-  const ok = saveToDB(data);
-  return ok;
-});
-
 ipcMain.handle('dados:salvar-agora', async (_evt, data) => {
   console.log('[IPC] dados:salvar-agora - SALVANDO IMEDIATAMENTE');
   const ok = saveToDB(data);
