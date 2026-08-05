@@ -43,12 +43,12 @@
 
 > Sem isto nada mais é seguro de mudar. Prioridade absoluta.
 
-| ID | Tarefa | Pts | Critério de aceite |
-|----|--------|----:|--------------------|
-| S1-1 | Configurar **Vitest** + estrutura `tests/` | 2 | `npm test` roda e passa |
-| S1-2 | Extrair funções puras de cálculo (`totalDivida`, `totalPago`, `saldoDivida`, `resumoParcelas`, `valorPagoParcela`, `sincronizarParcela`) para `src/dominio/financeiro.js` | 3 | App funciona idêntico; funções importáveis |
-| S1-3 | Testes unitários do domínio financeiro, incluindo pagamento parcial, excedente, parcela vencida e arredondamento de centavos | 3 | ≥ 25 casos, todos verdes |
-| S1-4 | Testes de gamificação (`nivelDe`, `ganharXP`, truncamento em 100, migração retroativa) | 2 | ≥ 12 casos verdes |
+| ID | Tarefa | Pts | Critério de aceite | Status |
+|----|--------|----:|--------------------|--------|
+| S1-1 | Configurar **Vitest** + estrutura `tests/` | 2 | `npm test` roda e passa | ✅ **FEITO** |
+| S1-2 | Extrair funções puras de cálculo para `src/dominio.js` | 3 | App funciona idêntico; funções importáveis | ✅ **FEITO** |
+| S1-3 | Testes unitários do domínio financeiro | 3 | 26 casos verdes | ✅ **FEITO** |
+| S1-4 | Testes de gamificação | 2 | 32 casos verdes | ✅ **FEITO** |
 | S1-5 | **Escrita atômica**: `writeFileSync(tmp)` + `renameSync` em `saveToDB()` | 1 | Kill do processo durante escrita não corrompe o JSON |
 | S1-6 | GitHub Action de CI: lint + test em push/PR | 1 | Badge verde no README |
 | **S1-7** | **Corrigir D-01**: `hoje()` deve usar data **local**, não `toISOString()` (UTC) | 1 | Teste com fuso UTC−3 às 23h30 retorna o dia corrente | ✅ **FEITO** |

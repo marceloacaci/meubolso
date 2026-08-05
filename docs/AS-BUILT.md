@@ -284,7 +284,7 @@ npm run dist:win|linux|mac → electron-builder
 
 | # | Lacuna | Severidade |
 |---|--------|-----------|
-| L1 | Nenhum teste automatizado em 4.400 LOC de lógica financeira | 🔴 Alta |
+| L1 | Nenhum teste automatizado em 4.400 LOC de lógica financeira | 🔴 Alta | ✅ **Resolvido** (S1-1..S1-4: 58 testes) |
 | L2 | Escrita de arquivo não atômica (risco de corrupção) | 🔴 Alta |
 | **D-01** | **Datas gravadas em UTC, não local (§8.1)** — ✅ corrigido em 05/ago | ~~🔴 Alta~~ Resolvido |
 | **D-02** | **Aritmética financeira em float (§8.1)** — ✅ corrigido em 05/ago | ~~🔴 Alta~~ Resolvido |

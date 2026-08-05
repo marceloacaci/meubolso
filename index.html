@@ -167,6 +167,11 @@
   <script src="vendor/bootstrap.bundle.min.js"></script>
   <!-- Biblioteca central de ícones SVG (obrigatório antes de app.js) -->
   <script src="icons.js"></script>
+  <!-- Domínio financeiro/gamificação (funções PURAS extraídas p/ testes).
+       Deve vir ANTES de app.js: expõe totalDivida, totalPago, saldoDivida,
+       valorPagoParcela, sincronizarParcela, resumoParcelas, nivelDe,
+       progressoNivel, somaDinheiro, numDinheiro, NIVEIS em globalThis. -->
+  <script src="src/dominio.js"></script>
   <script src="app.js"></script>
   <!-- Componentes de view (Vue). Carregados após app.js; registram
        window.MeuBolsoViews antes do DOMContentLoaded montar o root. -->

@@ -155,48 +155,25 @@ const DICAS = [
   { pt: 'Mantenha foco no "porquê" do seu plano financeiro.', en: 'Keep focus on the "why" of your financial plan.', es: 'Manten el foco en el "porqué" de tu plan financiero.' }
 ];
 
-function totalDivida(d) {
-  return (d.parcelas || []).reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
-}
-function totalPago(d) {
-  // Considera apenas pagamentos vinculados a ESTA dívida (filtra por dividaId
-  // E por parcelaId pertencente à dívida) — evita somar pagamentos de outra dívida.
-  const ids = new Set((d.parcelas || []).filter(p => p.id).map(p => p.id));
-  return estado.pagamentos
-    .filter(p => p.dividaId === d.id && ids.has(p.parcelaId))
-    .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
-}
-function saldoDivida(d) {
-  return Math.max(0, totalDivida(d) - totalPago(d));
-}
-
-// ---------- Resumo de parcelas ----------
-function resumoParcelas(d) {
-  const total = (d.parcelas || []).length;
-  // Conta parcelas pagas a partir dos pagamentos vinculados
-  const pagamentoParcelas = new Set(
-    estado.pagamentos.filter(p => p.dividaId === d.id && p.parcelaId).map(p => p.parcelaId)
-  );
-  const pagas = (d.parcelas || []).filter(p => pagamentoParcelas.has(p.id)).length;
-  const restantes = total - pagas;
-  const valorTotal = totalDivida(d);
-  const valorPago = totalPago(d);
-  const valorRestante = saldoDivida(d);
-  // Percentuais baseados no VALOR (não na contagem de parcelas)
-  const percentualPago = valorTotal > 0 ? ((valorPago / valorTotal) * 100).toFixed(0) : 0;
-  const percentualRestante = valorTotal > 0 ? ((valorRestante / valorTotal) * 100).toFixed(0) : 0;
-
-  return {
-    total,
-    pagas,
-    restantes,
-    percentualPago,
-    percentualRestante,
-    valorTotal,
-    valorPago,
-    valorRestante
-  };
-}
+// ⚠️ Funções de cálculo financeiro foram EXTRAÍDAS para `src/dominio.js`
+// (S1-2 do cronograma) e ficam disponíveis globalmente (carregado antes deste
+// arquivo em index.html). As que dependem de `estado.pagamentos` são mantidas
+// AQUI como wrappers finos. Padrão: capturam a referência do domínio via
+// `globalThis.*` (explícito, sem hoisting) e reatribuem o global para o wrapper.
+// Implementação e testes: src/dominio.js + tests/.
+const _domTotalPago = globalThis.totalPago;
+const _domSaldoDivida = globalThis.saldoDivida;
+const _domValorPagoParcela = globalThis.valorPagoParcela;
+const _domResumoParcelas = globalThis.resumoParcelas;
+const _domSincronizarParcela = globalThis.sincronizarParcela;
+globalThis.totalPago = function (d) { return _domTotalPago(d, estado.pagamentos); };
+globalThis.saldoDivida = function (d) { return _domSaldoDivida(d, estado.pagamentos); };
+globalThis.valorPagoParcela = function (d, parcelaId) {
+  if (!parcelaId) return globalThis.totalPago(d);
+  return _domValorPagoParcela(d, parcelaId, estado.pagamentos);
+};
+globalThis.resumoParcelas = function (d) { return _domResumoParcelas(d, estado.pagamentos); };
+globalThis.sincronizarParcela = function (divida, parcelaId) { return _domSincronizarParcela(divida, parcelaId, estado.pagamentos); };
 
 // Monta o bloco de resumo de parcelas exibido no modal de pagamentos (formato simples).
 function resumoParcelasHtml(d, r) {
@@ -212,39 +189,12 @@ function resumoParcelasHtml(d, r) {
 // ---------- Pagamento por parcela (individual) ----------
 // Soma APENAS os pagamentos vinculados a UMA parcela específica da dívida.
 // Cada parcela é tratada de forma isolada: uma parcela não paga tem 0 pago.
-function valorPagoParcela(d, parcelaId) {
-  if (!parcelaId) {
-    // Sem parcela vinculada: considera o total pago da dívida (caso legado).
-    return totalPago(d);
-  }
-  return estado.pagamentos
-    .filter(p => p.dividaId === d.id && p.parcelaId === parcelaId)
-    .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
-}
-
-// Recalcula os campos em cache da parcela (valorPago, dataPagamento, status)
-// a partir de TODOS os pagamentos vinculados a ela. É a única fonte de verdade
-// para o "pago" da parcela — usada ao registrar, editar e excluir pagamentos,
-// evitando incrementos frágeis que dessincronizam após edições/exclusões.
-function sincronizarParcela(divida, parcelaId) {
-  const parc = (divida.parcelas || []).find(p => p.id === parcelaId);
-  if (!parc) return;
-  const pagos = estado.pagamentos.filter(p => p.dividaId === divida.id && p.parcelaId === parcelaId);
-  const valParc = numDinheiro(parc.valor);
-  parc.valorPago = pagos.reduce((a, p) => somaDinheiro(a, numDinheiro(p.valor)), 0);
-  // Data do pagamento mais recente (para o resumo da parcela).
-  let dataRecente = '';
-  for (const p of pagos) {
-    if (!dataRecente || (p.data || '') > dataRecente) dataRecente = p.data || '';
-  }
-  parc.dataPagamento = dataRecente;
-  // Quitação por diferença em centavos (tolerante a arredondamento de float).
-  if (valParc > 0 && Math.round(parc.valorPago * 100) >= Math.round(valParc * 100)) parc.status = 'pago';
-  else if (parc.valorPago > 0) parc.status = 'parcial';
-  else parc.status = 'pendente';
-}
+// Nota: as implementações de `valorPagoParcela` e `sincronizarParcela` foram
+// extraídas para src/dominio.js (valorPagoParcela_D / sincronizarParcela_D); os
+// wrappers acima injetam estado.pagamentos. Ver tests/valorPagoParcela.test.js.
 
 // Monta o bloco de resumo de UMA parcela selecionada, exibindo o quanto
+
 // JÁ foi pago nela (individual) vs. o valor da própria parcela.
 function pagamentosParcelaHtml(d, parcelaId) {
   const parc = (d.parcelas || []).find(p => p.id === parcelaId);
@@ -1055,7 +1005,9 @@ async function carregar() {
 }
 
 // ---------- Gamificação (níveis / XP) ----------
-// Tabela de níveis que o usuário pode alcançar (limite inferior de XP por nível).
+// Tabela de níveis (limite inferior de XP por nível). Mantida aqui por causa dos
+// rótulos `titulo` usados por tituloNivel(); os cálculos de nível/progresso foram
+// extraídos para src/dominio.js (nivelDe/progressoNivel, disponíveis globalmente).
 const NIVEIS = [
   { nivel: 1, xp: 0,    titulo: 'nivel.nome1' },
   { nivel: 2, xp: 100,  titulo: 'nivel.nome2' },
@@ -1068,30 +1020,7 @@ const NIVEIS = [
   { nivel: 9, xp: 1300, titulo: 'nivel.nome9' },
   { nivel: 10, xp: 1600, titulo: 'nivel.nome10' }
 ];
-function nivelDe(xp) {
-  // Fonte da verdade = limiares da tabela NIVEIS (não-lineares: 100,200,…,1600).
-  // Antes usava progressão linear de 100 em 100, o que divergia da tabela a
-  // partir do nível 6 (defeito D-03 do AS-BUILT §8.1).
-  const x = xp || 0;
-  let n = 1;
-  for (const linha of NIVEIS) {
-    if (x >= linha.xp) n = linha.nivel;
-    else break;
-  }
-  return n;
-}
-// Progresso (0..1) DENTRO do nível atual, usando os limiares reais da tabela
-// NIVEIS. Base da barra de XP (badge e tela de gamificação) — garante que a
-// barra zere ao subir de nível e reflita o intervalo não-linear corretamente.
-function progressoNivel(xp) {
-  const x = xp || 0;
-  const atual = NIVEIS.find(l => l.nivel === nivelDe(x)) || NIVEIS[0];
-  const prox = NIVEIS.find(l => l.nivel === atual.nivel + 1);
-  if (!prox) return 1; // nível máximo: barra cheia
-  const base = atual.xp, topo = prox.xp;
-  if (topo <= base) return 1;
-  return Math.min(1, Math.max(0, (x - base) / (topo - base)));
-}
+// nivelDe() e progressoNivel() vêm de src/dominio.js (carregado antes em index.html).
 
 // Migração retroativa de XP (recompensa por gestão de dívida caiu de 30 -> 5) e
 // correção dos níveis registrados no histórico.
