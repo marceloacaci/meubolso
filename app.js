@@ -772,10 +772,13 @@ function atualizarBadges() {
 }
 
 function calcularMetricas() {
-  const totalDivida = estado.dividas.reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
+  // totalGeral = soma dos totais de cada dívida (função totalDivida(d) em
+  // src/dominio.js). NÃO chamar a variável de `totalDivida`, senão ela sombreia
+  // a função e o reduce cai em TDZ ("Cannot access before initialization").
+  const totalGeral = estado.dividas.reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
   const totalPago = estado.pagamentos.reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
-  const saldo = Math.max(0, totalDivida - totalPago);
-  const progresso = totalDivida > 0 ? Math.min(100, (totalPago / totalDivida) * 100) : 0;
+  const saldo = Math.max(0, totalGeral - totalPago);
+  const progresso = totalGeral > 0 ? Math.min(100, (totalPago / totalGeral) * 100) : 0;
 
   const porCategoria = Object.keys(CATEGORIAS).map(k => {
     const valor = estado.dividas
@@ -801,12 +804,12 @@ function calcularMetricas() {
     .filter(k => todosStatus[k] > 0)
     .map(k => ({ key: k, label: t(STATUS_LABEL[k]) || k, cor: CORES_STATUS[k] || '#64748b', qtd: todosStatus[k] }));
 
-  return { totalDivida, totalPago, saldo, progresso, porCategoria, porStatus };
+  return { totalGeral, totalPago, saldo, progresso, porCategoria, porStatus };
 }
 
 function gerarInsights(m) {
   const out = [];
-  if (m.totalDivida === 0) {
+  if (m.totalGeral === 0) {
     out.push({ tipo: 'neutro', ico: ICON.vazio, texto: ti('insight.vazio') });
     return out;
   }
@@ -822,7 +825,7 @@ function gerarInsights(m) {
   if (maior) out.push({ tipo: 'neutro', ico: ICON.marcador, texto: ti('insight.maior', { d: escapeHtml(maior.descricao), v: fmt.format(totalDivida(maior)) }) });
 
   const cartao = (m.porCategoria.find(c => c.key === 'cartao') || {}).valor || 0;
-  if (cartao > 0) out.push({ tipo: 'aten', ico: ICON.cartao, texto: ti('insight.cartao', { p: ((cartao / m.totalDivida) * 100).toFixed(0) }) });
+  if (cartao > 0) out.push({ tipo: 'aten', ico: ICON.cartao, texto: ti('insight.cartao', { p: ((cartao / m.totalGeral) * 100).toFixed(0) }) });
 
   const negociadas = (m.porStatus.find(s => s.key === 'negociado') || {}).qtd || 0;
   if (negociadas > 0) out.push({ tipo: 'bom', ico: ICON.acordo, texto: ti('insight.negociadas', { n: negociadas }) });
@@ -865,8 +868,8 @@ function graficoRosca(m) {
   const id = 'chart-rosca-' + (__graficoSeq++);
   if (window.ChartGraficos) {
     const segs = [];
-    if (m.totalDivida > 0) {
-      const pago = m.totalPago / m.totalDivida;
+    if (m.totalGeral > 0) {
+      const pago = m.totalPago / m.totalGeral;
       const aberto = 1 - pago;
       if (aberto > 0) segs.push({ label: t('grafico.emAberto'), v: aberto, c: '#c1121f' });
       if (pago > 0) segs.push({ label: t('grafico.pago'), v: pago, c: '#2d6a4f' });
@@ -1005,22 +1008,10 @@ async function carregar() {
 }
 
 // ---------- Gamificação (níveis / XP) ----------
-// Tabela de níveis (limite inferior de XP por nível). Mantida aqui por causa dos
-// rótulos `titulo` usados por tituloNivel(); os cálculos de nível/progresso foram
-// extraídos para src/dominio.js (nivelDe/progressoNivel, disponíveis globalmente).
-const NIVEIS = [
-  { nivel: 1, xp: 0,    titulo: 'nivel.nome1' },
-  { nivel: 2, xp: 100,  titulo: 'nivel.nome2' },
-  { nivel: 3, xp: 200,  titulo: 'nivel.nome3' },
-  { nivel: 4, xp: 300,  titulo: 'nivel.nome4' },
-  { nivel: 5, xp: 400,  titulo: 'nivel.nome5' },
-  { nivel: 6, xp: 600,  titulo: 'nivel.nome6' },
-  { nivel: 7, xp: 800,  titulo: 'nivel.nome7' },
-  { nivel: 8, xp: 1000, titulo: 'nivel.nome8' },
-  { nivel: 9, xp: 1300, titulo: 'nivel.nome9' },
-  { nivel: 10, xp: 1600, titulo: 'nivel.nome10' }
-];
-// nivelDe() e progressoNivel() vêm de src/dominio.js (carregado antes em index.html).
+// NIVEIS é a fonte da verdade em src/dominio.js (carregado antes em index.html),
+// disponível globalmente neste escopo. tituloNivel() resolve o rótulo i18n via
+// t('nivel.nomeN') — não precisamos redeclarar a tabela aqui (evita o erro de
+// "Identifier 'NIVEIS' has already been declared" que quebrava o parse do app).
 
 // Migração retroativa de XP (recompensa por gestão de dívida caiu de 30 -> 5) e
 // correção dos níveis registrados no histórico.
@@ -2375,7 +2366,7 @@ function renderPainel() {
       <div class="card h-100">
         <div class="card-body">
           <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.resumo')}</h3>
-          <div class="h3 mb-1">${fmt.format(metricas.totalDivida)}</div>
+          <div class="h3 mb-1">${fmt.format(metricas.totalGeral)}</div>
           <div class="text-secondary small">${t('painel.totalDividas')} (${estado.dividas.length})</div>
           <div class="d-flex justify-content-between text-secondary small mt-3 mb-1">
             <span>${t('painel.quitado')}</span><span>${metricas.progresso.toFixed(0)}%</span>
@@ -2782,7 +2773,7 @@ function renderGamificacao() {
             <tr class="${n.nivel === nivel ? 'atual' : ''}">
               <td>${n.nivel}</td>
               <td>${n.xp}</td>
-              <td>${t(n.titulo)}</td>
+              <td>${tituloNivel(n.nivel)}</td>
             </tr>`).join('')}
         </tbody>
       </table>
