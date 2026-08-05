@@ -167,6 +167,12 @@
   <script src="vendor/bootstrap.bundle.min.js"></script>
   <!-- Biblioteca central de ícones SVG (obrigatório antes de app.js) -->
   <script src="icons.js"></script>
+  <!-- Internacionalização (S3-1): dicionários pt/en/es expostos como globais
+       (window.pt/en/es) e index.js monta window.I18N. Antes de app.js. -->
+  <script src="src/i18n/pt.js"></script>
+  <script src="src/i18n/en.js"></script>
+  <script src="src/i18n/es.js"></script>
+  <script src="src/i18n/index.js"></script>
   <!-- Domínio financeiro/gamificação (funções PURAS extraídas p/ testes).
        Deve vir ANTES de app.js: expõe totalDivida, totalPago, saldoDivida,
        valorPagoParcela, sincronizarParcela, resumoParcelas, nivelDe,
