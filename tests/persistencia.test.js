@@ -3,7 +3,7 @@ import { test, expect, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { salvarArquivoAtomico, limparTemporarios } from '../src/persistencia.js';
+import { salvarArquivoAtomico, limparTemporarios, fazerBackupRotativo, rotacionarBackups, listarBackups, restaurarBackup, BACKUP_GERACOES } from '../src/persistencia.js';
 
 let arquivos = [];
 function tmpFile(name) {
@@ -60,4 +60,60 @@ test('limparTemporarios remove apenas os .tmp do prefixo', () => {
   expect(fs.existsSync(orfao)).toBe(false);
   expect(fs.existsSync(legit)).toBe(true);
   try { fs.unlinkSync(orfao); } catch (_) {}
+});
+
+// ---------- Backup rotativo (S2-5) ----------
+
+test('fazerBackupRotativo cria geração com timestamp e mantém só as N mais recentes', () => {
+  const origem = tmpFile('rot-origem.json');
+  const pasta = path.join(os.tmpdir(), 'meubolso-rot-' + process.pid);
+  salvarArquivoAtomico(origem, JSON.stringify({ dividas: [], pagamentos: [] }));
+  // Gera 10 backups com datas distintas (1s de diferença cada).
+  const base = new Date(2026, 0, 1, 0, 0, 0);
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(base.getTime() + i * 1000);
+    fazerBackupRotativo(origem, pasta, d);
+  }
+  const geracoes = listarBackups(pasta);
+  // Só as BACKUP_GERACOES (7) mais recentes devem restar.
+  expect(geracoes.length).toBe(BACKUP_GERACOES);
+  // Mais recente primeiro.
+  expect(geracoes[0].data).toBe('2026-01-01 00:00:09');
+  expect(geracoes[geracoes.length - 1].data).toBe('2026-01-01 00:00:03');
+  // Cada geração deve ser válida (estrutura mínima).
+  expect(geracoes.every(g => g.valido)).toBe(true);
+  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
+});
+
+test('listarBackups retorna vazio e sem lançar quando a pasta não existe', () => {
+  const pasta = path.join(os.tmpdir(), 'meubolso-inexistente-' + process.pid + '-xyz');
+  expect(listarBackups(pasta)).toEqual([]);
+});
+
+test('restaurarBackup copia geração para o destino de forma atômica', () => {
+  const origem = tmpFile('rest-origem.json');
+  const pasta = path.join(os.tmpdir(), 'meubolso-rest-' + process.pid);
+  const destino = tmpFile('rest-destino.json');
+  salvarArquivoAtomico(origem, JSON.stringify({ dividas: [{ id: 'x' }], pagamentos: [] }));
+  const gerado = fazerBackupRotativo(origem, pasta);
+  expect(gerado).not.toBeNull();
+  const ok = restaurarBackup(gerado, destino);
+  expect(ok).toBe(true);
+  const lido = JSON.parse(fs.readFileSync(destino, 'utf8'));
+  expect(lido.dividas[0].id).toBe('x');
+  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
+});
+
+test('rotacionarBackups remove apenas os mais antigos acima do limite', () => {
+  const pasta = path.join(os.tmpdir(), 'meubolso-rot2-' + process.pid);
+  fs.mkdirSync(pasta, { recursive: true });
+  const base = new Date(2026, 0, 1, 0, 0, 0);
+  for (let i = 0; i < 9; i++) {
+    const nome = `meubolso-${base.getFullYear()}${String(base.getMonth()+1).padStart(2,'0')}${String(base.getDate()).padStart(2,'0')}-` +
+      `${String(base.getHours()).padStart(2,'0')}${String(base.getMinutes()).padStart(2,'0')}${String(base.getSeconds()+i).padStart(2,'0')}.json`;
+    fs.writeFileSync(path.join(pasta, nome), '{}');
+  }
+  rotacionarBackups(pasta, 7);
+  expect(fs.readdirSync(pasta).filter(n => n.endsWith('.json')).length).toBe(7);
+  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
 });

@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('api', {
   restaurar: () => ipcRenderer.invoke('dados:restaurar'),
   fazerBackup: () => ipcRenderer.invoke('dados:fazer-backup'),
   backupInfo: () => ipcRenderer.invoke('dados:backup-info'),
+  listarBackups: () => ipcRenderer.invoke('dados:listar-backups'),
+  restaurarBackup: (arquivo) => ipcRenderer.invoke('dados:restaurar-backup', arquivo),
   flashFoco: () => ipcRenderer.invoke('janela:flash-foco'),
   abrirLink: (url) => ipcRenderer.invoke('link:abrir', url)
 });

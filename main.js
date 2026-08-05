@@ -10,7 +10,7 @@ const fs = require('fs');
 // dependências externas de banco de dados.
 // ============================================================
 
-let userDataPath, dbFile, dataFile, backupFile, pontosFile;
+let userDataPath, dbFile, dataFile, backupFile, pontosFile, backupsDir;
 
 // Caminhos de dados
 function initPaths() {
@@ -19,6 +19,7 @@ function initPaths() {
   dataFile = path.join(userDataPath, 'dados.json');
   backupFile = path.join(userDataPath, 'dados.bak.json');
   pontosFile = path.join(userDataPath, 'pontos.bak.json');
+  backupsDir = path.join(userDataPath, 'backups');
 }
 
 // ---------- Normalizar dados ----------
@@ -49,6 +50,10 @@ function fazerBackup() {
       const g = conteudo.gamificacao || { xp: 0, nivel: 1, historico: [] };
       salvarArquivoAtomico(pontosFile, JSON.stringify(g, null, 2));
     } catch (_) { /* gamificacao ausente ou ilegível: ignora */ }
+    // Backup ROTATIVO (S2-5): empurra uma nova geração com timestamp em backups/,
+    // mantendo só as BACKUP_GERACOES mais recentes. Protege contra corrupção
+    // percebida tardiamente — há até 7 cópias anteriores para restaurar.
+    try { fazerBackupRotativo(dbFile, backupsDir); } catch (_) { /* ignora falha do rotativo */ }
     return true;
   } catch (err) {
     console.warn('[DB] ⚠ Falha ao fazer backup automático:', err.message);
@@ -56,9 +61,15 @@ function fazerBackup() {
   }
 }
 
-// ---------- Escrita ATÔMICA de arquivo ----------
+// ---------- Escrita ATÔMICA de arquivo + BACKUP ROTATIVO ----------
 // (Implementação em src/persistencia.js — testável em Node, sem Electron.)
-const { salvarArquivoAtomico } = require('./src/persistencia.js');
+const {
+  salvarArquivoAtomico,
+  fazerBackupRotativo,
+  listarBackups,
+  restaurarBackup,
+  BACKUP_GERACOES
+} = require('./src/persistencia.js');
 function saveToDB(data) {
   if (!data) {
     console.error('[DB] × Nenhum dado para salvar');
@@ -184,7 +195,7 @@ ipcMain.handle('sistema:info', () => ({
   so: `${process.platform} ${process.arch}`,
   arquitetura: process.arch,
   dbType: 'JSON (arquivo simples)',
-  backup: 'automático (dados.bak.json a cada salvamento) + exportar/importar manual',
+  backup: `automático rotativo (${BACKUP_GERACOES} gerações em backups/ + dados.bak.json) + exportar/importar manual`,
 }));
 
 ipcMain.handle('dados:fazer-backup', async () => {
@@ -213,6 +224,39 @@ ipcMain.handle('dados:restaurar', async () => {
       return { ok: false, erro: 'O arquivo de backup está corrompido.' };
     }
     return { ok: true, dados: parsed };
+  } catch (err) {
+    return { ok: false, erro: `Backup ilegível: ${err.message}` };
+  }
+});
+
+// ---------- Backup rotativo (S2-5) ----------
+// Lista as gerações disponíveis em backups/ (mais recente primeiro).
+ipcMain.handle('dados:listar-backups', async () => {
+  const geracoes = listarBackups(backupsDir);
+  return {
+    geracoes,
+    limite: BACKUP_GERACOES,
+    pasta: backupsDir
+  };
+});
+
+// Restaura uma geração específica (pelo nome de arquivo retornado por listar-backups).
+ipcMain.handle('dados:restaurar-backup', async (_evt, arquivo) => {
+  if (!arquivo) return { ok: false, erro: 'Nenhum arquivo informado.' };
+  // Validação de caminho: só aceita nomes dentro da pasta de backups (evita
+  // travar/escrever fora de backupsDir via path traversal).
+  const caminho = path.join(backupsDir, path.basename(arquivo));
+  if (!fs.existsSync(caminho)) {
+    return { ok: false, erro: 'Arquivo de backup não encontrado.' };
+  }
+  try {
+    const conteudo = fs.readFileSync(caminho, 'utf8');
+    const parsed = JSON.parse(conteudo);
+    if (!parsed || !Array.isArray(parsed.dividas) || !Array.isArray(parsed.pagamentos)) {
+      return { ok: false, erro: 'O backup selecionado está corrompido.' };
+    }
+    const ok = restaurarBackup(caminho, dbFile);
+    return { ok, arquivo };
   } catch (err) {
     return { ok: false, erro: `Backup ilegível: ${err.message}` };
   }
