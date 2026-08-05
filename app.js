@@ -14,8 +14,37 @@ const fmtData = (iso) => {
   const [a, m, d] = iso.split('-');
   return `${d}/${m}/${a}`;
 };
-const hoje = () => new Date().toISOString().slice(0, 10);
+// Data de HOJE no fuso LOCAL (não UTC). Motivo: `new Date().toISOString()`
+// devolve a data em UTC; logo após a meia-noite local (ex.: 23h30 em brasília,
+// UTC−3) ela já aponta o dia SEGUINTE, fazendo pagamentos e vencimentos baterem
+// no dia errado (defeito D-01 do AS-BUILT §8.1).
+const hoje = () => {
+  const d = new Date();
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+};
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// ---------- Dinheiro (defeito D-02 do AS-BUILT §8.1) ----------
+// Somatórios financeiros em ponto flutuante acumulam erro de centavos
+// (0.1 + 0.2 === 0.30000000000000004). Toda soma de valores monetários deve
+// passar por `somaDinheiro`, que opera em centavos inteiros e devolve Number
+// arredondado a 2 casas — evitando que uma dívida "quitada" nunca zere exato
+// (o que impediria o bônus de +50 XP de "dívida quitada").
+function somaDinheiro(...valores) {
+  let centavos = 0;
+  for (const v of valores) {
+    const n = Number(v) || 0;
+    centavos += Math.round(n * 100);
+  }
+  return centavos / 100;
+}
+// Lê um valor monetário como Number arredondado (centavos), tolerante a string.
+function numDinheiro(v) {
+  return Math.round((Number(v) || 0) * 100) / 100;
+}
 
 // Rótulos de status de parcela
 const STATUS_LABEL = {
@@ -127,7 +156,7 @@ const DICAS = [
 ];
 
 function totalDivida(d) {
-  return (d.parcelas || []).reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+  return (d.parcelas || []).reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 function totalPago(d) {
   // Considera apenas pagamentos vinculados a ESTA dívida (filtra por dividaId
@@ -135,7 +164,7 @@ function totalPago(d) {
   const ids = new Set((d.parcelas || []).filter(p => p.id).map(p => p.id));
   return estado.pagamentos
     .filter(p => p.dividaId === d.id && ids.has(p.parcelaId))
-    .reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+    .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 function saldoDivida(d) {
   return Math.max(0, totalDivida(d) - totalPago(d));
@@ -190,7 +219,7 @@ function valorPagoParcela(d, parcelaId) {
   }
   return estado.pagamentos
     .filter(p => p.dividaId === d.id && p.parcelaId === parcelaId)
-    .reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+    .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 
 // Recalcula os campos em cache da parcela (valorPago, dataPagamento, status)
@@ -201,15 +230,16 @@ function sincronizarParcela(divida, parcelaId) {
   const parc = (divida.parcelas || []).find(p => p.id === parcelaId);
   if (!parc) return;
   const pagos = estado.pagamentos.filter(p => p.dividaId === divida.id && p.parcelaId === parcelaId);
-  const valParc = Number(parc.valor) || 0;
-  parc.valorPago = pagos.reduce((a, p) => a + (Number(p.valor) || 0), 0);
+  const valParc = numDinheiro(parc.valor);
+  parc.valorPago = pagos.reduce((a, p) => somaDinheiro(a, numDinheiro(p.valor)), 0);
   // Data do pagamento mais recente (para o resumo da parcela).
   let dataRecente = '';
   for (const p of pagos) {
     if (!dataRecente || (p.data || '') > dataRecente) dataRecente = p.data || '';
   }
   parc.dataPagamento = dataRecente;
-  if (valParc > 0 && parc.valorPago >= valParc) parc.status = 'pago';
+  // Quitação por diferença em centavos (tolerante a arredondamento de float).
+  if (valParc > 0 && Math.round(parc.valorPago * 100) >= Math.round(valParc * 100)) parc.status = 'pago';
   else if (parc.valorPago > 0) parc.status = 'parcial';
   else parc.status = 'pendente';
 }
@@ -792,15 +822,15 @@ function atualizarBadges() {
 }
 
 function calcularMetricas() {
-  const totalDivida = estado.dividas.reduce((acc, d) => acc + (d.parcelas || []).reduce((a, p) => a + (Number(p.valor) || 0), 0), 0);
-  const totalPago = estado.pagamentos.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+  const totalDivida = estado.dividas.reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
+  const totalPago = estado.pagamentos.reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
   const saldo = Math.max(0, totalDivida - totalPago);
   const progresso = totalDivida > 0 ? Math.min(100, (totalPago / totalDivida) * 100) : 0;
 
   const porCategoria = Object.keys(CATEGORIAS).map(k => {
     const valor = estado.dividas
       .filter(d => (d.categoria || 'outro') === k)
-      .reduce((acc, d) => acc + (d.parcelas || []).reduce((a, p) => a + (Number(p.valor) || 0), 0), 0);
+      .reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
     return { key: k, label: t(CATEGORIAS[k].label), cor: CATEGORIAS[k].cor, valor };
   }).filter(c => c.valor > 0);
 
@@ -1025,7 +1055,6 @@ async function carregar() {
 }
 
 // ---------- Gamificação (níveis / XP) ----------
-const XP_POR_NIVEL = 100; // cada 100 XP = 1 nível
 // Tabela de níveis que o usuário pode alcançar (limite inferior de XP por nível).
 const NIVEIS = [
   { nivel: 1, xp: 0,    titulo: 'nivel.nome1' },
@@ -1039,7 +1068,30 @@ const NIVEIS = [
   { nivel: 9, xp: 1300, titulo: 'nivel.nome9' },
   { nivel: 10, xp: 1600, titulo: 'nivel.nome10' }
 ];
-function nivelDe(xp) { return 1 + Math.floor((xp || 0) / XP_POR_NIVEL); }
+function nivelDe(xp) {
+  // Fonte da verdade = limiares da tabela NIVEIS (não-lineares: 100,200,…,1600).
+  // Antes usava progressão linear de 100 em 100, o que divergia da tabela a
+  // partir do nível 6 (defeito D-03 do AS-BUILT §8.1).
+  const x = xp || 0;
+  let n = 1;
+  for (const linha of NIVEIS) {
+    if (x >= linha.xp) n = linha.nivel;
+    else break;
+  }
+  return n;
+}
+// Progresso (0..1) DENTRO do nível atual, usando os limiares reais da tabela
+// NIVEIS. Base da barra de XP (badge e tela de gamificação) — garante que a
+// barra zere ao subir de nível e reflita o intervalo não-linear corretamente.
+function progressoNivel(xp) {
+  const x = xp || 0;
+  const atual = NIVEIS.find(l => l.nivel === nivelDe(x)) || NIVEIS[0];
+  const prox = NIVEIS.find(l => l.nivel === atual.nivel + 1);
+  if (!prox) return 1; // nível máximo: barra cheia
+  const base = atual.xp, topo = prox.xp;
+  if (topo <= base) return 1;
+  return Math.min(1, Math.max(0, (x - base) / (topo - base)));
+}
 
 // Migração retroativa de XP (recompensa por gestão de dívida caiu de 30 -> 5) e
 // correção dos níveis registrados no histórico.
@@ -1377,7 +1429,6 @@ function atualizarBadgeNivel() {
   const g = estado.gamificacao || { xp: 0, nivel: 1 };
   const xpTotal = g.xp || 0;
   const nivel = g.nivel || 1;
-  const resto = xpTotal % XP_POR_NIVEL;
   // Progresso até o próximo nível (nome do próximo título).
   const proximo = nivel + 1;
   let txtProgresso;
@@ -1388,8 +1439,9 @@ function atualizarBadgeNivel() {
     const faltam = Math.max(0, proximoThreshold - xpTotal);
     txtProgresso = `${xpTotal} / ${proximoThreshold} XP ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
   }
+  const pctBarra = progressoNivel(xpTotal) * 100;
   el.innerHTML = `<div class='perfil-texto'><span class='nivel-ico'>${ICON.trofeu}</span> ${t('nivel.titulo')} ${nivel} · ${tituloNivel(nivel)}</div>` +
-    `<span class='nivel-barra'><span style='width:${(resto / XP_POR_NIVEL) * 100}%'></span></span>` +
+    `<span class='nivel-barra'><span style='width:${pctBarra}%'></span></span>` +
     `<span class='nivel-xp'>${txtProgresso}</span>` +
     `<button class='nivel-btn' data-view='gamificacao'>${t('nivel.verDetalhes')} ${ICON.setaDireita}</button>`;
 }
@@ -1624,10 +1676,14 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
   for (let i = 0; i < n; i++) {
     const existente = parcelasExistentes[i];
     const dataPadrao = (() => {
-      const dt = new Date();
-      dt.setMonth(dt.getMonth() + i);
-      return dt.toISOString().slice(0, 10);
-    })();
+        const dt = new Date();
+        dt.setDate(1);                 // evita estouro de mês (ex.: 31 + 1 = 03/03)
+        dt.setMonth(dt.getMonth() + i);
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      })();
     const opts = STATUS_OPTIONS.map(o =>
       `<option value="${o.value}"${o.value === (existente?.status || 'pendente') ? ' selected' : ''}>${t('status.' + o.value)}</option>`).join('');
     // Campos de pagamento (valor pago + data) ficam ocultos quando o status é 'pendente'
@@ -1783,7 +1839,7 @@ function novaDivida() {
     const n = Math.max(1, parseInt(v.numParcelas, 10) || 1);
     const form = document.getElementById('form-modal');
     const parcelas = lerParcelasDoForm(form, n);
-    const total = parcelas.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+    const total = parcelas.reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
     const divida = {
       id: uid(),
       descricao: v.descricao.trim(),
@@ -1857,7 +1913,7 @@ function editarDivida(d) {
     const n = Math.max(1, parseInt(v.numParcelas, 10) || 1);
     const form = document.getElementById('form-modal');
     const parcelas = lerParcelasDoForm(form, n, parcelasAtuais);
-    const total = parcelas.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+    const total = parcelas.reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
     Object.assign(d, {
       descricao: v.descricao.trim(),
       credor: v.credor.trim(),
@@ -2222,7 +2278,7 @@ function abrirGestaoDivida(d) {
   document.getElementById('btn-concluir-divida').onclick = () => {
     fecharModal();
     // Bônus ao quitar a dívida inteira (100% paga)
-    const pago = estado.pagamentos.filter(p => p.dividaId === d.id).reduce((a, p) => a + (Number(p.valor) || 0), 0);
+    const pago = estado.pagamentos.filter(p => p.dividaId === d.id).reduce((a, p) => somaDinheiro(a, numDinheiro(p.valor)), 0);
     const total = totalDivida(d);
     if (total > 0 && pago >= total) ganharXP(50, t('xp.quitou'));
     ganharXP(5, t('xp.gestao'));
@@ -2460,8 +2516,8 @@ function renderPainel() {
 }
 
 function renderRelatorio() {
-  const total = estado.dividas.reduce((acc, d) => acc + totalDivida(d), 0);
-  const pago = estado.pagamentos.reduce((acc, p) => acc + Number(p.valor || 0), 0);
+  const total = estado.dividas.reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
+  const pago = estado.pagamentos.reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
   const saldo = Math.max(0, total - pago);
   const restantes = estado.dividas.length;
 
@@ -2694,22 +2750,21 @@ function renderGamificacao() {
   const g = estado.gamificacao || { xp: 0, nivel: 1, historico: [] };
   const xpTotal = g.xp || 0;
   const nivel = g.nivel || 1;
-  const resto = xpTotal % XP_POR_NIVEL;
   const proximo = nivel + 1;
 
   // Progresso até o próximo nível (usando o limite real da tabela de níveis).
   let txtProgresso, pctBarra, proximoThreshold;
   if (proximo > NIVEIS.length) {
     txtProgresso = t('game.nivelMax');
-    // Mesma base do card do menu (resto / XP_POR_NIVEL) para consistência entre telas.
-    pctBarra = (resto / XP_POR_NIVEL) * 100;
+    // Barra cheia no nível máximo.
+    pctBarra = 100;
     proximoThreshold = xpTotal;
   } else {
     proximoThreshold = NIVEIS[proximo - 1].xp; // xp necessário para o próximo nível
     const faltam = Math.max(0, proximoThreshold - xpTotal);
-    // Mesma base do card do menu: progresso DENTRO do nível atual (resto / XP_POR_NIVEL),
-    // para que a barra zere ao subir de nível e seja consistente entre as telas.
-    pctBarra = (resto / XP_POR_NIVEL) * 100;
+    // Barra proporcional ao intervalo real do nível (progressoNivel), não ao
+    // resto linear — coerente com a tabela não-linear e com o badge.
+    pctBarra = progressoNivel(xpTotal) * 100;
     txtProgresso = `${xpTotal} / ${proximoThreshold} XP ${t('game.paraProximo')} ${tituloNivel(proximo)}`;
   }
 
