@@ -179,6 +179,9 @@
        progressoNivel, somaDinheiro, numDinheiro, NIVEIS em globalThis. -->
   <script src="src/dominio.js"></script>
   <script src="app.js"></script>
+  <!-- Modais/confirmações (S3-3): consomem globais de app.js (t, escapeHtml,
+       ICON, window.api) e expõem abrirModal/abrirConfirmacao como globais. -->
+  <script src="src/ui/modais.js"></script>
   <!-- Componentes de view (Vue). Carregados após app.js; registram
        window.MeuBolsoViews antes do DOMContentLoaded montar o root. -->
   <script src="views/painel.js"></script>
