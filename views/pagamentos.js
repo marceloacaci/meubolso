@@ -157,6 +157,6 @@ window.__mbRender.pagamentos = function renderPagamentos() {
         return fn ? fn() : '';
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 })();

@@ -117,6 +117,6 @@ window.__mbRender.painel = function renderPainel() {
         try { window.ChartGraficos.montar(); } catch (_) {}
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 })();

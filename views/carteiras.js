@@ -52,6 +52,6 @@ window.__mbRender.carteiras = function renderCarteiras() {
         return fn ? fn() : '';
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 })();

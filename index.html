@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';" />
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
   <title>MeuBolso</title>
   <!-- Bootstrap 5.3.3 (vendored, offline). Carregado ANTES do styles.css para
        que a paleta customizada do app sobrescreva as variáveis --bs-* do tema. -->
@@ -165,10 +165,10 @@
     </div>
   </div>
 
-  <!-- Vue 3 (global build, runtime+compiler) — DONO da view. Deve vir ANTES
-       de app.js e de views/*.js (app.js usa Vue.ref/reactive; views usam
-       window.MeuBolsoViews e window.uiTick montados no DOMContentLoaded). -->
-  <script src="vendor/vue.global.prod.js"></script>
+  <!-- Vue 3 (runtime-only build, sem compiler -> nao usa new Function ->
+       nao precisa de 'unsafe-eval' na CSP; templates sao render functions).
+       Deve vir ANTES de app.js e de views/*.js. -->
+  <script src="vendor/vue.runtime.global.prod.js"></script>
   <!-- Chart.js (vendored, offline) — gráficos de pizza/rosca com animação de
        rotação inicial, fade/load suave e efeito hoverOffset (fatias se separam
        no hover). Carregado ANTES de app.js. -->

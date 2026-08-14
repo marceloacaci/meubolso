@@ -22,6 +22,6 @@ window.__mbRender.filtros = function renderFiltros() {
         return fn ? fn() : '';
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 }());

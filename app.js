@@ -2564,7 +2564,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         return { currentView };
       },
-      template: '<component :is="currentView"></component>'
+      render() {
+        const comp = (window.MeuBolsoViews || {})[this.currentView] || 'div';
+        return Vue.h(comp);
+      }
     };
     Vue.createApp(RootApp).mount('#app');
   }

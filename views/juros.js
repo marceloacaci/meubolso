@@ -74,6 +74,6 @@ window.__mbRender.juros = function renderJuros() {
         return fn ? fn() : '';
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 }());

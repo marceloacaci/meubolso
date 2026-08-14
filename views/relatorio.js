@@ -142,6 +142,6 @@ window.__mbRender.relatorio = function renderRelatorio() {
         try { window.ChartGraficos.montar(); } catch (_) {}
       }
     },
-    template: '<div class="view" v-html="html"></div>'
+    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
   };
 })();
