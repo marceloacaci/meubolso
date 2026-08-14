@@ -3,9 +3,9 @@
 Gerenciador de finanças pessoais minimalista para desktop — controle de dívidas,
 empréstimos, cartão de crédito e carteiras, **100% local e offline**.
 
-![Plataformas](https://img.shields.io/badge/Windows-Linux-macOS-blue)
+[![Plataformas](https://img.shields.io/badge/Windows%20%7C%20Linux%20%7C%20macOS-blue)](https://github.com/marceloacaci/meubolso)
 [![Versão](https://img.shields.io/badge/versão-v1.2.0-green)](https://github.com/marceloacaci/meubolso/releases/latest)
-![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml)
 [![Sprint 4](https://img.shields.io/badge/Sprint%204-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
 [![Sprint 5](https://img.shields.io/badge/Sprint%205-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
 
