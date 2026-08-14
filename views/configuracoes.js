@@ -69,9 +69,21 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           </div>
         </section>
       </div>
+
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('cripto.titulo') || 'Criptografia'}</h3>
+          <p class="text-secondary small">${t('cripto.descricao') || 'Criptografa o arquivo de dados no disco (AES-256-GCM) com senha.'}</p>
+          <div class="config-acoes">
+            ${(estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa)
+              ? `<button class="btn btn-outline-danger" data-acao="cripto-desativar">${ICON.cadeado || '🔓'} ${t('cripto.desativar') || 'Desativar criptografia'}</button>`
+              : `<button class="btn btn-outline-success" data-acao="cripto-ativar">${ICON.cadeado || '🔒'} ${t('cripto.ativar') || 'Ativar criptografia'}</button>`}
+          </div>
+        </section>
+      </div>
     </div>
   `;
-};
+};
 
 /* View "Configurações" como componente Vue (Vue é DONO da view). */
 (function () {

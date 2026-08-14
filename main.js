@@ -30,8 +30,16 @@ function normalizar(d) {
   d.recorrentes = Array.isArray(d.recorrentes) ? d.recorrentes : [];
   d.metas = Array.isArray(d.metas) ? d.metas : [];
   d.configuracoes = d.configuracoes || { moeda: 'BRL' };
+  if (typeof d.configuracoes.criptografia !== 'object' || d.configuracoes.criptografia === null) {
+    d.configuracoes.criptografia = { ativa: false };
+  }
+  if (typeof d.configuracoes.criptografia.ativa !== 'boolean') d.configuracoes.criptografia.ativa = false;
   return d;
 }
+
+const cripto = require('./src/cripto.js');
+// Senha em memoria (sessao). Definida quando o usuario desbloqueia/ativa a cripto.
+let senhaSessao = null;
 
 // ---------- Backup automático (cópia da última versão válida) ----------
 // Antes de sobrescrever o arquivo principal, copia o conteúdo atual para
@@ -80,9 +88,13 @@ function saveToDB(data) {
   // Backup da versão anterior antes de sobrescrever
   fazerBackup();
   try {
-    const json = JSON.stringify(normalizar(data));
-    salvarArquivoAtomico(dbFile, json);
-    console.log('[DB] ✓ Dados salvos (' + json.length + ' bytes)');
+    const cfg = (data.configuracoes && data.configuracoes.criptografia) || { ativa: false };
+    let conteudo = JSON.stringify(normalizar(data));
+    if (cfg.ativa && senhaSessao) {
+      conteudo = cripto.criptografar(senhaSessao, conteudo);
+    }
+    salvarArquivoAtomico(dbFile, conteudo);
+    console.log('[DB] ✓ Dados salvos (' + conteudo.length + ' bytes' + (cfg.ativa ? ', criptografado' : '') + ')');
     return true;
   } catch (err) {
     console.error('[DB] ✗ Erro ao salvar:', err.message);
@@ -100,6 +112,12 @@ function loadFromDB() {
   // backup automático (dados.bak.json, gerado a cada salvamento em saveToDB).
   const ler = (caminho) => {
     const content = fs.readFileSync(caminho, 'utf8');
+    // Arquivo criptografado: precisa de senha para descriptografar.
+    if (cripto.eArquivoCriptografado(content)) {
+      if (!senhaSessao) return { __criptografado: true };
+      const json = cripto.descriptografar(senhaSessao, content);
+      return JSON.parse(json);
+    }
     const parsed = JSON.parse(content);
     if (parsed && Array.isArray(parsed.dividas) && Array.isArray(parsed.pagamentos)) {
       return parsed;
@@ -108,6 +126,7 @@ function loadFromDB() {
   };
   try {
     const parsed = ler(dbFile);
+    if (parsed && parsed.__criptografado) return { __criptografado: true };
     console.log('[DB] ✓ Dados carregados:', parsed.dividas.length, 'dívidas');
     return normalizar(parsed);
   } catch (err) {
@@ -169,9 +188,54 @@ function createWindow() {
 // ============================================================
 ipcMain.handle('dados:carregar', async () => {
   console.log('[IPC] dados:carregar');
-  const data = loadFromDB() || fallbackData();
-  console.log('[IPC] dados:carregar - retornando', data.dividas.length, 'dívidas');
-  return data;
+  const data = loadFromDB();
+  if (data && data.__criptografado) {
+    console.log('[IPC] dados:carregar - arquivo criptografado; aguardando senha');
+    return { criptografado: true };
+  }
+  const normalizado = data || fallbackData();
+  console.log('[IPC] dados:carregar - retornando', normalizado.dividas.length, 'dívidas');
+  return normalizado;
+});
+
+// S6-3: verifica a senha contra o arquivo criptografado e, se ok, fixa na sessao.
+ipcMain.handle('cripto:desbloquear', async (_evt, senha) => {
+  try {
+    if (!fs.existsSync(dbFile)) return { ok: false, erro: 'sem arquivo' };
+    const content = fs.readFileSync(dbFile, 'utf8');
+    if (!cripto.eArquivoCriptografado(content)) return { ok: true, criptografado: false };
+    cripto.descriptografar(senha, content); // lanca se senha errada (GCM)
+    senhaSessao = senha;
+    return { ok: true, criptografado: true };
+  } catch (e) {
+    return { ok: false, erro: 'senha incorreta' };
+  }
+});
+
+// S6-3: troca a senha da criptografia re-salvando o arquivo ja descriptografado.
+ipcMain.handle('cripto:ativar', async (_evt, senha) => {
+  if (!senha || !senha.length) return { ok: false, erro: 'senha vazia' };
+  senhaSessao = senha;
+  // marca ativa e re-salva (saveToDB criptografa usando senhaSessao)
+  const atual = loadFromDB();
+  if (atual && !atual.__criptografado) {
+    atual.configuracoes = atual.configuracoes || {};
+    atual.configuracoes.criptografia = { ativa: true };
+    saveToDB(atual);
+  }
+  return { ok: true };
+});
+
+ipcMain.handle('cripto:desativar', async () => {
+  // Descriptografa ANTES de limpar a senha da sessão (senão o arquivo cifrado
+  // não pode ser lido e o re-salvamento em texto aberto é pulado).
+  const atual = loadFromDB();
+  if (!atual || atual.__criptografado) return { ok: false, erro: 'nao foi possivel descriptografar' };
+  senhaSessao = null;
+  atual.configuracoes = atual.configuracoes || {};
+  atual.configuracoes.criptografia = { ativa: false };
+  saveToDB(atual);
+  return { ok: true };
 });
 
 ipcMain.handle('dados:salvar-agora', async (_evt, data) => {

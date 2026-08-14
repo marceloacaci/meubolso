@@ -592,6 +592,11 @@ async function carregar() {
   // NÃO reatribui `estado = ...` (perderia a reatividade do Vue.reactive).
   // Carrega em um objeto temporário e faz merge no estado reativo.
   const novo = await window.api.carregar();
+  // S6-3: arquivo criptografado sem senha na sessão -> pede a senha.
+  if (novo && novo.criptografado) {
+    abrirModalDesbloqueio();
+    return;
+  }
   Object.assign(estado, {
     configuracoes: novo.configuracoes || { moeda: 'BRL' },
     dividas: novo.dividas || [],
@@ -627,6 +632,36 @@ async function carregar() {
   // Recálculo retroativo: a pontuação por gestão de dívida caiu de 30 para 5 XP.
   // Recompensa o XP já registrado no histórico e recalcula o total/nível.
   await migrarXPgestao();
+}
+
+// S6-3: modal de desbloqueio do arquivo criptografado.
+function abrirModalDesbloqueio() {
+  abrirModal(t('cripto.desbloquear') || 'Desbloquear dados', [
+    { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: true }
+  ], async (vals) => {
+    const r = await window.api.criptoDesbloquear(vals.senha || '');
+    if (!r || !r.ok) {
+      if (window.mostrarToast) window.mostrarToast(t('cripto.senhaIncorreta') || 'Senha incorreta', 'erro');
+      return false; // mantem o modal aberto
+    }
+    if (window.mostrarToast) window.mostrarToast(t('cripto.desbloqueado') || 'Dados desbloqueados', 'sucesso');
+    await carregar();
+    return true;
+  });
+}
+
+// S6-3: ativa a criptografia (pede senha) e re-salva cifrado.
+async function ativarCriptografia() {
+  const senha = window.prompt ? window.prompt(t('cripto.definirSenha') || 'Defina uma senha para criptografar:') : null;
+  if (!senha) return;
+  const r = await window.api.criptoAtivar(senha);
+  if (r && r.ok && window.mostrarToast) window.mostrarToast(t('cripto.ativada') || 'Criptografia ativada', 'sucesso');
+}
+
+// S6-3: desativa a criptografia (volta ao JSON aberto).
+async function desativarCriptografia() {
+  const r = await window.api.criptoDesativar();
+  if (r && r.ok && window.mostrarToast) window.mostrarToast(t('cripto.desativada') || 'Criptografia desativada', 'sucesso');
 }
 
 // S5-3: varre parcelas pendentes que vencem em até `antecedenciaNotif` dias e
@@ -2263,6 +2298,9 @@ const handlers = {
   'importar': () => importarDados(),
   'restaurar': () => restaurarBackup(),
   'fazerBackup': () => fazerBackupManual(),
+  // S6-3: criptografia (opt-in)
+  'cripto-ativar': () => ativarCriptografia(),
+  'cripto-desativar': () => desativarCriptografia(),
   // Sprint 4 — novas funcionalidades
   'nova-recorrente': () => novaRecorrente(),
   'editar-recorrente': (id) => {

@@ -31,5 +31,8 @@ contextBridge.exposeInMainWorld('api', {
   flashFoco: () => ipcRenderer.invoke('janela:flash-foco'),
   abrirLink: (url) => ipcRenderer.invoke('link:abrir', url),
   notificarVencimento: (item) => ipcRenderer.invoke('notificar:vencimento', item),
-  selecionarAnexo: () => ipcRenderer.invoke('anexo:selecionar')
+  selecionarAnexo: () => ipcRenderer.invoke('anexo:selecionar'),
+  criptoDesbloquear: (senha) => ipcRenderer.invoke('cripto:desbloquear', senha),
+  criptoAtivar: (senha) => ipcRenderer.invoke('cripto:ativar', senha),
+  criptoDesativar: () => ipcRenderer.invoke('cripto:desativar')
 });
