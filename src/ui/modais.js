@@ -13,19 +13,21 @@ function abrirModal(titulo, campos, onSubmit) {
     .replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   const camposHtml = campos.map(c => {
-    let inputHtml;
-    if (c.type === 'select') {
-      const optionsHtml = c.options.map(opt => {
-        const sel = String(opt.value) === String(c.value) ? ' selected' : '';
-        return `<option value="${escapeAttr(opt.value)}"${sel}>${escapeHtml(opt.label)}</option>`;
-      }).join('');
-      inputHtml = `<select class="form-select" name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
-    } else if (c.type === 'textarea') {
-      inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
-    } else {
-      inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
-    }
-    return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
+  let inputHtml;
+  if (c.type === 'select') {
+    const optionsHtml = c.options.map(opt => {
+      const sel = String(opt.value) === String(c.value) ? ' selected' : '';
+      return `<option value="${escapeAttr(opt.value)}"${sel}>${escapeHtml(opt.label)}</option>`;
+    }).join('');
+    inputHtml = `<select class="form-select" name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
+  } else if (c.type === 'checkbox') {
+    inputHtml = `<div class="form-check"><input class="form-check-input" type="checkbox" name="${escapeAttr(c.name)}"${c.value ? ' checked' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} /></div>`;
+  } else if (c.type === 'textarea') {
+    inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
+  } else {
+    inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
+  }
+  return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
   }).join('');
 
   modalCard.innerHTML = `
@@ -54,7 +56,12 @@ function abrirModal(titulo, campos, onSubmit) {
     e.preventDefault();
     const inputs = form.querySelectorAll('input, select, textarea');
     const valores = {};
-    campos.forEach((c, i) => { valores[c.name] = inputs[i]?.value ?? ''; });
+    campos.forEach((c, i) => {
+      const el = inputs[i];
+      if (!el) { valores[c.name] = ''; return; }
+      if (c.type === 'checkbox') valores[c.name] = !!el.checked;
+      else valores[c.name] = el.value ?? '';
+    });
     fecharModal();
     onSubmit(valores);
   });

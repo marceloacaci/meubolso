@@ -27,6 +27,8 @@ function normalizar(d) {
   d.dividas = Array.isArray(d.dividas) ? d.dividas : [];
   d.pagamentos = Array.isArray(d.pagamentos) ? d.pagamentos : [];
   d.carteiras = Array.isArray(d.carteiras) ? d.carteiras : [];
+  d.recorrentes = Array.isArray(d.recorrentes) ? d.recorrentes : [];
+  d.metas = Array.isArray(d.metas) ? d.metas : [];
   d.configuracoes = d.configuracoes || { moeda: 'BRL' };
   return d;
 }

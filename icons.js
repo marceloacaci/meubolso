@@ -123,6 +123,11 @@
 
     // Acesso diário: seta de entrada (login) — versão de LINHA (sem preenchimento).
     acesso: line('<path d="M11 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h6"/><path d="M9 12h11"/><path d="M16 8l4 4-4 4"/>'),
+
+    // --- Sprint 4: ícones de novas views ---
+    recorrente: line('<path d="M4 11.5a8 8 0 0 1 13-6.2"/><path d="M17 3v4.3h-4.3"/><path d="M20 12.5a8 8 0 0 1-13 6.2"/><path d="M7 21v-4.3h4.3"/>'),
+    meta: line('<path d="M12 21s6.5-5.2 6.5-10.4A6.5 6.5 0 0 0 5.5 10.6C5.5 15.8 12 21 12 21Z"/><circle cx="12" cy="10.4" r="2.6"/>'),
+    simulador: line('<rect x="4" y="3.5" width="16" height="17" rx="2.2"/><path d="M8 8h2.5M13 8h3M8 12h2.5M13 12h3M8 16h2.5M13 16h3"/>'),
   };
 
   // Acesso conveniente: ICON.nome ou ICON('nome') ou ICON.svg('nome','classe').

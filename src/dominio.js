@@ -114,6 +114,78 @@ function resumoParcelas(d, pagamentos) {
 }
 
 // ============================================================
+// SPRINT 4 — JUROS, CET e SIMULADOR DE QUITAÇÃO (funções puras)
+// ============================================================
+
+// Custo Efetivo Total anualizado (a partir da taxa mensal, em %).
+// CET ≈ ((1 + i)^12 − 1) × 100, onde i é a taxa mensal decimal.
+function cet(taxaMensalPct) {
+  const i = (Number(taxaMensalPct) || 0) / 100;
+  if (i <= 0) return 0;
+  return (Math.pow(1 + i, 12) - 1) * 100;
+}
+
+// Custo de juros de UMA dívida financiada pela Tabela Price: parcela fixa,
+// juros = total pago − principal. Retorna { principal, juros, total,
+// parcela, cet } (valores em número, centavos via somaDinheiro).
+// `opts`: { taxaMensal (%), prazoMeses }.
+function calcularJurosDivida(d, opts) {
+  const principal = totalDivida(d);
+  const i = (Number(opts && opts.taxaMensal) || 0) / 100;
+  const n = Math.max(1, Math.round(Number(opts && opts.prazoMeses) || 1));
+  if (principal <= 0) return { principal: 0, juros: 0, total: 0, parcela: 0, cet: 0 };
+  if (i <= 0) return { principal, juros: 0, total: principal, parcela: principal / n, cet: 0 };
+  const parcela = principal * i / (1 - Math.pow(1 + i, -n));
+  const total = parcela * n;
+  const juros = total - principal;
+  return { principal, juros, total, parcela, cet: cet(opts.taxaMensal) };
+}
+
+// Simula a quitação de várias dívidas com um pagamento mensal fixo, aplicado
+// segundo uma estratégia. Modelo: todo mês incide juros sobre os saldos; em
+// seguida o orçamento mensal é aplicado às dívidas na ORDEM da estratégia
+// (avalanche = maior taxa primeiro; bolaNeve = menor saldo primeiro).
+// `dividas` é a lista global; `opts`: { estrategia, pagamentoMensal, pagamentos }.
+// Retorna { meses, totalJuros, totalPago, possivel }.
+function simularQuitacao(dividas, opts) {
+  const estrategia = (opts && opts.estrategia) || 'avalanche';
+  const pagamento = Math.max(0, Number(opts && opts.pagamentoMensal) || 0);
+  let debs = (dividas || []).map(d => ({
+    id: d.id,
+    saldo: saldoDivida(d, opts && opts.pagamentos),
+    taxa: (Number(d.taxaMensal) || 0) / 100
+  })).filter(x => x.saldo > 0.005);
+  if (debs.length === 0 || pagamento <= 0) {
+    return { meses: 0, totalJuros: 0, totalPago: 0, possivel: false };
+  }
+  debs.sort((a, b) => estrategia === 'avalanche' ? (b.taxa - a.taxa) : (a.saldo - b.saldo));
+  let meses = 0, totalJuros = 0, totalPago = 0;
+  const LIMITE = 1200; // teto de 100 anos (segurança contra loop infinito)
+  while (debs.some(d => d.saldo > 0.005) && meses < LIMITE) {
+    meses++;
+    let orcamento = pagamento;
+    for (const d of debs) {
+      if (d.saldo > 0.005) {
+        const j = d.saldo * d.taxa;
+        d.saldo += j;
+        totalJuros += j;
+      }
+    }
+    for (const d of debs) {
+      if (orcamento <= 0) break;
+      if (d.saldo > 0.005) {
+        const p = Math.min(orcamento, d.saldo);
+        d.saldo -= p;
+        orcamento -= p;
+        totalPago += p;
+      }
+    }
+  }
+  const possivel = debs.every(d => d.saldo <= 0.005);
+  return { meses, totalJuros, totalPago, possivel };
+}
+
+// ============================================================
 // GAMIFICAÇÃO (níveis / XP)
 // ============================================================
 
@@ -188,6 +260,9 @@ const API = {
   valorPagoParcela,
   sincronizarParcela,
   resumoParcelas,
+  cet,
+  calcularJurosDivida,
+  simularQuitacao,
   NIVEIS,
   nivelDe,
   progressoNivel,

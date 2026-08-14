@@ -1913,6 +1913,190 @@ async function excluirCarteira(id) {
   });
 }
 
+// ============================================================
+// SPRINT 4 — Despesas recorrentes / assinaturas (S4-1)
+// ============================================================
+function novaRecorrente() {
+  abrirModal(t('recorrentes.nova'), [
+    { name: 'descricao', label: t('recorrentes.descricao'), type: 'text', placeholder: t('recorrentes.exDescricao'), required: true },
+    { name: 'categoria', label: t('recorrentes.categoria'), type: 'select', value: 'servico', options: [
+      { value: 'servico', label: t(RECORRENTE_CATS.servico.label) },
+      { value: 'cartao', label: t(RECORRENTE_CATS.cartao.label) },
+      { value: 'emprestimo', label: t(RECORRENTE_CATS.emprestimo.label) },
+      { value: 'outro', label: t(RECORRENTE_CATS.outro.label) }
+    ]},
+    { name: 'valor', label: t('recorrentes.valor') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', placeholder: '0,00', value: '', required: true },
+    { name: 'diaVencimento', label: t('recorrentes.diaVencimento'), type: 'number', step: '1', min: '1', max: '31', placeholder: '1' },
+    { name: 'observacao', label: t('recorrentes.observacao'), type: 'textarea', value: '' }
+  ], async (v) => {
+    estado.recorrentes.push({
+      id: uid(),
+      descricao: v.descricao.trim(),
+      categoria: v.categoria,
+      valor: Math.max(0, Number(String(v.valor).replace(',', '.')) || 0),
+      diaVencimento: Math.min(31, Math.max(1, parseInt(v.diaVencimento, 10) || 1)),
+      observacao: v.observacao || '',
+      pausada: false,
+      criadaEm: hoje()
+    });
+    await persistir();
+    toast(t('toast.dividaSalva'), 'success');
+    render();
+  });
+}
+
+function editarRecorrente(r) {
+  if (!r) return;
+  abrirModal(t('recorrentes.editar'), [
+    { name: 'descricao', label: t('recorrentes.descricao'), type: 'text', value: r.descricao, required: true },
+    { name: 'categoria', label: t('recorrentes.categoria'), type: 'select', value: r.categoria, options: [
+      { value: 'servico', label: t(RECORRENTE_CATS.servico.label) },
+      { value: 'cartao', label: t(RECORRENTE_CATS.cartao.label) },
+      { value: 'emprestimo', label: t(RECORRENTE_CATS.emprestimo.label) },
+      { value: 'outro', label: t(RECORRENTE_CATS.outro.label) }
+    ]},
+    { name: 'valor', label: t('recorrentes.valor') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', value: String(r.valor), required: true },
+    { name: 'diaVencimento', label: t('recorrentes.diaVencimento'), type: 'number', step: '1', min: '1', max: '31', value: String(r.diaVencimento || 1) },
+    { name: 'observacao', label: t('recorrentes.observacao'), type: 'textarea', value: r.observacao || '' },
+    { name: 'pausada', label: t('recorrentes.pausada'), type: 'checkbox', value: !!r.pausada }
+  ], async (v) => {
+    r.descricao = v.descricao.trim();
+    r.categoria = v.categoria;
+    r.valor = Math.max(0, Number(String(v.valor).replace(',', '.')) || 0);
+    r.diaVencimento = Math.min(31, Math.max(1, parseInt(v.diaVencimento, 10) || 1));
+    r.observacao = v.observacao || '';
+    r.pausada = !!v.pausada;
+    await persistir();
+    toast(t('toast.dividaAtualizada'), 'success');
+    render();
+  });
+}
+
+async function excluirRecorrente(id) {
+  const r = estado.recorrentes.find(x => x.id === id);
+  if (!r) return;
+  abrirConfirmacao({
+    titulo: t('recorrentes.excluir'),
+    mensagem: t('recorrentes.confirmExcluir').replace('{nome}', r.descricao),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.recorrentes = estado.recorrentes.filter(x => x.id !== id);
+      await persistir();
+      toast(t('toast.dividaExcluida'), 'success');
+      render();
+    }
+  });
+}
+
+// ============================================================
+// SPRINT 4 — Juros & CET por dívida (S4-2)
+// ============================================================
+function editarJuros(d) {
+  if (!d) return;
+  abrirModal(t('juros.titulo') + ' — ' + d.descricao, [
+    { name: 'taxaMensal', label: t('juros.taxaMensal'), type: 'number', step: '0.01', min: '0', placeholder: '0', value: String(numDinheiro(d.taxaMensal)) },
+    { name: 'prazoMeses', label: t('juros.prazoMeses'), type: 'number', step: '1', min: '1', placeholder: '12', value: String(d.prazoMeses || 12) }
+  ], async (v) => {
+    d.taxaMensal = Math.max(0, Number(String(v.taxaMensal).replace(',', '.')) || 0);
+    d.prazoMeses = Math.max(1, parseInt(v.prazoMeses, 10) || 12);
+    await persistir();
+    toast(t('toast.dividaAtualizada'), 'success');
+    render();
+  });
+}
+
+// ============================================================
+// SPRINT 4 — Metas financeiras (S4-3) + conquistas atreladas (S4-5)
+// ============================================================
+function novaMeta() {
+  abrirModal(t('metas.nova'), [
+    { name: 'titulo', label: t('metas.descricao'), type: 'text', placeholder: t('metas.exTitulo'), required: true },
+    { name: 'valorAlvo', label: t('metas.valorAlvo') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', placeholder: '0,00', value: '', required: true },
+    { name: 'valorAtual', label: t('metas.valorAtual') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', placeholder: '0,00', value: '0' },
+    { name: 'prazo', label: t('metas.prazo'), type: 'text', placeholder: 'ex: 12/2026' }
+  ], async (v) => {
+    estado.metas.push({
+      id: uid(),
+      titulo: v.titulo.trim(),
+      valorAlvo: Math.max(0, Number(String(v.valorAlvo).replace(',', '.')) || 0),
+      valorAtual: Math.max(0, Number(String(v.valorAtual).replace(',', '.')) || 0),
+      prazo: v.prazo || '',
+      concluida: false,
+      criadaEm: hoje()
+    });
+    await persistir();
+    toast(t('toast.dividaSalva'), 'success');
+    render();
+  });
+}
+
+function editarMeta(m) {
+  if (!m) return;
+  abrirModal(t('metas.editar'), [
+    { name: 'titulo', label: t('metas.descricao'), type: 'text', value: m.titulo, required: true },
+    { name: 'valorAlvo', label: t('metas.valorAlvo') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', value: String(m.valorAlvo), required: true },
+    { name: 'valorAtual', label: t('metas.valorAtual') + ' (' + t('moeda') + ')', type: 'number', step: '0.01', min: '0', value: String(m.valorAtual) },
+    { name: 'prazo', label: t('metas.prazo'), type: 'text', value: m.prazo || '' }
+  ], async (v) => {
+    m.titulo = v.titulo.trim();
+    m.valorAlvo = Math.max(0, Number(String(v.valorAlvo).replace(',', '.')) || 0);
+    m.valorAtual = Math.max(0, Number(String(v.valorAtual).replace(',', '.')) || 0);
+    m.prazo = v.prazo || '';
+    verificarConquistaMeta(m);
+    await persistir();
+    toast(t('toast.dividaAtualizada'), 'success');
+    render();
+  });
+}
+
+// S4-5: ao concluir uma meta (100% ou flag concluida), concede XP de conquista
+// (somente a primeira vez — não re-concede ao reabrir/editar).
+function verificarConquistaMeta(m) {
+  const alvo = Math.max(0, numDinheiro(m.valorAlvo));
+  const atual = Math.max(0, numDinheiro(m.valorAtual));
+  const atingiu = (m.concluida || (alvo > 0 && atual >= alvo));
+  if (atingiu && !m.conquistaConcedida) {
+    m.conquistaConcedida = true;
+    m.concluida = true;
+    ganharXP(25, t('xp.conquistaMeta'));
+    toast(t('metas.parabens').replace('{nome}', m.titulo), 'success');
+  } else if (!atingiu) {
+    m.conquistaConcedida = false;
+    m.concluida = false;
+  }
+}
+
+async function excluirMeta(id) {
+  const m = estado.metas.find(x => x.id === id);
+  if (!m) return;
+  abrirConfirmacao({
+    titulo: t('metas.excluir'),
+    mensagem: t('metas.confirmExcluir').replace('{nome}', m.titulo),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.metas = estado.metas.filter(x => x.id !== id);
+      await persistir();
+      toast(t('toast.dividaExcluida'), 'success');
+      render();
+    }
+  });
+}
+
+// ============================================================
+// SPRINT 4 — Simulador de quitação (S4-4)
+// ============================================================
+function simularQuitacaoHandler() {
+  const est = document.getElementById('sim-estrategia');
+  const pag = document.getElementById('sim-pagamento');
+  const estrategia = est ? est.value : 'avalanche';
+  const pagamento = Number(String(pag && pag.value || '0').replace(',', '.')) || 0;
+  const r = simularQuitacao(estado.dividas, { estrategia, pagamentoMensal: pagamento, pagamentos: estado.pagamentos });
+  window.__simCache = { meses: r.meses, totalJuros: r.totalJuros, possivel: r.possivel, pagamento, estrategia };
+  render();
+}
+
 function initTicker() {
   const track = document.getElementById('ticker-track');
   if (!track) return;
@@ -1988,7 +2172,25 @@ const handlers = {
   'exportar': () => exportarDados(),
   'importar': () => importarDados(),
   'restaurar': () => restaurarBackup(),
-  'fazerBackup': () => fazerBackupManual()
+  'fazerBackup': () => fazerBackupManual(),
+  // Sprint 4 — novas funcionalidades
+  'nova-recorrente': () => novaRecorrente(),
+  'editar-recorrente': (id) => {
+    const r = estado.recorrentes.find(x => x.id === id);
+    if (r) editarRecorrente(r);
+  },
+  'excluir-recorrente': (id) => excluirRecorrente(id),
+  'editar-juros': (id) => {
+    const d = estado.dividas.find(x => x.id === id);
+    if (d) editarJuros(d);
+  },
+  'nova-meta': () => novaMeta(),
+  'editar-meta': (id) => {
+    const m = estado.metas.find(x => x.id === id);
+    if (m) editarMeta(m);
+  },
+  'excluir-meta': (id) => excluirMeta(id),
+  'simular-quitacao': () => simularQuitacaoHandler()
 };
 
 async function exportarDados() {
