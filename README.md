@@ -4,14 +4,10 @@ Gerenciador de finanças pessoais minimalista para desktop — controle de dívi
 empréstimos, cartão de crédito e carteiras, **100% local e offline**.
 
 ![Plataformas](https://img.shields.io/badge/Windows-Linux-macOS-blue)
-![Status](https://img.shields.io/badge/versão-1.0.0%20Beta-yellow)
+[![Versão](https://img.shields.io/github/v/marceloacaci/meubolso?color=green&label=vers%C3%A3o)](https://github.com/marceloacaci/meubolso/releases/latest)
 ![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)
-
-> ⚠️ **Versão 1.0 — BETA**
-> A release `1.0.0` é uma **versão Beta** de testes. Está funcional para uso
-> diário, mas pode conter ajustes de interface, comportamentos em evolução e
-> possíveis instabilidades. Use com cautela e mantenha backups dos seus dados.
-> Feedbacks e relatos de bugs são muito bem-vindos.
+[![Sprint 4](https://img.shields.io/badge/Sprint%204-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
+[![Sprint 5](https://img.shields.io/badge/Sprint%205-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
 
 ## Qualidade e testes
 
@@ -20,7 +16,7 @@ que cobre o domínio financeiro e de gamificação, além da escrita atômica de
 
 - `src/dominio.js` — funções puras de cálculo (dívidas, pagamentos, níveis/XP).
 - `src/persistencia.js` — escrita atômica de arquivos (`writeFileSync` + `renameSync`).
-- `tests/*.test.js` — 74 testes (financeiro, gamificação, persistência, integridade).
+- `tests/*.test.js` — 88 testes (financeiro, gamificação, persistência, integridade, Sprint 4 e Sprint 5).
 
 Para rodar localmente:
 
@@ -133,8 +129,9 @@ O app avisa e atualiza sozinho quando há nova versão (quando em build oficial)
 
 ## Versionamento
 Adotamos [Conventional Commits](https://www.conventionalcommits.org/).
-Cada release é uma tag `vX.Y.Z`. A tag `v1.0.0` corresponde à **versão Beta** descrita
-acima.
+Cada release é uma tag `vX.Y.Z`. A release estável mais recente é a **v1.2.0**
+(Sprint 5), disponível em [Releases](https://github.com/marceloacaci/meubolso/releases/latest).
+A tag `v1.0.0` corresponde à versão Beta inicial.
 
 ## Privacidade
 Todos os dados ficam no seu computador (arquivo `meubolso.json` na pasta `userData`
