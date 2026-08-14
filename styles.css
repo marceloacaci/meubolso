@@ -863,8 +863,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   /* Sem transform/will-change: um filho transformado + overflow:hidden no pai
      faz o Chromium IGNORAR o border-radius do filho (ponta quadrada). Sem camada
      de transform, o border-radius:999px do preenchimento arredonda a ponta em
-     qualquer progresso parcial. Atualizacoes de largura animam via transition. */
-  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+     qualquer progresso parcial.
+     Sem 'transition: width': a view é reaplicada via v-html a cada render()
+     (uiTick), o que RECRIA o elemento do zero e reiniciaria a transição de 0
+     repetidamente (barra "nunca fixa" o preenchimento). Sem transição, a barra
+     aparece já no tamanho correto. */
 }
 @keyframes barra-crescer {
   from { transform: scaleX(0); }

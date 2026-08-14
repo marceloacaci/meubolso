@@ -118,11 +118,11 @@ window.__mbRender.dividas = function renderDividas() {
         <table class="table table-hover align-middle mb-0">
           <thead>
             <tr>
-              <th><a href="#" class="sort-link" data-acao="ordenar" data-campo="descricao">${t('col.divida')}</a></th>
+              <th>${t('col.divida')}</th>
               <th>${t('col.categoria')}</th>
-              <th class="text-end"><a href="#" class="sort-link" data-acao="ordenar" data-campo="total">${t('col.total')}</a></th>
+              <th class="text-end">${t('col.total')}</th>
               <th class="text-end">${t('col.pago')}</th>
-              <th class="text-end"><a href="#" class="sort-link" data-acao="ordenar" data-campo="saldo">${t('col.saldo')}</a></th>
+              <th class="text-end">${t('col.saldo')}</th>
               <th class="text-end">${t('col.acao')}</th>
             </tr>
           </thead>

@@ -68,8 +68,8 @@ window.__mbRender.pagamentos = function renderPagamentos() {
     return `
       <div class="cartao-divida">
         <div class="barra-progresso" title="${r.percentualPago}% pago" aria-label="${r.percentualPago}% pago">
-          <div class="barra-progreso-preenchimento" style="width:${r.percentualPago}%"></div>
-          <span class="barra-progreso-texto">${r.percentualPago}%</span>
+          <div class="barra-progresso-preenchimento" style="width:${r.percentualPago}%"></div>
+          <span class="barra-progresso-texto">${r.percentualPago}%</span>
         </div>
         <div class="divida-cabecalho">
           <div>
