@@ -2,7 +2,7 @@
 // para que os componentes de view recomputem quando os dados mudam.
 // OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
-let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
+let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
 
 // ---------- Utilitários ----------
 // Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
@@ -383,7 +383,8 @@ function atualizarBadges() {
   // Fica vermelho (--alerta) apenas se houver 1+ (atenção iminente).
   const totalVenc = proximas.length + atrasadas.length;
   setBadge('badge-vencimentos', totalVenc, totalVenc > 0);
-  setBadge('badge-lixeira', estado.lixeira.dividas.length);
+  setBadge('badge-lixeira', estado.lixeira.dividas.length + estado.lixeira.carteiras.length
+    + estado.lixeira.recorrentes.length + estado.lixeira.metas.length);
 }
 
 function calcularMetricas() {
@@ -605,7 +606,7 @@ async function carregar() {
     carteiras: novo.carteiras || [],
     recorrentes: novo.recorrentes || [],
     metas: novo.metas || [],
-    lixeira: novo.lixeira || { dividas: [], pagamentos: [] },
+    lixeira: novo.lixeira || { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] },
     filtro: novo.filtro || { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 },
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
@@ -618,7 +619,7 @@ async function carregar() {
   if (!estado.carteiras) estado.carteiras = []; // preparação para a funcionalidade Carteiras
   if (!estado.recorrentes) estado.recorrentes = []; // S4-1: despesas recorrentes
   if (!estado.metas) estado.metas = []; // S4-3: metas financeiras
-  if (!estado.lixeira) estado.lixeira = { dividas: [], pagamentos: [] };
+  if (!estado.lixeira) estado.lixeira = { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] };
   if (!estado.gamificacao) estado.gamificacao = { xp: 0, nivel: 1, ultimoAcesso: '' };
   if (!estado.gamificacao.historico) estado.gamificacao.historico = [];
   // Dados legados: o usuário já tem XP acumulado, mas o histórico de pontos
@@ -1483,7 +1484,8 @@ async function esvaziarLixeiraDivida(id) {
 
 // Esvazia toda a lixeira (exclusão definitiva de tudo).
 async function esvaziarLixeiraTudo() {
-  const total = estado.lixeira.dividas.length + estado.lixeira.pagamentos.length;
+  const total = estado.lixeira.dividas.length + estado.lixeira.pagamentos.length
+    + estado.lixeira.carteiras.length + estado.lixeira.recorrentes.length + estado.lixeira.metas.length;
   if (total === 0) { toast(t('lixeira.vazia')); return; }
   abrirConfirmacao({
     titulo: t('lixeira.confirmarExclusaoTudo'),
@@ -1491,9 +1493,42 @@ async function esvaziarLixeiraTudo() {
     textoConfirmar: t('acao.esvaziar'),
     perigo: true,
     aoConfirmar: async () => {
-      estado.lixeira = { dividas: [], pagamentos: [] };
+      estado.lixeira = { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] };
       await persistir();
       toast(t('toast.lixeiraEsvaziada'));
+      render();
+    }
+  });
+}
+
+// --- Restaurar itens da lixeira (carteiras / recorrentes / metas) ---
+async function restaurarCarteira(id) { restaurarItemLixeira('carteiras', id, t('toast.carteiraRestaurada')); }
+async function restaurarRecorrente(id) { restaurarItemLixeira('recorrentes', id, t('toast.recorrenteRestaurado')); }
+async function restaurarMeta(id) { restaurarItemLixeira('metas', id, t('toast.metaRestaurada')); }
+
+// Move um item da lixeira de volta para sua coleção ativa (remove _excluidoEm).
+async function restaurarItemLixeira(tipo, id, msg) {
+  const item = (estado.lixeira[tipo] || []).find(x => x.id === id);
+  if (!item) return;
+  const { _excluidoEm, ...restaurado } = item;
+  estado.lixeira[tipo] = estado.lixeira[tipo].filter(x => x.id !== id);
+  estado[tipo].push(restaurado);
+  await persistir();
+  toast(msg);
+  render();
+}
+
+// --- Excluir definitivamente um item da lixeira por tipo ---
+async function esvaziarLixeiraItem(tipo, id) {
+  abrirConfirmacao({
+    titulo: t('lixeira.confirmarExclusao'),
+    mensagem: t('lixeira.msgExclusaoDefinitiva'),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.lixeira[tipo] = estado.lixeira[tipo].filter(x => x.id !== id);
+      await persistir();
+      toast(t('toast.excluidoDefinitivamente'));
       render();
     }
   });
@@ -2083,6 +2118,7 @@ async function excluirCarteira(id) {
     perigo: true,
     aoConfirmar: async () => {
       estado.carteiras = estado.carteiras.filter(x => x.id !== id);
+      estado.lixeira.carteiras.unshift({ ...c, _excluidoEm: new Date().toISOString() });
       await persistir();
       toast(t('toast.carteiraExcluida'), 'success');
       render();
@@ -2159,6 +2195,7 @@ async function excluirRecorrente(id) {
     perigo: true,
     aoConfirmar: async () => {
       estado.recorrentes = estado.recorrentes.filter(x => x.id !== id);
+      estado.lixeira.recorrentes.unshift({ ...r, _excluidoEm: new Date().toISOString() });
       await persistir();
       toast(t('toast.dividaExcluida'), 'success');
       render();
@@ -2254,6 +2291,7 @@ async function excluirMeta(id) {
     perigo: true,
     aoConfirmar: async () => {
       estado.metas = estado.metas.filter(x => x.id !== id);
+      estado.lixeira.metas.unshift({ ...m, _excluidoEm: new Date().toISOString() });
       await persistir();
       toast(t('toast.dividaExcluida'), 'success');
       render();
@@ -2348,6 +2386,12 @@ const handlers = {
   'restaurar-divida': (id) => restaurarDivida(id),
   'esvaziar-lixeira-divida': (id) => esvaziarLixeiraDivida(id),
   'esvaziar-lixeira-tudo': () => esvaziarLixeiraTudo(),
+  'restaurar-carteira': (id) => restaurarCarteira(id),
+  'restaurar-recorrente': (id) => restaurarRecorrente(id),
+  'restaurar-meta': (id) => restaurarMeta(id),
+  'esvaziar-lixeira-carteira': (id) => esvaziarLixeiraItem('carteiras', id),
+  'esvaziar-lixeira-recorrente': (id) => esvaziarLixeiraItem('recorrentes', id),
+  'esvaziar-lixeira-meta': (id) => esvaziarLixeiraItem('metas', id),
   'novo-pagamento': () => novoPagamento(),
   'nova-carteira': () => novaCarteira(),
   'editar-carteira': (id) => {
