@@ -33,3 +33,5 @@ Thumbs.db
 # Ferramentas de documentação (binários grandes não versionados)
 plantuml.jar
 
+
+build/7za/
