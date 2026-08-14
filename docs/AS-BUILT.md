@@ -1,10 +1,10 @@
-# AS-BUILT — MeuBolso v1.0.0 (Beta)
+# AS-BUILT — MeuBolso v1.2.0
 
 > **As-Built** = documentação do sistema **como ele efetivamente foi construído**,
 > não como foi planejado. Todo item abaixo foi verificado no código-fonte em
 > `D:\Project` e cita `arquivo:linha`.
 >
-> Data do levantamento: agosto/2026 · Commit base: `dde72a4`
+> Data do levantamento: agosto/2026 · Commit base: `efc3aed` (v1.2.0)
 > Responsável técnico: Marcelo Acácio
 
 ### Histórico de correções (changelog deste documento)

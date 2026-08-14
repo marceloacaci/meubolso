@@ -52,8 +52,11 @@ Regra adotada: **manter só o artefato que responde uma pergunta que alguém rea
 3. **JSON Schema do estado** — hoje o contrato de dados só existe implicitamente na
    função `normalizar()` (`main.js:44`). Um schema versionado permite validar
    importação de arquivos, escrever migrações e detectar corrupção.
-4. **Plano de testes** — o projeto tem **zero** testes automatizados e 3.519 linhas
-   em `app.js`. Cálculo financeiro sem teste é passivo, não ativo.
+4. **Plano de testes** — o projeto tem **88 testes automatizados** (Vitest) verdes
+   em `tests/*.test.js` (domínio financeiro, gamificação, persistência, integridade,
+   Sprint 4 e Sprint 5), além de validação funcional em runtime via `validate-*.cjs`
+   no Electron. O que falta é um documento que mapeie os casos de teste por
+   funcionalidade — recomendado para rastreabilidade.
 
 **Média:**
 5. Diagrama de **componentes** (main / preload / renderer / views / vendor) — o

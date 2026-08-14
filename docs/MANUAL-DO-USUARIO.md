@@ -1,6 +1,6 @@
 # Manual do Usuário — MeuBolso
 
-**Versão 1.0.0 (Beta)** · Windows · Linux · macOS
+**Versão 1.2.0** · Windows · Linux · macOS
 Gerenciador de finanças pessoais 100% local e offline.
 
 ---
@@ -24,6 +24,10 @@ Gerenciador de finanças pessoais 100% local e offline.
 15. [Perguntas frequentes](#15-perguntas-frequentes)
 16. [Solução de problemas](#16-solução-de-problemas)
 17. [Glossário](#17-glossário)
+18. [Busca, filtros e ordenação (v1.2.0)](#18-busca-filtros-e-ordenação)
+19. [Atalhos de teclado (v1.2.0)](#19-atalhos-de-teclado)
+20. [Exportar CSV / PDF (v1.2.0)](#20-exportar-csv--pdf)
+21. [Notificações de vencimento e anexos (v1.2.0)](#21-notificações-de-vencimento-e-anexos)
 
 ---
 
@@ -43,8 +47,9 @@ O que ele faz:
 O que ele **não** faz: não conecta ao seu banco, não importa extrato, não envia nada
 para a internet e não pede cadastro.
 
-> ⚠️ **Esta é uma versão Beta.** Está funcional para uso diário, mas pode ter ajustes
-> de interface e comportamentos em evolução. **Faça backups periódicos** (seção 12).
+> ✅ **Versão estável.** Esta documentação cobre a v1.2.0. Mantenha backups
+> periódicos (seção 12) como precaução, mas o app é considerado estável para uso
+> diário.
 
 ---
 
@@ -384,6 +389,60 @@ dívidas, centenas de pagamentos) o desempenho é imediato.
 versão do app e do sistema (tela *Sobre*), o que você fez, o que esperava e o que
 aconteceu. **Nunca anexe seu arquivo de dados real** — ele contém suas informações
 financeiras.
+
+---
+
+## 18. Busca, filtros e ordenação (v1.2.0)
+
+As telas **Dívidas** e **Pagamentos** trazem ferramentas de volume:
+
+- **Busca por texto**: digite na caixa de busca (ou `Ctrl+F`) para filtrar por
+  descrição, credor ou observação. A busca ignora maiúsculas e acentos.
+- **Filtros**: por **categoria**, **status** (em dia / atrasada / quitada) e
+  **período** (mês). Use o botão *Limpar* para remover todos os filtros.
+- **Ordenação**: clique no cabeçalho de uma coluna (descrição, credor, total,
+  saldo) para ordenar; clique de novo para inverter a direção.
+- **Paginação**: as listas são paginadas (12 itens por página). Use os botões
+  *Anterior/Próximo* na base da lista.
+
+---
+
+## 19. Atalhos de teclado (v1.2.0)
+
+| Atalho | Ação |
+|--------|------|
+| `1` a `9` | Troca para a view correspondente (Painel, Dívidas, Pagamentos, Vencimentos, Relatório, Carteiras, Gamificação, Config, Sobre) |
+| `Ctrl+N` | Nova dívida |
+| `Ctrl+P` | Novo pagamento |
+| `Ctrl+F` | Foca a busca |
+| `Ctrl+E` | Exportar (relatório) |
+
+> Os atalhos numéricos só funcionam quando o cursor não está dentro de um campo
+> de texto (caixa de busca, formulário).
+
+---
+
+## 20. Exportar CSV / PDF (v1.2.0)
+
+Na tela **Relatório** há botões para exportar:
+
+- **CSV**: gera um arquivo `.csv` (UTF-8 com BOM, abre correto no Excel) com
+  dívidas e pagamentos — útil para análise externa ou planilhas.
+- **PDF**: gera um relatório em PDF da tela atual.
+
+O seletor de pasta/arquivo é o nativo do sistema operacional.
+
+---
+
+## 21. Notificações de vencimento e anexos (v1.2.0)
+
+- **Notificações de vencimento**: o app avisa (notificação nativa do sistema)
+  sobre parcelas que vencem em até **3 dias**. Avisos não se repetem para a mesma
+  parcela. Esta funcionalidade é ativada por padrão; se o seu SO bloquear
+  notificações do app, ajuste nas configurações de notificação do sistema.
+- **Anexos de comprovante**: em cada pagamento há um botão *Anexar* para vincular
+  um comprovante (imagem ou PDF). Quando há anexo, aparece o ícone 📎 — clique
+  para abrir o arquivo.
 
 ---
 

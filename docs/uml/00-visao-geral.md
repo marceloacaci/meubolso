@@ -10,23 +10,30 @@ código-fonte (`app.js`, `main.js`, `preload.js`, `icons.js`).
 ┌──────────────────────────────────────────────────────────────┐
 │  PROCESSO PRINCIPAL DO ELECTRON (main.js)                      │
 │  - Cria a janela (BrowserWindow)                               │
-│  - Handler IPC: dados:carregar / dados:salvar-agora / ...      │
+│  - Handler IPC: dados:carregar / dados:salvar-agora /          │
+│    dados:exportar-csv / dados:exportar-pdf / notificar:vencimento │
+│    / anexo:selecionar / dados:fazer-backup / dados:restaurar-backup │
 │  - Persistência em JSON (userData/meubolso.json) + backup      │
-│    automático (dados.bak.json) e backup de pontuação           │
+│    automático (dados.bak.json) e backup rotativo (backups/)    │
 └───────────────┬──────────────────────────────────────────────┘
                 │ ipcRenderer.invoke (clone estruturado)
                 │  [estado é Proxy do Vue -> desserializado p/ objeto plano]
 ┌───────────────▼──────────────────────────────────────────────┐
 │  PRELOAD (preload.js)  — contextBridge                          │
-│  window.api = { carregar, salvarAgora, exportar, importar, ... }│
+│  window.api = { carregar, salvarAgora, exportarCSV, exportarPDF, │
+│    notificarVencimento, selecionarAnexo, abrirLink, ... }       │
 └───────────────┬──────────────────────────────────────────────┘
                 │ window.api.*
 ┌───────────────▼──────────────────────────────────────────────┐
 │  RENDERER (app.js)  — Vue (reactive) + DOM                      │
-│  - Estado reativo (dividas, pagamentos, carteiras, gamificacao) │
-│  - Render das views (Painel, Dívidas, Pagamentos, Vencimentos,  │
-│    Relatório, Carteiras, Gamificação, Config, Sobre)            │
+│  - Estado reativo (dividas, pagamentos, carteiras, gamificacao, │
+│    recorrentes, metas, filtro)                                  │
+│  - Render das views em views/*.js (Painel, Dívidas, Pagamentos, │
+│    Vencimentos, Relatório, Carteiras, Gamificação, Config,      │
+│    Sobre, Recorrentes, Metas, Juros, Simulador)                 │
 │  - Gamificação (XP, níveis, histórico, celebração)             │
+│  - Busca/filtros/ordenação/paginação, atalhos, anexos,         │
+│    notificações de vencimento                                   │
 └───────────────────────────────────────────────────────────────┘
 ```
 

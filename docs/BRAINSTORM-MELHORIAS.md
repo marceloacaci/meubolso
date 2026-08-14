@@ -6,6 +6,13 @@
 >
 > Legenda de esforço: **P** ≤ 8h · **M** 8–24h · **G** > 24h
 > Impacto: ⭐ baixo · ⭐⭐ médio · ⭐⭐⭐ alto
+>
+> **Status de implementação (atualizado em 14/ago/2026):** várias ideias deste
+> brainstorm já viraram realidade nas Sprints 1–5. Itens entregues estão marcados
+> com ✅ na coluna de Nota:
+> - **S1**: B1 (escrita atômica) ✅ · B2 (schema + migrações) ✅ · B3 (backup rotativo 7 gerações) ✅ · B4 (recuperação do .bak) ✅
+> - **S4**: A1 (juros e CET) ✅ · A2 (simulador avalanche × bola de neve) ✅ · A3 (despesas recorrentes) ✅ · A4 (metas financeiras) ✅
+> - **S5**: busca/filtros, ordenação/paginação, export CSV/PDF, notificações de vencimento, atalhos e anexos de comprovante ✅
 
 ---
 
