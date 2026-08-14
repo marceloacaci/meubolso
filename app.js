@@ -1380,6 +1380,29 @@ function editarDivida(d) {
       parcelas,
       observacao: v.observacao || ''
     });
+    // Sincroniza estado.pagamentos com o valor pago por parcela informado no
+    // formulário de edição da dívida. Sem isso, a página de Pagamentos (que lê de
+    // estado.pagamentos) exibia o valor ANTIGO quando a dívida já estava paga e o
+    // usuário aumentava o valor e a marcava como paga (relato de bug: a view de
+    // Pagamentos mostrava o pagamento efetuado como o valor antigo).
+    for (const parc of parcelas) {
+      const existente = estado.pagamentos.find(p => p.dividaId === d.id && p.parcelaId === parc.id);
+      if (parc.valorPago > 0) {
+        if (existente) {
+          Object.assign(existente, { valor: parc.valorPago, status: parc.status, dataPagamento: parc.dataPagamento });
+        } else {
+          estado.pagamentos.push({
+            id: uid(), dividaId: d.id, parcelaId: parc.id,
+            valor: parc.valorPago, data: parc.dataPagamento || hoje(),
+            nota: parc.nota || '', carteiraId: null
+          });
+        }
+      } else if (existente) {
+        // Parcela voltou a pendente: remove o registro de pagamento órfão.
+        estado.pagamentos = estado.pagamentos.filter(p => p !== existente);
+      }
+      sincronizarParcela(d, parc.id);
+    }
     await persistir();
     toast(t('toast.dividaAtualizada'), 'success');
     ganharXP(5);
