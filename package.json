@@ -22,6 +22,7 @@
     "appId": "com.meubolso.app",
     "productName": "MeuBolso",
     "copyright": "Copyright © 2026 MeuBolso",
+    "icon": "build/icon.ico",
     "publish": {
       "provider": "github",
       "owner": "marceloacaci",
