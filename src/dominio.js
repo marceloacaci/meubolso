@@ -39,12 +39,33 @@ function totalDivida(d) {
   return (d.parcelas || []).reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 
+// Índice de pagamentos por dividaId, cacheado por referência do array de
+// pagamentos. Reconstroi só quando a referência muda (o app cria um array novo
+// a cada mutação em estado.pagamentos). Reduz totalPago/resumoParcelas de
+// O(P) para O(pagamentos da dívida) — sem ele, 500 dívidas × 5000 pagamentos
+// ultrapassava 100 ms (S6-5).
+const _cacheIndice = new Map(); // arrayPagamentos -> Map<dividaId, pagamento[]>
+function _indicePorDivida(pagamentos) {
+  if (!pagamentos) return new Map();
+  const cached = _cacheIndice.get(pagamentos);
+  if (cached) return cached;
+  const idx = new Map();
+  for (const p of pagamentos) {
+    if (!p || !p.dividaId) continue;
+    if (!idx.has(p.dividaId)) idx.set(p.dividaId, []);
+    idx.get(p.dividaId).push(p);
+  }
+  _cacheIndice.set(pagamentos, idx);
+  return idx;
+}
+
 // Total pago de uma dívida = soma dos pagamentos VINCULADOS a ela (dividaId
 // E parcelaId pertencente à dívida). `pagamentos` é a lista global de pagamentos.
 function totalPago(d, pagamentos) {
   const ids = new Set((d.parcelas || []).filter((p) => p.id).map((p) => p.id));
-  return (pagamentos || [])
-    .filter((p) => p.dividaId === d.id && ids.has(p.parcelaId))
+  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  return daDivida
+    .filter((p) => ids.has(p.parcelaId))
     .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 
@@ -56,8 +77,9 @@ function saldoDivida(d, pagamentos) {
 // Total pago em UMA parcela específica da dívida.
 function valorPagoParcela(d, parcelaId, pagamentos) {
   if (!parcelaId) return totalPago(d, pagamentos); // caso legado: sem parcela
-  return (pagamentos || [])
-    .filter((p) => p.dividaId === d.id && p.parcelaId === parcelaId)
+  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  return daDivida
+    .filter((p) => p.parcelaId === parcelaId)
     .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
 }
 
@@ -67,9 +89,8 @@ function valorPagoParcela(d, parcelaId, pagamentos) {
 function sincronizarParcela(divida, parcelaId, pagamentos) {
   const parc = (divida.parcelas || []).find((p) => p.id === parcelaId);
   if (!parc) return parc;
-  const pagos = (pagamentos || []).filter(
-    (p) => p.dividaId === divida.id && p.parcelaId === parcelaId
-  );
+  const daDivida = (_indicePorDivida(pagamentos).get(divida.id) || []);
+  const pagos = daDivida.filter((p) => p.parcelaId === parcelaId);
   const valParc = numDinheiro(parc.valor);
   parc.valorPago = pagos.reduce((a, p) => somaDinheiro(a, numDinheiro(p.valor)), 0);
   // Data do pagamento mais recente.
@@ -89,11 +110,8 @@ function sincronizarParcela(divida, parcelaId, pagamentos) {
 // Resumo de parcelas de uma dívida para exibição.
 function resumoParcelas(d, pagamentos) {
   const total = (d.parcelas || []).length;
-  const pagamentoParcelas = new Set(
-    (pagamentos || [])
-      .filter((p) => p.dividaId === d.id && p.parcelaId)
-      .map((p) => p.parcelaId)
-  );
+  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  const pagamentoParcelas = new Set(daDivida.map((p) => p.parcelaId));
   const pagas = (d.parcelas || []).filter((p) => pagamentoParcelas.has(p.id)).length;
   const restantes = total - pagas;
   const valorTotal = totalDivida(d);
