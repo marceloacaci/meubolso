@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Skip-link (WCAG 2.4.1): primeiro elemento focável; leva ao conteúdo -->
+  <a href="#app" class="skip-link" data-i18n="a11y.pularConteudo">Pular para o conteúdo</a>
+
   <!-- Sidebar retrátil (navegação primária agrupada) -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-topo">
@@ -87,7 +90,7 @@
 
   <!-- Conteúdo principal -->
   <div class="conteudo">
-    <main id="app"></main>
+    <main id="app" tabindex="-1"></main>
 
     <!-- Rodapé rolante de dicas (estilo telejornal) -->
     <footer class="ticker" aria-label="Dicas financeiras">

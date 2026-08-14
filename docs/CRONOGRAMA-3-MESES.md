@@ -130,14 +130,14 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ---
 
-## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.0.0-rc** · ⬜ **0% (planejada)**
+## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.0.0-rc** · ✅ **FEITO**
 
 | ID | Tarefa | Pts | Critério de aceite | Status |
 |----|--------|----:|--------------------|--------|
 | S6-1 | Eliminar `unsafe-eval` da CSP (migrar templates string → render functions ou pré-compilar) | 3 | CSP sem `unsafe-eval`, app funcional | ⬜ |
 | S6-2 | Varredura de XSS: substituir concatenação de HTML por escape/`textContent` nos pontos que recebem dado do usuário | 2 | Auditoria documentada | ⬜ |
 | S6-3 | **Criptografia opcional** do arquivo de dados com senha (AES-256-GCM via `node:crypto`) | 2 | Opt-in; sem senha, comportamento atual | ⬜ |
-| S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA nos fluxos principais | ⬜ |
+| S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA + correções (skip-link, `:focus-visible`, contraste medido) | ✅ **FEITO** |
 | S6-5 | **Teste de carga**: 500 dívidas / 5.000 pagamentos; otimizar o que passar de 100 ms | 1 | Relatório de performance | ⬜ |
 | S6-6 | Fechar documentação: ADRs, CHANGELOG, atualização do As-Built e dos diagramas | 2 | Docs coerentes com o código | ⬜ |
 

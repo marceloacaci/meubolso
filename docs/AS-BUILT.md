@@ -20,7 +20,10 @@
 | 05/ago/2026 | **Etapa 3** integridade de dados: `schemaVersion` + JSON Schema (ajv) + `migrarSchema` idempotente + recuperação automática de backup (`loadFromDB`) | `src/integridade.js`, `docs/schema/meubolso.schema.json`, `tests/integridade.test.js` |
 | 14/ago/2026 | **Sprint 4** recorrentes, juros/CET, metas, simulador e conquistas (S4-1..S4-5) | `src/dominio.js` (`cet`,`calcularJurosDivida`,`simularQuitacao`), `views/{recorrentes,metas,juros,simulador}.js`, `app.js` (handlers CRUD), `index.html` (nav), `src/ui/modais.js` (checkbox), i18n pt/en/es, `tests/sprint4.test.js` |
 | 14/ago/2026 | **fix(S4)** validação visual em runtime pegou `estado.recorrentes/metas` undefined no load (DB vazio/legado); corrigido em `carregar()`, estado inicial e `fallbackData()` | `app.js` (carregar + estado), `main.js` (fallbackData); `validate-s4.cjs` (validação funcional Electron) |
-| 14/ago/2026 | **Sprint 5** busca/filtros (S5-1), ordenação/paginação (S5-5), atalhos (S5-4), export CSV/PDF (S5-2), notificações de vencimento (S5-3), anexos (S5-6) · **release v1.2.0** | `src/dominio.js` (`filtrarDividas`,`filtrarPagamentos`,`ordenarDividas`,`ordenarPagamentos`,`paginar`), `views/{dividas,pagamentos,relatorio}.js`, `app.js` (handlers + `definirFiltro`/`limparFiltro`/`verificarNotificacoes`/`anexarAnexoPagamento`/`abrirAnexo`/`gerarCSV`/`exportarCSV`/`exportarPDF`/`focarBusca`), `main.js` (IPC `dados:exportar-csv`,`dados:exportar-pdf`,`notificar:vencimento`,`anexo:selecionar`), `preload.js` (`exportarCSV`,`exportarPDF`,`notificarVencimento`,`selecionarAnexo`), i18n pt/en/es, `tests/sprint5.test.js`, `validate-s5.cjs` |
+| 14/ago/2026 | **Sprint 6** hardening e saída do Beta — S6-1 (CSP sem `unsafe-eval`, Vue 3 runtime-only + render functions), S6-2 (auditoria XSS, `escapeHtml`/`escapeAttr` sistemáticos, `validate-xss.cjs`), S6-3 (criptografia AES-256-GCM opt-in em `src/cripto.js` + IPC + UI), S6-4 (auditoria a11y WCAG 2.1 AA: skip-link, `:focus-visible` global, contraste medido 6.12/7.32, `audit-a11y.cjs` 8/8) · **v2.0.0-rc** | `index.html` (CSP/script-src), `vendor/vue.runtime.global.prod.js`, `views/*.js` (render fns), `src/ui/modais.js`, `src/cripto.js`, `styles.css`, `scripts/audit-a11y.cjs`, `docs/auditoria/ACCESSIBILITY-WCAG21-AA.md` |
+
+> Status verificado por suíte automatizada: **93/93 testes** Vitest verdes (`npm run test`) em 14/ago/2026. Auditoria a11y (`scripts/audit-a11y.cjs`) PASSOU em **8/8 critérios WCAG 2.1 AA** (skip-link 2.4.1, #app tabindex 4.1.2, foco visível 2.4.7, ícones aria-hidden 1.1.1, contraste AA claro/escuro 1.4.3) com **0 erros de console**. `app.js` reduzido de 3.519 → 2.613 LOC na refatoração pós-S3.
+
 
 > Status verificado por suíte automatizada: **88/88 testes** Vitest verdes (`npm run test`) em 14/ago/2026. Validação funcional em runtime (`validate-s5.cjs`) PASSOU em **6/6 itens** (S5-4, S5-1, S5-5, S5-2, S5-3, S5-6) com **0 erros de console**. Ajuste de bug em `filtrarDividas`: critério de status passou a considerar o status real das parcelas (quitado = todas pagas; em dia = sem atraso) em vez de saldo.
 
@@ -61,7 +64,7 @@
 
 | Arquivo | Linhas | Papel |
 |---------|-------:|-------|
-| `app.js` | 3.519 | **Renderer monolítico**: estado, i18n (PT/EN/ES), regras de negócio, render de todas as views, gamificação, modais |
+| `app.js` | 2.613 | **Renderer**: estado, i18n (PT/EN/ES), regras de negócio, render de todas as views, gamificação, modais |
 | `main.js` | 296 | Processo principal: janela, IPC, persistência, backup, auto-update |
 | `icons.js` | 149 | Mapa de ícones SVG inline |
 | `graficos-chartjs.js` | 143 | Wrappers de Chart.js (pizza/rosca/barras) |
@@ -105,14 +108,11 @@ impedimento para testabilidade e para onboarding de qualquer segundo desenvolved
 
 **Postura de segurança verificada:**
 - `contextIsolation: true`, `nodeIntegration: false` (`main.js:117-119`) ✅
-- CSP restritiva em `index.html:5-6`: `default-src 'self'`. Ressalva: usa
-  `'unsafe-eval'` (exigido pelo Vue global build com templates em string) e
-  `'unsafe-inline'` para estilos. ⚠️ mitigável migrando para render functions.
-- `link:abrir` valida esquema com `/^https?:\/\//i` antes de `shell.openExternal`
+- CSP em `index.html:5-6`: `default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';` — **sem `unsafe-eval`** (S6-1: Vue 3 runtime-only + render functions) ✅. O `'unsafe-inline'` restante é só para estilos (aceitável; sem risco de injeção de script).
+- `link:abrir` valida esquema com `/^https?:\\/\\//i` antes de `shell.openExternal`
   (`main.js:209-215`) ✅ — previne `file://` / `javascript:`.
-- `escapeHtml()` aplicado no texto de toasts de XP (`app.js:1210`) ✅.
-  ⚠️ Porém boa parte das views monta HTML por concatenação de string; o dado é do
-  próprio usuário (risco baixo, self-XSS), mas é um vetor a fechar.
+- `escapeHtml()`/`escapeAttr()` aplicados sistematicamente em `views/*.js` e
+  `src/ui/modais.js` (S6-2: auditoria XSS documentada, 0 concatenação de dado cru).
 
 ## 5. Modelo de dados persistido (`meubolso.json`)
 

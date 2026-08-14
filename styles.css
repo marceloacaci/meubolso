@@ -32,6 +32,47 @@
 }
 
 /* ============================================================
+   Acessibilidade (S6-4): foco visível consistente (WCAG 2.4.7 / 1.4.11)
+   Nenhum elemento focável fica sem indicador de foco. Usa a cor
+   --primary de cada tema para contrastar no claro e no escuro.
+   O anel segue o raio do componente e nunca some em tema escuro.
+   ============================================================ */
+:where(a, button, input, select, textarea, [tabindex], .nav-link,
+       .gear-opt, .gear-cor, .fab-mobile, .btn-cta, [data-acao], [role="button"],
+       [role="tab"], summary):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+/* Campos de formulário: mantém o box-shadow de realce + garante foco por teclado */
+.campo input:focus-visible,
+.campo select:focus-visible,
+.campo textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+/* Skip-link: fica fora da tela e aparece só quando recebe foco (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 2000;
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 8px;
+  color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skip-link { transition: none; }
+}
+
+/* ============================================================
    Ponte de tema Bootstrap 5.3 -> paleta do MeuBolso
    Bootstrap é carregado ANTES deste arquivo, então estas
    redefinições de --bs-* vencem as do framework e mantêm os

@@ -371,6 +371,8 @@ var es = {
   'simulador.calcular': 'Simular',
   'simulador.exPagamento': 'Ej: 500,00',
   'simulador.melhorEstrategia': 'Mejor estrategia',
+  // ---------- Accesibilidad (S6-4) ----------
+  'a11y.pularConteudo': 'Saltar al contenido',
 };
 
 if (typeof module !== 'undefined' && module.exports) module.exports = es;
