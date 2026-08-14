@@ -1,152 +1,72 @@
 # MeuBolso
 
-Gerenciador de finanças pessoais minimalista para desktop — controle de dívidas,
-empréstimos, cartão de crédito e carteiras, **100% local e offline**.
+Gerenciador de finanças pessoais **minimalista** para dívidas, empréstimos e cartão de crédito.
+100% local (sem nuvem, sem conta), foco em privacidade e em não perder os seus dados.
 
-[![Plataformas](https://img.shields.io/badge/Windows%20%7C%20Linux%20%7C%20macOS-blue)](https://github.com/marceloacaci/meubolso/releases/latest)
-[![Versão](https://img.shields.io/badge/versão-v1.2.0-green)](https://github.com/marceloacaci/meubolso/releases/latest)
-[![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml)
+![Versão](https://img.shields.io/badge/vers%C3%A3o-2.0.0--rc-green)
+![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
+![Plataforma](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20macOS-green)
+![Testes](https://img.shields.io/badge/testes-98%2F98%20Vitest-brightgreen)
+![A11y](https://img.shields.io/badge/a11y-WCAG%202.1%20AA-green)
+![CSP](https://img.shields.io/badge/CSP-sem%20unsafe--eval-green)
 
-### Progresso das Sprints
+## Funcionalidades
 
-[![S1](https://img.shields.io/badge/S1-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S2](https://img.shields.io/badge/S2-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S3](https://img.shields.io/badge/S3-100%25%20conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S4](https://img.shields.io/badge/S4-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S5](https://img.shields.io/badge/S5-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S6](https://img.shields.io/badge/S6-0%25%20planejada-lightgrey)](docs/CRONOGRAMA-3-MESES.md)
+- **Dívidas & parcelas:** controle de dívidas, parcelas, juros e CET por dívida.
+- **Pagamentos:** registro de pagamentos por parcela, com carteira e anexo de comprovante.
+- **Vencimentos:** parcelas a vencer e em atraso, com dias de antecedência/atraso.
+- **Relatório:** resumo financeiro, dívidas em atraso e vencendo nos próximos 7 dias.
+- **Carteiras, Recorrentes & Metas:** gestão de saldos, despesas recorrentes e objetivos.
+- **Lixeira durável:** exclusão é *soft-delete* — restaure ou exclua definitivamente
+  (dívidas + pagamentos, carteiras, recorrentes e metas). Nunca se perde um dado.
+- **Criptografia opcional (AES-256-GCM):** ative uma senha para cifrar o arquivo local.
+- **Acessibilidade:** navegação por teclado, skip-link, foco visível, WCAG 2.1 AA.
+- **i18n:** Português, English, Español.
 
-## Qualidade e testes
-
-O projeto possui uma suíte automatizada de testes unitários ([Vitest](https://vitest.dev/))
-que cobre o domínio financeiro e de gamificação, além da escrita atômica de arquivos:
-
-- `src/dominio.js` — funções puras de cálculo (dívidas, pagamentos, níveis/XP).
-- `src/persistencia.js` — escrita atômica de arquivos (`writeFileSync` + `renameSync`).
-- `tests/*.test.js` — 88 testes (financeiro, gamificação, persistência, integridade, Sprint 4 e Sprint 5).
-
-Para rodar localmente:
+## Instalação e execução (desenvolvimento)
 
 ```bash
 npm install
-npm run test
+npm start          # inicia o app Electron
+npm run test       # roda a suíte Vitest (98 testes)
+npm run dist:win   # gera o instalador Windows (.exe) via electron-builder
 ```
 
-Toda alteração em `master`/`main` dispara o workflow de CI
-(.github/workflows/ci.yml) que valida a sintaxe dos scripts e executa a suíte.
+> Requer Node.js 18+ e Electron. Os binários de build (NSIS/portable) são gerados
+> com `electron-builder` e publicados no GitHub Releases.
 
-## Recursos
-- Cadastro de dívidas com parcelas e acompanhamento de pagamentos
-- Carteiras com saldo para organizar o dinheiro usado nos pagamentos
-- Sistema de pontos (XP), níveis e conquistas para manter a motivação
-- Relatórios e painel de visão geral (gráficos de pizza/rosca e barras)
-- Tema claro/escuro e três idiomas: **Português (PT), Inglês (EN) e Espanhol (ES)**
-- **Persistência local 100% offline** em arquivo JSON (sem servidor, sem nuvem)
-- **Backup automático** a cada salvamento (cópia rotativa em `dados.bak.json`)
-  + exportação/importação manual para arquivo JSON e restauração do backup local
+## Build & release
 
-## Tecnologia
-O MeuBolso é um app desktop construído com:
+- `npm run dist` gera os instaladores para a plataforma atual.
+- A release é marcada por **tag** (`vX.Y.Z`) no GitHub; veja a aba
+  [Releases](https://github.com/marceloacaci/meubolso/releases).
+- Binários assinados/automatizados: ver `package.json` → `build` (electron-builder).
 
-| Camada | Tecnologia |
-|--------|------------|
-| Runtime / shell desktop | **Electron** `^43` (janela nativa, multiplataforma) |
-| Banco de dados local | **JSON** simples (`meubolso.json` gravado de forma síncrona e imediata na pasta `userData` do Electron — sem dependências de banco) |
-| UI / views | **Vue 3** — cada tela é um componente Vue montado sob um `#app`; `relogio.js` e `icons.js` permanecem em JS puro (vanilla) por dependência de relógio/ícones |
-| Gráficos | **Chart.js** (`chart.umd.js`, vendor offline) |
-| Estilo / componentes | **Bootstrap 5.3** vendored offline (`bootstrap.min.css` + `bootstrap.bundle.min.js`), com paleta e temas (claro/escuro) sobrescritos em `styles.css` |
-| Ferramentas de build | **electron-builder** (gera instaladores NSIS, portátil e pacotes Linux/macOS) |
-| Atualizações | **electron-updater** (auto-update a partir das Releases do GitHub) |
+## Roadmap de Sprints
 
-Dados de implementação:
-- Persistência síncrona e imediata: o `render()` clona o estado reativo (Proxy do
-  Vue) para um objeto plano antes de gravar, evitando falhas de clonagem do Electron
-  e garantindo que os dados sejam escritos no disco a cada alteração.
-- Backups: antes de sobrescrever `meubolso.json`, o app copia a versão anterior para
-  `dados.bak.json`. Há também exportação/importação manual (JSON) e restauração do
-  backup local pela tela de Configurações.
-- Animações de barras de progresso e gráficos usando `transform` (GPU, `scaleX`/`scaleY`),
-  sem "engasgos" de layout. Os gráficos do painel são (re)montados nos hooks
-  `mounted()`/`updated()` das views (após o Vue aplicar o DOM), respeitando o
-  `overflow: hidden` dos cards para não transbordar.
-- Internacionalização completa (PT/EN/ES) em toda a interface, incluindo o painel,
-  relatórios e telas de configuração.
-- Respeita `prefers-reduced-motion` (desliga animações para quem prefere menos movimento).
+| Sprint | Tema | Status | % |
+|--------|------|--------|---|
+| S1 | Fundação & integridade de dados | FEITO | 100% |
+| S2 | Recuperação & backups | FEITO | 100% |
+| S3 | Extração de views (Vue 3) | FEITO | 100% |
+| S4 | Funcionalidades II & UX (carteiras, recorrentes, metas) | FEITO | 100% |
+| S5 | Busca, filtros, exportação, notificações | FEITO | 100% |
+| S6 | Hardening & saída do Beta | FEITO | 100% |
+| B6/B7 | Lixeira (trash) durável | FEITO | 100% |
 
-## Documentação
+## Qualidade & verificação
 
-Índice completo em [`docs/README.md`](docs/README.md).
-
-| Documento | Para quem | Conteúdo |
-|-----------|-----------|----------|
-| [Manual do Usuário](docs/MANUAL-DO-USUARIO.md) | Usuário final | Instalação, todas as telas, backup, FAQ, troubleshooting |
-| [AS-BUILT](docs/AS-BUILT.md) | Dev / analista | Arquitetura real, modelo de dados, contrato IPC, regras de negócio, defeitos e lacunas |
-| [Artefatos recomendados](docs/ARTEFATOS-RECOMENDADOS.md) | Dev / analista | Quais artefatos manter e quais não produzir |
-| [Cronograma 3 meses](docs/CRONOGRAMA-3-MESES.md) | Dev / gestão | 6 sprints, OKRs, riscos, Definition of Done |
-| [Brainstorm de melhorias](docs/BRAINSTORM-MELHORIAS.md) | Dev / produto | ~80 ideias priorizadas por esforço × impacto |
-
-## Documentação do sistema (UML)
-
-
-Os diagramas abaixo documentam o funcionamento real do MeuBolso (mapeados
-diretamente do código-fonte) e ficam em [`docs/uml/`](docs/uml):
-
-| Arquivo | Tipo | Foco |
-|---------|------|------|
-| `01-casos-de-uso.puml` | Casos de Uso | Ações do usuário no app |
-| `02-diagrama-classes.puml` | Classes | Modelo de dados persistido (Estado, Dívida, Parcela, Pagamento, Carteira, Gamificação) |
-| `03-sequencia-pagamento.puml` | Sequência | Registrar pagamento de parcela + sincronia de parcela |
-| `04-sequencia-xp.puml` | Sequência | Ganho de XP e subida de nível |
-| `05-estado-divida.puml` | Estados | Ciclo de vida da dívida e da parcela |
-| `06-atividade-gamificacao.puml` | Atividade | Fluxo de gamificação (ações → XP → nível) |
-
-Cada `.puml` tem um PNG já renderizado ao lado. Para regenerar (precisa de Java):
-
-```bash
-cd docs/uml
-java -jar plantuml.jar -charset UTF-8 0*.puml
-```
-
-> Observação: o `plantuml.jar` está listado no `.gitignore` (binário grande, não
-> versionado). Os `.puml` e `.png` **são** versionados.
-
-## Como usar (desenvolvimento)
-```bash
-npm install
-npm start
-```
-
-## Como baixar (usuário final)
-Baixe o instalador ou a versão portátil na página de
-[Releases](https://github.com/marceloacaci/meubolso/releases).
-- **Windows**: `MeuBolso-x.y.z-setup.exe` (instalador) ou `MeuBolso-x.y.z-portable.exe` (portátil, sem instalar)
-- **Linux**: `.AppImage` ou `.deb`
-- **macOS**: `.dmg`
-
-O app avisa e atualiza sozinho quando há nova versão (quando em build oficial).
-
-## Backup dos seus dados
-- **Automático**: a cada salvamento o app guarda a última versão íntegra em
-  `dados.bak.json` (mesma pasta dos dados). Em Configurações > Dados você também
-  pode usar "Fazer backup agora" para forçar uma cópia.
-- **Manual**: "Exportar" gera um `.json` em qualquer pasta; "Importar" restaura de um
-  `.json`; "Restaurar backup" volta para o `dados.bak.json` mais recente.
-- Os arquivos ficam em `%APPDATA%/Roaming/meubolso` (Windows),
-  `~/Library/Application Support/meubolso` (macOS) ou `~/.config/meubolso` (Linux).
-
-## Versionamento
-Adotamos [Conventional Commits](https://www.conventionalcommits.org/).
-Cada release é uma tag `vX.Y.Z`. A release estável mais recente é a **v1.2.0**
-(Sprint 5), disponível em [Releases](https://github.com/marceloacaci/meubolso/releases/latest).
-A tag `v1.0.0` corresponde à versão Beta inicial.
+- **Suíte Vitest:** `98/98` testes verdes (`npm run test`).
+- **Auditoria de acessibilidade:** `scripts/audit-a11y.cjs` — 8/8 critérios WCAG 2.1 AA em Electron headless.
+- **Teste de carga:** `scripts/bench-carga.cjs` — `resumoParcelas` × 500 dívidas em ~4,7 ms.
+- **CSP:** `script-src 'self'` sem `unsafe-eval` (Vue 3 runtime-only).
 
 ## Privacidade
-Todos os dados ficam no seu computador (arquivo `meubolso.json` na pasta `userData`
-do Electron). Nada é enviado para a nuvem.
 
-## Autor
-Desenvolvido por **Marcelo Acácio**.
-Repositório: <https://github.com/marceloacaci/meubolso>
+Todos os dados ficam no arquivo local `meubolso.json` (pasta de dados do app).
+Não há telemetria nem servidores remotos. Opcionalmente, cifre o arquivo com AES-256-GCM
+(senha definida por você — sem senha, o arquivo é JSON aberto).
 
 ## Licença
-MIT
+
+MIT © 2026 MeuBolso — desenvolvido por Marcelo Acácio.

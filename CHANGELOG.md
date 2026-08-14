@@ -16,6 +16,14 @@ Release candidato de saída do Beta. Foco: hardening, acessibilidade e performan
   - Checklist em `docs/auditoria/ACCESSIBILITY-WCAG21-AA.md`.
 - **S6-5 — Teste de carga:** `scripts/bench-carga.cjs` (500 dívidas / 5.000 pagamentos).
 - **S6-6 — Documentação:** `docs/ADR.md` (6 ADRs), CHANGELOG, As-Built e Cronograma atualizados.
+- **Lixeira (trash) durável (B6/B7):** exclusão passa a ser *soft-delete* para
+  dívidas (com pagamentos vinculados), carteiras, recorrentes e metas. Itens vão
+  para `estado.lixeira` (persistido) e podem ser **restaurados** ou **excluídos
+  definitivamente** (por item ou "Esvaziar tudo"). Botão "Lixeira" no grupo
+  Sistema da navegação + badge de contagem. View com 4 seções (Dívidas,
+  Carteiras, Recorrentes, Metas) e rótulos pt/en/es.
+  - *Regra de integridade:* nenhum dado é perdido na exclusão; o metadado
+    interno `_excluidoEm` não vaza para o estado ativo após restaurar.
 
 ### Alterado
 - **S6-5 — Performance:** indexação de pagamentos por `dividaId` (`src/dominio.js`).
