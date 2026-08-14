@@ -11,6 +11,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
   const hojeDt = new Date();
   const limite = new Date(); limite.setDate(limite.getDate() + 7);
   const proximas = [];
+  const atrasadas = [];
   for (const d of estado.dividas) {
     const pagosIds = new Set(
       estado.pagamentos.filter(p => p.dividaId === d.id && p.parcelaId).map(p => p.parcelaId)
@@ -20,10 +21,15 @@ window.__mbRender.relatorio = function renderRelatorio() {
       const dt = new Date(p.vencimento);
       if (dt >= hojeDt && dt <= limite) {
         proximas.push({ divida: d, parcela: p });
+      } else if (dt < hojeDt) {
+        // vencida e não paga -> em atraso (critério igual ao do gráfico do Painel)
+        const dias = Math.max(0, Math.floor((hojeDt - dt) / 86400000));
+        atrasadas.push({ divida: d, parcela: p, dias });
       }
     }
   }
   proximas.sort((a, b) => a.parcela.vencimento.localeCompare(b.parcela.vencimento));
+  atrasadas.sort((a, b) => a.parcela.vencimento.localeCompare(b.parcela.vencimento));
 
   const progresso = total > 0 ? Math.min(100, (pago / total) * 100) : 0;
 
@@ -102,6 +108,47 @@ window.__mbRender.relatorio = function renderRelatorio() {
                   </td>
                   <td>${parcela.numero}</td>
                   <td>${fmtData(parcela.vencimento)}</td>
+                  <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+    <h3 class="h6 text-secondary mb-2">${t('relatorio.emAtraso')}</h3>
+    ${atrasadas.length === 0 ? `
+      <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+        <span style="font-size:18px">${ICON.check}</span>
+        <div>${t('relatorio.semAtraso')}</div>
+      </div>
+    ` : `
+      <div class="card shadow-sm border-danger">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>${t('col.divida')}</th>
+                <th>${t('col.parcela')}</th>
+                <th>${t('col.vencimento')}</th>
+                <th>${t('col.dias')}</th>
+                <th class="text-end">${t('col.valor')}</th>
+                <th class="text-end">${t('col.acao')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${atrasadas.map(({divida, parcela, dias}) => `
+                <tr>
+                  <td>
+                    <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
+                    <div class="text-secondary small">${escapeHtml(divida.credor)}</div>
+                  </td>
+                  <td>${parcela.numero}</td>
+                  <td>${fmtData(parcela.vencimento)}</td>
+                  <td class="text-danger fw-semibold">${ti('relatorio.diasAtraso', { n: dias })}</td>
                   <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
                   <td class="text-end">
                     <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
