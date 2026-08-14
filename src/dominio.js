@@ -250,7 +250,114 @@ function recalcularHistorico(historico) {
   return { historico: hist, xp, nivel: nivelDe(xp) };
 }
 
-// Exporta para o ambiente (browser via <script> e Node via require).
+// ============================================================
+// SPRINT 5 — Busca, filtros, ordenação e paginação (funções puras)
+// ============================================================
+
+// Normaliza uma string para comparação (minúscula, sem acentos, trim).
+function normalizarTexto(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().trim();
+}
+
+// Filtra dívidas por texto (descrição/credor/observacao), categoria, status e
+// período (mês/ano das parcelas). `filtro` = { texto, categoria, status, periodo }.
+// status: '' | 'emDia' | 'atrasado' | 'quitado'. periodo: '' | 'YYYY-MM' | 'YYYY'.
+function filtrarDividas(dividas, filtro) {
+  const f = filtro || {};
+  const texto = normalizarTexto(f.texto);
+  const cat = f.categoria || '';
+  const status = f.status || '';
+  const periodo = f.periodo || ''; // 'YYYY-MM' ou 'YYYY'
+  return (dividas || []).filter(d => {
+    if (cat && d.categoria !== cat) return false;
+    if (texto) {
+      const alvo = normalizarTexto([d.descricao, d.credor, d.observacao].join(' '));
+      if (!alvo.includes(texto)) return false;
+    }
+    if (status) {
+      const saldo = saldoDivida(d);
+      if (status === 'quitado' && saldo > 0) return false;
+      if (status === 'emDia' && saldo <= 0) return false;
+      if (status === 'atrasado') {
+        const temAtraso = (d.parcelas || []).some(p => (p.status || 'pendente') === 'atrasado');
+        if (!temAtraso) return false;
+      }
+    }
+    if (periodo) {
+      const bate = (d.parcelas || []).some(p => {
+        const v = (p.vencimento || '').slice(0, periodo.length);
+        return v === periodo;
+      });
+      if (!bate) return false;
+    }
+    return true;
+  });
+}
+
+// Filtra pagamentos por texto (nota/divida), dívida, status de parcela e período.
+function filtrarPagamentos(pagamentos, dividas, filtro) {
+  const f = filtro || {};
+  const texto = normalizarTexto(f.texto);
+  const dividaId = f.dividaId || '';
+  const periodo = f.periodo || '';
+  const porDiv = (id) => (dividas || []).find(d => d.id === id);
+  return (pagamentos || []).filter(p => {
+    if (dividaId && p.dividaId !== dividaId) return false;
+    if (texto) {
+      const div = porDiv(p.dividaId);
+      const alvo = normalizarTexto([p.nota, div ? div.descricao : ''].join(' '));
+      if (!alvo.includes(texto)) return false;
+    }
+    if (periodo) {
+      const v = (p.data || '').slice(0, periodo.length);
+      if (v !== periodo) return false;
+    }
+    return true;
+  });
+}
+
+// Ordena uma lista de dívidas. campo: 'descricao' | 'total' | 'saldo' | 'credor'.
+function ordenarDividas(dividas, campo, asc) {
+  const dir = asc === false ? -1 : 1;
+  const cmp = (a, b) => {
+    if (campo === 'total') return (totalDivida(a) - totalDivida(b)) * dir;
+    if (campo === 'saldo') return (saldoDivida(a) - saldoDivida(b)) * dir;
+    const va = normalizarTexto(campo === 'credor' ? a.credor : a.descricao);
+    const vb = normalizarTexto(campo === 'credor' ? b.credor : b.descricao);
+    return va.localeCompare(vb) * dir;
+  };
+  return (dividas || []).slice().sort(cmp);
+}
+
+// Ordena pagamentos por data/valor. campo: 'data' | 'valor'.
+function ordenarPagamentos(pagamentos, campo, asc) {
+  const dir = asc === false ? -1 : 1;
+  const cmp = (a, b) => {
+    if (campo === 'valor') return (numDinheiro(a.valor) - numDinheiro(b.valor)) * dir;
+    return String(a.data || '').localeCompare(String(b.data || '')) * dir;
+  };
+  return (pagamentos || []).slice().sort(cmp);
+}
+
+// Paginação: retorna o subconjunto da página `pagina` (1-based) com `porPagina`.
+function paginar(lista, pagina, porPagina) {
+  const n = Math.max(1, porPagina || 10);
+  const p = Math.max(1, pagina || 1);
+  const total = Math.max(0, lista.length);
+  const totalPaginas = Math.max(1, Math.ceil(total / n));
+  const paginaOk = Math.min(p, totalPaginas);
+  const inicio = (paginaOk - 1) * n;
+  return {
+    itens: lista.slice(inicio, inicio + n),
+    pagina: paginaOk,
+    totalPaginas,
+    total,
+    porPagina: n
+  };
+}
+
 const API = {
   somaDinheiro,
   numDinheiro,
@@ -268,6 +375,12 @@ const API = {
   progressoNivel,
   truncarHistorico,
   recalcularHistorico,
+  normalizarTexto,
+  filtrarDividas,
+  filtrarPagamentos,
+  ordenarDividas,
+  ordenarPagamentos,
+  paginar,
 };
 
 // Anexa ao global (window no browser / globalThis no Node) para app.js continuar

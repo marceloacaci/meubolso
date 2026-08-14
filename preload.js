@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('api', {
   caminho: () => ipcRenderer.invoke('dados:caminho'),
   sistemaInfo: () => ipcRenderer.invoke('sistema:info'),
   exportar: () => ipcRenderer.invoke('dados:exportar'),
+  exportarCSV: (conteudo, nomeSugerido) => ipcRenderer.invoke('dados:exportar-csv', conteudo, nomeSugerido),
+  exportarPDF: (nomeSugerido) => ipcRenderer.invoke('dados:exportar-pdf', nomeSugerido),
   importar: () => ipcRenderer.invoke('dados:importar'),
   restaurar: () => ipcRenderer.invoke('dados:restaurar'),
   fazerBackup: () => ipcRenderer.invoke('dados:fazer-backup'),

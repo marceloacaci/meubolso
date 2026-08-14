@@ -28,7 +28,13 @@ window.__mbRender.relatorio = function renderRelatorio() {
   const progresso = total > 0 ? Math.min(100, (pago / total) * 100) : 0;
 
   return `
-    <div class="page-header"><h2>${t('relatorio.titulo')}</h2></div>
+    <div class="page-header">
+      <h2>${t('relatorio.titulo')}</h2>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" data-acao="exportar-csv">${ICON.download || ''} CSV</button>
+        <button class="btn btn-outline-secondary" data-acao="exportar-pdf">${ICON.download || ''} PDF</button>
+      </div>
+    </div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
       <div class="col">
         <div class="card h-100">
@@ -108,7 +114,8 @@ window.__mbRender.relatorio = function renderRelatorio() {
       </div>
     `}
   `;
-};
+}
+;
 
 /* View "Relatório" como componente Vue (Vue é DONO da view). */
 (function () {

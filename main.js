@@ -291,6 +291,39 @@ ipcMain.handle('dados:exportar', async (evt) => {
   }
 });
 
+ipcMain.handle('dados:exportar-csv', async (evt, conteudo, nomeSugerido) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  const result = await dialog.showSaveDialog(win, {
+    title: 'Exportar CSV',
+    defaultPath: nomeSugerido || ('meubolso-' + new Date().toISOString().slice(0, 10) + '.csv'),
+    filters: [{ name: 'CSV', extensions: ['csv'] }],
+  });
+  if (result.canceled || !result.filePath) return { ok: false, cancelado: true };
+  try {
+    fs.writeFileSync(result.filePath, conteudo || '', 'utf8');
+    return { ok: true, caminho: result.filePath };
+  } catch (err) {
+    return { ok: false, erro: err.message };
+  }
+});
+
+ipcMain.handle('dados:exportar-pdf', async (evt, nomeSugerido) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  const result = await dialog.showSaveDialog(win, {
+    title: 'Exportar PDF',
+    defaultPath: nomeSugerido || ('meubolso-relatorio-' + new Date().toISOString().slice(0, 10) + '.pdf'),
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  });
+  if (result.canceled || !result.filePath) return { ok: false, cancelado: true };
+  try {
+    const pdf = await win.webContents.printToPdf({ printBackground: true, pageSize: 'A4' });
+    fs.writeFileSync(result.filePath, pdf);
+    return { ok: true, caminho: result.filePath };
+  } catch (err) {
+    return { ok: false, erro: err.message };
+  }
+});
+
 ipcMain.handle('dados:importar', async (evt) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const result = await dialog.showOpenDialog(win, {

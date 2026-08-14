@@ -2,7 +2,7 @@
 // para que os componentes de view recomputem quando os dados mudam.
 // OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
-let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], configuracoes: { moeda: 'BRL' } });
+let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
 
 // ---------- Utilitários ----------
 // Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
@@ -599,6 +599,7 @@ async function carregar() {
     carteiras: novo.carteiras || [],
     recorrentes: novo.recorrentes || [],
     metas: novo.metas || [],
+    filtro: novo.filtro || { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 },
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
@@ -1016,6 +1017,32 @@ function setView(v) {
   if (v === 'sobre' && !_sobreInfoCache) {
     obterInfoSistema().then(() => { if (viewAtual === 'sobre') render(); });
   }
+  render();
+}
+
+// S5-4: foca o campo de busca da view atual (se houver). Usado pelo atalho Ctrl+F.
+function focarBusca() {
+  const el = document.querySelector('#busca, #busca-global, [data-busca]');
+  if (el) { el.focus(); el.select && el.select(); }
+}
+
+// S5-1/S5-5: atualiza um campo do filtro/ordenação e re-renderiza.
+// Aceita também um objeto parcial. Reseta a página ao filtrar.
+function definirFiltro(campo, valor) {
+  if (typeof estado.filtro !== 'object' || estado.filtro === null) {
+    estado.filtro = { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 };
+  }
+  if (typeof campo === 'object') {
+    Object.assign(estado.filtro, campo);
+  } else {
+    estado.filtro[campo] = valor;
+    if (campo !== 'pagina') estado.filtro.pagina = 1;
+  }
+  render();
+}
+
+function limparFiltro() {
+  estado.filtro = { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: estado.filtro ? estado.filtro.porPagina : 12 };
   render();
 }
 
@@ -2142,6 +2169,13 @@ function escapeHtml(s) {
 // ---------- Handlers ----------
 const handlers = {
   'nova-divida': () => novaDivida(),
+  'limpar-filtro': () => limparFiltro(),
+  'pagina': (pag) => definirFiltro('pagina', Number(pag) || 1),
+  'ordenar': (campo) => {
+    const f = estado.filtro || {};
+    if (f.ordenar === campo) definirFiltro('asc', !f.asc);
+    else definirFiltro({ ordenar: campo, asc: true });
+  },
   'editar-divida': (id) => {
     const d = estado.dividas.find(x => x.id === id);
     if (d) editarDivida(d);
@@ -2174,6 +2208,8 @@ const handlers = {
     if (p) editarPagamento(p);
   },
   'exportar': () => exportarDados(),
+  'exportar-csv': () => exportarCSV(),
+  'exportar-pdf': () => exportarPDF(),
   'importar': () => importarDados(),
   'restaurar': () => restaurarBackup(),
   'fazerBackup': () => fazerBackupManual(),
@@ -2202,6 +2238,43 @@ async function exportarDados() {
   if (r.cancelado) return;
   if (r.ok) toast(t('toast.exportado') + r.caminho, 'success');
   else toast(r.erro || 'Erro ao exportar', 'error');
+}
+
+// S5-2: gera CSV (UTF-8 com BOM para o Excel abrir acentos) de dívidas e pagamentos.
+function gerarCSV() {
+  const esc = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const linhas = [];
+  linhas.push('DÍVIDAS');
+  linhas.push([t('col.divida'), t('col.categoria'), t('col.total'), t('col.pago'), t('col.saldo')].map(esc).join(','));
+  for (const d of estado.dividas) {
+    linhas.push([d.descricao, t(CATEGORIAS[d.categoria]?.label) || d.categoria,
+      totalDivida(d).toFixed(2), totalPago(d).toFixed(2), saldoDivida(d).toFixed(2)].map(esc).join(','));
+  }
+  linhas.push('');
+  linhas.push('PAGAMENTOS');
+  linhas.push([t('col.divida'), t('col.parcela'), t('col.valor'), t('form.data'), t('form.nota')].map(esc).join(','));
+  for (const p of estado.pagamentos) {
+    const d = estado.dividas.find(x => x.id === p.dividaId);
+    const parc = d && (d.parcelas || []).find(x => x.id === p.parcelaId);
+    linhas.push([d ? d.descricao : '', parc ? 'P' + parc.numero : '',
+      Number(p.valor || 0).toFixed(2), p.data || '', p.nota || ''].map(esc).join(','));
+  }
+  return '﻿' + linhas.join('\r\n');
+}
+
+async function exportarCSV() {
+  const csv = gerarCSV();
+  const r = await window.api.exportarCSV(csv, 'meubolso-' + new Date().toISOString().slice(0, 10) + '.csv');
+  if (r.cancelado) return;
+  if (r.ok) toast(t('toast.exportado') + r.caminho, 'success');
+  else toast(r.erro || 'Erro ao exportar CSV', 'error');
+}
+
+async function exportarPDF() {
+  const r = await window.api.exportarPDF('meubolso-relatorio-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  if (r.cancelado) return;
+  if (r.ok) toast(t('toast.exportado') + r.caminho, 'success');
+  else toast(r.erro || 'Erro ao exportar PDF', 'error');
 }
 
 async function importarDados() {
@@ -2370,6 +2443,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Fecha o painel de configurações com a tecla Escape.
   document.addEventListener('keydown', (e) => {
+    // S5-4: atalhos de teclado de produtividade.
+    // Não intercepta quando o foco está em campo de formulário (exceto Escape),
+    // para não atrapalhar a digitação em modais/inputs.
+    const emCampo = ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target && e.target.tagName) || '');
+    if (!emCampo) {
+      // Navegação entre views: 1..9
+      const mapaNumeros = ['painel','dividas','pagamentos','vencimentos','carteiras','recorrentes','metas','juros','simulador'];
+      if (e.key >= '1' && e.key <= '9') {
+        const v = mapaNumeros[parseInt(e.key, 10) - 1];
+        if (v) { setView(v); return; }
+      }
+      if (e.ctrlKey || e.metaKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'n') { e.preventDefault(); if (typeof novaDivida === 'function') novaDivida(); return; }
+        if (k === 'p') { e.preventDefault(); if (typeof novaPagamento === 'function') novaPagamento(); return; }
+        if (k === 'f') { e.preventDefault(); focarBusca(); return; }
+        if (k === 'e') { e.preventDefault(); if (typeof exportarDados === 'function') exportarDados(); return; }
+      }
+    }
     if (e.key === 'Escape') {
       const panel = document.getElementById('gear-panel');
       if (panel && !panel.classList.contains('hidden')) {
