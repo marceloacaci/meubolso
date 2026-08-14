@@ -99,6 +99,8 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                       <td>${fmtData(p.data)}</td>
                       <td>${escapeHtml(p.nota || '')}</td>
                       <td class="text-end text-nowrap">
+                        ${p.anexo ? `<button class="btn btn-sm btn-outline-info" data-acao="abrir-anexo" data-id="${p.id}" title="${escapeHtml(p.anexo)}">${ICON.anexo || '📎'}</button>` : ''}
+                        <button class="btn btn-sm btn-outline-secondary" data-acao="anexar-anexo" data-id="${p.id}">${t('acao.anexar')}</button>
                         <button class="btn btn-sm btn-outline-secondary" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
                         <button class="btn btn-sm btn-outline-danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
                       </td>

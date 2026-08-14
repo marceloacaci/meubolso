@@ -277,13 +277,12 @@ function filtrarDividas(dividas, filtro) {
       if (!alvo.includes(texto)) return false;
     }
     if (status) {
-      const saldo = saldoDivida(d);
-      if (status === 'quitado' && saldo > 0) return false;
-      if (status === 'emDia' && saldo <= 0) return false;
-      if (status === 'atrasado') {
-        const temAtraso = (d.parcelas || []).some(p => (p.status || 'pendente') === 'atrasado');
-        if (!temAtraso) return false;
-      }
+      const parcelas = d.parcelas || [];
+      const todasPagas = parcelas.length > 0 && parcelas.every(p => (p.status || 'pendente') === 'pago');
+      const temAtraso = parcelas.some(p => (p.status || 'pendente') === 'atrasado');
+      if (status === 'quitado' && !todasPagas) return false;
+      if (status === 'emDia' && (todasPagas || temAtraso)) return false;
+      if (status === 'atrasado' && !temAtraso) return false;
     }
     if (periodo) {
       const bate = (d.parcelas || []).some(p => {

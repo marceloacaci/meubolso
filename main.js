@@ -324,6 +324,37 @@ ipcMain.handle('dados:exportar-pdf', async (evt, nomeSugerido) => {
   }
 });
 
+// S5-3: notificação nativa de vencimento (main process cria a Notification).
+ipcMain.handle('notificar:vencimento', async (evt, item) => {
+  try {
+    const { Notification } = require('electron');
+    if (!Notification.isSupported()) return { ok: false, suportado: false };
+    const dataV = typeof item.vencimento === 'string' ? item.vencimento : String(item.vencimento || '');
+    const titulo = 'MeuBolso — vencimento em breve';
+    const corpo = `${item.descricao}${item.credor ? ' · ' + item.credor : ''}\nParcela ${item.parcela} vence em ${dataV}`;
+    const n = new Notification({ title: titulo, body: corpo });
+    n.show();
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, erro: err.message };
+  }
+});
+
+ipcMain.handle('anexo:selecionar', async (evt) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  const result = await dialog.showOpenDialog(win, {
+    title: 'Anexar comprovante',
+    properties: ['openFile'],
+    filters: [
+      { name: 'Imagens', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] },
+      { name: 'PDF', extensions: ['pdf'] },
+      { name: 'Todos', extensions: ['*'] }
+    ]
+  });
+  if (result.canceled || !result.filePaths || !result.filePaths.length) return { ok: false, cancelado: true };
+  return { ok: true, caminho: result.filePaths[0] };
+});
+
 ipcMain.handle('dados:importar', async (evt) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const result = await dialog.showOpenDialog(win, {

@@ -27,6 +27,7 @@ app.whenReady().then(async () => {
     await tempo(250);
   }
   if (!win) { log('FALHA: janela não criada'); finish(false); return; }
+  log('boot ok, janela encontrada');
   win.webContents.on('console-message', (ev) => {
     if (ev.type === 'error' || ev.level === 3) erros.push('[console] ' + ev.message);
   });
@@ -130,6 +131,64 @@ app.whenReady().then(async () => {
     resultados.push(['S5-2 botoes relatorio', temBotoes === true, 'botoes=' + temBotoes]);
   } catch (e) { resultados.push(['S5-2 botoes relatorio', false, e.message]); }
 
+  // ---------- S5-3: notificações de vencimento ----------
+  try {
+    const r = await win.webContents.executeJavaScript(`(async function(){
+      const out = {};
+      const tick = () => new Promise(r => setTimeout(r, 300));
+      try {
+        // mock do IPC de notificação para não abrir janela real
+        window.api.notificarVencimento = async () => ({ ok: true });
+        // cria dívida com parcela vencendo em 2 dias
+        const id = 'd-notif-' + Date.now();
+        const d = new Date(); d.setDate(d.getDate() + 2);
+        const venc = d.toISOString().slice(0, 10);
+        estado.dividas.push({ id, descricao: 'Conta Luz', credor: 'Enel', categoria: 'servico', parcelas: [{ id: 'p1', numero: 1, valor: 120, vencimento: venc, status: 'pendente' }], observacao: '' });
+        estado.configuracoes.avisados = estado.configuracoes.avisados || [];
+        await verificarNotificacoes();
+        await tick();
+        out.avisou = (estado.configuracoes.avisados || []).some(k => k.indexOf(id) >= 0);
+        // segunda chamada não duplica
+        const antes = estado.configuracoes.avisados.length;
+        await verificarNotificacoes();
+        await tick();
+        out.naoDuplica = estado.configuracoes.avisados.length === antes;
+        out.ok = out.avisou && out.naoDuplica;
+      } catch(e){ out.ok = false; out.erro = e.message; }
+      return out;
+    })()`);
+    resultados.push(['S5-3 notificacoes', r.ok === true, JSON.stringify(r)]);
+  } catch (e) { resultados.push(['S5-3 notificacoes', false, e.message]); }
+
+  // ---------- S5-6: anexos ----------
+  // Valida a feature sem abrir o dialog do SO (que travaria o headless):
+  // garante que a função existe, que a view renderiza o botão de anexo quando
+  // há anexo, e que abrirAnexo() não lança.
+  try {
+    const r = await win.webContents.executeJavaScript(`(async function(){
+      const out = {};
+      const tick = () => new Promise(r => setTimeout(r, 300));
+      try {
+        out.temFunc = typeof anexarAnexoPagamento === 'function' && typeof abrirAnexo === 'function';
+        // garante um pagamento
+        if (!estado.pagamentos.length) {
+          estado.pagamentos.push({ id: 'pg-1', dividaId: (estado.dividas[0]||{id:'x'}).id, parcelaId: '', valor: 50, data: '2026-08-14', nota: 'teste' });
+        }
+        const pid = estado.pagamentos[0].id;
+        estado.pagamentos[0].anexo = 'C:/fake/comprovante.png';
+        setView('pagamentos');
+        await tick();
+        // a view deve conter o botão abrir-anexo para este pagamento
+        out.renderComAnexo = document.querySelector('[data-acao="abrir-anexo"][data-id="'+pid+'"]') !== null;
+        out.renderBotaoAnexar = document.querySelector('[data-acao="anexar-anexo"][data-id="'+pid+'"]') !== null;
+        abrirAnexo(pid); // não deve lançar
+        out.ok = out.temFunc && out.renderComAnexo && out.renderBotaoAnexar;
+      } catch(e){ out.ok = false; out.erro = e.message; }
+      return out;
+    })()`);
+    resultados.push(['S5-6 anexos', r.ok === true, JSON.stringify(r)]);
+  } catch (e) { resultados.push(['S5-6 anexos', false, e.message]); }
+
   let pass = 0;
   for (const [nome, ok, det] of resultados) {
     log((ok ? 'PASS ' : 'FAIL ') + nome + ' :: ' + det);
@@ -141,4 +200,4 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
-setTimeout(() => { log('TIMEOUT — encerrando'); finish(false); }, 90000);
+setTimeout(() => { log('TIMEOUT — encerrando'); finish(false); }, 140000);

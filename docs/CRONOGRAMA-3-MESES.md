@@ -112,7 +112,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ---
 
-## Sprint 5 — Funcionalidades II e UX (30/set–13/out) · 12 pts · **release v1.2.0**
+## Sprint 5 — Funcionalidades II e UX (30/set–13/out) · 12 pts · **release v1.2.0** · ✅ **FEITO**
 
 | ID | Tarefa | Pts | Valor |
 |----|--------|----:|-------|

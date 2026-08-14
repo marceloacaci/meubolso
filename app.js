@@ -603,6 +603,9 @@ async function carregar() {
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
+  if (typeof estado.configuracoes.notificarVencimento !== 'boolean') estado.configuracoes.notificarVencimento = true;
+  if (typeof estado.configuracoes.antecedenciaNotif !== 'number') estado.configuracoes.antecedenciaNotif = 3;
+  if (!Array.isArray(estado.configuracoes.avisados)) estado.configuracoes.avisados = [];
   if (!estado.dividas) estado.dividas = [];
   if (!estado.pagamentos) estado.pagamentos = [];
   if (!estado.carteiras) estado.carteiras = []; // preparação para a funcionalidade Carteiras
@@ -624,6 +627,38 @@ async function carregar() {
   // Recálculo retroativo: a pontuação por gestão de dívida caiu de 30 para 5 XP.
   // Recompensa o XP já registrado no histórico e recalcula o total/nível.
   await migrarXPgestao();
+}
+
+// S5-3: varre parcelas pendentes que vencem em até `antecedenciaNotif` dias e
+// dispara notificações nativas (via main process) para as ainda não avisadas.
+// Guarda os IDs avisados em estado.configuracoes.avisados para não repetir.
+async function verificarNotificacoes() {
+  if (!estado.configuracoes || estado.configuracoes.notificarVencimento === false) return;
+  const dias = Math.max(0, Number(estado.configuracoes.antecedenciaNotif) || 3);
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const limite = new Date(hoje); limite.setDate(limite.getDate() + dias);
+  const avisados = new Set(estado.configuracoes.avisados || []);
+  const pendentes = [];
+  for (const d of estado.dividas) {
+    for (const p of (d.parcelas || [])) {
+      if ((p.status || 'pendente') === 'pago') continue;
+      const dt = new Date(p.vencimento + (p.vencimento.length === 10 ? 'T00:00:00' : ''));
+      if (isNaN(dt)) continue;
+      dt.setHours(0, 0, 0, 0);
+      if (dt >= hoje && dt <= limite) {
+        const chave = d.id + ':' + p.id;
+        if (avisados.has(chave)) continue;
+        pendentes.push({ chave, descricao: d.descricao, credor: d.credor, parcela: p.numero, vencimento: p.vencimento, valor: p.valor });
+      }
+    }
+  }
+  for (const item of pendentes) {
+    try {
+      await window.api.notificarVencimento(item);
+      estado.configuracoes.avisados.push(item.chave);
+    } catch (_) { /* ignora falha de notificação */ }
+  }
+  if (pendentes.length) await persistir(true);
 }
 
 // ---------- Gamificação (níveis / XP) ----------
@@ -2159,16 +2194,31 @@ function escapeHtml(s) {
   }[c]));
 }
 
-// ---------- Ponte de render para os componentes Vue ----------
-// As funções renderX() (HTML puro) são expostas para os componentes de view
-// (views/*.js) injetarem via v-html. O Vue reage ao uiTick e recalcula.
-// Render functions movidas para views/*.js (S3-4) — cada view registra
-// window.__mbRender.<view> em seu proprio arquivo.
+// S5-6: anexa um comprovante (imagem/PDF) a um pagamento.
+async function anexarAnexoPagamento(id) {
+  const p = estado.pagamentos.find(x => x.id === id);
+  if (!p) return;
+  const r = await window.api.selecionarAnexo();
+  if (r.cancelado || !r.ok || !r.caminho) return;
+  p.anexo = r.caminho;
+  await persistir();
+  toast(t('toast.anexoAdicionado'), 'success');
+  render();
+}
+
+// S5-6: abre o arquivo de comprovante anexado no visualizador padrão do SO.
+function abrirAnexo(id) {
+  const p = estado.pagamentos.find(x => x.id === id);
+  if (!p || !p.anexo) return;
+  window.api.abrirLink(p.anexo);
+}
 
 
 // ---------- Handlers ----------
 const handlers = {
   'nova-divida': () => novaDivida(),
+  'anexar-anexo': (id) => anexarAnexoPagamento(id),
+  'abrir-anexo': (id) => abrirAnexo(id),
   'limpar-filtro': () => limparFiltro(),
   'pagina': (pag) => definirFiltro('pagina', Number(pag) || 1),
   'ordenar': (campo) => {
@@ -2474,6 +2524,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   initTicker();
   await carregar();
+  // S5-3: notificações de vencimento — verifica no boot e a cada 6 horas.
+  verificarNotificacoes().catch(() => {});
+  setInterval(() => { verificarNotificacoes().catch(() => {}); }, 6 * 60 * 60 * 1000);
   // Lê preferências persistidas e aplica
   idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
   temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';

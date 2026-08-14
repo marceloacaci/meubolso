@@ -29,5 +29,7 @@ contextBridge.exposeInMainWorld('api', {
   listarBackups: () => ipcRenderer.invoke('dados:listar-backups'),
   restaurarBackup: (arquivo) => ipcRenderer.invoke('dados:restaurar-backup', arquivo),
   flashFoco: () => ipcRenderer.invoke('janela:flash-foco'),
-  abrirLink: (url) => ipcRenderer.invoke('link:abrir', url)
+  abrirLink: (url) => ipcRenderer.invoke('link:abrir', url),
+  notificarVencimento: (item) => ipcRenderer.invoke('notificar:vencimento', item),
+  selecionarAnexo: () => ipcRenderer.invoke('anexo:selecionar')
 });
