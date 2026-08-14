@@ -6,8 +6,15 @@ empréstimos, cartão de crédito e carteiras, **100% local e offline**.
 [![Plataformas](https://img.shields.io/badge/Windows%20%7C%20Linux%20%7C%20macOS-blue)](https://github.com/marceloacaci/meubolso/releases/latest)
 [![Versão](https://img.shields.io/badge/versão-v1.2.0-green)](https://github.com/marceloacaci/meubolso/releases/latest)
 [![CI](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml/badge.svg)](https://github.com/marceloacaci/meubolso/actions/workflows/ci.yml)
-[![Sprint 4](https://img.shields.io/badge/Sprint%204-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
-[![Sprint 5](https://img.shields.io/badge/Sprint%205-conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
+
+### Progresso das Sprints
+
+[![S1](https://img.shields.io/badge/S1-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
+[![S2](https://img.shields.io/badge/S2-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
+[![S3](https://img.shields.io/badge/S3-83%25%20amarelo-yellow)](docs/CRONOGRAMA-3-MESES.md)
+[![S4](https://img.shields.io/badge/S4-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
+[![S5](https://img.shields.io/badge/S5-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
+[![S6](https://img.shields.io/badge/S6-0%25%20planejada-lightgrey)](docs/CRONOGRAMA-3-MESES.md)
 
 ## Qualidade e testes
 

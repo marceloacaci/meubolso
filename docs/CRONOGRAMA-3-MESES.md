@@ -64,7 +64,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ---
 
-## Sprint 2 — Integridade de dados (19/ago–01/set) · 12 pts
+## Sprint 2 — Integridade de dados (19/ago–01/set) · 12 pts · ✅ **FEITO**
 
 | ID | Tarefa | Pts | Critério de aceite | Status |
 |----|--------|----:|--------------------|--------|
@@ -72,33 +72,37 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 | S2-2 | Motor de **migrações** idempotentes (`migrarSchema` encadeado) | 3 | Migração idempotente e testada | ✅ **FEITO** |
 | S2-3 | **Validação** contra o JSON Schema (ajv) na carga/importação | 2 | Arquivo inválido é recusado com erro legível | ✅ **FEITO** |
 | S2-4 | **Recuperação automática**: se `meubolso.json` estiver corrompido, tentar `dados.bak.json` | 2 | Teste com JSON truncado recupera os dados | ✅ **FEITO** |
-| S2-5 | **Backup rotativo de N gerações** (7 diários) em vez de 1 | 2 | Pasta `backups/` com rotação, tela de restauração lista as datas | ⬜ |
-| S2-6 | Remover handler IPC duplicado `dados:salvar` | 1 | Nenhuma referência remanescente | ⬜ |
+| S2-5 | **Backup rotativo de N gerações** (7 diários) em vez de 1 | 2 | Pasta `backups/` com rotação, tela de restauração lista as datas | ✅ **FEITO** |
+| S2-6 | Remover handler IPC duplicado `dados:salvar` | 1 | Nenhuma referência remanescente | ✅ **FEITO** |
 
 **Marco:** ✅ risco 🔴 L2 e 🟠 L4/L9 do As-Built eliminados.
 
 ---
 
-## Sprint 3 — Refatoração do monólito (02–15/set) · 12 pts · **release v1.1.0**
+## Sprint 3 — Refatoração do monólito (02–15/set) · 12 pts · **release v1.1.0** · 🟡 **83% (5/6)**
 
 | ID | Tarefa | Pts | Critério de aceite | Status |
 |----|--------|----:|--------------------|--------|
-| S3-1 | Extrair **i18n** (~1.100 linhas de dicionários) para `src/i18n/{pt,en,es}.js` | 2 | `app.js` reduz ~30%; troca de idioma inalterada | ⬜ |
+| S3-1 | Extrair **i18n** (~1.100 linhas de dicionários) para `src/i18n/{pt,en,es}.js` | 2 | `app.js` reduz ~30%; troca de idioma inalterada | ✅ **FEITO** |
 | S3-2 | Extrair **gamificação** para `src/dominio.js` | 2 | Testes da S1-4 continuam verdes | ✅ **FEITO** (Etapa 1 / S1-2) |
-| S3-3 | Extrair **modais/confirmação** para `src/ui/modais.js` | 2 | Fluxos de dívida/pagamento inalterados | ⬜ |
-| S3-4 | Extrair cada `renderX()` para o `views/*.js` correspondente | 3 | `app.js` < 800 LOC | ⬜ |
+| S3-3 | Extrair **modais/confirmação** para `src/ui/modais.js` | 2 | Fluxos de dívida/pagamento inalterados | ✅ **FEITO** |
+| S3-4 | Extrair cada `renderX()` para o `views/*.js` correspondente | 3 | `app.js` < 800 LOC | ✅ **FEITO** |
 | S3-5 | Script de verificação por render real no Electron (canvas pixel count) como *smoke test* | 2 | Detecta gráfico em branco | ⬜ |
 | S3-6 | Corrigir a incoerência **`NIVEIS` × `nivelDe()`** (limiares não lineares vs. 100 em 100) | 1 | Decisão registrada em ADR + teste | ✅ **FEITO** (D-03 / Etapa 1) |
+
+> S3-5 (smoke test por pixel count) ficou pendente: a verificação visual tem sido
+> feita manualmente via `validate-*.cjs` (render real no Electron), mas sem o
+> script automatizado de contagem de pixels previsto no critério de aceite.
 
 **Release v1.1.0** — sem feature nova visível; nota de release honesta:
 "estabilidade, integridade de dados e base de testes".
 
 ---
 
-## Sprint 4 — Funcionalidades I (16–29/set) · 12 pts
+## Sprint 4 — Funcionalidades I (16–29/set) · 12 pts · **release v1.1.x** · ✅ **FEITO**
 
-| ID | Tarefa | Pts | Valor |
-|----|--------|----:|-------|
+| ID | Tarefa | Pts | Valor | Status |
+|----|--------|----:|-------|--------|
 | S4-1 | **Despesas recorrentes / assinaturas** (mensal, sem fim definido) | 3 | Cobre o caso de uso hoje ausente | ✅ **FEITO** |
 | S4-2 | **Cálculo de juros e CET** por dívida (taxa mensal, total a pagar, custo real) | 3 | Transforma o app de registro em análise | ✅ **FEITO** |
 | S4-3 | **Metas financeiras** ("quitar o cartão até dez/2026") com barra de progresso | 2 | Engajamento | ✅ **FEITO** |
@@ -109,32 +113,37 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 > `src/dominio.js` (`cet`, `calcularJurosDivida`, `simularQuitacao`), views em
 > `views/{recorrentes,metas,juros,simulador}.js`, nav no `index.html`, handlers em
 > `app.js`. 13 testes novos (`tests/sprint4.test.js`) — 79 no total, todos verdes.
+> Validação funcional em runtime (`validate-s4.cjs`): 4/4 views passaram, 0 erros.
 
 ---
 
 ## Sprint 5 — Funcionalidades II e UX (30/set–13/out) · 12 pts · **release v1.2.0** · ✅ **FEITO**
 
-| ID | Tarefa | Pts | Valor |
-|----|--------|----:|-------|
-| S5-1 | **Busca e filtros** em Dívidas/Pagamentos (texto, categoria, status, período) | 2 | Usabilidade com volume |
-| S5-2 | **Exportar relatório em PDF** e **dados em CSV/Excel** | 3 | Pedido recorrente em apps do gênero |
-| S5-3 | **Notificações de vencimento** (nativas do SO, 3 dias antes) | 2 | Evita atraso — o problema-raiz do usuário |
-| S5-4 | **Atalhos de teclado** (Ctrl+N dívida, Ctrl+P pagamento, Ctrl+F busca, 1..9 views) | 1 | Produtividade |
-| S5-5 | **Ordenação e paginação** das listas | 2 | Performance percebida |
-| S5-6 | **Anexos**: comprovante (imagem/PDF) por pagamento | 2 | Rastreabilidade |
+| ID | Tarefa | Pts | Valor | Status |
+|----|--------|----:|-------|--------|
+| S5-1 | **Busca e filtros** em Dívidas/Pagamentos (texto, categoria, status, período) | 2 | Usabilidade com volume | ✅ **FEITO** |
+| S5-2 | **Exportar relatório em PDF** e **dados em CSV/Excel** | 3 | Pedido recorrente em apps do gênero | ✅ **FEITO** |
+| S5-3 | **Notificações de vencimento** (nativas do SO, 3 dias antes) | 2 | Evita atraso — o problema-raiz do usuário | ✅ **FEITO** |
+| S5-4 | **Atalhos de teclado** (Ctrl+N dívida, Ctrl+P pagamento, Ctrl+F busca, 1..9 views) | 1 | Produtividade | ✅ **FEITO** |
+| S5-5 | **Ordenação e paginação** das listas | 2 | Performance percebida | ✅ **FEITO** |
+| S5-6 | **Anexos**: comprovante (imagem/PDF) por pagamento | 2 | Rastreabilidade | ✅ **FEITO** |
+
+> Validado em runtime (`validate-s5.cjs`): 6/6 itens passaram, 0 erros de console.
+> 88 testes unitários verdes (`npm run test`). Código em `views/{dividas,pagamentos,relatorio}.js`,
+> `src/dominio.js` (filtros/ordenação/paginação), `main.js`/`preload.js` (IPC), `app.js`.
 
 ---
 
-## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.0.0-rc**
+## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.0.0-rc** · ⬜ **0% (planejada)**
 
-| ID | Tarefa | Pts | Critério de aceite |
-|----|--------|----:|--------------------|
-| S6-1 | Eliminar `unsafe-eval` da CSP (migrar templates string → render functions ou pré-compilar) | 3 | CSP sem `unsafe-eval`, app funcional |
-| S6-2 | Varredura de XSS: substituir concatenação de HTML por escape/`textContent` nos pontos que recebem dado do usuário | 2 | Auditoria documentada |
-| S6-3 | **Criptografia opcional** do arquivo de dados com senha (AES-256-GCM via `node:crypto`) | 2 | Opt-in; sem senha, comportamento atual |
-| S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA nos fluxos principais |
-| S6-5 | **Teste de carga**: 500 dívidas / 5.000 pagamentos; otimizar o que passar de 100 ms | 1 | Relatório de performance |
-| S6-6 | Fechar documentação: ADRs, CHANGELOG, atualização do As-Built e dos diagramas | 2 | Docs coerentes com o código |
+| ID | Tarefa | Pts | Critério de aceite | Status |
+|----|--------|----:|--------------------|--------|
+| S6-1 | Eliminar `unsafe-eval` da CSP (migrar templates string → render functions ou pré-compilar) | 3 | CSP sem `unsafe-eval`, app funcional | ⬜ |
+| S6-2 | Varredura de XSS: substituir concatenação de HTML por escape/`textContent` nos pontos que recebem dado do usuário | 2 | Auditoria documentada | ⬜ |
+| S6-3 | **Criptografia opcional** do arquivo de dados com senha (AES-256-GCM via `node:crypto`) | 2 | Opt-in; sem senha, comportamento atual | ⬜ |
+| S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA nos fluxos principais | ⬜ |
+| S6-5 | **Teste de carga**: 500 dívidas / 5.000 pagamentos; otimizar o que passar de 100 ms | 1 | Relatório de performance | ⬜ |
+| S6-6 | Fechar documentação: ADRs, CHANGELOG, atualização do As-Built e dos diagramas | 2 | Docs coerentes com o código | ⬜ |
 
 **Marco final:** ✅ **v2.0.0-rc** — remoção do rótulo Beta.
 
