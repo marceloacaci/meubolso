@@ -81,6 +81,48 @@ window.__mbRender.relatorio = function renderRelatorio() {
       </div>
     </div>
 
+    <h3 class="h6 text-danger mb-2">${t('vencimentos.atrasadas')}</h3>
+    ${atrasadas.length === 0 ? `
+      <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+        <span style="font-size:18px">${ICON.check}</span>
+        <div>${t('relatorio.semAtraso')}</div>
+      </div>
+    ` : `
+      <div class="card shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>${t('col.divida')}</th>
+                <th>${t('col.parcela')}</th>
+                <th>${t('col.vencimento')}</th>
+                <th>${t('col.dias')}</th>
+                <th class="text-end">${t('col.valor')}</th>
+                <th class="text-end">${t('col.acao')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${atrasadas.map(({divida, parcela, dias}) => `
+                <tr>
+                  <td>
+                    <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
+                    <div class="text-secondary small">${escapeHtml(divida.credor)}</div>
+                  </td>
+                  <td>${parcela.numero}</td>
+                  <td>${fmtData(parcela.vencimento)}</td>
+                  <td class="text-danger fw-semibold">${ti('relatorio.diasAtraso', { n: dias })}</td>
+                  <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+
     <h3 class="h6 text-secondary mb-2">${t('resumo.proximos7')}</h3>
     ${proximas.length === 0 ? `
       <div class="alert alert-success d-flex align-items-center gap-2" role="status">
@@ -122,50 +164,8 @@ window.__mbRender.relatorio = function renderRelatorio() {
         </div>
       </div>
     `}
-    <h3 class="h6 text-secondary mb-2">${t('relatorio.emAtraso')}</h3>
-    ${atrasadas.length === 0 ? `
-      <div class="alert alert-success d-flex align-items-center gap-2" role="status">
-        <span style="font-size:18px">${ICON.check}</span>
-        <div>${t('relatorio.semAtraso')}</div>
-      </div>
-    ` : `
-      <div class="card shadow-sm">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th>${t('col.divida')}</th>
-                <th>${t('col.parcela')}</th>
-                <th>${t('col.vencimento')}</th>
-                <th>${t('col.dias')}</th>
-                <th class="text-end">${t('col.valor')}</th>
-                <th class="text-end">${t('col.acao')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${atrasadas.map(({divida, parcela, dias}) => `
-                <tr>
-                  <td>
-                    <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
-                    <div class="text-secondary small">${escapeHtml(divida.credor)}</div>
-                  </td>
-                  <td>${parcela.numero}</td>
-                  <td>${fmtData(parcela.vencimento)}</td>
-                  <td class="text-danger fw-semibold">${ti('relatorio.diasAtraso', { n: dias })}</td>
-                  <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `}
   `;
-}
-;
+};
 
 /* View "Relatório" como componente Vue (Vue é DONO da view). */
 (function () {
