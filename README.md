@@ -11,7 +11,7 @@ empréstimos, cartão de crédito e carteiras, **100% local e offline**.
 
 [![S1](https://img.shields.io/badge/S1-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
 [![S2](https://img.shields.io/badge/S2-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
-[![S3](https://img.shields.io/badge/S3-83%25%20amarelo-yellow)](docs/CRONOGRAMA-3-MESES.md)
+[![S3](https://img.shields.io/badge/S3-100%25%20conclu%C3%ADda-green)](docs/CRONOGRAMA-3-MESES.md)
 [![S4](https://img.shields.io/badge/S4-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
 [![S5](https://img.shields.io/badge/S5-100%25%20concluída-green)](docs/CRONOGRAMA-3-MESES.md)
 [![S6](https://img.shields.io/badge/S6-0%25%20planejada-lightgrey)](docs/CRONOGRAMA-3-MESES.md)

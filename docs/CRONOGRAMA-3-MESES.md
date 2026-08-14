@@ -79,7 +79,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ---
 
-## Sprint 3 — Refatoração do monólito (02–15/set) · 12 pts · **release v1.1.0** · 🟡 **83% (5/6)**
+## Sprint 3 — Refatoração do monólito (02–15/set) · 12 pts · **release v1.1.0** · ✅ **FEITO**
 
 | ID | Tarefa | Pts | Critério de aceite | Status |
 |----|--------|----:|--------------------|--------|
@@ -87,12 +87,8 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 | S3-2 | Extrair **gamificação** para `src/dominio.js` | 2 | Testes da S1-4 continuam verdes | ✅ **FEITO** (Etapa 1 / S1-2) |
 | S3-3 | Extrair **modais/confirmação** para `src/ui/modais.js` | 2 | Fluxos de dívida/pagamento inalterados | ✅ **FEITO** |
 | S3-4 | Extrair cada `renderX()` para o `views/*.js` correspondente | 3 | `app.js` < 800 LOC | ✅ **FEITO** |
-| S3-5 | Script de verificação por render real no Electron (canvas pixel count) como *smoke test* | 2 | Detecta gráfico em branco | ⬜ |
+| S3-5 | Script de verificação por render real no Electron (canvas pixel count) como *smoke test* | 2 | Detecta gráfico em branco | ✅ **FEITO** (`validate-render.cjs`) |
 | S3-6 | Corrigir a incoerência **`NIVEIS` × `nivelDe()`** (limiares não lineares vs. 100 em 100) | 1 | Decisão registrada em ADR + teste | ✅ **FEITO** (D-03 / Etapa 1) |
-
-> S3-5 (smoke test por pixel count) ficou pendente: a verificação visual tem sido
-> feita manualmente via `validate-*.cjs` (render real no Electron), mas sem o
-> script automatizado de contagem de pixels previsto no critério de aceite.
 
 **Release v1.1.0** — sem feature nova visível; nota de release honesta:
 "estabilidade, integridade de dados e base de testes".
