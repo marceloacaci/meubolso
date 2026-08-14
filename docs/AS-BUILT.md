@@ -19,8 +19,9 @@
 
 | 05/ago/2026 | **Etapa 3** integridade de dados: `schemaVersion` + JSON Schema (ajv) + `migrarSchema` idempotente + recuperação automática de backup (`loadFromDB`) | `src/integridade.js`, `docs/schema/meubolso.schema.json`, `tests/integridade.test.js` |
 | 14/ago/2026 | **Sprint 4** recorrentes, juros/CET, metas, simulador e conquistas (S4-1..S4-5) | `src/dominio.js` (`cet`,`calcularJurosDivida`,`simularQuitacao`), `views/{recorrentes,metas,juros,simulador}.js`, `app.js` (handlers CRUD), `index.html` (nav), `src/ui/modais.js` (checkbox), i18n pt/en/es, `tests/sprint4.test.js` |
+| 14/ago/2026 | **fix(S4)** validação visual em runtime pegou `estado.recorrentes/metas` undefined no load (DB vazio/legado); corrigido em `carregar()`, estado inicial e `fallbackData()` | `app.js` (carregar + estado), `main.js` (fallbackData); `validate-s4.cjs` (validação funcional Electron) |
 
-> Status verificado por suíte automatizada: **79/79 testes** Vitest verdes (`npm run test`) em 14/ago/2026.
+> Status verificado por suíte automatizada: **79/79 testes** Vitest verdes (`npm run test`) em 14/ago/2026. Validação funcional em runtime (`validate-s4.cjs`) PASSOU em 4/4 views (recorrentes, juros/CET, metas, simulador) com **0 erros de console**: recorrente criado e renderizado, meta criada com XP de conquista subindo (S4-5), simulador calculando.
 
 ---
 
