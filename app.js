@@ -2,7 +2,7 @@
 // para que os componentes de view recomputem quando os dados mudam.
 // OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
-let estado = Vue.reactive({ dividas: [], pagamentos: [], configuracoes: { moeda: 'BRL' } });
+let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], configuracoes: { moeda: 'BRL' } });
 
 // ---------- Utilitários ----------
 // Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
@@ -597,12 +597,16 @@ async function carregar() {
     dividas: novo.dividas || [],
     pagamentos: novo.pagamentos || [],
     carteiras: novo.carteiras || [],
+    recorrentes: novo.recorrentes || [],
+    metas: novo.metas || [],
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
   if (!estado.dividas) estado.dividas = [];
   if (!estado.pagamentos) estado.pagamentos = [];
   if (!estado.carteiras) estado.carteiras = []; // preparação para a funcionalidade Carteiras
+  if (!estado.recorrentes) estado.recorrentes = []; // S4-1: despesas recorrentes
+  if (!estado.metas) estado.metas = []; // S4-3: metas financeiras
   if (!estado.gamificacao) estado.gamificacao = { xp: 0, nivel: 1, ultimoAcesso: '' };
   if (!estado.gamificacao.historico) estado.gamificacao.historico = [];
   // Dados legados: o usuário já tem XP acumulado, mas o histórico de pontos

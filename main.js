@@ -130,7 +130,7 @@ function loadFromDB() {
 }
 
 function fallbackData() {
-  return { dividas: [], pagamentos: [], carteiras: [], configuracoes: { moeda: 'BRL' } };
+  return { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], configuracoes: { moeda: 'BRL' } };
 }
 
 // ============================================================
