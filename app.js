@@ -2,7 +2,7 @@
 // para que os componentes de view recomputem quando os dados mudam.
 // OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
-let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
+let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
 
 // ---------- Utilitários ----------
 // Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
@@ -338,7 +338,7 @@ function traduzirEstaticos() {
   const tabs = {
     'painel': 'tab.painel', 'dividas': 'tab.dividas', 'pagamentos': 'tab.pagamentos',
     'vencimentos': 'tab.vencimentos', 'relatorio': 'tab.relatorio', 'configuracoes': 'tab.configuracoes',
-    'sobre': 'tab.sobre', 'carteiras': 'tab.carteiras'
+    'sobre': 'tab.sobre', 'carteiras': 'tab.carteiras', 'lixeira': 'tab.lixeira'
   };
   document.querySelectorAll('.tab').forEach(b => {
     const chave = tabs[b.dataset.view];
@@ -383,6 +383,7 @@ function atualizarBadges() {
   // Fica vermelho (--alerta) apenas se houver 1+ (atenção iminente).
   const totalVenc = proximas.length + atrasadas.length;
   setBadge('badge-vencimentos', totalVenc, totalVenc > 0);
+  setBadge('badge-lixeira', estado.lixeira.dividas.length);
 }
 
 function calcularMetricas() {
@@ -604,6 +605,7 @@ async function carregar() {
     carteiras: novo.carteiras || [],
     recorrentes: novo.recorrentes || [],
     metas: novo.metas || [],
+    lixeira: novo.lixeira || { dividas: [], pagamentos: [] },
     filtro: novo.filtro || { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 },
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
@@ -616,6 +618,7 @@ async function carregar() {
   if (!estado.carteiras) estado.carteiras = []; // preparação para a funcionalidade Carteiras
   if (!estado.recorrentes) estado.recorrentes = []; // S4-1: despesas recorrentes
   if (!estado.metas) estado.metas = []; // S4-3: metas financeiras
+  if (!estado.lixeira) estado.lixeira = { dividas: [], pagamentos: [] };
   if (!estado.gamificacao) estado.gamificacao = { xp: 0, nivel: 1, ultimoAcesso: '' };
   if (!estado.gamificacao.historico) estado.gamificacao.historico = [];
   // Dados legados: o usuário já tem XP acumulado, mas o histórico de pontos
@@ -1424,11 +1427,73 @@ function excluirDivida(d) {
     textoConfirmar: t('acao.excluir'),
     perigo: true,
     aoConfirmar: async () => {
+      // Soft delete: move para a lixeira (recuperável) em vez de apagar.
+      const pagamentosDaDivida = estado.pagamentos.filter(p => p.dividaId === d.id);
       estado.dividas = estado.dividas.filter(x => x.id !== d.id);
       estado.pagamentos = estado.pagamentos.filter(p => p.dividaId !== d.id);
+      estado.lixeira.dividas.unshift({
+        ...d,
+        _excluidoEm: new Date().toISOString()
+      });
+      for (const pg of pagamentosDaDivida) {
+        estado.lixeira.pagamentos.unshift({ ...pg, _excluidoEm: new Date().toISOString() });
+      }
       await persistir();
       ganharXP(-10);
       toast(t('toast.dividaExcluida'));
+      render();
+    }
+  });
+}
+
+// Restaura uma dívida (e seus pagamentos) da lixeira para o estado ativo.
+async function restaurarDivida(id) {
+  const item = estado.lixeira.dividas.find(x => x.id === id);
+  if (!item) return;
+  const { _excluidoEm, ...divida } = item;
+  estado.lixeira.dividas = estado.lixeira.dividas.filter(x => x.id !== id);
+  const pags = estado.lixeira.pagamentos.filter(p => p.dividaId === id);
+  estado.lixeira.pagamentos = estado.lixeira.pagamentos.filter(p => p.dividaId !== id);
+  estado.dividas.push(divida);
+  for (const pg of pags) {
+    const { _excluidoEm: _e, ...p } = pg;
+    estado.pagamentos.push(p);
+  }
+  await persistir();
+  toast(t('toast.dividaRestaurada'));
+  render();
+}
+
+// Exclui definitivamente uma dívida da lixeira.
+async function esvaziarLixeiraDivida(id) {
+  abrirConfirmacao({
+    titulo: t('lixeira.confirmarExclusao'),
+    mensagem: t('lixeira.msgExclusaoDefinitiva'),
+    textoConfirmar: t('acao.excluir'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.lixeira.dividas = estado.lixeira.dividas.filter(x => x.id !== id);
+      estado.lixeira.pagamentos = estado.lixeira.pagamentos.filter(p => p.dividaId !== id);
+      await persistir();
+      toast(t('toast.excluidoDefinitivamente'));
+      render();
+    }
+  });
+}
+
+// Esvazia toda a lixeira (exclusão definitiva de tudo).
+async function esvaziarLixeiraTudo() {
+  const total = estado.lixeira.dividas.length + estado.lixeira.pagamentos.length;
+  if (total === 0) { toast(t('lixeira.vazia')); return; }
+  abrirConfirmacao({
+    titulo: t('lixeira.confirmarExclusaoTudo'),
+    mensagem: t('lixeira.msgExclusaoTudo'),
+    textoConfirmar: t('acao.esvaziar'),
+    perigo: true,
+    aoConfirmar: async () => {
+      estado.lixeira = { dividas: [], pagamentos: [] };
+      await persistir();
+      toast(t('toast.lixeiraEsvaziada'));
       render();
     }
   });
@@ -2280,6 +2345,9 @@ const handlers = {
     const d = estado.dividas.find(x => x.id === id);
     if (d) excluirDivida(d);
   },
+  'restaurar-divida': (id) => restaurarDivida(id),
+  'esvaziar-lixeira-divida': (id) => esvaziarLixeiraDivida(id),
+  'esvaziar-lixeira-tudo': () => esvaziarLixeiraTudo(),
   'novo-pagamento': () => novoPagamento(),
   'nova-carteira': () => novaCarteira(),
   'editar-carteira': (id) => {
