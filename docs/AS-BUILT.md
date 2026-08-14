@@ -18,8 +18,9 @@
 | 05/ago/2026 | **Etapa 2** escrita atômica (`src/persistencia.js`) + CI (`ci.yml`) | `src/persistencia.js`, `.github/workflows/ci.yml` |
 
 | 05/ago/2026 | **Etapa 3** integridade de dados: `schemaVersion` + JSON Schema (ajv) + `migrarSchema` idempotente + recuperação automática de backup (`loadFromDB`) | `src/integridade.js`, `docs/schema/meubolso.schema.json`, `tests/integridade.test.js` |
+| 14/ago/2026 | **Sprint 4** recorrentes, juros/CET, metas, simulador e conquistas (S4-1..S4-5) | `src/dominio.js` (`cet`,`calcularJurosDivida`,`simularQuitacao`), `views/{recorrentes,metas,juros,simulador}.js`, `app.js` (handlers CRUD), `index.html` (nav), `src/ui/modais.js` (checkbox), i18n pt/en/es, `tests/sprint4.test.js` |
 
-> Status verificado por suíte automatizada: **74/74 testes** Vitest verdes (`npm run test`) em 05/ago/2026.
+> Status verificado por suíte automatizada: **79/79 testes** Vitest verdes (`npm run test`) em 14/ago/2026.
 
 ---
 

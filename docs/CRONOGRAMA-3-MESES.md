@@ -99,11 +99,16 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 | ID | Tarefa | Pts | Valor |
 |----|--------|----:|-------|
-| S4-1 | **Despesas recorrentes / assinaturas** (mensal, sem fim definido) | 3 | Cobre o caso de uso hoje ausente |
-| S4-2 | **Cálculo de juros e CET** por dívida (taxa mensal, total a pagar, custo real) | 3 | Transforma o app de registro em análise |
-| S4-3 | **Metas financeiras** ("quitar o cartão até dez/2026") com barra de progresso | 2 | Engajamento |
-| S4-4 | **Simulador de quitação**: avalanche × bola de neve, com economia estimada | 3 | Diferencial competitivo real |
-| S4-5 | Novas conquistas atreladas às metas | 1 | Gamificação com propósito |
+| S4-1 | **Despesas recorrentes / assinaturas** (mensal, sem fim definido) | 3 | Cobre o caso de uso hoje ausente | ✅ **FEITO** |
+| S4-2 | **Cálculo de juros e CET** por dívida (taxa mensal, total a pagar, custo real) | 3 | Transforma o app de registro em análise | ✅ **FEITO** |
+| S4-3 | **Metas financeiras** ("quitar o cartão até dez/2026") com barra de progresso | 2 | Engajamento | ✅ **FEITO** |
+| S4-4 | **Simulador de quitação**: avalanche × bola de neve, com economia estimada | 3 | Diferencial competitivo real | ✅ **FEITO** |
+| S4-5 | Novas conquistas atreladas às metas | 1 | Gamificação com propósito | ✅ **FEITO** |
+
+> Status da Sprint 4: concluída em 14/ago/2026 (adiantada). Funções puras em
+> `src/dominio.js` (`cet`, `calcularJurosDivida`, `simularQuitacao`), views em
+> `views/{recorrentes,metas,juros,simulador}.js`, nav no `index.html`, handlers em
+> `app.js`. 13 testes novos (`tests/sprint4.test.js`) — 79 no total, todos verdes.
 
 ---
 
