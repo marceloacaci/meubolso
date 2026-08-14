@@ -1875,8 +1875,13 @@ function calcularVencimentos() {
     for (const p of (d.parcelas || [])) {
       if (pagosIds.has(p.id)) continue; // já paga, ignora
       const dt = new Date(p.vencimento);
-      if (dt < hojeDt) atrasadas.push({ divida: d, parcela: p });
-      else if (dt <= limite) proximas.push({ divida: d, parcela: p });
+      if (dt < hojeDt) {
+        const dias = Math.max(0, Math.floor((hojeDt - dt) / 86400000));
+        atrasadas.push({ divida: d, parcela: p, dias });
+      } else if (dt <= limite) {
+        const dias = Math.max(0, Math.floor((dt - hojeDt) / 86400000));
+        proximas.push({ divida: d, parcela: p, dias });
+      }
     }
   }
   proximas.sort((a, b) => a.parcela.vencimento.localeCompare(b.parcela.vencimento));

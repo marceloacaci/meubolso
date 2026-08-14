@@ -76,6 +76,7 @@ var es = {
   'col.valor': 'Importe',
   'col.vencimento': 'Vencimiento',
   'col.dias': 'Días en mora',
+  'col.diasVencimento': 'Días para el vencimiento',
   'config.aparencia': 'Apariencia',
   'config.cor': 'Color de destaque',
   'config.corDestaque': 'Selecciona el color de destaque del sistema',

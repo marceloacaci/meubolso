@@ -76,6 +76,7 @@ var pt = {
   'col.valor': 'Valor',
   'col.vencimento': 'Vencimento',
   'col.dias': 'Dias em atraso',
+  'col.diasVencimento': 'Dias para vencimento',
   'config.aparencia': 'Aparência',
   'config.cor': 'Cor de destaque',
   'config.corDestaque': 'Selecione a cor de destaque do sistema',

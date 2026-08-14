@@ -20,7 +20,8 @@ window.__mbRender.relatorio = function renderRelatorio() {
       if (pagosIds.has(p.id)) continue;
       const dt = new Date(p.vencimento);
       if (dt >= hojeDt && dt <= limite) {
-        proximas.push({ divida: d, parcela: p });
+        const dias = Math.max(0, Math.floor((dt - hojeDt) / 86400000));
+        proximas.push({ divida: d, parcela: p, dias });
       } else if (dt < hojeDt) {
         // vencida e não paga -> em atraso (critério igual ao do gráfico do Painel)
         const dias = Math.max(0, Math.floor((hojeDt - dt) / 86400000));
@@ -95,12 +96,13 @@ window.__mbRender.relatorio = function renderRelatorio() {
                 <th>${t('col.divida')}</th>
                 <th>${t('col.parcela')}</th>
                 <th>${t('col.vencimento')}</th>
+                <th>${t('col.diasVencimento')}</th>
                 <th class="text-end">${t('col.valor')}</th>
                 <th class="text-end">${t('col.acao')}</th>
               </tr>
             </thead>
             <tbody>
-              ${proximas.map(({divida, parcela}) => `
+              ${proximas.map(({divida, parcela, dias}) => `
                 <tr>
                   <td>
                     <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
@@ -108,6 +110,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
                   </td>
                   <td>${parcela.numero}</td>
                   <td>${fmtData(parcela.vencimento)}</td>
+                  <td class="text-secondary">${dias}</td>
                   <td class="text-end text-danger">${fmt.format(parcela.valor)}</td>
                   <td class="text-end">
                     <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
@@ -126,7 +129,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
         <div>${t('relatorio.semAtraso')}</div>
       </div>
     ` : `
-      <div class="card shadow-sm border-danger">
+      <div class="card shadow-sm">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead>

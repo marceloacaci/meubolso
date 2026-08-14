@@ -76,6 +76,7 @@ var en = {
   'col.valor': 'Amount',
   'col.vencimento': 'Due date',
   'col.dias': 'Days overdue',
+  'col.diasVencimento': 'Days until due',
   'config.aparencia': 'Appearance',
   'config.cor': 'Accent color',
   'config.corDestaque': 'Select the system accent color',

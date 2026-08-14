@@ -4,7 +4,7 @@
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.vencimentos = function renderVencimentos() {
   const { proximas, atrasadas } = calcularVencimentos();
-  const linha = ({ divida, parcela }, atrasada) => `
+  const linha = ({ divida, parcela, dias }, atrasada) => `
     <tr>
       <td>
         <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
@@ -12,6 +12,7 @@ window.__mbRender.vencimentos = function renderVencimentos() {
       </td>
       <td>${parcela.numero}</td>
       <td>${fmtData(parcela.vencimento)}</td>
+      <td class="${atrasada ? 'text-danger fw-bold' : 'text-secondary'}">${atrasada ? ti('relatorio.diasAtraso', { n: dias }) : dias}</td>
       <td class="text-end ${atrasada ? 'text-danger fw-bold' : 'text-danger'}">${fmt.format(parcela.valor)}</td>
       <td class="text-end">
         <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
@@ -34,6 +35,7 @@ window.__mbRender.vencimentos = function renderVencimentos() {
                 <th>${t('col.divida')}</th>
                 <th>${t('col.parcela')}</th>
                 <th>${t('col.vencimento')}</th>
+                <th>${atrasada ? t('col.dias') : t('col.diasVencimento')}</th>
                 <th class="text-end">${t('col.valor')}</th>
                 <th class="text-end">${t('col.acao')}</th>
               </tr>
@@ -50,7 +52,8 @@ window.__mbRender.vencimentos = function renderVencimentos() {
     ${bloco(t('vencimentos.atrasadas'), atrasadas, true, t('vencimentos.nenhumaAtrasada'))}
     ${bloco(t('vencimentos.proximas'), proximas, false, t('vencimentos.nenhumaProxima'))}
   `;
-};
+}
+;
 
 /* View "Vencimentos" como componente Vue (Vue é DONO da view). */
 (function () {
