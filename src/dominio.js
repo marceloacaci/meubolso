@@ -107,6 +107,46 @@ function sincronizarParcela(divida, parcelaId, pagamentos) {
   return parc;
 }
 
+// Reconcilia estado.pagamentos com o valor pago por parcela após EDITAR a dívida.
+// A view Pagamentos lê de estado.pagamentos (registro), enquanto o formulário de
+// edição grava em d.parcelas[].valorPago (cache). Sem esta reconciliação, ao
+// editar uma dívida já paga (aumentar valor + marcar como paga) a página de
+// Pagamentos exibia o valor ANTIGO do registro (bug reportado). Regra:
+//   - parcela com valorPago > 0 -> upsert do registro (atualiza valor/status ou cria)
+//   - parcela pendente (valorPago 0) -> remove registro órfão existente
+// Retorna o novo array de pagamentos (não muta o array original; pode, porém,
+// alterar os objetos de registro existentes via Object.assign).
+function reconciliarPagamentosAposEdicao(divida, pagamentos) {
+  const lista = (pagamentos || []).slice();
+  for (const parc of (divida.parcelas || [])) {
+    const existente = lista.find(p => p.dividaId === divida.id && p.parcelaId === parc.id);
+    if (parc.valorPago > 0) {
+      if (existente) {
+        Object.assign(existente, {
+          valor: parc.valorPago,
+          status: parc.status,
+          dataPagamento: parc.dataPagamento
+        });
+      } else {
+        lista.push({
+          id: (typeof uid === 'function' ? uid() : 'pg_' + divida.id + '_' + parc.id),
+          dividaId: divida.id,
+          parcelaId: parc.id,
+          valor: parc.valorPago,
+          data: parc.dataPagamento || '',
+          nota: parc.nota || '',
+          carteiraId: null
+        });
+      }
+    } else if (existente) {
+      const idx = lista.indexOf(existente);
+      if (idx >= 0) lista.splice(idx, 1);
+    }
+    if (typeof sincronizarParcela === 'function') sincronizarParcela(divida, parc.id, lista);
+  }
+  return lista;
+}
+
 // Resumo de parcelas de uma dívida para exibição.
 function resumoParcelas(d, pagamentos) {
   const total = (d.parcelas || []).length;
@@ -383,6 +423,7 @@ const API = {
   saldoDivida,
   valorPagoParcela,
   sincronizarParcela,
+  reconciliarPagamentosAposEdicao,
   resumoParcelas,
   cet,
   calcularJurosDivida,
