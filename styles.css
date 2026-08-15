@@ -21,9 +21,9 @@
 [data-theme="dark"] {
   --bg: #14161a;
   --surface: #1e2127;
-  --text: #e8eaed;
-  --text-muted: #9aa0a6;
-  --border: #2c3038;
+  --text: #ffffff;            /* branco absoluto: maximo contraste no escuro */
+  --text-muted: #c9ced4;      /* branco com leve acinzentado (legivel no fundo escuro) */
+  --border: #3a4049;          /* borda clara/visivel (tom de branco acinzentado) */
   --primary: #3fb985;
   --primary-hover: #56c998;
   --danger: #e35d6a;

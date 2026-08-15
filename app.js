@@ -685,20 +685,26 @@ function abrirModalDesbloqueio() {
   });
 }
 
-// S6-3: ativa a criptografia (pede senha) e re-salva cifrado.
-async function ativarCriptografia() {
-  const senha = window.prompt ? window.prompt(t('cripto.definirSenha') || 'Defina uma senha para criptografar:') : null;
-  if (!senha) return;
-  const r = await window.api.criptoAtivar(senha);
-  if (r && r.ok) {
-    // Reflete no estado local (o main salva no arquivo; aqui sincronizamos a UI).
-    estado.configuracoes = estado.configuracoes || {};
-    estado.configuracoes.criptografia = { ativa: true };
-    if (window.render) window.render();
-    if (window.mostrarToast) window.mostrarToast(t('cripto.ativada') || 'Criptografia ativada', 'sucesso');
-  } else if (r && r.erro && window.mostrarToast) {
-    window.mostrarToast((t('cripto.erro') || 'Erro') + ': ' + r.erro, 'erro');
-  }
+// S6-3: ativa a criptografia (pede senha via modal) e re-salva cifrado.
+// Nao usa window.prompt (nao abre em build empacotado com contextIsolation);
+// usa o abrirModal padrao do app, igual ao desbloqueio.
+function ativarCriptografia() {
+  abrirModal(t('cripto.ativar') || 'Ativar criptografia', [
+    { label: t('cripto.definirSenha') || 'Defina uma senha para criptografar os dados:', name: 'senha', type: 'password', required: true }
+  ], async (vals) => {
+    const senha = (vals && vals.senha) || '';
+    if (!senha) return false;
+    const r = await window.api.criptoAtivar(senha);
+    if (r && r.ok) {
+      estado.configuracoes = estado.configuracoes || {};
+      estado.configuracoes.criptografia = { ativa: true };
+      if (window.render) window.render();
+      if (window.mostrarToast) window.mostrarToast(t('cripto.ativada') || 'Criptografia ativada', 'sucesso');
+      return true;
+    }
+    if (window.mostrarToast) window.mostrarToast((t('cripto.erro') || 'Erro') + ': ' + ((r && r.erro) || ''), 'erro');
+    return false;
+  });
 }
 
 // S6-3: desativa a criptografia (volta ao JSON aberto).
@@ -2677,7 +2683,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const idioma = e.target.closest('[data-idioma]');
     if (idioma) {
-      idiomaAtual = idioma.dataset.idioma;
+      const novo = idioma.dataset.idioma;
+      if (novo === idiomaAtual) return; // ja esta neste idioma: nao re-renderiza
+      idiomaAtual = novo;
       aplicarIdioma();
       salvarPrefs();
       render(); // re-renderiza a UI com o novo idioma

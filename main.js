@@ -199,7 +199,7 @@ function createWindow() {
   win.setSize(W, H, false);
   if (typeof win.center === 'function') win.center();
   win.removeMenu();
-  win.loadFile('index.html');
+  win.loadFile(path.join(__dirname, 'index.html'));
 }
 
 // ============================================================
