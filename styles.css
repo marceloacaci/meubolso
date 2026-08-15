@@ -442,6 +442,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Variante larga para a janela de gestão de pagamentos (lista de parcelas) */
 .modal-card.modal-card--gestao { max-width: 780px; }
 .modal-card h2 { font-size: calc(18px * var(--app-font-scale)); margin-bottom: 16px; }
+.modal-msg { color: var(--text-muted); font-size: calc(13px * var(--app-font-scale)); line-height: 1.45; margin: -8px 0 16px; }
 
 /* ---- Telas de atualização do sistema (estilo comercial) ---- */
 .upd-card { text-align: center; }

@@ -2,7 +2,8 @@
 // Script clássico carregado APÓS app.js: consome os globais t(), escapeHtml(),
 // ICON e window.api (definidos em app.js). Expõe abrirModal/fecharModal/
 // abrirConfirmacao/modalFoiAlterado/tentarFecharModal como globais.
-function abrirModal(titulo, campos, onSubmit) {
+function abrirModal(titulo, campos, onSubmit, opcoes) {
+  const o = opcoes || {};
   // Constrói HTML como string. Substitui o modal-card inteiro, garantindo
   // que não haja estado residual entre aberturas (handlers, .value, focus).
   const modalCard = document.querySelector('.modal-card');
@@ -30,14 +31,21 @@ function abrirModal(titulo, campos, onSubmit) {
   return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
   }).join('');
 
+  const msgHtml = o.mensagem ? `<p class="modal-msg">${escapeHtml(o.mensagem)}</p>` : '';
+  const acaoSecHtml = (o.acaoSecundaria && o.acaoSecundaria.texto)
+    ? `<button type="button" id="btn-acao-secundaria" class="btn btn-ghost">${escapeHtml(o.acaoSecundaria.texto)}</button>`
+    : '';
+
   modalCard.innerHTML = `
     <button type="button" class="modal-fechar" data-acao="fechar-modal-x" aria-label="${escapeAttr(t('modal.fechar'))}">×</button>
     <h2 id="modal-titulo">${escapeHtml(titulo)}</h2>
+    ${msgHtml}
     <form id="form-modal" novalidate>
       <div id="campos-form">${camposHtml}</div>
       <div id="resumo-parcelas"></div>
       <div class="form-actions">
         <button type="button" id="btn-cancelar" class="btn btn-ghost">${t('acao.cancelar')}</button>
+        ${acaoSecHtml}
         <button type="submit" id="btn-salvar" class="btn btn-primary">${t('acao.salvar')}</button>
       </div>
     </form>
@@ -67,6 +75,11 @@ function abrirModal(titulo, campos, onSubmit) {
   });
 
   document.getElementById('btn-cancelar').onclick = tentarFecharModal;
+  // Botão de ação secundária (ex.: "Entrar sem senha" no desbloqueio).
+  if (o.acaoSecundaria && o.acaoSecundaria.aoClicar) {
+    const btnSec = document.getElementById('btn-acao-secundaria');
+    if (btnSec) btnSec.onclick = () => { fecharModal(); o.acaoSecundaria.aoClicar(); };
+  }
   // A janela NÃO fecha ao clicar fora dela (modal-overlay). Assim o usuário
   // não perde os dados digitados se o mouse sair da janela e ele clicar fora.
   // O fechamento ocorre apenas pelos botões da própria janela (Salvar/Cancelar).

@@ -31,7 +31,7 @@ function criptografar(senha, texto) {
 // Recebe o texto criptografado (formato acima) e a senha; retorna o texto limpo.
 // Falha (throw) se a senha estiver errada (tag GCM nao confere) ou formato invalido.
 function descriptografar(senha, dados) {
-  const partes = String(dados).split(':');
+  const partes = String(dados).trim().split(':');
   if (partes[0] !== PREFIXO || partes.length !== 5) {
     throw new Error('formato de arquivo criptografado invalido');
   }

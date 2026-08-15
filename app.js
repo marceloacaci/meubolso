@@ -229,6 +229,10 @@ const CORES_STATUS = {
 // Estado de idioma/tema persistido em estado.configuracoes.
 let idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
 let temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';
+// S6-3: trava de segurança — so permite persistir apos os dados terem sido
+// carregados. Evita sobrescrever o arquivo criptografado com o estado vazio
+// (dividas:[]) caso algum persistir() dispare antes do usuario desbloquear.
+let dadosCarregados = false;
 
 // Ref reativo (Vue) que dispara a re-renderização das views. Toda ação que
 // antes chamava render() (e reescrevia app.innerHTML) agora incrementa este
@@ -624,6 +628,7 @@ function toastHTML(html, tipo = '') {
 async function carregar() {
   // NÃO reatribui `estado = ...` (perderia a reatividade do Vue.reactive).
   // Carrega em um objeto temporário e faz merge no estado reativo.
+  dadosCarregados = false; // trava: estado ainda nao populado (ex.: arquivo cripto)
   const novo = await window.api.carregar();
   // S6-3: arquivo criptografado sem senha na sessão -> pede a senha.
   if (novo && novo.criptografado) {
@@ -641,6 +646,7 @@ async function carregar() {
     filtro: novo.filtro || { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 },
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
+  dadosCarregados = true; // estado populado: persistir() liberado
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
   if (typeof estado.configuracoes.notificarVencimento !== 'boolean') estado.configuracoes.notificarVencimento = true;
   if (typeof estado.configuracoes.antecedenciaNotif !== 'number') estado.configuracoes.antecedenciaNotif = 3;
@@ -671,18 +677,39 @@ async function carregar() {
 
 // S6-3: modal de desbloqueio do arquivo criptografado.
 function abrirModalDesbloqueio() {
-  abrirModal(t('cripto.desbloquear') || 'Desbloquear dados', [
-    { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: true }
-  ], async (vals) => {
-    const r = await window.api.criptoDesbloquear(vals.senha || '');
-    if (!r || !r.ok) {
-      if (window.mostrarToast) window.mostrarToast(t('cripto.senhaIncorreta') || 'Senha incorreta', 'erro');
-      return false; // mantem o modal aberto
+  // "Entrar sem senha" apenas FECHA o modal — não grava nada (a trava
+  // dadosCarregados impede persistir() de sobrescrever o arquivo). Os dados
+  // criptografados permanecem intactos em disco até o usuário desbloquear.
+  const entrarSemSenha = () => {
+    // Não faz carregar() nem salvar: o arquivo criptografado fica intacto.
+    if (window.mostrarToast) window.mostrarToast(t('cripto.semSenhaAviso') || 'Dados ocultos. Digite a senha depois para acessá-los.', 'info');
+    if (window.render) window.render();
+  };
+  abrirModal(
+    t('cripto.desbloquear') || 'Dados protegidos por criptografia',
+    [
+      { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: true }
+    ],
+    async (vals) => {
+      const r = await window.api.criptoDesbloquear(vals.senha || '');
+      if (!r || !r.ok) {
+        if (window.mostrarToast) window.mostrarToast(t('cripto.senhaIncorreta') || 'Senha incorreta', 'erro');
+        return false; // mantem o modal aberto
+      }
+      if (window.mostrarToast) window.mostrarToast(t('cripto.desbloqueado') || 'Dados desbloqueados', 'sucesso');
+      await carregar();
+      if (window.render) window.render(); // garante a atualização da UI com os dados
+      return true;
+    },
+    {
+      mensagem: t('cripto.desbloquearMsg') ||
+        'Seus dados estão criptografados neste computador. Digite a senha para acessá-los. Se preferir, pode entrar sem senha — seus dados permanecerão salvos e protegidos, apenas ocultos até você desbloquear.',
+      acaoSecundaria: {
+        texto: t('cripto.entrarSemSenha') || 'Entrar sem senha (dados ocultos)',
+        aoClicar: entrarSemSenha
+      }
     }
-    if (window.mostrarToast) window.mostrarToast(t('cripto.desbloqueado') || 'Dados desbloqueados', 'sucesso');
-    await carregar();
-    return true;
-  });
+  );
 }
 
 // S6-3: ativa a criptografia (pede senha via modal) e re-salva cifrado.
@@ -1127,6 +1154,10 @@ function atualizarBadgeNivel() {
     `<button class='nivel-btn' data-view='gamificacao'>${t('nivel.verDetalhes')} ${ICON.setaDireita}</button>`;
 }
 async function persistir(silencio = false) {
+  // S6-3: nao grava enquanto os dados nao foram carregados (ex.: arquivo
+  // criptografado aguardando desbloqueio). Evita sobrescrever o arquivo
+  // criptografado com o estado vazio (dividas:[]) e perder os dados.
+  if (!dadosCarregados) return;
   try {
     // `estado` é um Proxy reativo do Vue. O ipcRenderer.invoke usa clone
     // estruturado, que NÃO clona Proxies — lançaria "An object could not be
