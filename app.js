@@ -791,14 +791,22 @@ function criarPerfilFlow() {
       if (window.mostrarToast) window.mostrarToast(t('perfil.erroCriar') || 'Não foi possível criar o perfil', 'erro');
       return false;
     }
-    // Se pediu criptografar, define a senha e ativa.
+    // Torna o novo perfil ativo PRIMEIRO (trocarPerfil salva o perfil anterior e
+    // recarrega o estado vazio do novo). Só DEPOIS ativa a criptografia — assim o
+    // estado em memória já pertence ao novo perfil e o criptoAtivar cifra o arquivo
+    // certo (evita sobrescrever o arquivo do novo perfil com dados do perfil anterior).
+    await trocarPerfil(r.id);
     if (vals.cripto && vals.senha) {
-      await window.api.perfilDefinirAtivo(r.id);
       const ra = await window.api.criptoAtivar(vals.senha);
       if (!ra || !ra.ok) { if (window.mostrarToast) window.mostrarToast(t('cripto.erro'), 'erro'); }
+      else {
+        // Mantém o estado em memória coerente com o arquivo (o IPC cifra o arquivo,
+        // mas não toca no estado do renderer — sem isso o próximo persistir gravaria aberto).
+        estado.configuracoes = estado.configuracoes || {};
+        estado.configuracoes.criptografia = { ativa: true };
+      }
     }
     if (window.mostrarToast) window.mostrarToast(t('perfil.criado') || 'Perfil criado', 'sucesso');
-    await trocarPerfil(r.id);
     return true;
   });
 }
