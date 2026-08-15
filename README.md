@@ -42,6 +42,26 @@ npm run dist:win   # gera o instalador Windows (.exe) via electron-builder
   [Releases](https://github.com/marceloacaci/meubolso/releases).
 - Binários assinados/automatizados: ver `package.json` → `build` (electron-builder).
 
+## Ambientes e onde ficam os dados
+
+O MeuBolso separa os dados de cada forma de execução para **não misturar entradas**:
+
+| Ambiente | Como roda | Onde ficam os dados |
+|----------|-----------|--------------------|
+| **Desenvolvimento** | `npm start` (código-fonte) | `%APPDATA%\meubolso\meubolso.json` |
+| **Portátil** | `MeuBolso-*-portable.exe` baixado | na **própria pasta do executável** (`meubolso.json` ao lado do `.exe`) |
+| **Instalado** | `MeuBolso-*-setup.exe` instalado | `%APPDATA%\meubolso\<versão>\meubolso.json` (isolado por versão) |
+
+A página **Sobre** mostra o ambiente ativo e o caminho exato do arquivo de dados.
+Para mover dados entre ambientes, use **Exportar/Importar** (CSV/JSON) na interface.
+
+## Atualização (auto-update)
+
+- O **instalador (setup.exe)** se atualiza **sozinho**: ao abrir, verifica o GitHub;
+  se houver versão nova, baixa em segundo plano e instala ao fechar. Nenhuma ação do usuário.
+- O **portátil (.exe)** **não** auto-atualiza — basta baixar a versão nova do GitHub e
+  substituir o arquivo (ou copiar o `meubolso.json` da pasta antiga para a nova).
+
 ## Roadmap de Sprints
 
 | Sprint | Tema | Status | % |

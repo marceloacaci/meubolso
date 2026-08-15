@@ -52,12 +52,14 @@ window.__mbRender.sobre = function renderSobre() {
       <section class="config-secao sobre-secao" id="sobre-sistema">
         <h3>${ICON.monitor} ${t('sobre.sistema')}</h3>
         ${linha(t('sobre.versaoApp'), info.appVersion)}
+        ${linha(t('sobre.ambiente'), t('sobre.ambiente.' + (info.ambiente || 'dev')))}
         ${linha(t('sobre.versaoElectron'), info.electron)}
         ${linha(t('sobre.versaoNode'), info.node)}
         ${linha('Chromium', info.chrome)}
         ${linha(t('sobre.sistemaOp'), info.so)}
         ${linha(t('sobre.arquitetura'), info.arquitetura)}
         ${linha(t('sobre.idiomas'), 'Português · English · Español')}
+        ${linha(t('sobre.caminhoDados'), info.caminhoDados)}
       </section>
 
       <section class="config-secao sobre-secao">
@@ -78,7 +80,8 @@ window.__mbRender.sobre = function renderSobre() {
 
     </div>
   `;
-};
+}
+;
 
 /* View "Sobre" como componente Vue (Vue é DONO da view).
  * O renderSobre() depende de _sobreInfoCache (preenchido via IPC).

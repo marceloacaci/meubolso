@@ -90,11 +90,19 @@
     }
   },
   "devDependencies": {
+    "7zip-bin": "^5.2.0",
     "electron": "^43.2.0",
-    "electron-builder": "^25.1.8",
-    "vitest": "^2.1.9"
+    "electron-builder": "^26.15.3",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "electron-updater": "^6.3.9"
-  }
+  },
+  "onlyBuiltDependencies": [
+    "7zip-bin",
+    "@electron/rebuild",
+    "core-js",
+    "app-builder-bin",
+    "node-gyp"
+  ]
 }

@@ -11,10 +11,27 @@ const fs = require('fs');
 // ============================================================
 
 let userDataPath, dbFile, dataFile, backupFile, pontosFile, backupsDir;
+// Ambiente de execução: 'dev' (npm start), 'portatil' (portable baixado) ou
+// 'instalado' (setup.exe instalado). Usado para separar os dados de cada
+// ambiente e para exibir na página "Sobre".
+let ambienteAtual = 'dev';
 
-// Caminhos de dados
+const { resolverCaminhoDados } = require('./caminhos-dados');
+
+// Caminhos de dados — separados por ambiente para NÃO misturar entradas:
+//   dev       -> %APPDATA%/meubolso/                      (como era antes)
+//   portatil  -> pasta do próprio executável portable     (leva o .exe e os dados juntos)
+//   instalado -> %APPDATA%/meubolso/<versao>/               (isolado por versão do release)
 function initPaths() {
-  userDataPath = app.getPath('userData');
+  const versao = app.getVersion() || '0.0.0';
+  const { ambiente, base } = resolverCaminhoDados({
+    isPackaged: app.isPackaged,
+    portableDir: process.env.PORTABLE_EXECUTABLE_DIR,
+    userData: app.getPath('userData'),
+    versao
+  });
+  ambienteAtual = ambiente;
+  userDataPath = base;
   dbFile = path.join(userDataPath, 'meubolso.json');
   dataFile = path.join(userDataPath, 'dados.json');
   backupFile = path.join(userDataPath, 'dados.bak.json');
@@ -249,6 +266,8 @@ ipcMain.handle('dados:caminho', () => dbFile);
 
 ipcMain.handle('sistema:info', () => ({
   appVersion: app.getVersion(),
+  ambiente: ambienteAtual,
+  caminhoDados: dbFile,
   electron: process.versions.electron,
   node: process.versions.node,
   chrome: process.versions.chrome,

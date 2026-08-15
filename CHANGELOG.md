@@ -24,6 +24,13 @@ Release candidato de saída do Beta. Foco: hardening, acessibilidade e performan
   Carteiras, Recorrentes, Metas) e rótulos pt/en/es.
   - *Regra de integridade:* nenhum dado é perdido na exclusão; o metadado
     interno `_excluidoEm` não vaza para o estado ativo após restaurar.
+- **Separação de ambientes de dados (dev / portátil / instalado):** `initPaths()`
+  em `main.js` agora grava em pastas distintas conforme o ambiente — desenvolvimento
+  em `%APPDATA%/meubolso/`, portátil na **própria pasta do executável**, e instalado
+  em `%APPDATA%/meubolso/<versão>/` (isolado por versão do release). Lógica em
+  `src/caminhos-dados.js` (função pura, testada) + 4 testes em
+  `tests/caminhos-dados.test.js`. Página **Sobre** exibe o ambiente ativo e o
+  caminho exato do arquivo de dados (pt/en/es).
 
 ### Alterado
 - **S6-5 — Performance:** indexação de pagamentos por `dividaId` (`src/dominio.js`).
