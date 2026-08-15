@@ -4,7 +4,7 @@
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.configuracoes = function renderConfiguracoes() {
   const fs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) || 1;
-  const tamFonte = fs > 1.15 ? 'Grande' : fs < 0.95 ? 'Pequena' : 'Padrão';
+  const tamFonte = fs > 1.2 ? t('fonte.extra') : fs > 1.05 ? t('fonte.grande') : t('fonte.normal');
   return `
     <div class="page-header"><h2>${t('config.titulo')}</h2></div>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" style="max-width:1000px">

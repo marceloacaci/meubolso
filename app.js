@@ -2685,11 +2685,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const fonte = e.target.closest('[data-fonte]');
     if (fonte) {
+      // 3 tamanhos fixos: normal (1), grande (1.15), extra grande (1.3).
+      const NIVEIS = [1, 1.15, 1.3];
       let s = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) || 1;
-      s = fonte.dataset.fonte === 'aumentar' ? Math.min(1.4, s + 0.1) : Math.max(0.8, s - 0.1);
+      let idx = NIVEIS.reduce((best, n, i) => (Math.abs(n - s) < Math.abs(NIVEIS[best] - s) ? i : best), 0);
+      if (fonte.dataset.fonte === 'aumentar') idx = Math.min(NIVEIS.length - 1, idx + 1);
+      else idx = Math.max(0, idx - 1);
+      s = NIVEIS[idx];
       document.documentElement.style.setProperty('--app-font-scale', s.toFixed(2));
       try { localStorage.setItem('appFontScale', s.toFixed(2)); } catch (e2) {}
-      render(); // atualiza o rótulo "Padrão/Grande/Pequena"
+      render(); // atualiza o rótulo "Normal/Grande/Extra grande"
       return;
     }
     const acento = e.target.closest('[data-accent]');

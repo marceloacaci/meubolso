@@ -80,7 +80,7 @@ window.__mbRender.pagamentos = function renderPagamentos() {
           ${t('label.valorPago')}: <strong class="text-success">${fmt.format(r.valorPago)}</strong> / ${fmt.format(r.valorTotal)}
         </div>
         <div class="barra-progresso-valor text-secondary small mt-1">
-          ${t('pagamentos.saldoTotal')}: <strong class="text-warning">${fmt.format(r.valorRestante)}</strong>
+          ${t('pagamentos.saldoTotal')}: <strong class="text-danger">${fmt.format(r.valorRestante)}</strong>
         </div>
         <div class="divida-cabecalho">
           <div>
@@ -109,7 +109,7 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                       <div class="text-secondary small">${escapeHtml(d.credor || '')}</div></td>
                       <td>${fmt.format(parc.valor)}</td>
                       <td class="text-success">${pagoParc > 0 ? fmt.format(pagoParc) : '—'}</td>
-                      <td>${restanteParc > 0 ? `<span class="text-warning">${fmt.format(restanteParc)}</span>` : `<span class="text-success">${t('pagamentos.quitada')}</span>`}</td>
+                      <td>${restanteParc > 0 ? `<span class="text-danger">${fmt.format(restanteParc)}</span>` : `<span class="text-success">${t('pagamentos.quitada')}</span>`}</td>
                       <td class="text-end text-nowrap"></td>
                     </tr>`;
                 }).join('')}
