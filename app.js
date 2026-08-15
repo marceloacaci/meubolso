@@ -690,13 +690,28 @@ async function ativarCriptografia() {
   const senha = window.prompt ? window.prompt(t('cripto.definirSenha') || 'Defina uma senha para criptografar:') : null;
   if (!senha) return;
   const r = await window.api.criptoAtivar(senha);
-  if (r && r.ok && window.mostrarToast) window.mostrarToast(t('cripto.ativada') || 'Criptografia ativada', 'sucesso');
+  if (r && r.ok) {
+    // Reflete no estado local (o main salva no arquivo; aqui sincronizamos a UI).
+    estado.configuracoes = estado.configuracoes || {};
+    estado.configuracoes.criptografia = { ativa: true };
+    if (window.render) window.render();
+    if (window.mostrarToast) window.mostrarToast(t('cripto.ativada') || 'Criptografia ativada', 'sucesso');
+  } else if (r && r.erro && window.mostrarToast) {
+    window.mostrarToast((t('cripto.erro') || 'Erro') + ': ' + r.erro, 'erro');
+  }
 }
 
 // S6-3: desativa a criptografia (volta ao JSON aberto).
 async function desativarCriptografia() {
   const r = await window.api.criptoDesativar();
-  if (r && r.ok && window.mostrarToast) window.mostrarToast(t('cripto.desativada') || 'Criptografia desativada', 'sucesso');
+  if (r && r.ok) {
+    estado.configuracoes = estado.configuracoes || {};
+    estado.configuracoes.criptografia = { ativa: false };
+    if (window.render) window.render();
+    if (window.mostrarToast) window.mostrarToast(t('cripto.desativada') || 'Criptografia desativada', 'sucesso');
+  } else if (r && r.erro && window.mostrarToast) {
+    window.mostrarToast((t('cripto.erro') || 'Erro') + ': ' + r.erro, 'erro');
+  }
 }
 
 // B8: verificação manual de atualização (botão na página Sobre).
