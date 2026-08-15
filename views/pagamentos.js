@@ -65,6 +65,11 @@ window.__mbRender.pagamentos = function renderPagamentos() {
       const nb = (d.parcelas || []).find(pc => pc.id === b.parcelaId)?.numero || 0;
       return na - nb;
     });
+    // Soma de pagamentos por parcela (para exibir saldo de cada parcela).
+    const pagosPorParcela = {};
+    for (const p of pagosDesta) {
+      pagosPorParcela[p.parcelaId] = (pagosPorParcela[p.parcelaId] || 0) + (Number(p.valor) || 0);
+    }
     return `
       <div class="cartao-divida">
         <div class="barra-progresso" title="${r.percentualPago}% pago" aria-label="${r.percentualPago}% pago">
@@ -73,6 +78,9 @@ window.__mbRender.pagamentos = function renderPagamentos() {
         </div>
         <div class="barra-progresso-valor text-secondary small mt-1">
           ${t('label.valorPago')}: <strong class="text-success">${fmt.format(r.valorPago)}</strong> / ${fmt.format(r.valorTotal)}
+        </div>
+        <div class="barra-progresso-valor text-secondary small mt-1">
+          ${t('pagamentos.saldoTotal')}: <strong class="text-warning">${fmt.format(r.valorRestante)}</strong>
         </div>
         <div class="divida-cabecalho">
           <div>
@@ -86,27 +94,23 @@ window.__mbRender.pagamentos = function renderPagamentos() {
             <table class="table table-hover align-middle mb-0">
               <thead><tr>
                 <th>${t('col.parcela')}</th>
+                <th>${t('label.valor')}</th>
                 <th>${t('label.valorPago')}</th>
-                <th>${t('form.data')}</th>
-                <th>${t('form.nota')}</th>
+                <th>${t('pagamentos.saldoParcela')}</th>
                 <th class="text-end">${t('col.acao')}</th>
               </tr></thead>
               <tbody>
-                ${ordenados.map(p => {
-                  const parc = (d.parcelas || []).find(x => x.id === p.parcelaId);
+                ${(d.parcelas || []).map(parc => {
+                  const pagoParc = pagosPorParcela[parc.id] || 0;
+                  const restanteParc = (Number(parc.valor) || 0) - pagoParc;
                   return `
                     <tr>
-                      <td><div class="fw-semibold">${parc ? 'Parcela ' + parc.numero : '(parcela)'}</div>
+                      <td><div class="fw-semibold">${t('label.parcela')} ${parc.numero}</div>
                       <div class="text-secondary small">${escapeHtml(d.credor || '')}</div></td>
-                      <td class="text-success">${fmt.format(p.valor)}</td>
-                      <td>${fmtData(p.data)}</td>
-                      <td>${escapeHtml(p.nota || '')}</td>
-                      <td class="text-end text-nowrap">
-                        ${p.anexo ? `<button class="btn btn-sm btn-outline-info" data-acao="abrir-anexo" data-id="${p.id}" title="${escapeHtml(p.anexo)}">${ICON.anexo || '📎'}</button>` : ''}
-                        <button class="btn btn-sm btn-outline-secondary" data-acao="anexar-anexo" data-id="${p.id}">${t('acao.anexar')}</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
-                        <button class="btn btn-sm btn-outline-danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
-                      </td>
+                      <td>${fmt.format(parc.valor)}</td>
+                      <td class="text-success">${pagoParc > 0 ? fmt.format(pagoParc) : '—'}</td>
+                      <td>${restanteParc > 0 ? `<span class="text-warning">${fmt.format(restanteParc)}</span>` : `<span class="text-success">${t('pagamentos.quitada')}</span>`}</td>
+                      <td class="text-end text-nowrap"></td>
                     </tr>`;
                 }).join('')}
               </tbody>

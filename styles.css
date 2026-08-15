@@ -1136,6 +1136,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-opt.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .gear-fonte-btns { display: inline-flex; gap: 4px; }
 .gear-fonte { padding: 3px 8px; }
+.gear-cripto { width: 100%; justify-content: flex-start; }
+.gear-cripto--ativa { background: var(--primary); color: #fff; border-color: var(--primary); }
 .gear-cores { gap: 8px; }
 .gear-cor {
   width: 26px;

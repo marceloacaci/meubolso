@@ -372,6 +372,15 @@ function traduzirEstaticos() {
     b.setAttribute('title', t('idiomaNome.' + b.dataset.idioma));
     b.setAttribute('aria-label', t('idiomaNome.' + b.dataset.idioma));
   });
+  // Botão de criptografia no menu rápido reflete o estado (ativar/desativar).
+  const gearCripto = document.getElementById('gear-cripto-btn');
+  if (gearCripto) {
+    const ativa = !!(estado.configuracoes && estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa);
+    gearCripto.dataset.acao = ativa ? 'cripto-desativar' : 'cripto-ativar';
+    gearCripto.classList.toggle('gear-cripto--ativa', ativa);
+    const label = gearCripto.querySelector('[data-i18n]');
+    if (label) label.textContent = t(ativa ? 'cripto.desativar' : 'cripto.ativar');
+  }
   // Reconstrói o carrossel de dicas no idioma atual.
   initTicker();
   // Re-renderiza o botão "Ver detalhes" da caixa de nível no idioma atual.
