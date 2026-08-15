@@ -100,7 +100,7 @@ var pt = {
   'idioma.es': 'Español',
   'idiomaNome.pt': 'Português (BR)',
   'idiomaNome.en': 'Inglês',
-  'idiomaNome.es': 'Español',
+  'idiomaNome.es': 'Espanhol',
   'cor.verde': 'Verde',
   'cor.azul': 'Azul',
   'cor.roxo': 'Roxo',
