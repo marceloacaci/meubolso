@@ -420,6 +420,9 @@ function atualizarBadges() {
   setBadge('badge-vencimentos', totalVenc, totalVenc > 0);
   setBadge('badge-lixeira', estado.lixeira.dividas.length + estado.lixeira.carteiras.length
     + estado.lixeira.recorrentes.length + estado.lixeira.metas.length);
+  // S6-3: card de game no menu (sidebar) atualiza a cada render, não só na
+  // página de Pontuação/Conquistas. Garante que os dados do game apareçam no menu.
+  atualizarBadgeNivel();
 }
 
 function calcularMetricas() {
@@ -2463,8 +2466,18 @@ function abrirAnexo(id) {
 
 
 // ---------- Handlers ----------
+// S6-3: impede registrar novas entradas enquanto os dados nao foram carregados
+// (ex.: arquivo criptografado aguardando desbloqueio). Evita a falsa sensacao
+// de salvamento: o usuario adicionaria um dado que nao persiste (a trava em
+// persistir() bloqueia a gravacao) e perderia ao fechar. Mostra aviso e aborta.
+function bloquearSeNaoCarregado() {
+  if (dadosCarregados) return false;
+  if (window.mostrarToast) window.mostrarToast(t('cripto.entrarSemSenhaAviso') || 'Desbloqueie os dados para registrar novas entradas.', 'info');
+  return true;
+}
+
 const handlers = {
-  'nova-divida': () => novaDivida(),
+  'nova-divida': () => { if (bloquearSeNaoCarregado()) return; novaDivida(); },
   'anexar-anexo': (id) => anexarAnexoPagamento(id),
   'abrir-anexo': (id) => abrirAnexo(id),
   'limpar-filtro': () => limparFiltro(),
@@ -2491,8 +2504,8 @@ const handlers = {
   'esvaziar-lixeira-carteira': (id) => esvaziarLixeiraItem('carteiras', id),
   'esvaziar-lixeira-recorrente': (id) => esvaziarLixeiraItem('recorrentes', id),
   'esvaziar-lixeira-meta': (id) => esvaziarLixeiraItem('metas', id),
-  'novo-pagamento': () => novoPagamento(),
-  'nova-carteira': () => novaCarteira(),
+  'novo-pagamento': () => { if (bloquearSeNaoCarregado()) return; novoPagamento(); },
+  'nova-carteira': () => { if (bloquearSeNaoCarregado()) return; novaCarteira(); },
   'editar-carteira': (id) => {
     const c = estado.carteiras.find(x => x.id === id);
     if (c) editarCarteira(c);
@@ -2526,7 +2539,7 @@ const handlers = {
   // B8: verificação manual de atualização (página Sobre)
   'verificar-atualizacao': () => verificarAtualizacaoManual(),
   // Sprint 4 — novas funcionalidades
-  'nova-recorrente': () => novaRecorrente(),
+  'nova-recorrente': () => { if (bloquearSeNaoCarregado()) return; novaRecorrente(); },
   'editar-recorrente': (id) => {
     const r = estado.recorrentes.find(x => x.id === id);
     if (r) editarRecorrente(r);
@@ -2536,7 +2549,7 @@ const handlers = {
     const d = estado.dividas.find(x => x.id === id);
     if (d) editarJuros(d);
   },
-  'nova-meta': () => novaMeta(),
+  'nova-meta': () => { if (bloquearSeNaoCarregado()) return; novaMeta(); },
   'editar-meta': (id) => {
     const m = estado.metas.find(x => x.id === id);
     if (m) editarMeta(m);
