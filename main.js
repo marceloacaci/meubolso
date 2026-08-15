@@ -16,7 +16,7 @@ let userDataPath, dbFile, dataFile, backupFile, pontosFile, backupsDir;
 // ambiente e para exibir na página "Sobre".
 let ambienteAtual = 'dev';
 
-const { resolverCaminhoDados } = require('./caminhos-dados');
+const { resolverCaminhoDados } = require('./src/caminhos-dados');
 
 // Caminhos de dados — separados por ambiente para NÃO misturar entradas:
 //   dev       -> %APPDATA%/meubolso/                      (como era antes)
