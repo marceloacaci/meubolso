@@ -90,10 +90,14 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     const btnSec = document.getElementById('btn-acao-secundaria');
     if (btnSec) btnSec.onclick = () => { fecharModal(); o.acaoSecundaria.aoClicar(); };
   }
-  // Toggle "Visualizar senha": mostra/oculta o texto digitado.
+  // Toggle "Visualizar senha": mostra ENQUANTO o check estiver marcado e oculta
+  // ao desmarcar (só reaparece se marcar de novo). O seletor pega o input do
+  // próprio .senha-wrap independente do type — assim funciona nas duas transições
+  // (password->text e text->password); usar input[type="password"] quebra ao
+  // desmarcar, pois o campo já virou text e o seletor não o encontra mais.
   modalCard.querySelectorAll('.senha-ver-check').forEach(chk => {
     chk.onclick = () => {
-      const inp = chk.closest('.senha-wrap').querySelector('input[type="password"]');
+      const inp = chk.closest('.senha-wrap').querySelector('input');
       if (inp) inp.type = chk.checked ? 'text' : 'password';
     };
   });
