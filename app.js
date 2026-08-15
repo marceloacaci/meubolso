@@ -2689,12 +2689,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const NIVEIS = [1, 1.15, 1.3];
       let s = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) || 1;
       let idx = NIVEIS.reduce((best, n, i) => (Math.abs(n - s) < Math.abs(NIVEIS[best] - s) ? i : best), 0);
+      const idxAntes = idx;
       if (fonte.dataset.fonte === 'aumentar') idx = Math.min(NIVEIS.length - 1, idx + 1);
       else idx = Math.max(0, idx - 1);
       s = NIVEIS[idx];
       document.documentElement.style.setProperty('--app-font-scale', s.toFixed(2));
       try { localStorage.setItem('appFontScale', s.toFixed(2)); } catch (e2) {}
-      render(); // atualiza o rótulo "Normal/Grande/Extra grande"
+      // So re-renderiza se o nivel realmente mudou (evita "atualizar a pagina"
+      // quando ja esta no minimo/maximo e o usuario clica de novo).
+      if (idx !== idxAntes) render();
       return;
     }
     const acento = e.target.closest('[data-accent]');

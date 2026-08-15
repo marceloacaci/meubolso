@@ -1,9 +1,9 @@
 :root {
   --bg: #fafafa;
   --surface: #ffffff;
-  --text: #1a1a1a;
-  --text-muted: #6b6b6b;
-  --border: #e6e6e6;
+  --text: #111111;            /* quase preto: máximo contraste no tema claro */
+  --text-muted: #444444;      /* cinza escuro (legível sobre fundo claro) */
+  --border: #cfcfcf;          /* bordas de cards/botões mais visíveis */
   --primary: #2d6a4f;
   --primary-hover: #1b4332;
   --danger: #c1121f;
