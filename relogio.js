@@ -37,9 +37,21 @@
     const diaCap = dia.charAt(0).toUpperCase() + dia.slice(1);
     const data = diaCap + ', ' + String(d.getUTCDate()).padStart(2, '0') + '/' +
       MESES[d.getUTCMonth()] + '/' + d.getUTCFullYear();
-    const hora = String(d.getUTCHours()).padStart(2, '0') + ':' +
-      String(d.getUTCMinutes()).padStart(2, '0') + ':' +
-      String(d.getUTCSeconds()).padStart(2, '0');
+    let hora;
+    if (lang === 'en') {
+      // EN: formato 12h com AM/PM.
+      let h = d.getUTCHours();
+      const sufixo = (h >= 12) ? 'PM' : 'AM';
+      h = h % 12; if (h === 0) h = 12;
+      hora = String(h).padStart(2, '0') + ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+        String(d.getUTCSeconds()).padStart(2, '0') + ' ' + sufixo;
+    } else {
+      // PT e ES: formato 24h.
+      hora = String(d.getUTCHours()).padStart(2, '0') + ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+        String(d.getUTCSeconds()).padStart(2, '0');
+    }
     const ico = (typeof ICON !== 'undefined' && ICON.relogio) ? ICON.relogio : '';
     return (ico ? ico + ' ' : '') + data + ', ' + hora + ' (' + (FUSO[lang] || FUSO.pt) + ')';
   }

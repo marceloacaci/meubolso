@@ -290,6 +290,11 @@ function aplicarIdioma() {
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
+  // Sincroniza o relógio de Brasília (relogio.js lê 'appIdioma' do localStorage).
+  try { localStorage.setItem('appIdioma', idiomaAtual); } catch (e) {}
+  if (typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new window.Event('idiomaAlterado'));
+  }
   traduzirEstaticos();
 }
 
@@ -354,6 +359,13 @@ function traduzirEstaticos() {
   // Traduz quaisquer elementos com data-i18n (ex.: botão "Nova dívida" e títulos de grupo).
   document.querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.dataset.i18n);
+  });
+  // Traduz tooltips (title) marcados com data-i18n-title (ex.: menu de configurações rápidas).
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.dataset.i18nTitle));
+    if (el.getAttribute('aria-label') === el.dataset.i18nTitleFallback) {
+      el.setAttribute('aria-label', t(el.dataset.i18nTitle));
+    }
   });
   // Reconstrói o carrossel de dicas no idioma atual.
   initTicker();
