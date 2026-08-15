@@ -13,16 +13,16 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <h3>${t('config.aparencia')}</h3>
           <div class="config-linha">
             <span>${t('config.tema')}</span>
-            <div class="btn-group" role="group" aria-label="${t('config.tema')}">
-              <button class="btn btn-outline-secondary ${temaAtual === 'light' ? 'active' : ''}" data-tema="light">${ICON.sol} ${t('tema.claro')}</button>
-              <button class="btn btn-outline-secondary ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark">${ICON.lua} ${t('tema.escuro')}</button>
+            <div class="gear-grupo" role="group" aria-label="${t('config.tema')}">
+              <button class="gear-opt ${temaAtual === 'light' ? 'active' : ''}" data-tema="light">${ICON.sol} ${t('tema.claro')}</button>
+              <button class="gear-opt ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark">${ICON.lua} ${t('tema.escuro')}</button>
             </div>
           </div>
           <div class="config-linha">
             <span>${t('config.fonte')} (${tamFonte})</span>
-            <div class="btn-group" role="group" aria-label="${t('config.fonte')}">
-              <button class="btn btn-outline-secondary" data-fonte="aumentar" title="Aumentar fonte">${ICON.setaCima} A</button>
-              <button class="btn btn-outline-secondary" data-fonte="diminuir" title="Diminuir fonte">${ICON.setaBaixo} a</button>
+            <div class="gear-grupo gear-fonte-btns" role="group" aria-label="${t('config.fonte')}">
+              <button class="gear-opt gear-fonte" data-fonte="aumentar" title="Aumentar fonte">${ICON.setaCima} A</button>
+              <button class="gear-opt gear-fonte" data-fonte="diminuir" title="Diminuir fonte">${ICON.setaBaixo} a</button>
             </div>
           </div>
         </section>
@@ -49,10 +49,10 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <h3>${t('config.idioma')}</h3>
           <div class="config-linha">
             <span>${t('config.idioma')}</span>
-            <div class="btn-group" role="group" aria-label="${t('config.idioma')}">
-              <button class="btn btn-outline-secondary ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="Português"><span class="bandeira">${ICON.br}</span> PT</button>
-              <button class="btn btn-outline-secondary ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="English"><span class="bandeira">${ICON.us}</span> EN</button>
-              <button class="btn btn-outline-secondary ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="Español"><span class="bandeira">${ICON.es}</span> ES</button>
+            <div class="gear-grupo" role="group" aria-label="${t('config.idioma')}">
+              <button class="gear-opt ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="Português"><span class="bandeira">${ICON.br}</span> PT</button>
+              <button class="gear-opt ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="English"><span class="bandeira">${ICON.us}</span> EN</button>
+              <button class="gear-opt ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="Español"><span class="bandeira">${ICON.es}</span> ES</button>
             </div>
           </div>
         </section>
