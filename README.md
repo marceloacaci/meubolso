@@ -55,12 +55,23 @@ O MeuBolso separa os dados de cada forma de execução para **não misturar entr
 A página **Sobre** mostra o ambiente ativo e o caminho exato do arquivo de dados.
 Para mover dados entre ambientes, use **Exportar/Importar** (CSV/JSON) na interface.
 
-## Atualização (auto-update)
+## Atualização (estilo comercial)
 
-- O **instalador (setup.exe)** se atualiza **sozinho**: ao abrir, verifica o GitHub;
-  se houver versão nova, baixa em segundo plano e instala ao fechar. Nenhuma ação do usuário.
-- O **portátil (.exe)** **não** auto-atualiza — basta baixar a versão nova do GitHub e
-  substituir o arquivo (ou copiar o `meubolso.json` da pasta antiga para a nova).
+O app verifica novas versões no GitHub e apresenta um fluxo guiado (igual a grandes
+sistemas comerciais): modal **"Atualização disponível"** (versão, relatório de
+fix/atualizações, tamanho), **barra de progresso** durante o download e, ao concluir,
+**"Reiniciar agora ou depois"**.
+
+- **Instalador (setup.exe):** ao abrir, verifica o GitHub. Se houver versão nova, o
+  usuário decide baixar; instalado ao reiniciar. Requer o `latest.yml` na release.
+- **Portátil (.exe):** também se atualiza **sem download manual** — baixa o novo
+  executável da release e, ao reiniciar, um script auxiliar troca o arquivo e relança.
+  Os dados ficam na própria pasta do executável e são preservados.
+
+### Migração de dados entre versões (instalado)
+Os dados do instalado ficam em `%APPDATA%\meubolso\<versão>\`. Ao abrir uma versão
+nova, os dados da pasta anterior são **copiados** para a atual (nunca apagados antes
+da cópia) e pastas de versões obsoletas sem dados são removidas. Nada se perde ao atualizar.
 
 ## Roadmap de Sprints
 

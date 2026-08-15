@@ -11,6 +11,7 @@ const fs = require('fs');
 // ============================================================
 
 let userDataPath, dbFile, dataFile, backupFile, pontosFile, backupsDir;
+let mainWin = null;
 // Ambiente de execução: 'dev' (npm start), 'portatil' (portable baixado) ou
 // 'instalado' (setup.exe instalado). Usado para separar os dados de cada
 // ambiente e para exibir na página "Sobre".
@@ -192,6 +193,7 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
+  mainWin = win;
 
   win.setMinimumSize(W, H);
   win.setSize(W, H, false);
@@ -460,17 +462,232 @@ ipcMain.handle('dados:importar', async (evt) => {
 
 function iniciarAutoUpdate() {
   if (!app.isPackaged) return;
+  // O portátil usa fluxo próprio (troca de .exe via .bat); o instalado usa
+  // o electron-updater (NSIS).
+  if (ambienteAtual === 'portatil') {
+    iniciarAutoUpdatePortatil();
+    return;
+  }
   try {
     const { autoUpdater } = require('electron-updater');
-    autoUpdater.autoDownload = true;
-    autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-      console.warn('Verificação de atualização falhou:', err.message);
+    // Não baixa automaticamente: o usuário decide na tela "Atualização disponível".
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = false;
+    // Verifica periodicamente (a cada 3h) além do startup.
+    let verificando = false;
+    const verificar = () => {
+      if (verificando) return;
+      verificando = true;
+      autoUpdater.checkForUpdates().catch((err) => {
+        console.warn('Verificação de atualização falhou:', err.message);
+      }).finally(() => { verificando = false; });
+    };
+    autoUpdater.on('update-available', (info) => {
+      const file = (info.files && info.files[0]) || {};
+      const sizeBytes = file.size || info.updateInfo && info.updateInfo.size || 0;
+      enviarUpdate('update:disponivel', {
+        version: info.version || info.updateInfo && info.updateInfo.version,
+        releaseNotes: info.releaseNotes || '',
+        releaseDate: info.releaseDate || '',
+        sizeBytes: Number(sizeBytes) || 0,
+      });
     });
-    autoUpdater.on('update-available', () => console.log('Atualização disponível — baixando...'));
-    autoUpdater.on('update-downloaded', () => console.log('Atualização baixada — será instalada ao fechar.'));
+    autoUpdater.on('download-progress', (p) => {
+      enviarUpdate('update:progresso', {
+        percent: Math.round(p.percent || 0),
+        transferred: p.transferred || 0,
+        total: p.total || 0,
+      });
+    });
+    autoUpdater.on('update-downloaded', () => {
+      enviarUpdate('update:baixado', {});
+    });
+    autoUpdater.on('error', (err) => {
+      enviarUpdate('update:erro', { message: err && err.message ? err.message : String(err) });
+    });
+
+    ipcMain.handle('update:baixar', async () => { try { return await autoUpdater.downloadUpdate(); } catch (e) { return { erro: e.message }; } });
+    ipcMain.handle('update:instalar-agora', async () => { try { autoUpdater.quitAndInstall(false, true); return { ok: true }; } catch (e) { return { erro: e.message }; } });
+    ipcMain.handle('update:adiar', async () => { return { ok: true }; });
+    ipcMain.handle('update:verificar-agora', async () => { verificar(); return { ok: true }; });
+
+    // Verifica ao iniciar (pequeno atraso para a janela estar pronta).
+    setTimeout(verificar, 4000);
+    setInterval(verificar, 3 * 60 * 60 * 1000);
   } catch (err) {
     console.warn('Auto-update indisponível:', err.message);
+  }
+}
+
+// Envia evento de atualização para a janela principal (se houver e estiver pronta).
+function enviarUpdate(canal, payload) {
+  if (mainWin && !mainWin.isDestroyed() && mainWin.webContents) {
+    mainWin.webContents.send(canal, payload);
+  }
+}
+
+// ---- Auto-update para o PORTÁTIL ----
+// O electron-updater (NSIS) não troca o .exe portátil em execução. Implementamos
+// um fluxo próprio: busca a última release no GitHub, baixa o asset *-portable.exe
+// e, ao reiniciar, um .bat auxiliar troca o executável e relança.
+const https = require('https');
+const { execFile } = require('child_process');
+
+function iniciarAutoUpdatePortatil() {
+  // Handler: verifica a última release e emite "update:disponivel" se houver nova versão.
+  ipcMain.handle('update:verificar-agora', async () => {
+    try {
+      const rel = await buscarUltimaRelease();
+      if (!rel) return { ok: true, disponivel: false };
+      const cmp = compararVersoes(rel.tag, app.getVersion());
+      if (cmp <= 0) return { ok: true, disponivel: false };
+      const asset = (rel.assets || []).find(a => /portable\.exe$/i.test(a.name));
+      if (!asset) return { ok: true, disponivel: false };
+      enviarUpdate('update:disponivel', {
+        version: rel.tag,
+        releaseNotes: rel.notes || '',
+        releaseDate: rel.published || '',
+        sizeBytes: Number(asset.size) || 0,
+        portable: true,
+        downloadUrl: asset.browser_download_url,
+      });
+      return { ok: true, disponivel: true };
+    } catch (e) {
+      enviarUpdate('update:erro', { message: e.message });
+      return { ok: false, erro: e.message };
+    }
+  });
+
+  // Handler: baixa o asset portátil para a pasta _update/ e reporta progresso.
+  ipcMain.handle('update:baixar', async (_e, url) => {
+    try {
+      const target = typeof url === 'string' ? url : null;
+      if (!target) return { erro: 'sem url de download' };
+      const portaDir = process.env.PORTABLE_EXECUTABLE_DIR;
+      if (!portaDir) return { erro: 'ambiente nao portatil' };
+      const tmpDir = path.join(portaDir, '_update');
+      fs.mkdirSync(tmpDir, { recursive: true });
+      const dest = path.join(tmpDir, 'MeuBolso-portable-novo.exe');
+      await baixarArquivo(target, dest, (p) => enviarUpdate('update:progresso', p));
+      enviarUpdate('update:baixado', {});
+      return { ok: true };
+    } catch (e) {
+      enviarUpdate('update:erro', { message: e.message });
+      return { erro: e.message };
+    }
+  });
+
+  // Handler: aplica a troca (escreve .bat que troca o exe e relança) e fecha.
+  ipcMain.handle('update:instalar-agora', async () => {
+    try {
+      const portaDir = process.env.PORTABLE_EXECUTABLE_DIR;
+      if (!portaDir) return { erro: 'ambiente nao portatil' };
+      const atual = process.execPath;
+      const novo = path.join(portaDir, '_update', 'MeuBolso-portable-novo.exe');
+      if (!fs.existsSync(novo)) return { erro: 'arquivo nao baixado' };
+      const bat = path.join(portaDir, '_update', 'aplicar-update.bat');
+      const conteudo =
+        '@echo off\r\n' +
+        'timeout /t 1 /nobreak >nul\r\n' +
+        `move /Y "${novo}" "${atual}"\r\n` +
+        `start "" "${atual}"\r\n` +
+        `del "%~f0"\r\n`;
+      fs.writeFileSync(bat, conteudo);
+      // Dispara o .bat (detached) e encerra o app; o .bat assume a troca.
+      execFile('cmd.exe', ['/c', bat], { detached: true, stdio: 'ignore', windowsHide: true });
+      setTimeout(() => app.quit(), 300);
+      return { ok: true };
+    } catch (e) {
+      return { erro: e.message };
+    }
+  });
+
+  ipcMain.handle('update:adiar', async () => ({ ok: true }));
+
+  // Verifica ao iniciar (a cada 6h).
+  setTimeout(() => ipcMain.emit('update:verificar-agora'), 4000);
+  setInterval(() => ipcMain.emit('update:verificar-agora'), 6 * 60 * 60 * 1000);
+}
+
+// Busca a última release via GitHub API (sem token: rate limit 60/h, suficiente).
+function buscarUltimaRelease() {
+  return new Promise((resolve, reject) => {
+    const opts = {
+      hostname: 'api.github.com',
+      path: '/repos/marceloacaci/meubolso/releases/latest',
+      headers: { 'User-Agent': 'MeuBolso', 'Accept': 'application/vnd.github+json' },
+    };
+    https.get(opts, (res) => {
+      if (res.statusCode !== 200) { res.resume(); return reject(new Error('GitHub API ' + res.statusCode)); }
+      let body = '';
+      res.on('data', (c) => (body += c));
+      res.on('end', () => {
+        try {
+          const j = JSON.parse(body);
+          resolve({
+            tag: String(j.tag_name || '').replace(/^v/, ''),
+            notes: j.body || '',
+            published: j.published_at || '',
+            assets: (j.assets || []).map(a => ({ name: a.name, size: a.size, browser_download_url: a.browser_download_url })),
+          });
+        } catch (e) { reject(e); }
+      });
+    }).on('error', reject);
+  });
+}
+
+// Baixa um arquivo via https com callback de progresso {percent, transferred, total}.
+function baixarArquivo(url, dest, onProgress) {
+  return new Promise((resolve, reject) => {
+    const f = fs.createWriteStream(dest);
+    https.get(url, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        f.close(); fs.unlinkSync(dest);
+        return baixarArquivo(res.headers.location, dest, onProgress).then(resolve, reject);
+      }
+      if (res.statusCode !== 200) { f.close(); fs.unlinkSync(dest); return reject(new Error('HTTP ' + res.statusCode)); }
+      const total = Number(res.headers['content-length']) || 0;
+      let transferred = 0;
+      res.on('data', (chunk) => {
+        transferred += chunk.length;
+        if (total) onProgress({ percent: (transferred / total) * 100, transferred, total });
+      });
+      res.pipe(f);
+      f.on('finish', () => f.close(() => resolve(dest)));
+      f.on('error', (e) => { f.close(); fs.unlinkSync(dest); reject(e); });
+    }).on('error', (e) => { f.close(); fs.unlinkSync(dest); reject(e); });
+  });
+}
+
+// Compara versões semânticas simples (retorna >0 se a > b).
+function compararVersoes(a, b) {
+  const pa = String(a || '').split(/[-+]/)[0].split('.').map(Number);
+  const pb = String(b || '').split(/[-+]/)[0].split('.').map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (x !== y) return x - y;
+  }
+  return 0;
+}
+
+// Migra dados do usuário ao atualizar o app (ambiente instalado).
+// Os dados ficam em %APPDATA%/meubolso/<versao>/. Ao abrir uma versão nova,
+// copiamos os dados da versão anterior para a atual (nunca apagamos a origem
+// antes de confirmar a cópia) e removemos pastas de versões obsoletas.
+// opts (opcional, para testes): { base, versaoAtual, ambiente }
+function migrarDadosInstalado(opts = {}) {
+  const ambiente = opts.ambiente !== undefined ? opts.ambiente : ambienteAtual;
+  if (ambiente !== 'instalado') return { copiado: false, limpar: [] };
+  const base = opts.base !== undefined ? opts.base : app.getPath('userData');
+  const versaoAtual = opts.versaoAtual !== undefined ? opts.versaoAtual : (app.getVersion() || '0.0.0');
+  const { executarMigracaoFS } = require('./src/caminhos-dados');
+  try {
+    const r = executarMigracaoFS({ base, versaoAtual, fs, path });
+    if (r.copiado) console.log('[MIGRAÇÃO] Dados copiados de', r.origem, '->', versaoAtual, '; removidas:', r.removidos.join(', '));
+    return r;
+  } catch (err) {
+    console.warn('[MIGRAÇÃO] Ignorada (não crítica):', err.message);
+    return { copiado: false, origem: null, removidos: [] };
   }
 }
 
@@ -484,6 +701,7 @@ app.whenReady().then(() => {
   console.log('========================================');
 
   initPaths();
+  migrarDadosInstalado();
   iniciarAutoUpdate();
   createWindow();
 });
@@ -503,3 +721,9 @@ app.on('before-quit', () => {
   console.log('[APP] before-quit - dados já salvos no disco na última chamada de persistir()');
   console.log('[APP] ✓ Aplicação encerrada');
 });
+
+// Exporta funções internas para testes (não afeta o runtime do Electron, que
+// não consome module.exports do entry-point).
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { migrarDadosInstalado, planejarMigracao: require('./src/caminhos-dados').planejarMigracao };
+}

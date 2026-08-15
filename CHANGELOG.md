@@ -31,6 +31,21 @@ Release candidato de saída do Beta. Foco: hardening, acessibilidade e performan
   `src/caminhos-dados.js` (função pura, testada) + 4 testes em
   `tests/caminhos-dados.test.js`. Página **Sobre** exibe o ambiente ativo e o
   caminho exato do arquivo de dados (pt/en/es).
+- **Sistema de atualização estilo comercial (B8):** ao detectar nova versão, o app
+  exibe (1) modal **"Atualização disponível"** com versão, relatório de fix/atualizações
+  (release notes), tamanho e botões *Atualizar agora* / *Lembrar depois*; (2) modal de
+  **progresso** com barra e percentual; (3) ao baixar, modal **"Reiniciar agora ou depois"**.
+  - *Instalado (NSIS):* usa `electron-updater` (auto-download desligado; o usuário decide);
+    instala ao reiniciar. O `latest.yml` da release é requerido para o auto-update.
+  - *Portátil:* mecanismo próprio — baixa o asset `*-portable.exe` da última release
+    do GitHub e, ao reiniciar, um `.bat` auxiliar troca o executável e relança (sem
+    download manual). Reaproveita os mesmos modais.
+  - *Migração de dados entre versões (instalado):* ao abrir versão nova, os dados da
+    pasta da versão anterior são **copiados** para a atual (nunca movidos/apagados antes
+    da cópia); pastas de versões obsoletas sem dados são removidas. Lógica em
+    `src/caminhos-dados.js` (`executarMigracaoFS`, pura e testada) + 3 testes em
+    `tests/migracao-dados.test.js`. UI em `src/ui/atualizacao.js` (estilo `abrirConfirmacao`);
+    i18n pt/en/es (`upd.*`) e CSS em `styles.css`.
 
 ### Alterado
 - **S6-5 — Performance:** indexação de pagamentos por `dividaId` (`src/dominio.js`).

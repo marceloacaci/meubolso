@@ -441,6 +441,38 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .modal-card.modal-card--gestao { max-width: 780px; }
 .modal-card h2 { font-size: 18px; margin-bottom: 16px; }
 
+/* ---- Telas de atualização do sistema (estilo comercial) ---- */
+.upd-card { text-align: center; }
+.upd-ico {
+  width: 56px; height: 56px; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
+}
+.upd-ico svg, .upd-ico .ico-svg { width: 30px; height: 30px; }
+.upd-ico--spin svg, .upd-ico--spin .ico-svg { animation: upd-spin 1s linear infinite; }
+.upd-ico--ok { background: color-mix(in srgb, #2e9e5b 16%, transparent); color: #2e9e5b; }
+@keyframes upd-spin { to { transform: rotate(360deg); } }
+.upd-titulo { font-size: 19px; margin-bottom: 10px; }
+.upd-meta { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+.upd-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  background: var(--primary); color: #fff; font-weight: 700; font-size: 13px;
+}
+.upd-tamanho { font-size: 12px; color: var(--text-muted); }
+.upd-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 14px; }
+.upd-notas {
+  text-align: left; max-height: 220px; overflow-y: auto;
+  background: var(--surface-2, #f3f5f4); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.5; margin-bottom: 16px;
+}
+.upd-notas-vazio { color: var(--text-muted); font-style: italic; margin-bottom: 16px; }
+.upd-progress { height: 12px; border-radius: 999px; background: var(--border); margin: 14px 0 8px; overflow: hidden; }
+.upd-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #57c98e); transition: width .25s ease; }
+.upd-percent { font-size: 20px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.upd-detalhe { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.upd-acoes { justify-content: center; gap: 10px; }
+
 .campo { margin-bottom: 12px; }
 .campo label {
   display: block;

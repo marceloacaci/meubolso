@@ -201,6 +201,9 @@
   <!-- Modais/confirmações (S3-3): consomem globais de app.js (t, escapeHtml,
        ICON, window.api) e expõem abrirModal/abrirConfirmacao como globais. -->
   <script src="src/ui/modais.js"></script>
+  <!-- Telas de atualização do sistema (estilo comercial): consome globais de
+       app.js/modais.js (t, escapeHtml, ICON, window.api) e os eventos IPC. -->
+  <script src="src/ui/atualizacao.js"></script>
   <!-- Componentes de view (Vue). Carregados após app.js; registram
        window.MeuBolsoViews antes do DOMContentLoaded montar o root. -->
   <script src="views/painel.js"></script>

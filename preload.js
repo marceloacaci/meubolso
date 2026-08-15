@@ -34,5 +34,16 @@ contextBridge.exposeInMainWorld('api', {
   selecionarAnexo: () => ipcRenderer.invoke('anexo:selecionar'),
   criptoDesbloquear: (senha) => ipcRenderer.invoke('cripto:desbloquear', senha),
   criptoAtivar: (senha) => ipcRenderer.invoke('cripto:ativar', senha),
-  criptoDesativar: () => ipcRenderer.invoke('cripto:desativar')
+  criptoDesativar: () => ipcRenderer.invoke('cripto:desativar'),
+  // ---- Atualização do sistema ----
+  updateBaixar: () => ipcRenderer.invoke('update:baixar'),
+  updateInstalarAgora: () => ipcRenderer.invoke('update:instalar-agora'),
+  updateAdiar: () => ipcRenderer.invoke('update:adiar'),
+  updateVerificarAgora: () => ipcRenderer.invoke('update:verificar-agora'),
+  // Escuta eventos de progresso/status enviados pelo main (auto-updater).
+  onUpdate: (canal, cb) => {
+    const wrapper = (_e, payload) => cb(payload);
+    ipcRenderer.on(canal, wrapper);
+    return () => ipcRenderer.removeListener(canal, wrapper);
+  }
 });
