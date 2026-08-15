@@ -534,8 +534,10 @@ const https = require('https');
 const { execFile } = require('child_process');
 
 function iniciarAutoUpdatePortatil() {
-  // Handler: verifica a última release e emite "update:disponivel" se houver nova versão.
-  ipcMain.handle('update:verificar-agora', async () => {
+  // Verifica a última release e emite "update:disponivel" se houver nova versão.
+  // Função chamada DIRETAMENTE pelos timers (como no instalado) — não via
+  // ipcMain.emit, que não aciona handlers registrados com .handle().
+  async function verificarPortatil() {
     try {
       const rel = await buscarUltimaRelease();
       if (!rel) return { ok: true, disponivel: false };
@@ -556,7 +558,10 @@ function iniciarAutoUpdatePortatil() {
       enviarUpdate('update:erro', { message: e.message });
       return { ok: false, erro: e.message };
     }
-  });
+  }
+
+  // Handler p/ o renderer disparar manualmente a verificação, se quiser.
+  ipcMain.handle('update:verificar-agora', async () => verificarPortatil());
 
   // Handler: baixa o asset portátil para a pasta _update/ e reporta progresso.
   ipcMain.handle('update:baixar', async (_e, url) => {
@@ -604,9 +609,9 @@ function iniciarAutoUpdatePortatil() {
 
   ipcMain.handle('update:adiar', async () => ({ ok: true }));
 
-  // Verifica ao iniciar (a cada 6h).
-  setTimeout(() => ipcMain.emit('update:verificar-agora'), 4000);
-  setInterval(() => ipcMain.emit('update:verificar-agora'), 6 * 60 * 60 * 1000);
+  // Verifica ao iniciar (4s) e a cada 6h — chamada direta, não ipcMain.emit.
+  setTimeout(() => verificarPortatil(), 4000);
+  setInterval(() => verificarPortatil(), 6 * 60 * 60 * 1000);
 }
 
 // Busca a última release via GitHub API (sem token: rate limit 60/h, suficiente).
