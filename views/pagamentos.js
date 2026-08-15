@@ -71,6 +71,9 @@ window.__mbRender.pagamentos = function renderPagamentos() {
           <div class="barra-progresso-preenchimento" style="width:${r.percentualPago}%"></div>
           <span class="barra-progresso-texto">${r.percentualPago}%</span>
         </div>
+        <div class="barra-progresso-valor text-secondary small mt-1">
+          ${t('label.valorPago')}: <strong class="text-success">${fmt.format(r.valorPago)}</strong> / ${fmt.format(r.valorTotal)}
+        </div>
         <div class="divida-cabecalho">
           <div>
             <div class="titulo">${escapeHtml(d.descricao)}</div>

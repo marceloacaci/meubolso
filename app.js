@@ -668,6 +668,22 @@ async function desativarCriptografia() {
   if (r && r.ok && window.mostrarToast) window.mostrarToast(t('cripto.desativada') || 'Criptografia desativada', 'sucesso');
 }
 
+// B8: verificação manual de atualização (botão na página Sobre).
+// Dispara a checagem no processo principal; o fluxo de modais (atualizacao.js)
+// apresenta o resultado (disponível / já atualizado / erro).
+async function verificarAtualizacaoManual() {
+  if (!window.api || typeof window.api.updateVerificarAgora !== 'function') {
+    if (window.mostrarToast) window.mostrarToast(t('upd.verificando') || 'Verificando atualizações…', 'info');
+    return;
+  }
+  if (window.mostrarToast) window.mostrarToast(t('upd.verificando') || 'Verificando atualizações…', 'info');
+  try {
+    await window.api.updateVerificarAgora();
+  } catch (e) {
+    if (window.mostrarToast) window.mostrarToast((t('upd.erro') || 'Erro') + ': ' + (e && e.message ? e.message : e), 'erro');
+  }
+}
+
 // S5-3: varre parcelas pendentes que vencem em até `antecedenciaNotif` dias e
 // dispara notificações nativas (via main process) para as ainda não avisadas.
 // Guarda os IDs avisados em estado.configuracoes.avisados para não repetir.
@@ -2424,6 +2440,8 @@ const handlers = {
   // S6-3: criptografia (opt-in)
   'cripto-ativar': () => ativarCriptografia(),
   'cripto-desativar': () => desativarCriptografia(),
+  // B8: verificação manual de atualização (página Sobre)
+  'verificar-atualizacao': () => verificarAtualizacaoManual(),
   // Sprint 4 — novas funcionalidades
   'nova-recorrente': () => novaRecorrente(),
   'editar-recorrente': (id) => {

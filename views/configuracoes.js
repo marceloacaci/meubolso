@@ -61,23 +61,23 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
       <div class="col">
         <section class="config-secao h-100">
           <h3>${t('config.dados')}</h3>
-          <div class="config-acoes">
-            <button class="btn btn-outline-secondary" data-acao="fazerBackup" title="Fazer um backup local agora (copia meubolso.json para dados.bak.json)">${ICON.reciclar} ${t('acao.fazerBackup')}</button>
-            <button class="btn btn-outline-secondary" data-acao="exportar" title="Exportar dados para um arquivo JSON">${ICON.exportar} ${t('acao.exportar')}</button>
-            <button class="btn btn-outline-secondary" data-acao="importar" title="Importar dados de um arquivo JSON">${ICON.importar} ${t('acao.importar')}</button>
-            <button class="btn btn-outline-secondary" data-acao="restaurar" title="Restaurar a partir do backup automático local">${ICON.reciclar} ${t('acao.restaurar')}</button>
+          <div class="card-botoes">
+            <button class="card-btn" data-acao="fazerBackup" title="Fazer um backup local agora (copia meubolso.json para dados.bak.json)">${ICON.reciclar} ${t('acao.fazerBackup')}</button>
+            <button class="card-btn" data-acao="exportar" title="Exportar dados para um arquivo JSON">${ICON.exportar} ${t('acao.exportar')}</button>
+            <button class="card-btn" data-acao="importar" title="Importar dados de um arquivo JSON">${ICON.importar} ${t('acao.importar')}</button>
+            <button class="card-btn" data-acao="restaurar" title="Restaurar a partir do backup automático local">${ICON.reciclar} ${t('acao.restaurar')}</button>
           </div>
         </section>
       </div>
 
       <div class="col">
         <section class="config-secao h-100">
-          <h3>${t('cripto.titulo') || 'Criptografia'}</h3>
-          <p class="text-secondary small">${t('cripto.descricao') || 'Criptografa o arquivo de dados no disco (AES-256-GCM) com senha.'}</p>
-          <div class="config-acoes">
+          <h3>${t('cripto.titulo')}</h3>
+          <p class="text-secondary small">${t('cripto.descricao')}</p>
+          <div class="card-botoes">
             ${(estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa)
-              ? `<button class="btn btn-outline-danger" data-acao="cripto-desativar">${ICON.cadeado || '🔓'} ${t('cripto.desativar') || 'Desativar criptografia'}</button>`
-              : `<button class="btn btn-outline-success" data-acao="cripto-ativar">${ICON.cadeado || '🔒'} ${t('cripto.ativar') || 'Ativar criptografia'}</button>`}
+              ? `<button class="card-btn card-btn--perigo" data-acao="cripto-desativar">${ICON.cadeado || '🔓'} ${t('cripto.desativar')}</button>`
+              : `<button class="card-btn card-btn--destaque" data-acao="cripto-ativar">${ICON.cadeado || '🔒'} ${t('cripto.ativar')}</button>`}
           </div>
         </section>
       </div>

@@ -36,6 +36,9 @@ window.__mbRender.sobre = function renderSobre() {
           <a href="${REPO_URL}" target="_blank" rel="noopener noreferrer" class="sobre-link">
             ${ICON.github} <span>${t('sobre.verProjeto')}</span>
           </a>
+          <button type="button" class="card-btn" data-acao="verificar-atualizacao" id="btn-verificar-atualizacao" style="margin-left:8px">
+            ${ICON.atualizar || ICON.engrenagem || '🔄'} <span>${t('sobre.verificarAtualizacao')}</span>
+          </button>
         </div>
       </section>
 

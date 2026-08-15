@@ -727,6 +727,26 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .config-linha > span { font-size: 14px; }
 .config-acoes { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .config-acoes .btn-ghost { border: 1px solid var(--border); padding: 8px 12px; }
+/* Botão padrão dos cards (configurações / sobre): mesma linguagem visual do
+   menu suspenso de configurações (gear-opt) e do link "Ver projeto" (sobre-link). */
+.card-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-size: 13px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+}
+.card-btn:hover { background: var(--hover, #f1f5f9); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.card-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.card-btn .ico-svg { width: 18px; height: 18px; color: var(--text); }
+/* Botão de destaque (ex.: Ativar criptografia) — reforça a borda e a cor. */
+.card-btn.card-btn--destaque { border-color: var(--primary); color: var(--primary); }
+.card-btn.card-btn--destaque:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.card-btn--perigo { border-color: var(--danger); color: var(--danger); }
+.card-btn--perigo:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+/* Agrupa botões de card em linha, uniforme com o gear-panel. */
+.card-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
 .valor-saldo.atrasado { color: var(--danger); font-weight: 700; }
 
