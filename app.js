@@ -673,6 +673,12 @@ async function carregar() {
       horario: horarioAgora()
     });
   }
+  // S6-4: aplica as preferências DO PERFIL carregado (idioma, tema, acento) para
+  // que cada perfil tenha seu próprio idioma/tema (ex.: esposa em inglês).
+  const cfg = estado.configuracoes || {};
+  if (cfg.idioma && cfg.idioma !== idiomaAtual) { idiomaAtual = cfg.idioma; aplicarIdioma(); }
+  if (cfg.tema && cfg.tema !== temaAtual) { temaAtual = cfg.tema; aplicarTema(); }
+  if (cfg.acento && cfg.acento !== acentoAtual) { acentoAtual = cfg.acento; aplicarAceno(); }
   // Recálculo retroativo: a pontuação por gestão de dívida caiu de 30 para 5 XP.
   // Recompensa o XP já registrado no histórico e recalcula o total/nível.
   await migrarXPgestao();
@@ -713,6 +719,107 @@ function abrirModalDesbloqueio() {
       }
     }
   );
+}
+
+// S6-4: funções de múltiplos perfis de dados.
+async function listarPerfis() {
+  try { return await window.api.perfilListar(); } catch (_) { return { ativo: null, perfis: [] }; }
+}
+// Tela de seleção de perfil ao abrir (ou via menu). Lista os perfis existentes
+// e permite escolher qual carregar, criar novo ou gerenciar.
+async function abrirSelecaoPerfil() {
+  const { ativo, perfis } = await listarPerfis();
+  const itens = (perfis || []).map(p => `
+    <div class="perfil-item">
+      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' ✓' : ''}</button>
+      <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
+    </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
+  abrirModal(
+    t('perfil.selecione') || 'Selecionar perfil',
+    [],
+    () => true,
+    {
+      mensagem: t('perfil.selecioneMsg') || 'Escolha qual perfil de dados deseja abrir.',
+      customHtml: `<div class="perfil-lista">${itens}</div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="btn-criar-perfil">${t('perfil.criar') || 'Criar novo perfil'}</button>
+        </div>`,
+      aoMontar: (modalCard) => {
+        modalCard.querySelectorAll('.perfil-escolher').forEach(b => {
+          b.onclick = async () => {
+            const id = b.dataset.id;
+            fecharModal();
+            await trocarPerfil(id);
+          };
+        });
+        modalCard.querySelectorAll('.perfil-gerenciar').forEach(b => {
+          b.onclick = () => gerenciarPerfil(b.dataset.id);
+        });
+        const criar = modalCard.querySelector('#btn-criar-perfil');
+        if (criar) criar.onclick = () => criarPerfilFlow();
+      }
+    }
+  );
+}
+// Troca o perfil ATIVO ao vivo (sem fechar o sistema). Salva o atual e carrega o alvo.
+async function trocarPerfil(id) {
+  if (!id) return;
+  // Salva o perfil atual antes de trocar (se já houver dados carregados).
+  if (dadosCarregados) { try { await persistir(true); } catch (_) {} }
+  const r = await window.api.perfilDefinirAtivo(id);
+  if (!r || !r.ok) {
+    if (window.mostrarToast) window.mostrarToast(t('perfil.erroTrocar') || 'Não foi possível trocar o perfil', 'erro');
+    return;
+  }
+  // Limpa a trava e recarrega do arquivo do novo perfil.
+  dadosCarregados = false;
+  await carregar(); // vai pedir senha se o perfil alvo estiver criptografado
+  if (window.render) window.render();
+  if (window.mostrarToast) window.mostrarToast(t('perfil.trocado') || 'Perfil trocado', 'sucesso');
+}
+// Fluxo de criar novo perfil (pede o nome; permite criptografar e definir senha).
+function criarPerfilFlow() {
+  abrirModal(t('perfil.criar') || 'Criar novo perfil', [
+    { label: t('perfil.nome') || 'Nome do perfil', name: 'nome', type: 'text', required: true, placeholder: t('perfil.nomePlaceholder') || 'Ex.: Esposa' },
+    { label: t('perfil.criptografar') || 'Criptografar este perfil?', name: 'cripto', type: 'checkbox' },
+    { label: t('cripto.definirSenha') || 'Senha', name: 'senha', type: 'password', required: false }
+  ], async (vals) => {
+    const nome = (vals && vals.nome || '').trim();
+    if (!nome) { if (window.mostrarToast) window.mostrarToast(t('perfil.nomeVazio') || 'Informe um nome', 'erro'); return false; }
+    const r = await window.api.perfilCriar(nome);
+    if (!r || !r.ok) {
+      if (window.mostrarToast) window.mostrarToast(t('perfil.erroCriar') || 'Não foi possível criar o perfil', 'erro');
+      return false;
+    }
+    // Se pediu criptografar, define a senha e ativa.
+    if (vals.cripto && vals.senha) {
+      await window.api.perfilDefinirAtivo(r.id);
+      const ra = await window.api.criptoAtivar(vals.senha);
+      if (!ra || !ra.ok) { if (window.mostrarToast) window.mostrarToast(t('cripto.erro'), 'erro'); }
+    }
+    if (window.mostrarToast) window.mostrarToast(t('perfil.criado') || 'Perfil criado', 'sucesso');
+    await trocarPerfil(r.id);
+    return true;
+  });
+}
+// Gerencia um perfil: renomear e trocar senha (exige senha atual se criptografado).
+function gerenciarPerfil(id) {
+  abrirModal(t('perfil.gerenciar') || 'Gerenciar perfil', [
+    { label: t('perfil.novoNome') || 'Novo nome do perfil', name: 'nome', type: 'text', required: true },
+    { label: t('perfil.senhaAtual') || 'Senha atual (se criptografado)', name: 'senhaAtual', type: 'password', required: false },
+    { label: t('cripto.novaSenha') || 'Nova senha', name: 'senhaNova', type: 'password', required: false }
+  ], async (vals) => {
+    const nome = (vals && vals.nome || '').trim();
+    if (!nome) { if (window.mostrarToast) window.mostrarToast(t('perfil.nomeVazio') || 'Informe um nome', 'erro'); return false; }
+    const rr = await window.api.perfilRenomear({ id, nome });
+    if (!rr || !rr.ok) { if (window.mostrarToast) window.mostrarToast(t('perfil.erroRenomear') || 'Não foi possível renomear', 'erro'); return false; }
+    if (vals.senhaNova) {
+      const rt = await window.api.perfilTrocarSenha({ id, senhaAtual: vals.senhaAtual || '', senhaNova: vals.senhaNova });
+      if (!rt || !rt.ok) { if (window.mostrarToast) window.mostrarToast((t('perfil.erroSenha') || 'Falha ao trocar senha') + ': ' + ((rt && rt.erro) || ''), 'erro'); return false; }
+    }
+    if (window.mostrarToast) window.mostrarToast(t('perfil.salvo') || 'Perfil salvo', 'sucesso');
+    return true;
+  });
 }
 
 // S6-3: ativa a criptografia (pede senha via modal) e re-salva cifrado.
@@ -2535,7 +2642,9 @@ const handlers = {
   'importar': () => importarDados(),
   'restaurar': () => restaurarBackup(),
   'fazerBackup': () => fazerBackupManual(),
-  // S6-3: criptografia (opt-in)
+  // S6-4: perfis
+  'perfil-selecionar': () => abrirSelecaoPerfil(),
+  'perfil-trocar': (id) => trocarPerfil(id),
   'cripto-ativar': () => ativarCriptografia(),
   'cripto-desativar': () => desativarCriptografia(),
   // B8: verificação manual de atualização (página Sobre)
@@ -2810,7 +2919,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   initTicker();
+  // S6-4: se houver mais de um perfil, abre a seleção de perfil ao iniciar
+  // (o usuário escolhe qual conjunto de dados/idioma/tema carregar).
+  const listaPerfis = await listarPerfis();
   await carregar();
+  if ((listaPerfis.perfis || []).length > 1) {
+    abrirSelecaoPerfil();
+  }
   // S5-3: notificações de vencimento — verifica no boot e a cada 6 horas.
   verificarNotificacoes().catch(() => {});
   setInterval(() => { verificarNotificacoes().catch(() => {}); }, 6 * 60 * 60 * 1000);

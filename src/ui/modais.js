@@ -25,6 +25,13 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     inputHtml = `<div class="form-check"><input class="form-check-input" type="checkbox" name="${escapeAttr(c.name)}"${c.value ? ' checked' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} /></div>`;
   } else if (c.type === 'textarea') {
     inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
+  } else if (c.type === 'password') {
+    // Campo de senha com opção "Visualizar senha" (checkbox) para o usuário
+    // confirmar o que está digitando ao criar/trocar senha.
+    inputHtml = `<div class="senha-wrap">
+      <input class="form-control" type="password" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />
+      <label class="senha-ver"><input type="checkbox" class="senha-ver-check" /> ${escapeHtml(t('cripto.verSenha') || 'Visualizar senha')}</label>
+    </div>`;
   } else {
     inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
   }
@@ -35,6 +42,7 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
   const acaoSecHtml = (o.acaoSecundaria && o.acaoSecundaria.texto)
     ? `<button type="button" id="btn-acao-secundaria" class="btn btn-ghost">${escapeHtml(o.acaoSecundaria.texto)}</button>`
     : '';
+  const customHtml = o.customHtml ? o.customHtml : '';
 
   modalCard.innerHTML = `
     <button type="button" class="modal-fechar" data-acao="fechar-modal-x" aria-label="${escapeAttr(t('modal.fechar'))}">×</button>
@@ -42,6 +50,7 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     ${msgHtml}
     <form id="form-modal" novalidate>
       <div id="campos-form">${camposHtml}</div>
+      ${customHtml}
       <div id="resumo-parcelas"></div>
       <div class="form-actions">
         <button type="button" id="btn-cancelar" class="btn btn-ghost">${t('acao.cancelar')}</button>
@@ -62,10 +71,11 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
   const form = document.getElementById('form-modal');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const inputs = form.querySelectorAll('input, select, textarea');
+    // Coleta por NAME (não por índice) para não se confundir com inputs
+    // auxiliares do modal (ex.: checkbox "Visualizar senha" do campo password).
     const valores = {};
-    campos.forEach((c, i) => {
-      const el = inputs[i];
+    campos.forEach((c) => {
+      const el = form.querySelector(`[name="${c.name}"]`);
       if (!el) { valores[c.name] = ''; return; }
       if (c.type === 'checkbox') valores[c.name] = !!el.checked;
       else valores[c.name] = el.value ?? '';
@@ -80,6 +90,15 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     const btnSec = document.getElementById('btn-acao-secundaria');
     if (btnSec) btnSec.onclick = () => { fecharModal(); o.acaoSecundaria.aoClicar(); };
   }
+  // Toggle "Visualizar senha": mostra/oculta o texto digitado.
+  modalCard.querySelectorAll('.senha-ver-check').forEach(chk => {
+    chk.onclick = () => {
+      const inp = chk.closest('.senha-wrap').querySelector('input[type="password"]');
+      if (inp) inp.type = chk.checked ? 'text' : 'password';
+    };
+  });
+  // Callback de montagem (ex.: seleção de perfil com lista customizada).
+  if (typeof o.aoMontar === 'function') o.aoMontar(modalCard);
   // A janela NÃO fecha ao clicar fora dela (modal-overlay). Assim o usuário
   // não perde os dados digitados se o mouse sair da janela e ele clicar fora.
   // O fechamento ocorre apenas pelos botões da própria janela (Salvar/Cancelar).

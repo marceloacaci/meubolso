@@ -33,11 +33,23 @@ function initPaths() {
   });
   ambienteAtual = ambiente;
   userDataPath = base;
-  dbFile = path.join(userDataPath, 'meubolso.json');
-  dataFile = path.join(userDataPath, 'dados.json');
-  backupFile = path.join(userDataPath, 'dados.bak.json');
-  pontosFile = path.join(userDataPath, 'pontos.bak.json');
+  // Migra o meubolso.json legado para o primeiro perfil (se ainda não houver perfis).
+  try { perfis.migrarLegado(base, 'Marcelo'); } catch (_) {}
+  // Define o perfil ativo (do índice) e recalcula dbFile/backupFile.
+  const indice = perfis.lerIndice(base);
+  perfilAtivo = indice.ativo || (indice.perfis[0] && indice.perfis[0].id) || null;
+  atualizarCaminhosPerfil();
   backupsDir = path.join(userDataPath, 'backups');
+}
+
+// Recalcula dbFile/backupFile com base no perfil ativo (pasta perfis/).
+function atualizarCaminhosPerfil() {
+  const id = perfilAtivo || 'default';
+  dbFile = perfis.caminhoPerfil(userDataPath, id);
+  backupFile = path.join(userDataPath, 'perfis', `perfil-${id}.bak.json`);
+  pontosFile = path.join(userDataPath, 'perfis', `perfil-${id}.pontos.json`);
+  // Garante que a pasta existe.
+  try { require('fs').mkdirSync(path.dirname(dbFile), { recursive: true }); } catch (_) {}
 }
 
 // ---------- Normalizar dados ----------
@@ -56,8 +68,11 @@ function normalizar(d) {
 }
 
 const cripto = require('./src/cripto.js');
-// Senha em memoria (sessao). Definida quando o usuario desbloqueia/ativa a cripto.
-let senhaSessao = null;
+const perfis = require('./src/perfis.js');
+// Senha em memoria (sessao) POR PERFIL. Definida quando o usuario desbloqueia/ativa a cripto.
+// Chave = id do perfil. Assim cada perfil tem sua própria senha de sessão.
+let senhaSessaoPorPerfil = {};
+let perfilAtivo = null; // id do perfil ativo (define dbFile/backupFile)
 
 // ---------- Backup automático (cópia da última versão válida) ----------
 // Antes de sobrescrever o arquivo principal, copia o conteúdo atual para
@@ -107,12 +122,13 @@ function saveToDB(data) {
   fazerBackup();
   try {
     const cfg = (data.configuracoes && data.configuracoes.criptografia) || { ativa: false };
+    const senhaSessao = (perfilAtivo && senhaSessaoPorPerfil[perfilAtivo]) || null;
     let conteudo = JSON.stringify(normalizar(data));
     if (cfg.ativa && senhaSessao) {
       conteudo = cripto.criptografar(senhaSessao, conteudo);
     }
     salvarArquivoAtomico(dbFile, conteudo);
-    console.log('[DB] ✓ Dados salvos (' + conteudo.length + ' bytes' + (cfg.ativa ? ', criptografado' : '') + ')');
+    console.log('[DB] ✓ Dados salvos (' + conteudo.length + ' bytes' + (cfg.ativa ? ', criptografado' : '') + ') perfil=' + perfilAtivo);
     return true;
   } catch (err) {
     console.error('[DB] ✗ Erro ao salvar:', err.message);
@@ -132,6 +148,7 @@ function loadFromDB() {
     const content = fs.readFileSync(caminho, 'utf8');
     // Arquivo criptografado: precisa de senha para descriptografar.
     if (cripto.eArquivoCriptografado(content)) {
+      const senhaSessao = (perfilAtivo && senhaSessaoPorPerfil[perfilAtivo]) || null;
       if (!senhaSessao) return { __criptografado: true };
       const json = cripto.descriptografar(senhaSessao, content);
       return JSON.parse(json);
@@ -217,44 +234,97 @@ ipcMain.handle('dados:carregar', async () => {
   return normalizado;
 });
 
-// S6-3: verifica a senha contra o arquivo criptografado e, se ok, fixa na sessao.
+// S6-3 / S6-4: verifica a senha contra o arquivo criptografado do perfil ativo
+// e, se ok, fixa na sessao DESSE perfil.
 ipcMain.handle('cripto:desbloquear', async (_evt, senha) => {
   try {
     if (!fs.existsSync(dbFile)) return { ok: false, erro: 'sem arquivo' };
     const content = fs.readFileSync(dbFile, 'utf8');
     if (!cripto.eArquivoCriptografado(content)) return { ok: true, criptografado: false };
     cripto.descriptografar(senha, content); // lanca se senha errada (GCM)
-    senhaSessao = senha;
+    if (perfilAtivo) senhaSessaoPorPerfil[perfilAtivo] = senha;
     return { ok: true, criptografado: true };
   } catch (e) {
     return { ok: false, erro: 'senha incorreta' };
   }
 });
 
-// S6-3: troca a senha da criptografia re-salvando o arquivo ja descriptografado.
+// S6-4: troca a senha da criptografia do perfil ativo re-salvando cifrado.
 ipcMain.handle('cripto:ativar', async (_evt, senha) => {
   if (!senha || !senha.length) return { ok: false, erro: 'senha vazia' };
-  senhaSessao = senha;
-  // marca ativa e re-salva (saveToDB criptografa usando senhaSessao)
+  if (perfilAtivo) senhaSessaoPorPerfil[perfilAtivo] = senha;
+  // marca ativa e re-salva (saveToDB criptografa usando senhaSessao do perfil)
   const atual = loadFromDB();
   if (atual && !atual.__criptografado) {
     atual.configuracoes = atual.configuracoes || {};
     atual.configuracoes.criptografia = { ativa: true };
     saveToDB(atual);
+    try { perfis.marcarCripto(userDataPath, perfilAtivo, true); } catch (_) {}
   }
   return { ok: true };
 });
 
+// S6-4: desativa a criptografia do perfil ativo.
 ipcMain.handle('cripto:desativar', async () => {
-  // Descriptografa ANTES de limpar a senha da sessão (senão o arquivo cifrado
-  // não pode ser lido e o re-salvamento em texto aberto é pulado).
+  const perfil = perfilAtivo;
   const atual = loadFromDB();
   if (!atual || atual.__criptografado) return { ok: false, erro: 'nao foi possivel descriptografar' };
-  senhaSessao = null;
+  if (perfil) senhaSessaoPorPerfil[perfil] = null;
   atual.configuracoes = atual.configuracoes || {};
   atual.configuracoes.criptografia = { ativa: false };
   saveToDB(atual);
+  try { perfis.marcarCripto(userDataPath, perfil, false); } catch (_) {}
   return { ok: true };
+});
+
+// ---------- Handlers de perfis (S6-4) ----------
+ipcMain.handle('perfil:listar', async () => {
+  const indice = perfis.lerIndice(userDataPath);
+  return { ativo: indice.ativo, perfis: indice.perfis };
+});
+ipcMain.handle('perfil:criar', async (_evt, nome) => {
+  const r = perfis.criarPerfil(userDataPath, nome);
+  return r;
+});
+ipcMain.handle('perfil:definirAtivo', async (_evt, id) => {
+  // Ao trocar, limpa a senha de sessão do perfil anterior (segurança).
+  const r = perfis.definirAtivo(userDataPath, id);
+  if (r.ok) {
+    perfilAtivo = id;
+    atualizarCaminhosPerfil();
+    // limpa todas as senhas de sessão ao trocar perfil
+    senhaSessaoPorPerfil = {};
+  }
+  return r;
+});
+ipcMain.handle('perfil:renomear', async (_evt, { id, nome }) => {
+  return perfis.renomearPerfil(userDataPath, id, nome);
+});
+ipcMain.handle('perfil:trocarSenha', async (_evt, { id, senhaAtual, senhaNova }) => {
+  // Valida a senha atual contra o arquivo do perfil antes de trocar.
+  const arq = perfis.caminhoPerfil(userDataPath, id);
+  if (!fs.existsSync(arq)) return { ok: false, erro: 'perfil inexistente' };
+  const content = fs.readFileSync(arq, 'utf8');
+  const criptografado = cripto.eArquivoCriptografado(content);
+  if (criptografado) {
+    try { cripto.descriptografar(senhaAtual, content); } catch (_) { return { ok: false, erro: 'senha atual incorreta' }; }
+  }
+  // Relê descriptografado, re-salva com a nova senha.
+  let dados;
+  if (criptografado) dados = JSON.parse(cripto.descriptografar(senhaAtual, content));
+  else dados = JSON.parse(content);
+  dados.configuracoes = dados.configuracoes || {};
+  dados.configuracoes.criptografia = { ativa: true };
+  const cfg = cripto.criptografar(senhaNova, JSON.stringify(dados));
+  fs.writeFileSync(arq, cfg);
+  if (id === perfilAtivo) senhaSessaoPorPerfil[id] = senhaNova;
+  try { perfis.marcarCripto(userDataPath, id, true); } catch (_) {}
+  return { ok: true };
+});
+ipcMain.handle('perfil:remover', async (_evt, id) => {
+  const r = perfis.removerPerfil(userDataPath, id);
+  if (r.ok && r.ativo) { perfilAtivo = r.ativo; atualizarCaminhosPerfil(); }
+  return r;
 });
 
 ipcMain.handle('dados:salvar-agora', async (_evt, data) => {

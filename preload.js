@@ -35,6 +35,13 @@ contextBridge.exposeInMainWorld('api', {
   criptoDesbloquear: (senha) => ipcRenderer.invoke('cripto:desbloquear', senha),
   criptoAtivar: (senha) => ipcRenderer.invoke('cripto:ativar', senha),
   criptoDesativar: () => ipcRenderer.invoke('cripto:desativar'),
+  // S6-4: perfis de dados
+  perfilListar: () => ipcRenderer.invoke('perfil:listar'),
+  perfilCriar: (nome) => ipcRenderer.invoke('perfil:criar', nome),
+  perfilDefinirAtivo: (id) => ipcRenderer.invoke('perfil:definirAtivo', id),
+  perfilRenomear: (p) => ipcRenderer.invoke('perfil:renomear', p),
+  perfilTrocarSenha: (p) => ipcRenderer.invoke('perfil:trocarSenha', p),
+  perfilRemover: (id) => ipcRenderer.invoke('perfil:remover', id),
   // ---- Atualização do sistema ----
   updateBaixar: () => ipcRenderer.invoke('update:baixar'),
   updateInstalarAgora: () => ipcRenderer.invoke('update:instalar-agora'),
