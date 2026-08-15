@@ -282,6 +282,11 @@ function aplicarTema() {
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
+  // Gráficos (Chart.js) cacheiam a cor do texto no momento da montagem; ao
+  // trocar o tema, força o redesenho para aplicar a nova cor (claro/escuro).
+  if (window.ChartGraficos && window.ChartGraficos.atualizarCores) {
+    try { window.ChartGraficos.atualizarCores(); } catch (_) {}
+  }
 }
 function aplicarIdioma() {
   document.documentElement.setAttribute('lang', idiomaAtual === 'pt' ? 'pt-BR' : idiomaAtual);

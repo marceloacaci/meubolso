@@ -139,5 +139,25 @@
     for (const k of Object.keys(pendentes)) delete pendentes[k];
   }
 
-  window.ChartGraficos = { registrar, montar, destruirTodos };
+  // Atualiza as cores dos gráficos já montados quando o tema muda (claro/escuro),
+  // sem precisar recriar a view. O plugin textoCentral relê coresTema() a cada
+  // redraw, então basta forçar um update; nas barras atualizamos também a cor
+  // dos rótulos do eixo x.
+  function atualizarCores() {
+    if (!instancias.size) return;
+    const t = coresTema();
+    for (const chart of instancias.values()) {
+      try {
+        if (chart.config && chart.config.type === 'bar') {
+          if (chart.options && chart.options.scales && chart.options.scales.x) {
+            chart.options.scales.x.ticks.color = t.muted;
+          }
+        }
+        // 'none' = redesenha sem reanimar; dispara afterDraw (texto central correto).
+        chart.update('none');
+      } catch (_) { /* gráfico pode ter sido destruído */ }
+    }
+  }
+
+  window.ChartGraficos = { registrar, montar, destruirTodos, atualizarCores };
 })();
