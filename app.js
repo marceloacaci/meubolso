@@ -2469,10 +2469,12 @@ function abrirAnexo(id) {
 // S6-3: impede registrar novas entradas enquanto os dados nao foram carregados
 // (ex.: arquivo criptografado aguardando desbloqueio). Evita a falsa sensacao
 // de salvamento: o usuario adicionaria um dado que nao persiste (a trava em
-// persistir() bloqueia a gravacao) e perderia ao fechar. Mostra aviso e aborta.
+// persistir() bloqueia a gravacao) e perderia ao fechar. Em vez de so avisar,
+// reabre a caixa de dialogo de desbloqueio para o usuario digitar a senha na hora.
 function bloquearSeNaoCarregado() {
   if (dadosCarregados) return false;
   if (window.mostrarToast) window.mostrarToast(t('cripto.entrarSemSenhaAviso') || 'Desbloqueie os dados para registrar novas entradas.', 'info');
+  abrirModalDesbloqueio();
   return true;
 }
 
