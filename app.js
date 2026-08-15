@@ -382,6 +382,16 @@ function traduzirEstaticos() {
     b.setAttribute('aria-label', t('idiomaNome.' + b.dataset.idioma));
   });
   // Botão de criptografia no menu rápido reflete o estado (ativar/desativar).
+  // Extraído para atualizarGearCripto() para que também rode após carregar/trocar
+  // perfil (não só na troca de idioma) — ver bug: engrenagem não acompanhava o
+  // estado do perfil recém-carregado quando o idioma não mudava.
+  atualizarGearCripto();
+}
+
+// Atualiza o botão de criptografia do menu de configurações rápidas (engrenagem
+// ao lado do relógio) para refletir o estado do perfil ATIVO. Deve ser chamado
+// após cada carregamento/troca de perfil, não apenas na troca de idioma.
+function atualizarGearCripto() {
   const gearCripto = document.getElementById('gear-cripto-btn');
   if (gearCripto) {
     const ativa = !!(estado.configuracoes && estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa);
@@ -682,6 +692,9 @@ async function carregar() {
   // Recálculo retroativo: a pontuação por gestão de dívida caiu de 30 para 5 XP.
   // Recompensa o XP já registrado no histórico e recalcula o total/nível.
   await migrarXPgestao();
+  // Reflete o estado de criptografia do perfil carregado na engrenagem (menu rápido),
+  // independente de ter havido troca de idioma.
+  atualizarGearCripto();
 }
 
 // S6-3: modal de desbloqueio do arquivo criptografado.
@@ -700,9 +713,14 @@ function abrirModalDesbloqueio() {
       { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: true }
     ],
     async (vals) => {
-      const r = await window.api.criptoDesbloquear(vals.senha || '');
+      const senha = (vals && vals.senha) || '';
+      if (!senha) {
+        if (window.mostrarToast) window.mostrarToast(t('cripto.senhaVazia') || 'Digite a senha para desbloquear os dados.', 'erro');
+        return false; // mantem o modal aberto
+      }
+      const r = await window.api.criptoDesbloquear(senha);
       if (!r || !r.ok) {
-        if (window.mostrarToast) window.mostrarToast(t('cripto.senhaIncorreta') || 'Senha incorreta', 'erro');
+        if (window.mostrarToast) window.mostrarToast(t('cripto.senhaIncorreta') || 'Senha incorreta. Tente novamente.', 'erro');
         return false; // mantem o modal aberto
       }
       if (window.mostrarToast) window.mostrarToast(t('cripto.desbloqueado') || 'Dados desbloqueados', 'sucesso');
@@ -782,10 +800,14 @@ function criarPerfilFlow() {
   abrirModal(t('perfil.criar') || 'Criar novo perfil', [
     { label: t('perfil.nome') || 'Nome do perfil', name: 'nome', type: 'text', required: true, placeholder: t('perfil.nomePlaceholder') || 'Ex.: Esposa' },
     { label: t('perfil.criptografar') || 'Criptografar este perfil?', name: 'cripto', type: 'checkbox' },
-    { label: t('cripto.definirSenha') || 'Senha', name: 'senha', type: 'password', required: false }
+    { label: t('cripto.definirSenha') || 'Senha', name: 'senha', type: 'password', required: false },
+    { label: t('cripto.confirmarSenha') || 'Confirmar senha', name: 'senhaConfirmar', type: 'password', required: false }
   ], async (vals) => {
     const nome = (vals && vals.nome || '').trim();
     if (!nome) { if (window.mostrarToast) window.mostrarToast(t('perfil.nomeVazio') || 'Informe um nome', 'erro'); return false; }
+    if (vals.cripto && vals.senha) {
+      if (vals.senha !== vals.senhaConfirmar) { if (window.mostrarToast) window.mostrarToast(t('cripto.senhasDiferem') || 'As senhas não conferem. Digite novamente.', 'erro'); return false; }
+    }
     const r = await window.api.perfilCriar(nome);
     if (!r || !r.ok) {
       if (window.mostrarToast) window.mostrarToast(t('perfil.erroCriar') || 'Não foi possível criar o perfil', 'erro');
@@ -835,10 +857,12 @@ function gerenciarPerfil(id) {
 // usa o abrirModal padrao do app, igual ao desbloqueio.
 function ativarCriptografia() {
   abrirModal(t('cripto.ativar') || 'Ativar criptografia', [
-    { label: t('cripto.definirSenha') || 'Defina uma senha para criptografar os dados:', name: 'senha', type: 'password', required: true }
+    { label: t('cripto.definirSenha') || 'Defina uma senha para criptografar os dados:', name: 'senha', type: 'password', required: true },
+    { label: t('cripto.confirmarSenha') || 'Confirmar senha', name: 'senhaConfirmar', type: 'password', required: true }
   ], async (vals) => {
     const senha = (vals && vals.senha) || '';
     if (!senha) return false;
+    if (senha !== (vals && vals.senhaConfirmar)) { if (window.mostrarToast) window.mostrarToast(t('cripto.senhasDiferem') || 'As senhas não conferem. Digite novamente.', 'erro'); return false; }
     const r = await window.api.criptoAtivar(senha);
     if (r && r.ok) {
       estado.configuracoes = estado.configuracoes || {};

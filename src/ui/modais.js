@@ -69,7 +69,7 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
 
   // Amarra os handlers no form NOVO
   const form = document.getElementById('form-modal');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     // Coleta por NAME (não por índice) para não se confundir com inputs
     // auxiliares do modal (ex.: checkbox "Visualizar senha" do campo password).
@@ -80,8 +80,11 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
       if (c.type === 'checkbox') valores[c.name] = !!el.checked;
       else valores[c.name] = el.value ?? '';
     });
-    fecharModal();
-    onSubmit(valores);
+    // Só fecha o modal se o onSubmit retornar um valor diferente de false.
+    // Assim, validações (ex.: senhas não conferem) que retornam false mantêm o
+    // modal aberto para o usuário corrigir, em vez de fechar silenciosamente.
+    const resultado = await onSubmit(valores);
+    if (resultado !== false) fecharModal();
   });
 
   document.getElementById('btn-cancelar').onclick = tentarFecharModal;
