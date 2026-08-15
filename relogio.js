@@ -21,7 +21,7 @@
     es: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
   };
   const MESES = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-  const FUSO = { pt: 'Brasília', en: 'Brasilia', es: 'Brasil' };
+  const FUSO = { pt: 'Brasília', en: 'Brasilia', es: 'Brasilia' };
 
   function lerIdioma() {
     try {

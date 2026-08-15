@@ -367,6 +367,11 @@ function traduzirEstaticos() {
       el.setAttribute('aria-label', t(el.dataset.i18nTitle));
     }
   });
+  // Tooltip das bandeiras de idioma: nome do idioma-alvo NO idioma atual do sistema.
+  document.querySelectorAll('[data-idioma]').forEach(b => {
+    b.setAttribute('title', t('idiomaNome.' + b.dataset.idioma));
+    b.setAttribute('aria-label', t('idiomaNome.' + b.dataset.idioma));
+  });
   // Reconstrói o carrossel de dicas no idioma atual.
   initTicker();
   // Re-renderiza o botão "Ver detalhes" da caixa de nível no idioma atual.

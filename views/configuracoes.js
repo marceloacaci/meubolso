@@ -50,9 +50,9 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <div class="config-linha">
             <span>${t('config.idioma')}</span>
             <div class="gear-grupo" role="group" aria-label="${t('config.idioma')}">
-              <button class="gear-opt ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="${t('idioma.pt')}"><span class="bandeira">${ICON.br}</span> PT</button>
-              <button class="gear-opt ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="${t('idioma.en')}"><span class="bandeira">${ICON.us}</span> EN</button>
-              <button class="gear-opt ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="${t('idioma.es')}"><span class="bandeira">${ICON.es}</span> ES</button>
+              <button class="gear-opt ${idiomaAtual === 'pt' ? 'active' : ''}" data-idioma="pt" title="${t('idiomaNome.pt')}"><span class="bandeira">${ICON.br}</span> PT</button>
+              <button class="gear-opt ${idiomaAtual === 'en' ? 'active' : ''}" data-idioma="en" title="${t('idiomaNome.en')}"><span class="bandeira">${ICON.us}</span> EN</button>
+              <button class="gear-opt ${idiomaAtual === 'es' ? 'active' : ''}" data-idioma="es" title="${t('idiomaNome.es')}"><span class="bandeira">${ICON.es}</span> ES</button>
             </div>
           </div>
         </section>
