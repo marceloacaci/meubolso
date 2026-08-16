@@ -4,6 +4,18 @@
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
 let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
 
+// Cache síncrono dos perfis de dados (índice + ativo) para as views que
+// renderizam de forma síncrona (ex.: página Configurações) poderem listar
+// os perfis sem chamar IPC assíncrono dentro do template. Atualizado por
+// atualizarPerfisInfo() nos pontos em que a lista muda.
+let perfisInfo = { ativo: null, perfis: [] };
+window.__perfisInfo = perfisInfo;
+async function atualizarPerfisInfo() {
+  try { const r = await window.api.perfilListar(); if (r && r.perfis) perfisInfo = { ativo: r.ativo, perfis: r.perfis }; } catch (_) {}
+  window.__perfisInfo = perfisInfo;
+  if (window.render) window.render();
+}
+
 // ---------- Utilitários ----------
 // Formatação monetária (BRL). O Intl insere "R$ " com espaço; envelopamos para
 // colar o cifrão ao número ("R$100,00"), conforme padrão de UI solicitado.
@@ -695,6 +707,9 @@ async function carregar() {
   // Reflete o estado de criptografia do perfil carregado na engrenagem (menu rápido),
   // independente de ter havido troca de idioma.
   atualizarGearCripto();
+  // Mantém o cache de perfis (usado pela página Configurações) em sincronia
+  // com o perfil ativo recém-carregado.
+  await atualizarPerfisInfo();
 }
 
 // S6-3: modal de desbloqueio do arquivo criptografado.
@@ -794,6 +809,7 @@ async function trocarPerfil(id) {
   await carregar(); // vai pedir senha se o perfil alvo estiver criptografado
   if (window.render) window.render();
   if (window.mostrarToast) window.mostrarToast(t('perfil.trocado') || 'Perfil trocado', 'sucesso');
+  await atualizarPerfisInfo();
 }
 // Fluxo de criar novo perfil (pede o nome; permite criptografar e definir senha).
 function criarPerfilFlow() {
@@ -848,6 +864,7 @@ function gerenciarPerfil(id) {
       if (!rt || !rt.ok) { if (window.mostrarToast) window.mostrarToast((t('perfil.erroSenha') || 'Falha ao trocar senha') + ': ' + ((rt && rt.erro) || ''), 'erro'); return false; }
     }
     if (window.mostrarToast) window.mostrarToast(t('perfil.salvo') || 'Perfil salvo', 'sucesso');
+    await atualizarPerfisInfo();
     return true;
   });
 }
@@ -2680,6 +2697,7 @@ const handlers = {
   'fazerBackup': () => fazerBackupManual(),
   // S6-4: perfis
   'perfil-selecionar': () => abrirSelecaoPerfil(),
+  'gerenciar-perfil-ativo': () => { const id = (window.__perfisInfo && window.__perfisInfo.ativo) || null; if (id) gerenciarPerfil(id); },
   'perfil-trocar': (id) => trocarPerfil(id),
   'cripto-ativar': () => ativarCriptografia(),
   'cripto-desativar': () => desativarCriptografia(),

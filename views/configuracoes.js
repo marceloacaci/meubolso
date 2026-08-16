@@ -81,6 +81,31 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           </div>
         </section>
       </div>
+
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('perfil.titulo')}</h3>
+          ${(() => {
+            const info = (typeof window !== 'undefined' && window.__perfisInfo) || { ativo: null, perfis: [] };
+            const perfis = info.perfis || [];
+            const tag = t('perfil.ativoTag') || '✓ ativo';
+            const txtTrocar = t('perfil.trocar');
+            const txtGerenciar = t('perfil.gerenciar');
+            const itens = perfis.map(function (p) {
+              const ehAtivo = p.id === info.ativo;
+              const tagAtivo = ehAtivo ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : '';
+              const acao = ehAtivo
+                ? '<button class="btn btn-ghost btn-sm" data-acao="gerenciar-perfil-ativo" title="' + txtGerenciar + '">' + txtGerenciar + '</button>'
+                : '<button class="btn btn-ghost btn-sm" data-acao="perfil-trocar" data-id="' + p.id + '" title="' + txtTrocar + '">' + txtTrocar + '</button>';
+              return '<li class="perfil-linha ' + (ehAtivo ? 'perfil-linha--ativo' : '') + '">' +
+                '<span class="perfil-nome">' + escapeHtml(p.nome) + tagAtivo + '</span>' + acao + '</li>';
+            }).join('');
+            const lista = itens || '<p class="modal-msg">' + (t('perfil.nenhum') || '') + '</p>';
+            const btnTrocar = '<div class="card-botoes"><button class="card-btn" data-acao="perfil-selecionar" title="' + (t('perfil.selecioneMsg') || '') + '">' + (ICON.cadeado || '👥') + ' ' + txtTrocar + '</button></div>';
+            return '<ul class="perfil-lista">' + lista + '</ul>' + btnTrocar;
+          })()}
+        </section>
+      </div>
     </div>
   `;
 };

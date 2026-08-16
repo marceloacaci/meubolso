@@ -101,6 +101,7 @@ var pt = {
   'cripto.novaSenha': 'Nova senha',
   'cripto.verSenha': 'Visualizar senha',
   'perfil.titulo': 'Perfis de dados',
+  'perfil.ativoTag': '✓ ativo',
   'perfil.trocar': 'Trocar perfil',
   'perfil.selecione': 'Selecionar perfil',
   'perfil.selecioneMsg': 'Escolha qual perfil de dados deseja abrir.',
