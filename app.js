@@ -751,6 +751,8 @@ function abrirModalDesbloqueio() {
       }
       if (window.mostrarToast) window.mostrarToast(t('cripto.desbloqueado') || 'Dados desbloqueados', 'sucesso');
       await carregar();
+      // Login real concluido (desbloqueio com sucesso) -> concede XP de acesso diario.
+      concederXpAcessoDiario();
       if (window.render) window.render(); // garante a atualização da UI com os dados
       return true;
     },
@@ -830,7 +832,7 @@ async function trocarPerfil(id) {
   // (dadosCarregados=true). Se o perfil era criptografado e o usuario cancelou
   // o desbloqueio, NAO popula o sidebar com o nome (evita mostrar perfil sem
   // ter feito login).
-  if (dadosCarregados) await atualizarPerfisInfo();
+  if (dadosCarregados) { await atualizarPerfisInfo(); concederXpAcessoDiario(); }
 }
 // Fluxo de criar novo perfil (pede o nome; permite criptografar e definir senha).
 function criarPerfilFlow() {
@@ -2690,8 +2692,21 @@ function abrirAnexo(id) {
 function bloquearSeNaoCarregado() {
   if (dadosCarregados) return false;
   if (window.mostrarToast) window.mostrarToast(t('cripto.entrarSemSenhaAviso') || 'Desbloqueie os dados para registrar novas entradas.', 'info');
-  abrirModalDesbloqueio();
+  // Leva PRIMEIRO a selecionar o perfil (para depois entrar com a senha),
+  // em vez de ir direto ao desbloqueio.
+  if (typeof abrirSelecaoPerfil === 'function') abrirSelecaoPerfil();
   return true;
+}
+
+// S6-X: concede XP de acesso (login diario, 1x por dia) SOMENTE quando ha
+// um login real (boot de 1 perfil, troca de perfil concluida ou desbloqueio
+// com sucesso). Atualiza ultimoAcesso e emite a notificacao de XP.
+function concederXpAcessoDiario() {
+  if (!estado || !estado.gamificacao) return;
+  const dataHoje = hoje();
+  if (estado.gamificacao.ultimoAcesso === dataHoje) return; // ja recebeu hoje
+  estado.gamificacao.ultimoAcesso = dataHoje;
+  ganharXP(3, t('xp.acesso'));
 }
 
 const handlers = {
@@ -3038,8 +3053,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const listaPerfis = await listarPerfis();
   if ((listaPerfis.perfis || []).length > 1) {
     abrirSelecaoPerfil();
+    // >1 perfil: o XP de acesso sera concedido quando o usuario escolher o
+    // perfil (trocarPerfil) ou desbloquear — ver concederXpAcessoDiario().
   } else {
     await carregar();
+    // 1 perfil: login direto (sem seletor) -> concede XP de acesso diario.
+    if (dadosCarregados) concederXpAcessoDiario();
   }
   // S5-3: notificações de vencimento — verifica no boot e a cada 6 horas.
   verificarNotificacoes().catch(() => {});
@@ -3056,12 +3075,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   aplicarIdioma();
   aplicarAceno();
   atualizarBadgeNivel();
-  // XP de login diário (1x por dia)
-  const dataHoje = hoje();
-  if ((estado.gamificacao && estado.gamificacao.ultimoAcesso) !== dataHoje) {
-    if (estado.gamificacao) estado.gamificacao.ultimoAcesso = dataHoje;
-    ganharXP(3, t('xp.acesso'));
-  }
+  // XP de login diario (1x por dia) FOI MOVIDO para concederXpAcessoDiario(),
+  // chamada apenas nos pontos de LOGIN REAL (boot de 1 perfil, troca de perfil
+  // concluida ou desbloqueio com sucesso). Nao aqui: o carregar() do boot roda
+  // para o perfil ativo mesmo quando o usuario ainda vai escolher no seletor
+  // ou cancelou o desbloqueio — nesse caso nao houve login de fato.
 
   // ---------- Monta o app Vue (DONO da view) ----------
   // Root com <component :is="currentView">: troca o componente de view de
