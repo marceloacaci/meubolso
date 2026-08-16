@@ -218,6 +218,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .empty .emoji .ico-svg { width: 40px; height: 40px; }
 .bandeira .ico-svg, .bandeira-svg { width: 26px; height: 18px; border-radius: 2px; display: inline-block; vertical-align: -0.15em; }
 .logo-titulo { font-size: calc(15px * var(--app-font-scale)); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Nome do usuário (perfil ativo) abaixo do logo, acima dos botões de ação. */
+.sidebar-usuario { font-size: calc(11px * var(--app-font-scale)); color: var(--text-muted); padding: 2px 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .btn-cta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; font-weight: 600; }
 
@@ -452,6 +454,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* ---- Campo de senha com "Visualizar senha" (S6-4) ---- */
 .senha-wrap { display: flex; flex-direction: column; gap: 4px; }
+/* Toggle único por modal (controla todos os inputs password de uma vez). */
+.senha-ver { font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted); display: flex; align-items: center; gap: 6px; cursor: pointer; margin-top: 4px; }
+.senha-ver input { width: auto; }
 
 .upd-card { text-align: center; }
 .upd-ico {
@@ -1160,6 +1165,12 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-fonte { padding: 3px 8px; }
 .gear-cripto { width: 100%; justify-content: flex-start; }
 .gear-cripto--ativa { background: var(--primary); color: #fff; border-color: var(--primary); }
+/* Coloração espelhada do botão da página Configurações: borda/vermelho sem
+   preenchimento ao desativar (perigo) e borda de destaque ao ativar. */
+.gear-cripto--perigo { background: transparent; border-color: var(--danger); color: var(--danger); }
+.gear-cripto--perigo:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.gear-cripto--destaque { background: transparent; border-color: var(--primary); color: var(--primary); }
+.gear-cripto--destaque:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .gear-cores { gap: 8px; }
 .gear-cor {
   width: 26px;

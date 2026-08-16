@@ -26,11 +26,11 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
   } else if (c.type === 'textarea') {
     inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
   } else if (c.type === 'password') {
-    // Campo de senha com opção "Visualizar senha" (checkbox) para o usuário
-    // confirmar o que está digitando ao criar/trocar senha.
+    // Campo de senha. O toggle "Visualizar senha" é ÚNICO por modal (não por
+    // campo) e controla todos os inputs password — evitando caixas duplicadas
+    // quando há senha + confirmar senha. Veja a montagem após os campos.
     inputHtml = `<div class="senha-wrap">
       <input class="form-control" type="password" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />
-      <label class="senha-ver"><input type="checkbox" class="senha-ver-check" /> ${escapeHtml(t('cripto.verSenha') || 'Visualizar senha')}</label>
     </div>`;
   } else {
     inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
@@ -93,17 +93,21 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     const btnSec = document.getElementById('btn-acao-secundaria');
     if (btnSec) btnSec.onclick = () => { fecharModal(); o.acaoSecundaria.aoClicar(); };
   }
-  // Toggle "Visualizar senha": mostra ENQUANTO o check estiver marcado e oculta
-  // ao desmarcar (só reaparece se marcar de novo). O seletor pega o input do
-  // próprio .senha-wrap independente do type — assim funciona nas duas transições
-  // (password->text e text->password); usar input[type="password"] quebra ao
-  // desmarcar, pois o campo já virou text e o seletor não o encontra mais.
-  modalCard.querySelectorAll('.senha-ver-check').forEach(chk => {
+  // Toggle "Visualizar senha" ÚNICO por modal: controla TODOS os inputs password
+  // do formulário (senha + confirmar senha) com uma só caixa. Inserido uma única
+  // vez, logo após os campos, dentro do <form>.
+  const senhasDoForm = Array.from(form.querySelectorAll('input[type="password"]'));
+  if (senhasDoForm.length > 0) {
+    const toggle = document.createElement('div');
+    toggle.className = 'senha-ver senha-ver-unico';
+    toggle.innerHTML = `<label><input type="checkbox" class="senha-ver-check" /> ${escapeHtml(t('cripto.verSenha') || 'Visualizar senha')}</label>`;
+    const campos = form.querySelector('#campos-form');
+    if (campos) campos.insertAdjacentElement('afterend', toggle);
+    const chk = toggle.querySelector('.senha-ver-check');
     chk.onclick = () => {
-      const inp = chk.closest('.senha-wrap').querySelector('input');
-      if (inp) inp.type = chk.checked ? 'text' : 'password';
+      senhasDoForm.forEach(inp => { inp.type = chk.checked ? 'text' : 'password'; });
     };
-  });
+  }
   // Callback de montagem (ex.: seleção de perfil com lista customizada).
   if (typeof o.aoMontar === 'function') o.aoMontar(modalCard);
   // A janela NÃO fecha ao clicar fora dela (modal-overlay). Assim o usuário

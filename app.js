@@ -13,6 +13,13 @@ window.__perfisInfo = perfisInfo;
 async function atualizarPerfisInfo() {
   try { const r = await window.api.perfilListar(); if (r && r.perfis) perfisInfo = { ativo: r.ativo, perfis: r.perfis }; } catch (_) {}
   window.__perfisInfo = perfisInfo;
+  // Exibe o nome do perfil (usuário) ativo na sidebar, abaixo do logo.
+  const el = document.getElementById('sidebar-usuario');
+  if (el) {
+    const ativo = (perfisInfo.perfis || []).find(p => p.id === perfisInfo.ativo);
+    el.textContent = ativo ? ativo.nome : '';
+    el.style.display = ativo ? '' : 'none';
+  }
   if (window.render) window.render();
 }
 
@@ -409,6 +416,10 @@ function atualizarGearCripto() {
     const ativa = !!(estado.configuracoes && estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa);
     gearCripto.dataset.acao = ativa ? 'cripto-desativar' : 'cripto-ativar';
     gearCripto.classList.toggle('gear-cripto--ativa', ativa);
+    // Mesma coloração do botão da página Configurações: borda/vermelho sem
+    // preenchimento ao desativar (perigo) e borda de destaque ao ativar.
+    gearCripto.classList.toggle('gear-cripto--perigo', ativa);
+    gearCripto.classList.toggle('gear-cripto--destaque', !ativa);
     const label = gearCripto.querySelector('[data-i18n]');
     if (label) label.textContent = t(ativa ? 'cripto.desativar' : 'cripto.ativar');
   }
