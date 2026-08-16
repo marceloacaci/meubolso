@@ -773,9 +773,15 @@ async function listarPerfis() {
 // e permite escolher qual carregar, criar novo ou gerenciar.
 async function abrirSelecaoPerfil() {
   const { ativo, perfis } = await listarPerfis();
+  // So mostra a tag "Perfil atual" se ja houver um perfil efetivamente logado
+  // (dadosCarregados). Na tela de entrada (boot) ninguem esta logado ainda,
+  // entao nenhum perfil recebe a tag (evita aparecer no perfil errado antes
+  // da senha ser validada).
+  const logado = (typeof dadosCarregados !== 'undefined') ? dadosCarregados : false;
+  const tag = t('perfil.atual') || 'Perfil atual';
   const itens = (perfis || []).map(p => `
     <div class="perfil-item">
-      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}</button>
+      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}${(logado && p.id === ativo) ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : ''}</button>
       <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
     </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
   abrirModal(
