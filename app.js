@@ -736,7 +736,7 @@ function abrirModalDesbloqueio() {
   abrirModal(
     t('cripto.desbloquear') || 'Dados protegidos por criptografia',
     [
-      { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: true }
+      { label: t('cripto.senha') || 'Senha', name: 'senha', type: 'password', required: false }
     ],
     async (vals) => {
       const senha = (vals && vals.senha) || '';
@@ -775,7 +775,7 @@ async function abrirSelecaoPerfil() {
   const { ativo, perfis } = await listarPerfis();
   const itens = (perfis || []).map(p => `
     <div class="perfil-item">
-      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' ✓' : ''}</button>
+      <button type="button" class="btn btn-primary perfil-escolher${p.id === ativo ? ' perfil-escolher--ativo' : ''}" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' <span class="perfil-ativo-selo">ativo</span>' : ''}</button>
       <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
     </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
   abrirModal(
@@ -3092,6 +3092,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     Vue.createApp(RootApp).mount('#app');
     instalarDelegacaoBusca();
+    // Expoem o toast globalmente: o restante do codigo (modais, desbloqueio,
+    // etc.) chama window.mostrarToast(msg, tipo). Sem isso, as notificacoes
+    // (ex.: senha vazia ao desbloquear) nunca apareciam.
+    window.mostrarToast = toast;
   }
   render();
 });

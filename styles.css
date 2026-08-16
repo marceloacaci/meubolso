@@ -462,6 +462,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .perfil-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .perfil-item { display: flex; gap: 8px; align-items: stretch; }
 .perfil-item .perfil-escolher { flex: 1; text-align: left; }
+.perfil-item .perfil-escolher--ativo { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+.perfil-ativo-selo { font-size: calc(10px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--primary); color: #fff; border-radius: 999px; padding: 1px 7px; margin-left: 4px; vertical-align: middle; }
 .perfil-item .perfil-gerenciar { flex: 0 0 auto; padding-left: 12px; padding-right: 12px; }
 
 /* ---- Campo de senha com "Visualizar senha" (S6-4) ---- */
