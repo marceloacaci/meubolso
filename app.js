@@ -2235,6 +2235,10 @@ function render() {
   // o tick reativo — o root <component :is> e os componentes de view observam
   // uiTick e recalculam o v-html sozinhos (sem congelamento no Electron).
   if (typeof window.uiTick !== 'undefined') window.uiTick.value++;
+  // Mantém o botão de criptografia do menu rápido (engrenagem) sempre em
+  // sincronia com o estado do perfil ativo — inclusive quando o usuário
+  // ativa/desativa na página Configurações (que só chama render()).
+  if (typeof atualizarGearCripto === 'function') atualizarGearCripto();
   // A montagem dos gráficos Chart.js (canvas dentro do v-html) é feita no hook
   // updated() de cada view que os usa (painel/relatorio/gamificacao). O updated()
   // roda APÓS o Vue aplicar o novo v-html e popular os pendentes — garantindo que
@@ -2999,8 +3003,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return { currentView };
       },
       render() {
+        // key = uiTick.value força o Vue a RECRIAR o componente de view a cada
+        // tick. Sem isso, <component :is> com o mesmo nome de view não re-renderiza
+        // o filho, e o computed html (que depende de uiTick) não era reavaliado —
+        // ex.: o botão de criptografia da página Configurações não refletia
+        // ativar/desativar. Os inputs ficam em modais (fora do #app), então
+        // recriar a view não perde digitação em formulários da view.
         const comp = (window.MeuBolsoViews || {})[this.currentView] || 'div';
-        return Vue.h(comp);
+        return Vue.h(comp, { key: window.uiTick ? window.uiTick.value : 0 });
       }
     };
     Vue.createApp(RootApp).mount('#app');
