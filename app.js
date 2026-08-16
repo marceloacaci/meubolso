@@ -826,7 +826,11 @@ async function trocarPerfil(id) {
   await carregar(); // vai pedir senha se o perfil alvo estiver criptografado
   if (window.render) window.render();
   if (window.mostrarToast) window.mostrarToast(t('perfil.trocado') || 'Perfil trocado', 'sucesso');
-  await atualizarPerfisInfo();
+  // So atualiza o cache de perfis/sidebar se o carregamento foi bem-sucedido
+  // (dadosCarregados=true). Se o perfil era criptografado e o usuario cancelou
+  // o desbloqueio, NAO popula o sidebar com o nome (evita mostrar perfil sem
+  // ter feito login).
+  if (dadosCarregados) await atualizarPerfisInfo();
 }
 // Fluxo de criar novo perfil (pede o nome; permite criptografar e definir senha).
 function criarPerfilFlow() {

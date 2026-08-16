@@ -465,7 +465,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Tag "Perfil atual" na lista de perfis (card de Configurações): aparece so
    no perfil efetivamente logado (info.ativo, definido apos o desbloqueio/
    carregamento com sucesso). Neutra e discreta. */
-.perfil-ativo-tag { font-size: calc(10px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--primary); color: #fff; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+.perfil-ativo-tag { font-size: calc(10px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--primary); color: #fff !important; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
 .perfil-item .perfil-gerenciar { flex: 0 0 auto; padding-left: 12px; padding-right: 12px; }
 
 /* ---- Campo de senha com "Visualizar senha" (S6-4) ---- */
