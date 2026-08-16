@@ -775,7 +775,7 @@ async function abrirSelecaoPerfil() {
   const { ativo, perfis } = await listarPerfis();
   const itens = (perfis || []).map(p => `
     <div class="perfil-item">
-      <button type="button" class="btn btn-primary perfil-escolher${p.id === ativo ? ' perfil-escolher--ativo' : ''}" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' <span class="perfil-ativo-selo">' + t('perfil.padrao') + '</span>' : ''}</button>
+      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}</button>
       <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
     </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
   abrirModal(

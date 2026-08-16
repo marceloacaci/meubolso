@@ -88,7 +88,7 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           ${(() => {
             const info = (typeof window !== 'undefined' && window.__perfisInfo) || { ativo: null, perfis: [] };
             const perfis = info.perfis || [];
-            const tag = t('perfil.ativoTag') || '✓ ativo';
+            const tag = t('perfil.atual') || 'Perfil atual';
             const txtTrocar = t('perfil.trocar');
             const txtGerenciar = t('perfil.gerenciar');
             const itens = perfis.map(function (p) {

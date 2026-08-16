@@ -199,7 +199,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   overflow-y: auto;
 }
 
-.sidebar-topo { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; }
+.sidebar-topo { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 2px 4px; }
 .logo { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .logo-ico { font-size: calc(20px * var(--app-font-scale)); }
 /* Ícones SVG inline (biblioteca icons.js) — herdam currentColor e se ajustam ao container */
@@ -462,12 +462,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .perfil-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .perfil-item { display: flex; gap: 8px; align-items: stretch; }
 .perfil-item .perfil-escolher { flex: 1; text-align: left; }
-/* Perfil marcado como "padrão" (abre automaticamente) no seletor: destaque
-   sutil de borda + selo neutro. NAO usa cor de destaque no texto (o botao ja
-   tem fundo primario), senao o nome ficaria invisivel (texto azul em fundo
-   azul). So indica que e o perfil padrao, nao que ja esta "logado". */
-.perfil-item .perfil-escolher--ativo { font-weight: 700; box-shadow: 0 0 0 2px var(--primary) inset; }
-.perfil-ativo-selo { font-size: calc(10px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--text-muted); color: #fff; border-radius: 999px; padding: 1px 7px; margin-left: 4px; vertical-align: middle; }
+/* Tag "Perfil atual" na lista de perfis (card de Configurações): aparece so
+   no perfil efetivamente logado (info.ativo, definido apos o desbloqueio/
+   carregamento com sucesso). Neutra e discreta. */
+.perfil-ativo-tag { font-size: calc(10px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--primary); color: #fff; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
 .perfil-item .perfil-gerenciar { flex: 0 0 auto; padding-left: 12px; padding-right: 12px; }
 
 /* ---- Campo de senha com "Visualizar senha" (S6-4) ---- */
