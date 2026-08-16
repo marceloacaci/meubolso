@@ -218,10 +218,22 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .empty .emoji .ico-svg { width: 40px; height: 40px; }
 .bandeira .ico-svg, .bandeira-svg { width: 26px; height: 18px; border-radius: 2px; display: inline-block; vertical-align: -0.15em; }
 .logo-titulo { font-size: calc(15px * var(--app-font-scale)); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Nome do usuário (perfil ativo) abaixo do logo, acima dos botões de ação. */
-.sidebar-usuario { font-size: calc(11px * var(--app-font-scale)); color: var(--text-muted); padding: 2px 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Nome do usuário (perfil ativo) abaixo do logo, acima dos botões de ação.
+   Em negrito e na cor de destaque selecionada pelo usuário (var(--primary)). */
+.sidebar-usuario { font-size: calc(12px * var(--app-font-scale)); font-weight: 700; color: var(--primary); padding: 2px 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .btn-cta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; font-weight: 600; }
+
+/* Campo de busca com ícone de lupa à esquerda (S5-1 / melhorias de busca). */
+.input-com-lupa { position: relative; display: flex; align-items: center; }
+.input-com-lupa .input-lupa { position: absolute; left: 10px; display: inline-flex; align-items: center; color: var(--text-muted); pointer-events: none; }
+.input-com-lupa .form-control { padding-left: 32px; }
+
+/* Botão "Limpar" dos filtros: borda/cor de destaque (igual ao botão Ativar da
+   página de Configurações) para destacar a ação de limpar filtros. */
+.btn-limpar-destaque { border: 1px solid var(--primary); color: var(--primary); background: transparent; border-radius: 8px; padding: 6px 14px; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.btn-limpar-destaque:hover:not(:disabled) { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-limpar-destaque:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--border); color: var(--text-muted); }
 
 /* ---------- Carteiras ---------- */
 .carteira-resumo { font-size: calc(14px * var(--app-font-scale)); color: var(--text-muted); margin-bottom: 14px; }

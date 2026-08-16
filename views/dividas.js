@@ -23,14 +23,18 @@ function renderPainelFiltrosDividas() {
     ['total', t('ord.total')],
     ['saldo', t('ord.saldo')]
   ].map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`).join('');
-  const temFiltro = f.texto || f.categoria || f.status || f.periodo;
+  const temFiltro = f.texto || f.categoria || f.status || f.periodo || f.periodoDe || f.periodoAte;
+  const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
   return `
     <div class="card shadow-sm mb-3">
       <div class="card-body d-flex flex-wrap gap-2 align-items-end">
         <div class="flex-grow-1" style="min-width:200px">
           <label class="form-label small mb-1">${t('filtro.busca')}</label>
-          <input id="busca" type="search" class="form-control" placeholder="${t('filtro.buscaPlaceholder')}"
-            value="${escapeHtml(f.texto || '')}" oninput="definirFiltro('texto', this.value)" />
+          <div class="input-com-lupa">
+            ${lupa}
+            <input id="busca" type="search" class="form-control campo-busca" placeholder="${t('filtro.buscaPlaceholder')}"
+              value="${escapeHtml(f.texto || '')}" />
+          </div>
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.categoria')}</label>
@@ -45,8 +49,12 @@ function renderPainelFiltrosDividas() {
           </select>
         </div>
         <div>
-          <label class="form-label small mb-1">${t('filtro.periodo')}</label>
-          <input type="month" class="form-control" value="${escapeHtml(f.periodo || '')}" onchange="definirFiltro('periodo', this.value)" />
+          <label class="form-label small mb-1">${t('filtro.periodoDe')}</label>
+          <input type="month" class="form-control" value="${escapeHtml(f.periodoDe || '')}" onchange="definirFiltro('periodoDe', this.value)" />
+        </div>
+        <div>
+          <label class="form-label small mb-1">${t('filtro.periodoAte')}</label>
+          <input type="month" class="form-control" value="${escapeHtml(f.periodoAte || '')}" onchange="definirFiltro('periodoAte', this.value)" />
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.ordenar')}</label>
@@ -56,7 +64,7 @@ function renderPainelFiltrosDividas() {
         </div>
         <div>
           <label class="form-label small mb-1">&nbsp;</label>
-          <button class="btn btn-outline-secondary d-block" data-acao="limpar-filtro" title="${t('filtro.limpar')}" ${temFiltro ? '' : 'disabled'}>${t('acao.limpar')}</button>
+          <button class="btn btn-limpar-destaque d-block" data-acao="limpar-filtro" title="${t('filtro.limpar')}" ${temFiltro ? '' : 'disabled'}>${t('acao.limpar')}</button>
         </div>
       </div>
     </div>`;

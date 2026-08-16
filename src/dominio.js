@@ -327,7 +327,10 @@ function filtrarDividas(dividas, filtro) {
   const texto = normalizarTexto(f.texto);
   const cat = f.categoria || '';
   const status = f.status || '';
-  const periodo = f.periodo || ''; // 'YYYY-MM' ou 'YYYY'
+  // Período como range: periodoDe/periodoAte ('YYYY-MM'). Mantém compatível
+  // com o campo legado 'periodo' (mês único).
+  const de = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  const ate = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
   return (dividas || []).filter(d => {
     if (cat && d.categoria !== cat) return false;
     if (texto) {
@@ -342,10 +345,12 @@ function filtrarDividas(dividas, filtro) {
       if (status === 'emDia' && (todasPagas || temAtraso)) return false;
       if (status === 'atrasado' && !temAtraso) return false;
     }
-    if (periodo) {
+    if (de || ate) {
       const bate = (d.parcelas || []).some(p => {
-        const v = (p.vencimento || '').slice(0, periodo.length);
-        return v === periodo;
+        const v = (p.vencimento || '').slice(0, 7); // 'YYYY-MM'
+        if (de && v < de) return false;
+        if (ate && v > ate) return false;
+        return !!(v && (!de || v >= de) && (!ate || v <= ate));
       });
       if (!bate) return false;
     }
@@ -358,7 +363,8 @@ function filtrarPagamentos(pagamentos, dividas, filtro) {
   const f = filtro || {};
   const texto = normalizarTexto(f.texto);
   const dividaId = f.dividaId || '';
-  const periodo = f.periodo || '';
+  const de = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  const ate = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
   const porDiv = (id) => (dividas || []).find(d => d.id === id);
   return (pagamentos || []).filter(p => {
     if (dividaId && p.dividaId !== dividaId) return false;
@@ -367,9 +373,11 @@ function filtrarPagamentos(pagamentos, dividas, filtro) {
       const alvo = normalizarTexto([p.nota, div ? div.descricao : ''].join(' '));
       if (!alvo.includes(texto)) return false;
     }
-    if (periodo) {
-      const v = (p.data || '').slice(0, periodo.length);
-      if (v !== periodo) return false;
+    if (de || ate) {
+      const v = (p.data || '').slice(0, 7); // 'YYYY-MM'
+      if (de && v < de) return false;
+      if (ate && v > ate) return false;
+      if (!(v && (!de || v >= de) && (!ate || v <= ate))) return false;
     }
     return true;
   });

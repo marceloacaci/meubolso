@@ -2,7 +2,7 @@
 // para que os componentes de view recomputem quando os dados mudam.
 // OBS: para manter a reatividade, NUNCA reatribua `estado = {...}` — use
 // Object.assign(estado, ...) (ver carregar/importar/restaurar).
-let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
+let estado = Vue.reactive({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' }, filtro: { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 } });
 
 // Cache síncrono dos perfis de dados (índice + ativo) para as views que
 // renderizam de forma síncrona (ex.: página Configurações) poderem listar
@@ -13,11 +13,11 @@ window.__perfisInfo = perfisInfo;
 async function atualizarPerfisInfo() {
   try { const r = await window.api.perfilListar(); if (r && r.perfis) perfisInfo = { ativo: r.ativo, perfis: r.perfis }; } catch (_) {}
   window.__perfisInfo = perfisInfo;
-  // Exibe o nome do perfil (usuário) ativo na sidebar, abaixo do logo.
+  // Exibe "Usuário: <nome>" do perfil (usuário) ativo na sidebar, abaixo do logo.
   const el = document.getElementById('sidebar-usuario');
   if (el) {
     const ativo = (perfisInfo.perfis || []).find(p => p.id === perfisInfo.ativo);
-    el.textContent = ativo ? ativo.nome : '';
+    el.textContent = ativo ? t('perfil.usuario') + ': ' + ativo.nome : '';
     el.style.display = ativo ? '' : 'none';
   }
   if (window.render) window.render();
@@ -1373,7 +1373,7 @@ function focarBusca() {
 // Aceita também um objeto parcial. Reseta a página ao filtrar.
 function definirFiltro(campo, valor) {
   if (typeof estado.filtro !== 'object' || estado.filtro === null) {
-    estado.filtro = { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 };
+    estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 };
   }
   if (typeof campo === 'object') {
     Object.assign(estado.filtro, campo);
@@ -1385,7 +1385,7 @@ function definirFiltro(campo, valor) {
 }
 
 function limparFiltro() {
-  estado.filtro = { texto: '', categoria: '', status: '', periodo: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: estado.filtro ? estado.filtro.porPagina : 12 };
+  estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: estado.filtro ? estado.filtro.porPagina : 12 };
   render();
 }
 
@@ -2232,17 +2232,28 @@ function excluirPagamento(p) {
 
 // ---------- Renderização ----------
 // Calcula parcelas que vencem nos próximos 7 dias e as já atrasadas.
-function calcularVencimentos() {
+function calcularVencimentos(filtro) {
+  const f = filtro || estado.filtro || {};
+  const texto = normalizarTexto(f.texto);
+  const de = f.periodoDe || '';
+  const ate = f.periodoAte || '';
   const hojeDt = new Date();
   const limite = new Date(); limite.setDate(limite.getDate() + 7);
   const proximas = [];
   const atrasadas = [];
   for (const d of estado.dividas) {
+    if (texto) {
+      const alvo = normalizarTexto([d.descricao, d.credor, d.observacao].join(' '));
+      if (!alvo.includes(texto)) continue;
+    }
     const pagosIds = new Set(
       estado.pagamentos.filter(p => p.dividaId === d.id && p.parcelaId).map(p => p.parcelaId)
     );
     for (const p of (d.parcelas || [])) {
       if (pagosIds.has(p.id)) continue; // já paga, ignora
+      const v = (p.vencimento || '').slice(0, 7); // 'YYYY-MM'
+      if (de && v < de) continue;
+      if (ate && v > ate) continue;
       const dt = new Date(p.vencimento);
       if (dt < hojeDt) {
         const dias = Math.max(0, Math.floor((hojeDt - dt) / 86400000));
@@ -2262,6 +2273,14 @@ function render() {
   // Vue é DONO da view: NUNCA reescrevemos o #app aqui. Apenas incrementamos
   // o tick reativo — o root <component :is> e os componentes de view observam
   // uiTick e recalculam o v-html sozinhos (sem congelamento no Electron).
+  // Antes de re-renderizar, preserva o foco/cursor do campo de busca (que é
+  // recriado a cada tick) para a digitação não "piscar" ao filtrar dinamicamente.
+  let _focoBusca = null;
+  const ativo = document.activeElement;
+  if (ativo && ativo.classList && ativo.classList.contains('campo-busca')) {
+    try { _focoBusca = { start: ativo.selectionStart, end: ativo.selectionEnd, val: ativo.value }; } catch (_) {}
+  }
+  window.__focoBusca = _focoBusca;
   if (typeof window.uiTick !== 'undefined') window.uiTick.value++;
   // Mantém o botão de criptografia do menu rápido (engrenagem) sempre em
   // sincronia com o estado do perfil ativo — inclusive quando o usuário
@@ -2275,6 +2294,22 @@ function render() {
   // (o nextTick do render rodava DEPOIS do updated(), apagando o canvas).
   // Atualiza os contadores da sidebar a cada "render".
   atualizarBadges();
+}
+
+// Event delegation para a busca dinâmica: como a view é re-renderizada via
+// v-html a cada tecla, o handler inline "oninput" não é confiável (o input é
+// recriado). Delegar no document captura o "input" em qualquer .campo-busca,
+// mesmo após re-render, e chama definirFiltro('texto', valor) — filtrando
+// dinamicamente a partir do primeiro caractere digitado.
+function instalarDelegacaoBusca() {
+  if (window.__delegacaoBuscaOk) return;
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t && t.classList && t.classList.contains('campo-busca')) {
+      definirFiltro('texto', t.value);
+    }
+  });
+  window.__delegacaoBuscaOk = true;
 }
 
 // View "Vencimentos": foco em urgência — parcelas atrasadas e que vencem em breve.
@@ -3040,9 +3075,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         // recriar a view não perde digitação em formulários da view.
         const comp = (window.MeuBolsoViews || {})[this.currentView] || 'div';
         return Vue.h(comp, { key: window.uiTick ? window.uiTick.value : 0 });
+      },
+      updated() {
+        // Após o Vue re-renderizar a view (v-html recriado), restaura o
+        // foco/cursor no campo de busca se ele estava focado antes do tick —
+        // garante digitação contínua e sem "pisco" ao filtrar dinamicamente.
+        const f = window.__focoBusca;
+        if (f) {
+          const el = document.querySelector('.campo-busca');
+          if (el) {
+            el.focus();
+            try { el.setSelectionRange(f.start, f.end); } catch (_) {}
+          }
+        }
       }
     };
     Vue.createApp(RootApp).mount('#app');
+    instalarDelegacaoBusca();
   }
   render();
 });
