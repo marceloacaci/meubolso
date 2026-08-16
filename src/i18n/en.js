@@ -124,7 +124,7 @@ var en = {
   'perfil.erroRenomear': 'Could not rename',
   'perfil.erroTrocar': 'Could not switch profile',
   'perfil.ativoTag': '✓ active',
-  'perfil.atual': 'Current profile',
+  'perfil.atual': 'Active',
   'perfil.usuario': 'User',
   'perfil.padrao': 'default',
   'config.fonte': 'Font size',

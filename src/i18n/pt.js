@@ -124,7 +124,7 @@ var pt = {
   'perfil.erroRenomear': 'Não foi possível renomear',
   'perfil.erroTrocar': 'Não foi possível trocar o perfil',
   'perfil.ativoTag': '✓ ativo',
-  'perfil.atual': 'Perfil atual',
+  'perfil.atual': 'Ativo',
   'perfil.usuario': 'Usuário',
   'perfil.padrao': 'padrão',
   'config.fonte': 'Tamanho da fonte',
