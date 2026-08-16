@@ -775,7 +775,7 @@ async function abrirSelecaoPerfil() {
   const { ativo, perfis } = await listarPerfis();
   const itens = (perfis || []).map(p => `
     <div class="perfil-item">
-      <button type="button" class="btn btn-primary perfil-escolher${p.id === ativo ? ' perfil-escolher--ativo' : ''}" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' <span class="perfil-ativo-selo">ativo</span>' : ''}</button>
+      <button type="button" class="btn btn-primary perfil-escolher${p.id === ativo ? ' perfil-escolher--ativo' : ''}" data-id="${p.id}">${escapeHtml(p.nome)}${p.id === ativo ? ' <span class="perfil-ativo-selo">' + t('perfil.padrao') + '</span>' : ''}</button>
       <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
     </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
   abrirModal(
@@ -3019,12 +3019,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   initTicker();
-  // S6-4: se houver mais de um perfil, abre a seleção de perfil ao iniciar
-  // (o usuário escolhe qual conjunto de dados/idioma/tema carregar).
+  // S6-4: ao iniciar, decide a tela de entrada:
+  // - 1 perfil: carrega direto (e abre o desbloqueio se estiver criptografado).
+  // - >1 perfil: abre a SELEÇÃO de perfil PRIMEIRO (sem chamar carregar() antes,
+  //   que abriria o modal de desbloqueio "atrás" do seletor). O carregamento/
+  //   desbloqueio acontece ao clicar no perfil escolhido (trocarPerfil -> carregar).
+  // Assim nenhum perfil aparece como "ativo/logado" antes da senha ser validada.
   const listaPerfis = await listarPerfis();
-  await carregar();
   if ((listaPerfis.perfis || []).length > 1) {
     abrirSelecaoPerfil();
+  } else {
+    await carregar();
   }
   // S5-3: notificações de vencimento — verifica no boot e a cada 6 horas.
   verificarNotificacoes().catch(() => {});

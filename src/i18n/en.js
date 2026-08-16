@@ -124,6 +124,7 @@ var en = {
   'perfil.erroTrocar': 'Could not switch profile',
   'perfil.erroSenha': 'Failed to change password',
   'perfil.usuario': 'User',
+  'perfil.padrao': 'default',
   'config.fonte': 'Font size',
   'fonte.normal': 'Normal',
   'fonte.grande': 'Large',

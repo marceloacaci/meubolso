@@ -124,6 +124,7 @@ var pt = {
   'perfil.erroTrocar': 'Não foi possível trocar o perfil',
   'perfil.erroSenha': 'Falha ao trocar senha',
   'perfil.usuario': 'Usuário',
+  'perfil.padrao': 'padrão',
   'config.fonte': 'Tamanho da fonte',
   'fonte.normal': 'Normal',
   'fonte.grande': 'Grande',

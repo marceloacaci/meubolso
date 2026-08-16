@@ -124,6 +124,7 @@ var es = {
   'perfil.erroTrocar': 'No se pudo cambiar de perfil',
   'perfil.erroSenha': 'Error al cambiar la contraseña',
   'perfil.usuario': 'Usuario',
+  'perfil.padrao': 'predeterminado',
   'config.fonte': 'Tamaño de letra',
   'fonte.normal': 'Normal',
   'fonte.grande': 'Grande',
