@@ -102,6 +102,7 @@ var es = {
   'cripto.erro': 'Error de cifrado',
   'cripto.novaSenha': 'Nueva contraseña',
   'cripto.verSenha': 'Mostrar contraseña',
+  'cripto.desbloqueado': 'Datos desbloqueados correctamente',
   'perfil.titulo': 'Perfiles de datos',
   'perfil.ativoTag': '✓ activo',
   'perfil.trocar': 'Cambiar perfil',

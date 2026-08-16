@@ -102,6 +102,7 @@ var en = {
   'cripto.erro': 'Encryption error',
   'cripto.novaSenha': 'New password',
   'cripto.verSenha': 'Show password',
+  'cripto.desbloqueado': 'Data unlocked successfully',
   'perfil.titulo': 'Data profiles',
   'perfil.ativoTag': '✓ active',
   'perfil.trocar': 'Switch profile',

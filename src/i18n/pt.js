@@ -102,6 +102,7 @@ var pt = {
   'cripto.erro': 'Erro na criptografia',
   'cripto.novaSenha': 'Nova senha',
   'cripto.verSenha': 'Visualizar senha',
+  'cripto.desbloqueado': 'Dados desbloqueados com sucesso',
   'perfil.titulo': 'Perfis de dados',
   'perfil.ativoTag': '✓ ativo',
   'perfil.trocar': 'Trocar perfil',
