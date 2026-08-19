@@ -48,7 +48,7 @@ O que ele faz:
 O que ele **não** faz: não conecta ao seu banco, não importa extrato, não envia nada
 para a internet e não pede cadastro.
 
-> ✅ **Versão estável.** Esta documentação cobre a v1.2.0. Mantenha backups
+> ✅ **Versão estável.** Esta documentação cobre a v2.1.0. Mantenha backups
 > periódicos (seção 12) como precaução, mas o app é considerado estável para uso
 > diário.
 

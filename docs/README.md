@@ -20,7 +20,7 @@
 
 ## Ordem de leitura sugerida para quem chega agora
 
-1. `README.md` (raiz) — o que é o produto (versão estável **v1.2.0**)
+1. `README.md` (raiz) — o que é o produto (versão estável **v2.1.0**)
 2. `docs/AS-BUILT.md` — como ele funciona de verdade
 3. `docs/uml/00-visao-geral.md` — os diagramas
 4. `docs/CRONOGRAMA-3-MESES.md` — como chegou aqui (S1–S5 concluídas, S6 planejada)

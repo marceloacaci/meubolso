@@ -200,7 +200,7 @@ privado" está maduro. Próximo salto de valor = **confiança nos números** e
 
 ### Diagnóstico (onde estamos)
 - ✅ Base sólida: dados atômicos, lixeira, backup, cripto opcional, multiperfis.
-- ✅ Qualidade: 108/108 testes Vitest + E2E headless nos fluxos críticos (seleção de
+- ✅ Qualidade: 126/126 testes Vitest + E2E headless nos fluxos críticos (seleção de
   perfil, desbloqueio, sidebar, tag "Ativo", filtros auto-aplicáveis).
 - 🔴 **Dívida técnica confirmada por execução** (ver C11/C12 abaixo): dinheiro em
   float e datas em UTC. Já causa XP de "dívida quitada" que não dispara e vencimentos

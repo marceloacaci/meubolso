@@ -21,7 +21,7 @@
 | | Incidentes de perda/corrupção de dados | 0 |
 | **O2 — Manutenibilidade** | Maior arquivo do projeto | < 800 LOC |
 | | Decisões arquiteturais registradas em ADR | 100% |
-| **O3 — Valor ao usuário** | Sair do Beta para **1.0 estável** | v2.0.0-rc pronta |
+| **O3 — Valor ao usuário** | Sair do Beta para **1.0 estável** | v2.1.0 pronta |
 | | 3 funcionalidades novas de alto impacto entregues | 3/3 |
 
 ---
@@ -130,7 +130,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 ---
 
-## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.0.0-rc** · ✅ **FEITO**
+## Sprint 6 — Hardening e saída do Beta (14–27/out) · 12 pts · **v2.1.0** · ✅ **FEITO**
 
 | ID | Tarefa | Pts | Critério de aceite | Status |
 |----|--------|----:|--------------------|--------|
@@ -140,15 +140,15 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 | S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA + correções (skip-link, `:focus-visible`, contraste medido) | ✅ **FEITO** |
 | S6-5 | **Teste de carga**: 500 dívidas / 5.000 pagamentos; otimizar o que passar de 100 ms | 1 | Relatório de performance + `scripts/bench-carga.cjs` | ✅ **FEITO** |
 | S6-6 | Fechar documentação: ADRs, CHANGELOG, atualização do As-Built e dos diagramas | 2 | Docs coerentes com o código | ✅ **FEITO** |
-| S6-7 | **Multiperfis (S6-4 real)**: seleção/troca de perfil, criptografia por perfil, tag "Ativo" no logado, card de usuário na sidebar | 3 | E2E 24/24 (perfil Esposa) + 11/11 (gerenciar) + 108/108 Vitest; boot abre seletor antes do desbloqueio | ✅ **FEITO** |
+| S6-7 | **Multiperfis (S6-4 real)**: seleção/troca de perfil, criptografia por perfil, tag "Ativo" no logado, card de usuário na sidebar | 3 | E2E 24/24 (perfil Esposa) + 11/11 (gerenciar) + 126/126 Vitest; boot abre seletor antes do desbloqueio | ✅ **FEITO** |
 
 **Marco final:** ✅ **v2.1.0** — multiperfis entregues (S6-7); removido o rótulo Beta.
 
 ---
 
-> **Atualização (16/ago/2026):** o plano original previa 6 sprints até **v2.0.0-rc**.
+> **Atualização (16/ago/2026):** o plano original previa 6 sprints até **v2.1.0**.
 > Após o fechamento, foi entregue o **S6-7 (Multiperfis)**, elevando a versão para
-> **v2.1.0**. A suíte Vitest está em **108/108 testes verdes**. Para os próximos passos
+> **v2.1.0**. A suíte Vitest está em **126/126 testes verdes**. Para os próximos passos
 > (integridade numérica, auditoria, retenção e Multiperfis 2.0), ver
 > `docs/BRAINSTORM-MELHORIAS.md` (rodada de 16/ago).
 
