@@ -85,6 +85,13 @@
   background-position: 0 0, 0 0;
 }
 
+/* Toast no tema escuro: fundo CLARO (raised) para contrastar com o app escuro,
+   em vez de sumir contra o fundo. Mantem o relevo raised. */
+[data-theme="dark"] .toast {
+  background: linear-gradient(to bottom, color-mix(in srgb, #e2e8f0 85%, white) 0%, color-mix(in srgb, #e2e8f0 85%, white) 50%, color-mix(in srgb, #e2e8f0 95%, black) 50%, color-mix(in srgb, #e2e8f0 95%, black) 100%);
+  color: #14161a;
+}
+
 /* ============================================================
    Acessibilidade (S6-4): foco visível consistente (WCAG 2.4.7 / 1.4.11)
    Nenhum elemento focável fica sem indicador de foco. Usa a cor
@@ -739,9 +746,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  /* Raised: gradiente de metade clara em cima (igual .gear-opt/.btn). */
-  background: linear-gradient(to bottom, color-mix(in srgb, #1a1a1a 85%, white) 0%, color-mix(in srgb, #1a1a1a 85%, white) 50%, color-mix(in srgb, #1a1a1a 95%, black) 50%, color-mix(in srgb, #1a1a1a 95%, black) 100%);
-  color: #fff;
+  /* Raised seguindo o tema (claro no claro). No escuro, override abaixo deixa
+     o fundo claro para contrastar com o fundo da aplicacao. */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  color: var(--text);
   padding: 10px 18px;
   border-radius: var(--radius);
   font-size: calc(14px * var(--app-font-scale));
@@ -1886,7 +1894,11 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 
 /* Alertas Bootstrap na paleta da marca. */
 .alert-primary { --bs-alert-color: var(--primary-text-emphasis); --bs-alert-bg: var(--bs-primary-bg-subtle); --bs-alert-border-color: var(--bs-primary-border-subtle); }
-.alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle); background: linear-gradient(to bottom, color-mix(in srgb, var(--success) 85%, white) 0%, color-mix(in srgb, var(--success) 85%, white) 50%, color-mix(in srgb, var(--success) 95%, black) 50%, color-mix(in srgb, var(--success) 95%, black) 100%); color: #fff; }
+.alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle);
+  /* Raised mantendo a tonalidade original do alerta (verde sutil), nao o verde saturado. */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 0%, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 100%);
+  color: var(--success-text-emphasis);
+}
 .alert-danger { --bs-alert-color: var(--danger-text-emphasis); --bs-alert-bg: var(--bs-danger-bg-subtle); --bs-alert-border-color: var(--bs-danger-border-subtle); }
 .alert-warning { --bs-alert-color: var(--warning-text-emphasis); --bs-alert-bg: var(--bs-warning-bg-subtle); --bs-alert-border-color: var(--bs-warning-border-subtle); }
 .alert-info { --bs-alert-color: var(--info-text-emphasis); --bs-alert-bg: var(--bs-info-bg-subtle); --bs-alert-border-color: var(--bs-info-border-subtle); }
