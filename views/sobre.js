@@ -44,7 +44,12 @@ window.__mbRender.sobre = function renderSobre() {
 
       <section class="config-secao sobre-secao">
         <h3>${ICON.engrenagem} ${t('sobre.novidadesTitulo')}</h3>
-        <p class="sobre-descricao">${t('sobre.novidades')}</p>
+        <div class="sobre-descricao">${t('sobre.novidades')}</div>
+      </section>
+
+      <section class="config-secao sobre-secao">
+        <h3>${ICON.lampada} ${t('sobre.funcionalidadesTitulo')}</h3>
+        <div class="sobre-descricao">${t('sobre.funcionalidades')}</div>
       </section>
 
       <section class="config-secao sobre-secao">
