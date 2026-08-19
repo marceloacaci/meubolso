@@ -746,10 +746,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  /* Raised seguindo o tema (claro no claro). No escuro, override abaixo deixa
-     o fundo claro para contrastar com o fundo da aplicacao. */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
-  color: var(--text);
+  /* Raised ESCURO (como funcionava no claro). No tema escuro, o override abaixo
+     deixa o fundo claro para contrastar com o app escuro. */
+  background: linear-gradient(to bottom, color-mix(in srgb, #1a1a1a 85%, white) 0%, color-mix(in srgb, #1a1a1a 85%, white) 50%, color-mix(in srgb, #1a1a1a 95%, black) 50%, color-mix(in srgb, #1a1a1a 95%, black) 100%);
+  color: #fff;
   padding: 10px 18px;
   border-radius: var(--radius);
   font-size: calc(14px * var(--app-font-scale));
@@ -1923,8 +1923,9 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .accordion-button:focus { box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
 .accordion-item, .accordion-button { background-color: var(--surface); color: var(--text); border-color: var(--border); }
 
-/* Toast do Bootstrap: mantém cores/borda; o relevo raised vem da regra `.toast` acima. */
-.toast { color: var(--text); border-color: var(--border); }
+/* Toast do Bootstrap: mantém borda; cor/raised vêm da regra `.toast` acima
+   (nao sobrescrever a cor, senao o texto do toast base fica ilegivel). */
+.toast { border-color: var(--border); }
 .toast-container { z-index: 200; }
 
 /* ============================================================
