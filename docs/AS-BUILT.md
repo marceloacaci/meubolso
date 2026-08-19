@@ -1,10 +1,10 @@
-# AS-BUILT — MeuBolso v1.2.0
+# AS-BUILT — MeuBolso v2.1.0
 
 > **As-Built** = documentação do sistema **como ele efetivamente foi construído**,
 > não como foi planejado. Todo item abaixo foi verificado no código-fonte em
-> `D:\Project` e cita `arquivo:linha`.
+> `D:\\Project` e cita `arquivo:linha`.
 >
-> Data do levantamento: agosto/2026 · Commit base: `efc3aed` (v1.2.0)
+> Data do levantamento: agosto/2026 · Commit base: `efc3aed` (v1.2.0) → atualizado em 16/ago (v2.1.0)
 > Responsável técnico: Marcelo Acácio
 
 ### Histórico de correções (changelog deste documento)
@@ -21,10 +21,12 @@
 | 14/ago/2026 | **Sprint 4** recorrentes, juros/CET, metas, simulador e conquistas (S4-1..S4-5) | `src/dominio.js` (`cet`,`calcularJurosDivida`,`simularQuitacao`), `views/{recorrentes,metas,juros,simulador}.js`, `app.js` (handlers CRUD), `index.html` (nav), `src/ui/modais.js` (checkbox), i18n pt/en/es, `tests/sprint4.test.js` |
 | 14/ago/2026 | **fix(S4)** validação visual em runtime pegou `estado.recorrentes/metas` undefined no load (DB vazio/legado); corrigido em `carregar()`, estado inicial e `fallbackData()` | `app.js` (carregar + estado), `main.js` (fallbackData); `validate-s4.cjs` (validação funcional Electron) |
 | 14/ago/2026 | **Sprint 6** hardening e saída do Beta — S6-1 (CSP sem `unsafe-eval`, Vue 3 runtime-only + render functions), S6-2 (auditoria XSS, `escapeHtml`/`escapeAttr` sistemáticos, `validate-xss.cjs`), S6-3 (criptografia AES-256-GCM opt-in em `src/cripto.js` + IPC + UI), S6-4 (auditoria a11y WCAG 2.1 AA: skip-link, `:focus-visible` global, contraste medido 6.12/7.32, `audit-a11y.cjs` 8/8), S6-5 (teste de carga 500 dívidas/5000 pagamentos; índice de pagamentos por dividaId em `src/dominio.js` reduz `resumoParcelas`×500 de 93ms→4,7ms), S6-6 (ADRs em `docs/ADR.md`, `CHANGELOG.md`, As-Built/CRONOGRAMA atualizados) · **v2.0.0-rc** | `index.html` (CSP/script-src), `vendor/vue.runtime.global.prod.js`, `views/*.js` (render fns), `src/ui/modais.js`, `src/cripto.js`, `src/dominio.js` (índice pagamentos), `styles.css` (foco/skip-link/barra), `scripts/audit-a11y.cjs`, `scripts/bench-carga.cjs`, `docs/ADR.md`, `docs/auditoria/ACCESSIBILITY-WCAG21-AA.md`, `CHANGELOG.md` |
+| 16/ago/2026 | **S6-7 Multiperfis**: seleção/troca de perfil, criptografia por perfil, tag "Ativo" no perfil efetivamente logado, card de usuário (busto SVG) na sidebar, Configurações Rápidas com barra minimalista de **Dados** (ícones Backup/Exportar/Importar/Restaurar) e card **Perfis de dados** · **v2.1.0** · suíte Vitest **108/108** | `app.js` (bloquearSeNaoCarregado→seletor, boot abre seletor antes do desbloqueio, concederXpAcessoDiario só em login real, atualizarPerfisInfo com card de usuário), `index.html` (`#gear-panel` mini Dados + card Perfis), `styles.css` (`.sidebar-usuario`, `.gear-mini`, `.gear-grupo-col`, fonte gear-opt 14px), `views/configuracoes.js`, i18n pt/en/es (`perfil.atual`="Ativo"/"Active"/"Activo") |
+| 19/ago/2026 | **UI/Theme pass 2**: relevo raised (50/50) em scrollbar (thumb com linha cortante, track neutro, estados hover/active; hex fixos por tema p/ contornar `color-mix` em `::-webkit-scrollbar-thumb`), `.btn-ghost` (Cancelar/Voltar/ação secundária) com raised; contraste absoluto (preto/branco) em títulos/textos/labels via `--text`/`--text-muted` (venceu `!important` do Bootstrap em `.text-secondary`); cards de filtros isolados via `:has([data-filtro])`; `.page-header` com raised + sombra e título/botão centralizados na linha do relevo (padding simétrico); correção de cantos quadrados (variável `--radius` restaurada). Card de Insights com fundo consistente. Seção "Novidades" no Sobre. Skill `fcs` (verificação obrigatória por inspeção/execução). · suíte Vitest **126/126** | `styles.css` (`:root`, `[data-theme="dark"]`, scrollbar, `.btn`, `.btn-ghost`, `.card`, `.list-group-item`, `.text-secondary`, `.page-header`), `src/ui/modais.js`, `views/sobre.js`, i18n pt/en/es (`sobre.novidades*`), `docs/RELATORIO-ATUALIZACOES.md`, `README.md`, `package.json` (v2.1.0) |
 
-> Status verificado por suíte automatizada: **93/93 testes** Vitest verdes (`npm run test`) em 14/ago/2026. Auditoria a11y (`scripts/audit-a11y.cjs`) PASSOU em **8/8 critérios WCAG 2.1 AA** (skip-link 2.4.1, #app tabindex 4.1.2, foco visível 2.4.7, ícones aria-hidden 1.1.1, contraste AA claro/escuro 1.4.3) com **0 erros de console**. Teste de carga (`scripts/bench-carga.cjs`): `resumoParcelas`×500 dívidas **4,67 ms** (limite 100 ms); todas as operações de domínio < 15 ms. `app.js` reduzido de 3.519 → 2.613 LOC na refatoração pós-S3.
+> Status verificado por suíte automatizada: **108/108 testes** Vitest verdes (`npm run test`) em 16/ago/2026. Auditoria a11y (`scripts/audit-a11y.cjs`) PASSOU em **8/8 critérios WCAG 2.1 AA** (skip-link 2.4.1, #app tabindex 4.1.2, foco visível 2.4.7, ícones aria-hidden 1.1.1, contraste AA claro/escuro 1.4.3) com **0 erros de console**. Teste de carga (`scripts/bench-carga.cjs`): `resumoParcelas`×500 dívidas **4,67 ms** (limite 100 ms); todas as operações de domínio < 15 ms. `app.js` reduzido de 3.519 → 2.613 LOC na refatoração pós-S3.
 
-> Status verificado por suíte automatizada: **88/88 testes** Vitest verdes (`npm run test`) em 14/ago/2026. Validação funcional em runtime (`validate-s5.cjs`) PASSOU em **6/6 itens** (S5-4, S5-1, S5-5, S5-2, S5-3, S5-6) com **0 erros de console**. Ajuste de bug em `filtrarDividas`: critério de status passou a considerar o status real das parcelas (quitado = todas pagas; em dia = sem atraso) em vez de saldo.
+> Status verificado por suíte automatizada: **108/108 testes** Vitest verdes (`npm run test`) em 16/ago/2026. Validação funcional em runtime (`validate-s5.cjs`) PASSOU em **6/6 itens** (S5-4, S5-1, S5-5, S5-2, S5-3, S5-6) com **0 erros de console**. Ajuste de bug em `filtrarDividas`: critério de status passou a considerar o status real das parcelas (quitado = todas pagas; em dia = sem atraso) em vez de saldo.
 
 ---
 
@@ -53,7 +55,7 @@
 | Gráficos | Chart.js (UMD) | vendored (`vendor/chart.umd.js`) |
 | Persistência | **Arquivo JSON** via `fs.writeFileSync` | `main.js:57-93` |
 | Build de front | **Nenhum** (sem webpack/vite/babel/TS) | scripts JS carregados direto pelo `index.html` |
-| Testes | **Inexistentes** | ⚠️ lacuna conhecida |
+| Testes | **Vitest** (domínio financeiro, gamificação, sprints) | `tests/*.test.js` — **108 casos verdes** (`npm run test`) |
 
 > Nota histórica importante: a persistência passou por `node:sqlite` → `sql.js` (WASM)
 > → **JSON puro**. O estado atual é JSON simples e síncrono. Ver ADR sugerido em
@@ -69,7 +71,7 @@
 | `graficos-chartjs.js` | 143 | Wrappers de Chart.js (pizza/rosca/barras) |
 | `relogio.js` | 69 | Relógio/saudação do cabeçalho |
 | `preload.js` | 28 | `contextBridge` → `window.api` |
-| `views/*.js` | 199 (9 arquivos) | Componentes Vue finos, delegam HTML às funções `renderX()` de `app.js` |
+| `views/*.js` | ~2.400 (17 arquivos) | Componentes Vue finos, delegam HTML às funções `renderX()` de `app.js` |
 | `styles.css` | ~53 KB | Tema claro/escuro, componentes, animações |
 | `index.html` | ~10 KB | Shell, sidebar, CSP |
 | **Total JS** | **≈ 4.400** | — |
@@ -242,7 +244,17 @@ Localização dos dados:
 - `valorPagoParcela()` / `sincronizarParcela()`: status da parcela derivado do pago acumulado (pendente → parcial → pago; vencido e não quitado → atrasado).
 - Carteiras: pagamento debita a carteira (`aplicarDebitoCarteira`, `app.js:2962`), exclusão/edição estorna (`estornarDebitoCarteira`, `app.js:2996`).
 
-## 8.1 Defeitos latentes (CORRIGIDOS em 05/ago/2026)
+## 8.1 Defeitos latentes (CORRIGIDOS em 05/ago/2026 · reabertos p/ revalidação em 16/ago/2026)
+
+> ⚠️ **Nota de reconciliação (16/ago/2026):** as correções D-01/D-02 abaixo foram
+> registradas como concluídas em 05/ago. A rodada de brainstorm de 16/ago reabriu os
+> itens equivalentes **C11 (aritmética em float)** e **C12 (fuso/UTC em `hoje()`)** como
+> **pendentes de revalidação** no S7 (Integridade numérica) — há indícios de que a
+> deriva de centavos e o deslocamento de 1 dia perto da meia-noite ainda ocorrem em
+> alguns fluxos. Ou seja: o estado documentado em 05/ago conflita com a reavaliação de
+> 16/ago. A fonte da verdade será definida pelo S7, que deve adicionar testes de
+> regressão reproduzindo os casos extremos (0,1+0,2 e 23h30 BRT). Até lá, trate C11/C12
+> como **abertos**.
 
 | ID | Defeito | Evidência | Status | Correção |
 |----|---------|-----------|--------|----------|

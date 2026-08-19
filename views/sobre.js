@@ -43,6 +43,11 @@ window.__mbRender.sobre = function renderSobre() {
       </section>
 
       <section class="config-secao sobre-secao">
+        <h3>${ICON.engrenagem} ${t('sobre.novidadesTitulo')}</h3>
+        <p class="sobre-descricao">${t('sobre.novidades')}</p>
+      </section>
+
+      <section class="config-secao sobre-secao">
         <h3>${ICON.ferramenta} ${t('sobre.tech')}</h3>
         <ul class="list-group">
           ${techs.map(te => `

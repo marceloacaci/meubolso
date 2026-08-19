@@ -24,9 +24,6 @@
       <div class="sidebar-usuario" id="sidebar-usuario" aria-label="Usuário atual"></div>
     </div>
 
-    <button class="btn btn-primary btn-cta" data-acao="nova-divida"><span data-ico="mais"></span> <span class="cta-label" data-i18n="cta.novaDivida">Nova dívida</span></button>
-    <button class="btn btn-primary btn-cta" data-acao="novo-pagamento"><span data-ico="mais"></span> <span class="cta-label" data-i18n="cta.novoPagamento">Novo pagamento</span></button>
-
     <nav class="sidebar-nav" aria-label="Navegação principal">
       <div class="nav-grupo">
         <span class="nav-grupo-titulo" data-i18n="nav.grupo.principal">Principal</span>
@@ -135,16 +132,38 @@
       </div>
       <div class="gear-panel-titulo" data-i18n="config.fonte">Fonte</div>
       <div class="gear-grupo gear-fonte-btns" role="group" aria-label="Fonte">
-        <button class="gear-opt gear-fonte" data-fonte="diminuir" title="Diminuir fonte" data-i18n-title="config.diminuirFonte"><span data-ico="setaBaixo"></span> A</button>
+        <button class="gear-opt gear-fonte" data-fonte="diminuir" title="Diminuir fonte" data-i18n-title="config.diminuirFonte"><span data-ico="setaBaixo"></span> a</button>
         <button class="gear-opt gear-fonte" data-fonte="aumentar" title="Aumentar fonte" data-i18n-title="config.aumentarFonte"><span data-ico="setaCima"></span> A</button>
-      </div>
-      <div class="gear-panel-titulo" data-i18n="perfil.titulo">Perfis de dados</div>
-      <div class="gear-grupo" role="group" aria-label="Perfis">
-        <button class="gear-opt" id="gear-perfil-btn" data-acao="perfil-selecionar"><span data-ico="usuarios"></span> <span data-i18n="perfil.trocar">Trocar perfil</span></button>
       </div>
       <div class="gear-panel-titulo" data-i18n="cripto.titulo">Criptografia</div>
       <div class="gear-grupo" role="group" aria-label="Criptografia">
-        <button class="gear-opt gear-cripto" id="gear-cripto-btn" data-acao="cripto-ativar"><span data-ico="cadeado"></span> <span data-i18n="cripto.ativar">Ativar criptografia</span></button>
+        <button class="gear-opt gear-cripto" id="gear-cripto-btn" data-acao="cripto-ativar" data-i18n-title="cripto.ativar"><span class="cripto-ico cripto-ico-fechado" data-ico="cadeado"></span> <span class="cripto-ico cripto-ico-aberto" data-ico="cadeadoAberto"></span> <span data-i18n="cripto.ativar">Ativar criptografia</span></button>
+      </div>
+      <div class="gear-panel-titulo" data-i18n="config.dados">Dados</div>
+      <div class="gear-mini" role="group" aria-label="Dados">
+        <button class="gear-mini-btn" data-acao="fazerBackup" data-i18n-title="acao.fazerBackup"><span data-ico="reciclar"></span><span class="gear-mini-txt" data-i18n="acao.fazerBackup">Backup</span></button>
+        <button class="gear-mini-btn" data-acao="exportar" data-i18n-title="acao.exportar"><span data-ico="exportar"></span><span class="gear-mini-txt" data-i18n="acao.exportar">Exportar</span></button>
+        <button class="gear-mini-btn" data-acao="importar" data-i18n-title="acao.importar"><span data-ico="importar"></span><span class="gear-mini-txt" data-i18n="acao.importar">Importar</span></button>
+        <button class="gear-mini-btn" data-acao="restaurar" data-i18n-title="acao.restaurar"><span data-ico="restaurar"></span><span class="gear-mini-txt" data-i18n="acao.restaurar">Restaurar</span></button>
+      </div>
+      <div class="gear-panel-titulo" data-i18n="perfil.titulo">Perfis de dados</div>
+      <div class="gear-grupo gear-grupo-col gear-col-auto" role="group" aria-label="Perfis de dados">
+        <button class="gear-opt gear-card-btn" data-acao="perfil-selecionar" data-i18n-title="perfil.trocar"><span data-ico="usuarios"></span> <span data-i18n="perfil.trocar">Trocar perfil</span></button>
+        <button class="gear-opt gear-card-btn" data-acao="gerenciar-perfil-ativo" data-i18n-title="perfil.gerenciar"><span data-ico="engrenagem"></span> <span data-i18n="perfil.gerenciar">Gerenciar</span></button>
+      </div>
+      <div class="gear-panel-titulo" data-i18n="notif.secao">Notificações</div>
+      <div class="gear-grupo gear-grupo-col gear-col-auto" role="group" aria-label="Notificações">
+        <button class="gear-opt" id="gear-notif-toggle" data-acao="notif-toggle" aria-pressed="true"><span data-ico="sino"></span> <span class="notif-check" hidden>✓</span> <span class="notif-label">Notificações ativas</span></button>
+        <select class="notif-intervalo-select" id="gear-notif-intervalo" data-notif-intervalo>
+          <option value="5" data-i18n="notif.int5">5 minutos</option>
+          <option value="30" data-i18n="notif.int30">30 minutos</option>
+          <option value="60" data-i18n="notif.int60">1 hora</option>
+          <option value="180" data-i18n="notif.int180">3 horas</option>
+          <option value="300" data-i18n="notif.int300">5 horas</option>
+          <option value="600" data-i18n="notif.int600">10 horas</option>
+          <option value="1440" data-i18n="notif.int1440">24 horas</option>
+        </select>
+        <button class="gear-opt" data-acao="notif-testar" title="Enviar notificação de teste"><span data-ico="sino"></span> <span data-i18n="notif.testar">Testar</span></button>
       </div>
     </div>
   </div>
@@ -205,6 +224,7 @@
        valorPagoParcela, sincronizarParcela, resumoParcelas, nivelDe,
        progressoNivel, somaDinheiro, numDinheiro, NIVEIS em globalThis. -->
   <script src="src/dominio.js"></script>
+  <script src="src/notificacoes-montar.js"></script>
   <script src="app.js"></script>
   <!-- Modais/confirmações (S3-3): consomem globais de app.js (t, escapeHtml,
        ICON, window.api) e expõem abrirModal/abrirConfirmacao como globais. -->

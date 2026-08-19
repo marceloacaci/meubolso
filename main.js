@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, screen, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -12,6 +12,9 @@ const fs = require('fs');
 
 let userDataPath, dbFile, dataFile, backupFile, pontosFile, backupsDir;
 let mainWin = null;
+// Largura de abertura (modo janela) — referência da escala responsiva de
+// cards/fontes no renderer (ver window.api.larguraBase / --app-width-scale).
+let janelaBaseW = 1366;
 // Ambiente de execução: 'dev' (npm start), 'portatil' (portable baixado) ou
 // 'instalado' (setup.exe instalado). Usado para separar os dados de cada
 // ambiente e para exibir na página "Sobre".
@@ -196,6 +199,10 @@ function createWindow() {
 
   const W = Math.min(1366, Math.max(1024, area.width));
   const H = Math.min(800, Math.max(700, area.height));
+  // Largura de abertura (modo janela). Usada pelo renderer como referência para
+  // a escala responsiva de cards/fontes: na abertura a escala é 1.0 (limitada);
+  // ao maximizar/redimensionar para além de W, os cards escalam proporcionalmente.
+  janelaBaseW = W;
 
   const win = new BrowserWindow({
     width: W,
@@ -335,6 +342,14 @@ ipcMain.handle('dados:salvar-agora', async (_evt, data) => {
 });
 
 ipcMain.handle('dados:caminho', () => dbFile);
+
+ipcMain.handle('app:largura-base', () => janelaBaseW);
+
+// Notificação nativa do sistema operacional (Windows Toast / macOS / Linux).
+// Recebe { titulo, corpo, icone? } e usa a Notification da Electron (nativa).
+const { criarNotificacaoNativa } = require('./src/notificacoes-nativas.js');
+ipcMain.handle('notificar:nativa', async (_e, payload) =>
+  criarNotificacaoNativa(payload, { Notification, platform: process.platform }));
 
 ipcMain.handle('sistema:info', () => ({
   appVersion: app.getVersion(),
@@ -770,6 +785,9 @@ function migrarDadosInstalado(opts = {}) {
 // INICIALIZAÇÃO
 // ============================================================
 app.whenReady().then(() => {
+  // Necessário no Windows para que as notificações nativas (Toast) apareçam
+  // com o ícone/aplicativo corretos (sem isso, o SO silencia o toast).
+  try { app.setAppUserModelId('com.meubolso.app'); } catch (_) {}
   console.log('========================================');
   console.log('[APP] MeuBolso iniciando...');
   console.log('[APP] Backend de persistência: JSON (arquivo simples)');

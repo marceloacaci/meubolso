@@ -24,7 +24,20 @@ function renderPainelFiltrosDividas() {
     ['saldo', t('ord.saldo')]
   ].map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`).join('');
   const temFiltro = f.texto || f.categoria || f.status || f.periodo || f.periodoDe || f.periodoAte;
+  const tituloLimpar = temFiltro ? (t('filtro.limparTooltip') || 'Restaura todos os filtros') : (t('acao.limparFiltros') || 'Limpar filtros');
   const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const optDia = (sel) => { let o='<option value="">'+t('filtro.dia')+'</option>'; for(let i=1;i<=31;i++) o+='<option value="'+i+'"'+(sel==String(i)?' selected':'')+'>'+i+'</option>'; return o; };
+  const optMes = (sel) => { let o='<option value="">'+t('filtro.mes')+'</option>'; MESES.forEach((m,i)=>{ const v=String(i+1); o+='<option value="'+v+'"'+(sel==v?' selected':'')+'>'+m+'</option>'; }); return o; };
+  const optAno = (sel) => { let o='<option value="">'+t('filtro.ano')+'</option>'; for(let a=2020;a<=2035;a++) o+='<option value="'+a+'"'+(sel==String(a)?' selected':'')+'>'+a+'</option>'; return o; };
+  const deDia = f.periodoDeDia || (f.periodoDe||'').slice(8,10), deMes = f.periodoDeMes || (f.periodoDe||'').slice(5,7), deAno = f.periodoDeAno || (f.periodoDe||'').slice(0,4);
+  const ateDia = f.periodoAteDia || (f.periodoAte||'').slice(8,10), ateMes = f.periodoAteMes || (f.periodoAte||'').slice(5,7), ateAno = f.periodoAteAno || (f.periodoAte||'').slice(0,4);
+  const selPeriodo = (prefixo, dia, mes, ano) => `
+    <div class="d-flex gap-1">
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Dia">${optDia(dia)}</select>
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Mes">${optMes(mes)}</select>
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Ano">${optAno(ano)}</select>
+    </div>`;
   return `
     <div class="card shadow-sm mb-3">
       <div class="card-body d-flex flex-wrap gap-2 align-items-end">
@@ -38,33 +51,35 @@ function renderPainelFiltrosDividas() {
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.categoria')}</label>
-          <select class="form-select" onchange="definirFiltro('categoria', this.value)">
+          <select class="form-select" data-filtro="categoria">
             <option value="">${t('filtro.todas')}</option>${optsCat}
           </select>
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.status')}</label>
-          <select class="form-select" onchange="definirFiltro('status', this.value)">
+          <select class="form-select" data-filtro="status">
             ${optsStatus}
           </select>
         </div>
         <div>
-          <label class="form-label small mb-1">${t('filtro.periodoDe')}</label>
-          <input type="month" class="form-control" value="${escapeHtml(f.periodoDe || '')}" onchange="definirFiltro('periodoDe', this.value)" />
-        </div>
-        <div>
-          <label class="form-label small mb-1">${t('filtro.periodoAte')}</label>
-          <input type="month" class="form-control" value="${escapeHtml(f.periodoAte || '')}" onchange="definirFiltro('periodoAte', this.value)" />
-        </div>
-        <div>
           <label class="form-label small mb-1">${t('filtro.ordenar')}</label>
-          <select class="form-select" onchange="definirFiltro('ordenar', this.value)">
+          <select class="form-select" data-filtro="ordenar">
             ${optsOrd}
           </select>
         </div>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-3 align-items-end border-top pt-2">
         <div>
+          <label class="form-label small mb-1">${t('filtro.periodoDe')}</label>
+          ${selPeriodo('periodoDe', deDia, deMes, deAno)}
+        </div>
+        <div>
+          <label class="form-label small mb-1">${t('filtro.periodoAte')}</label>
+          ${selPeriodo('periodoAte', ateDia, ateMes, ateAno)}
+        </div>
+        <div class="ms-auto">
           <label class="form-label small mb-1">&nbsp;</label>
-          <button class="btn btn-limpar-destaque d-block" data-acao="limpar-filtro" title="${t('filtro.limpar')}" ${temFiltro ? '' : 'disabled'}>${t('acao.limpar')}</button>
+          <button class="btn btn-limpar-filtros ${temFiltro ? 'ativo' : ''}" data-acao="limpar-filtro" title="${tituloLimpar}" ${temFiltro ? '' : 'disabled'}>${ICON.lixeira || '🗑'} ${t('acao.limparFiltros')}</button>
         </div>
       </div>
     </div>`;
@@ -99,8 +114,8 @@ window.__mbRender.dividas = function renderDividas() {
       <td class="text-end text-success">${fmt.format(totalPago(d))}</td>
       <td class="text-end ${saldoDivida(d) > 0 ? 'text-danger' : 'text-success'}">${fmt.format(saldoDivida(d))}</td>
       <td class="text-end text-nowrap">
-        <button class="btn btn-sm btn-outline-secondary" data-acao="editar-divida" data-id="${d.id}">${t('acao.editar')}</button>
-        <button class="btn btn-sm btn-outline-danger" data-acao="excluir-divida" data-id="${d.id}">${t('acao.excluir')}</button>
+        <button class="gear-opt gear-opt--sm" data-acao="editar-divida" data-id="${d.id}">${t('acao.editar')}</button>
+        <button class="gear-opt gear-opt--sm gear-opt--danger" data-acao="excluir-divida" data-id="${d.id}">${t('acao.excluir')}</button>
         <button class="btn btn-sm btn-primary" data-acao="gerenciar-pagamentos" data-id="${d.id}">${t('pagamento.gerenciar')}</button>
       </td>
     </tr>`).join('');

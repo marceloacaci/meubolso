@@ -55,7 +55,7 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
       <div class="form-actions">
         <button type="button" id="btn-cancelar" class="btn btn-ghost">${t('acao.cancelar')}</button>
         ${acaoSecHtml}
-        <button type="submit" id="btn-salvar" class="btn btn-primary">${t('acao.salvar')}</button>
+        <button type="submit" id="btn-salvar" class="btn btn-primary">${t(o.rotuloOk || 'acao.salvar')}</button>
       </div>
     </form>
   `;

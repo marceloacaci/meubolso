@@ -11,7 +11,7 @@
 - Capacidade assumida: **~12 h/semana** ⇒ **~24 h por sprint** ⇒ ~144 h no trimestre.
 - Estimativas em **pontos**, sendo 1 ponto ≈ 2 h efetivas. Capacidade ≈ **12 pts/sprint**.
 - Toda sprint termina com: código na `master`, testes verdes, CHANGELOG atualizado.
-- Releases: **v1.1.0** (fim do mês 1), **v1.2.0** (fim do mês 2), **v2.0.0-rc** (fim do mês 3).
+- Releases: **v1.1.0** (fim do mês 1), **v1.2.0** (fim do mês 2), **v2.1.0** (fim do mês 3, pós-multiperfis) |
 
 ## Objetivos do trimestre (OKR)
 
@@ -35,7 +35,7 @@
 | S3 | 02–15/set | **Refatoração do monólito** | `app.js` quebrado em módulos · **v1.1.0** |
 | S4 | 16–29/set | **Funcionalidades I** | Recorrências, juros, metas |
 | S5 | 30/set–13/out | **Funcionalidades II + UX** | Filtros, busca, PDF/CSV · **v1.2.0** |
-| S6 | 14–27/out | **Hardening e saída do Beta** | Segurança, a11y, performance, docs · **v2.0.0-rc** |
+| S6 | 14–27/out | **Hardening e saída do Beta** | Segurança, a11y, performance, docs, **multiperfis** · **v2.1.0** |
 
 ---
 
@@ -108,7 +108,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 > Status da Sprint 4: concluída em 14/ago/2026 (adiantada). Funções puras em
 > `src/dominio.js` (`cet`, `calcularJurosDivida`, `simularQuitacao`), views em
 > `views/{recorrentes,metas,juros,simulador}.js`, nav no `index.html`, handlers em
-> `app.js`. 13 testes novos (`tests/sprint4.test.js`) — 79 no total, todos verdes.
+> `app.js`. 13 testes novos (`tests/sprint4.test.js`) — somando **108 no total**, todos verdes.
 > Validação funcional em runtime (`validate-s4.cjs`): 4/4 views passaram, 0 erros.
 
 ---
@@ -125,7 +125,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 | S5-6 | **Anexos**: comprovante (imagem/PDF) por pagamento | 2 | Rastreabilidade | ✅ **FEITO** |
 
 > Validado em runtime (`validate-s5.cjs`): 6/6 itens passaram, 0 erros de console.
-> 88 testes unitários verdes (`npm run test`). Código em `views/{dividas,pagamentos,relatorio}.js`,
+> **108 testes unitários verdes (`npm run test`)**. Código em `views/{dividas,pagamentos,relatorio}.js`,
 > `src/dominio.js` (filtros/ordenação/paginação), `main.js`/`preload.js` (IPC), `app.js`.
 
 ---
@@ -140,8 +140,23 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 | S6-4 | Auditoria de **acessibilidade** (navegação por teclado, foco visível, contraste AA, ARIA) | 2 | Checklist WCAG 2.1 AA + correções (skip-link, `:focus-visible`, contraste medido) | ✅ **FEITO** |
 | S6-5 | **Teste de carga**: 500 dívidas / 5.000 pagamentos; otimizar o que passar de 100 ms | 1 | Relatório de performance + `scripts/bench-carga.cjs` | ✅ **FEITO** |
 | S6-6 | Fechar documentação: ADRs, CHANGELOG, atualização do As-Built e dos diagramas | 2 | Docs coerentes com o código | ✅ **FEITO** |
+| S6-7 | **Multiperfis (S6-4 real)**: seleção/troca de perfil, criptografia por perfil, tag "Ativo" no logado, card de usuário na sidebar | 3 | E2E 24/24 (perfil Esposa) + 11/11 (gerenciar) + 108/108 Vitest; boot abre seletor antes do desbloqueio | ✅ **FEITO** |
 
-**Marco final:** ✅ **v2.0.0-rc** — remoção do rótulo Beta.
+**Marco final:** ✅ **v2.1.0** — multiperfis entregues (S6-7); removido o rótulo Beta.
+
+---
+
+> **Atualização (16/ago/2026):** o plano original previa 6 sprints até **v2.0.0-rc**.
+> Após o fechamento, foi entregue o **S6-7 (Multiperfis)**, elevando a versão para
+> **v2.1.0**. A suíte Vitest está em **108/108 testes verdes**. Para os próximos passos
+> (integridade numérica, auditoria, retenção e Multiperfis 2.0), ver
+> `docs/BRAINSTORM-MELHORIAS.md` (rodada de 16/ago).
+
+> **Atualização (19/ago/2026):** entregue o **UI/Theme pass 2** sobre a v2.1.0 — relevo raised
+> (50/50) em scrollbar, botões secundários e cabeçalho de página; contraste absoluto (preto/branco)
+> em títulos/textos/labels; correção de cantos quadrados (`--radius` restaurada); card de Insights
+> com fundo consistente; seção "Novidades" no Sobre. Suíte Vitest em **126/126 testes verdes**.
+> Detalhes em `docs/RELATORIO-ATUALIZACOES.md`.
 
 ---
 

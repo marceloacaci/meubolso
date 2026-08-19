@@ -1,6 +1,6 @@
 {
   "name": "meubolso",
-  "version": "2.0.0-rc",
+  "version": "2.1.0",
   "description": "MeuBolso — gerenciador de finanças pessoais minimalista para dívidas, empréstimos e cartão de crédito (desktop, 100% local)",
   "main": "main.js",
   "author": "Marcelo Acácio <dev@meubolso.app>",
@@ -93,6 +93,7 @@
     "7zip-bin": "^5.2.0",
     "electron": "^43.2.0",
     "electron-builder": "^26.15.3",
+    "jsdom": "^30.0.1",
     "vitest": "^4.1.10"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 # Manual do Usuário — MeuBolso
 
-**Versão 1.2.0** · Windows · Linux · macOS
+**Versão 2.1.0** · Windows · Linux · macOS
 Gerenciador de finanças pessoais 100% local e offline.
 
 ---
@@ -41,6 +41,7 @@ O que ele faz:
 - Registra dívidas divididas em parcelas, com vencimento e status de cada uma.
 - Registra os pagamentos e atualiza o status das parcelas automaticamente.
 - Organiza o dinheiro em carteiras, debitando o saldo a cada pagamento.
+- Separa os dados em **perfis** (cada perfil com seus próprios dados e criptografia opcional).
 - Mostra painéis, gráficos e insights sobre a sua situação.
 - Dá pontos, níveis e conquistas para manter você motivado a continuar.
 
@@ -277,12 +278,22 @@ o gráfico de XP por atividade e o histórico dos **últimos 100** registros de 
 
 ## 11. Configurações
 
+### Configurações Rápidas (engrenagem ao lado do relógio)
+Um painel que se abre sem sair da tela atual. Traz:
+- **Tema** (claro/escuro), **Cor de destaque** e **Fonte** do app.
+- **Idioma** (Português, Inglês, Espanhol).
+- **Dados**: uma barra compacta de ícones com **Backup**, **Exportar**, **Importar** e
+  **Restaurar** (versão minimalista; as mesmas ações da tela de Configurações).
+- **Perfis de dados**: Trocar perfil e Gerenciar (perfil ativo). Veja a seção **22**.
+
+### Tela de Configurações (menu lateral)
 | Opção | O que faz |
 |-------|-----------|
 | **Tema** | Claro ou escuro |
 | **Idioma** | Português, Inglês ou Espanhol — muda toda a interface na hora |
 | **Dados** | Exportar, importar, fazer backup agora, restaurar backup |
 | **Caminho dos dados** | Mostra onde o arquivo `meubolso.json` está gravado |
+| **Perfis de dados** | Criar, renomear, trocar e remover perfis; e ativar criptografia por perfil |
 
 A tela **Sobre** exibe a versão do app, do Electron, do Node e do Chromium, o sistema
 operacional e o tipo de armazenamento — informações úteis ao relatar um bug.
@@ -355,8 +366,11 @@ automaticamente.
 **Funciona em mais de um computador?** Sim, exportando o JSON de um e importando no
 outro. Não há sincronização automática.
 
-**Dá para usar em vários usuários / familiares?** O app é mono-usuário. Cada usuário do
-sistema operacional tem sua própria pasta de dados.
+**Dá para usar em vários usuários / familiares?** O app é mono-usuário no nível do
+sistema operacional (cada usuário do SO tem sua própria pasta de dados). Mas dentro do
+app você pode criar **perfis** (S6-4) para separar cenários financeiros distintos — cada
+perfil com seus próprios dados e criptografia opcional. Não há, porém, sincronização
+automática entre computadores.
 
 **Registrei um pagamento errado, e agora?** Edite ou exclua o pagamento — o app
 estorna o valor na carteira e recalcula o status da parcela.
@@ -443,6 +457,32 @@ O seletor de pasta/arquivo é o nativo do sistema operacional.
 - **Anexos de comprovante**: em cada pagamento há um botão *Anexar* para vincular
   um comprovante (imagem ou PDF). Quando há anexo, aparece o ícone 📎 — clique
   para abrir o arquivo.
+
+---
+
+## 22. Multiperfis (S6-4)
+
+O MeuBolso permite separar dívidas e dados em **perfis** diferentes, cada um com seus
+próprios dados e (opcionalmente) sua própria senha de criptografia.
+
+### Criar e gerenciar perfis
+- **Configurações → Perfis de dados**: crie um novo perfil (nome + senha opcional),
+  renomeie, troque a senha ou remova um perfil.
+- A criptografia é **por perfil**: você pode ter um perfil protegido por senha e outro
+  em texto aberto.
+
+### Trocar de perfil
+- Use **Configurações Rápidas → Perfis de dados → Trocar perfil**, ou o seletor que
+  aparece ao abrir o app quando há mais de um perfil.
+- Ao trocar para um perfil criptografado, o app pede a senha antes de carregar os dados.
+- O perfil efetivamente logado aparece na **sidebar**, abaixo do logo, com um ícone de
+  busto e o texto **"Usuário: <nome>"**. Ele também recebe a tag **"Ativo"** na lista de
+  seleção de perfis — a tag reflete o perfil realmente carregado, não apenas o selecionado.
+
+### Boas práticas
+- Use perfis para separar finanças pessoais de projetos/cenarios distintos no mesmo app.
+- Cada perfil tem seu próprio arquivo de dados; para mover entre computadores, exporte
+  o perfil desejado (Exportar) e importe no outro app.
 
 ---
 

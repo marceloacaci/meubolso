@@ -5,11 +5,14 @@ window.__mbRender = window.__mbRender || {};
 window.__mbRender.configuracoes = function renderConfiguracoes() {
   const fs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) || 1;
   const tamFonte = fs > 1.2 ? t('fonte.extra') : fs > 1.05 ? t('fonte.grande') : t('fonte.normal');
+  // Preferências de notificação (S7): garante existência com default 5min.
+  const prefsNotif = (estado.configuracoes && estado.configuracoes.notificacoes) || { ativo: true, intervaloMin: 5 };
+  const notif = { ativo: prefsNotif.ativo !== false, intervaloMin: prefsNotif.intervaloMin || 5 };
   return `
     <div class="page-header"><h2>${t('config.titulo')}</h2></div>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" style="max-width:1000px">
       <div class="col">
-        <section class="config-secao h-100">
+        <section class="config-secao h-100 aparencia">
           <h3>${t('config.aparencia')}</h3>
           <div class="config-linha">
             <span>${t('config.tema')}</span>
@@ -21,8 +24,8 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <div class="config-linha">
             <span>${t('config.fonte')} (${tamFonte})</span>
             <div class="gear-grupo gear-fonte-btns" role="group" aria-label="${t('config.fonte')}">
-              <button class="gear-opt gear-fonte" data-fonte="aumentar" title="${t('config.aumentarFonte')}">${ICON.setaCima} A</button>
               <button class="gear-opt gear-fonte" data-fonte="diminuir" title="${t('config.diminuirFonte')}">${ICON.setaBaixo} a</button>
+              <button class="gear-opt gear-fonte" data-fonte="aumentar" title="${t('config.aumentarFonte')}">${ICON.setaCima} A</button>
             </div>
           </div>
         </section>
@@ -62,10 +65,33 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
         <section class="config-secao h-100">
           <h3>${t('config.dados')}</h3>
           <div class="card-botoes">
-            <button class="card-btn" data-acao="fazerBackup" title="${t('title.fazerBackup')}">${ICON.reciclar} ${t('acao.fazerBackup')}</button>
-            <button class="card-btn" data-acao="exportar" title="${t('title.exportar')}">${ICON.exportar} ${t('acao.exportar')}</button>
-            <button class="card-btn" data-acao="importar" title="${t('title.importar')}">${ICON.importar} ${t('acao.importar')}</button>
-            <button class="card-btn" data-acao="restaurar" title="${t('title.restaurar')}">${ICON.reciclar} ${t('acao.restaurar')}</button>
+            <button class="gear-opt" data-acao="fazerBackup" title="${t('title.fazerBackup')}">${ICON.reciclar} ${t('acao.fazerBackup')}</button>
+            <button class="gear-opt" data-acao="exportar" title="${t('title.exportar')}">${ICON.exportar} ${t('acao.exportar')}</button>
+            <button class="gear-opt" data-acao="importar" title="${t('title.importar')}">${ICON.importar} ${t('acao.importar')}</button>
+            <button class="gear-opt" data-acao="restaurar" title="${t('title.restaurar')}">${ICON.reciclar} ${t('acao.restaurar')}</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="config-secao h-100">
+          <h3>${t('notif.secao')}</h3>
+          <p class="text-secondary small">${t('notif.descricao')}</p>
+          <div class="config-linha">
+            <span>${t('notif.ativo')}</span>
+            <button class="gear-opt ${notif.ativo ? 'active' : ''}" data-acao="notif-toggle" aria-pressed="${notif.ativo}">
+              ${ICON.sino}${notif.ativo ? '<span class="notif-check">✓</span>' : ''} ${notif.ativo ? t('notif.ativo') : t('notif.ativar')}
+            </button>
+          </div>
+          <div class="config-linha">
+            <span>${t('notif.intervalo')}</span>
+            <select class="notif-intervalo-select" data-notif-intervalo>
+              ${(window.NOTIF_INTERVALOS || [5,30,60,180,300,600,1440]).map(min => `<option value="${min}"${notif.intervaloMin === min ? ' selected' : ''}>${t('notif.int' + min)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="config-linha">
+            <span>${t('notif.testeLabel')}</span>
+            <button class="gear-opt" data-acao="notif-testar" title="${t('notif.testeTitle')}">${ICON.sino} ${t('notif.testar')}</button>
           </div>
         </section>
       </div>
@@ -76,8 +102,8 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <p class="text-secondary small">${t('cripto.descricao')}</p>
           <div class="card-botoes">
             ${(estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa)
-              ? `<button class="card-btn card-btn--perigo" data-acao="cripto-desativar" title="${t('title.criptoDesativar')}">${ICON.cadeado || '🔓'} ${t('cripto.desativar')}</button>`
-              : `<button class="card-btn card-btn--destaque" data-acao="cripto-ativar" title="${t('title.criptoAtivar')}">${ICON.cadeado || '🔒'} ${t('cripto.ativar')}</button>`}
+              ? `<button class="gear-opt" data-acao="cripto-desativar" title="${t('title.criptoDesativar')}"><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span> ${t('cripto.desativar')}</button>`
+              : `<button class="gear-opt" data-acao="cripto-ativar" title="${t('title.criptoAtivar')}"><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span> ${t('cripto.ativar')}</button>`}
           </div>
         </section>
       </div>
@@ -95,13 +121,13 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
               const ehAtivo = p.id === info.ativo;
               const tagAtivo = ehAtivo ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : '';
               const acao = ehAtivo
-                ? '<button class="btn btn-ghost btn-sm" data-acao="gerenciar-perfil-ativo" title="' + txtGerenciar + '">' + txtGerenciar + '</button>'
-                : '<button class="btn btn-ghost btn-sm" data-acao="perfil-trocar" data-id="' + p.id + '" title="' + txtTrocar + '">' + txtTrocar + '</button>';
+                ? '<button class="gear-opt" data-acao="gerenciar-perfil-ativo" title="' + txtGerenciar + '">' + txtGerenciar + '</button>'
+                : '<button class="gear-opt" data-acao="perfil-trocar" data-id="' + p.id + '" title="' + txtTrocar + '">' + txtTrocar + '</button>';
               return '<li class="perfil-linha ' + (ehAtivo ? 'perfil-linha--ativo' : '') + '">' +
                 '<span class="perfil-nome">' + escapeHtml(p.nome) + tagAtivo + '</span>' + acao + '</li>';
             }).join('');
             const lista = itens || '<p class="modal-msg">' + (t('perfil.nenhum') || '') + '</p>';
-            const btnTrocar = '<div class="card-botoes"><button class="card-btn" data-acao="perfil-selecionar" title="' + (t('perfil.selecioneMsg') || '') + '">' + (ICON.cadeado || '👥') + ' ' + txtTrocar + '</button></div>';
+            const btnTrocar = '<div class="card-botoes"><button class="gear-opt" data-acao="perfil-selecionar" title="' + (t('perfil.selecioneMsg') || '') + '">' + (ICON.cadeado || '👥') + ' ' + txtTrocar + '</button></div>';
             return '<ul class="perfil-lista">' + lista + '</ul>' + btnTrocar;
           })()}
         </section>

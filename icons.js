@@ -81,6 +81,7 @@
     quadradoVerde: '<svg viewBox="0 0 24 24" aria-hidden="true" class="ico-svg"><rect x="4" y="4" width="16" height="16" rx="3" fill="#22c55e"/></svg>',
     pincel: line('<path d="M4 20c0-2 1-3 3-3l9-9 1.5 1.5-9 9c0 2-1 3-3 3-.4 0-.6-.2-.5-.5Z"/><path d="M14 6.5 17.5 10"/>'),
     cadeado: line('<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/>'),
+    cadeadoAberto: line('<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 7.7-1.5"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/>'),
     lampada: line('<path d="M9 17h6"/><path d="M10 20h4"/><path d="M12 3.5a5.5 5.5 0 0 0-3.5 9.7c.7.6 1 1.3 1 2.3h5c0-1 .3-1.7 1-2.3A5.5 5.5 0 0 0 12 3.5Z"/>'),
     ferramenta: line('<path d="M14.5 6.5a3.5 3.5 0 0 0-4.7 4.3L4.5 16l3 3 5.2-5.3a3.5 3.5 0 0 0 4.3-4.7l-2.6 2.6-2.2-2.2 2.6-2.6Z"/>'),
     monitor: line('<rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M9 20.5h6"/><path d="M12 16.5v4"/>'),

@@ -6,10 +6,25 @@ window.__mbRender = window.__mbRender || {};
 
 function renderPainelFiltrosPagamentos() {
   const f = estado.filtro || {};
+  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro'].map(c =>
+    `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`).join('');
   const optsDiv = estado.dividas.map(d =>
     `<option value="${d.id}"${f.dividaId === d.id ? ' selected' : ''}>${escapeHtml(d.descricao)}</option>`).join('');
-  const temFiltro = f.texto || f.dividaId || f.periodo || f.periodoDe || f.periodoAte;
+  const temFiltro = f.texto || f.categoria || f.dividaId || f.periodo || f.periodoDe || f.periodoAte;
+  const tituloLimpar = temFiltro ? (t('filtro.limparTooltip') || 'Restaura todos os filtros') : (t('acao.limparFiltros') || 'Limpar filtros');
   const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const optDia = (sel) => { let o='<option value="">'+t('filtro.dia')+'</option>'; for(let i=1;i<=31;i++) o+='<option value="'+i+'"'+(sel==String(i)?' selected':'')+'>'+i+'</option>'; return o; };
+  const optMes = (sel) => { let o='<option value="">'+t('filtro.mes')+'</option>'; MESES.forEach((m,i)=>{ const v=String(i+1); o+='<option value="'+v+'"'+(sel==v?' selected':'')+'>'+m+'</option>'; }); return o; };
+  const optAno = (sel) => { let o='<option value="">'+t('filtro.ano')+'</option>'; for(let a=2020;a<=2035;a++) o+='<option value="'+a+'"'+(sel==String(a)?' selected':'')+'>'+a+'</option>'; return o; };
+  const deDia = f.periodoDeDia || (f.periodoDe||'').slice(8,10), deMes = f.periodoDeMes || (f.periodoDe||'').slice(5,7), deAno = f.periodoDeAno || (f.periodoDe||'').slice(0,4);
+  const ateDia = f.periodoAteDia || (f.periodoAte||'').slice(8,10), ateMes = f.periodoAteMes || (f.periodoAte||'').slice(5,7), ateAno = f.periodoAteAno || (f.periodoAte||'').slice(0,4);
+  const selPeriodo = (prefixo, dia, mes, ano) => `
+    <div class="d-flex gap-1">
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Dia">${optDia(dia)}</select>
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Mes">${optMes(mes)}</select>
+      <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Ano">${optAno(ano)}</select>
+    </div>`;
   return `
     <div class="card shadow-sm mb-3">
       <div class="card-body d-flex flex-wrap gap-2 align-items-end">
@@ -23,21 +38,29 @@ function renderPainelFiltrosPagamentos() {
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.categoria')}</label>
-          <select class="form-select" onchange="definirFiltro('dividaId', this.value)">
+          <select class="form-select" data-filtro="categoria">
+            <option value="">${t('filtro.todas')}</option>${optsCat}
+          </select>
+        </div>
+        <div>
+          <label class="form-label small mb-1">${t('filtro.divida')}</label>
+          <select class="form-select" data-filtro="dividaId">
             <option value="">${t('filtro.todas')}</option>${optsDiv}
           </select>
         </div>
         <div>
+          <label class="form-label small mb-1">&nbsp;</label>
+          <button class="btn btn-limpar-filtros ${temFiltro ? 'ativo' : ''}" data-acao="limpar-filtro" title="${tituloLimpar}" ${temFiltro ? '' : 'disabled'}>${ICON.lixeira || '🗑'} ${t('acao.limparFiltros')}</button>
+        </div>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-3 align-items-end border-top pt-2">
+        <div>
           <label class="form-label small mb-1">${t('filtro.periodoDe')}</label>
-          <input type="month" class="form-control" value="${escapeHtml(f.periodoDe || '')}" onchange="definirFiltro('periodoDe', this.value)" />
+          ${selPeriodo('periodoDe', deDia, deMes, deAno)}
         </div>
         <div>
           <label class="form-label small mb-1">${t('filtro.periodoAte')}</label>
-          <input type="month" class="form-control" value="${escapeHtml(f.periodoAte || '')}" onchange="definirFiltro('periodoAte', this.value)" />
-        </div>
-        <div>
-          <label class="form-label small mb-1">&nbsp;</label>
-          <button class="btn btn-limpar-destaque d-block" data-acao="limpar-filtro" ${temFiltro ? '' : 'disabled'}>${t('acao.limpar')}</button>
+          ${selPeriodo('periodoAte', ateDia, ateMes, ateAno)}
         </div>
       </div>
     </div>`;
@@ -60,9 +83,13 @@ window.__mbRender.pagamentos = function renderPagamentos() {
   const filtrados = filtrarPagamentos(estado.pagamentos, estado.dividas, f);
   // Agrupa por dívida (mantém o formato de cartão por dívida).
   const porDivida = {};
+  const porParcela = {}; // dividaId|parcelaId -> [pagamentos]
   for (const p of filtrados) {
     if (!porDivida[p.dividaId]) porDivida[p.dividaId] = [];
     porDivida[p.dividaId].push(p);
+    const chave = p.dividaId + '|' + p.parcelaId;
+    if (!porParcela[chave]) porParcela[chave] = [];
+    porParcela[chave].push(p);
   }
   const idsComPagamento = Object.keys(porDivida);
 
@@ -111,6 +138,14 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                 ${(d.parcelas || []).map(parc => {
                   const pagoParc = pagosPorParcela[parc.id] || 0;
                   const restanteParc = (Number(parc.valor) || 0) - pagoParc;
+                  const pagosParc = porParcela[d.id + '|' + parc.id] || [];
+                  const acoes = pagosParc.map(p => `
+                    <div class="d-flex gap-1 justify-content-end mb-1">
+                      <button class="btn btn-sm btn-outline-secondary" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
+                      <button class="btn btn-sm btn-outline-danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
+                    </div>`).join('');
+                  const registrar = `
+                    <button class="btn btn-sm btn-primary" data-acao="gerenciar-pagamentos" data-id="${d.id}">${t('pagamento.registrar')}</button>`;
                   return `
                     <tr>
                       <td><div class="fw-semibold">${t('label.parcela')} ${parc.numero}</div>
@@ -118,7 +153,7 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                       <td>${fmt.format(parc.valor)}</td>
                       <td class="text-success">${pagoParc > 0 ? fmt.format(pagoParc) : '—'}</td>
                       <td>${restanteParc > 0 ? `<span class="text-danger">${fmt.format(restanteParc)}</span>` : `<span class="text-success">${t('pagamentos.quitada')}</span>`}</td>
-                      <td class="text-end text-nowrap"></td>
+                      <td class="text-end text-nowrap">${pagosParc.length ? acoes : registrar}</td>
                     </tr>`;
                 }).join('')}
               </tbody>

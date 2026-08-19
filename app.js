@@ -13,12 +13,19 @@ window.__perfisInfo = perfisInfo;
 async function atualizarPerfisInfo() {
   try { const r = await window.api.perfilListar(); if (r && r.perfis) perfisInfo = { ativo: r.ativo, perfis: r.perfis }; } catch (_) {}
   window.__perfisInfo = perfisInfo;
-  // Exibe "Usuário: <nome>" do perfil (usuário) ativo na sidebar, abaixo do logo.
+  // Exibe o card do usuário (perfil ativo) na sidebar, abaixo do logo:
+  // ícone de busto SVG + "Usuário: <nome>", em card arredondado e fonte maior.
   const el = document.getElementById('sidebar-usuario');
   if (el) {
     const ativo = (perfisInfo.perfis || []).find(p => p.id === perfisInfo.ativo);
-    el.textContent = ativo ? t('perfil.usuario') + ': ' + ativo.nome : '';
-    el.style.display = ativo ? '' : 'none';
+    if (ativo) {
+      const busto = '<svg class="usuario-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>';
+      el.innerHTML = busto + '<span class="usuario-nome">' + t('perfil.usuario') + ': ' + escapeHtml(ativo.nome) + '</span>';
+      el.style.display = '';
+    } else {
+      el.innerHTML = '';
+      el.style.display = 'none';
+    }
   }
   if (window.render) window.render();
 }
@@ -252,6 +259,36 @@ let temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';
 // carregados. Evita sobrescrever o arquivo criptografado com o estado vazio
 // (dividas:[]) caso algum persistir() dispare antes do usuario desbloquear.
 let dadosCarregados = false;
+// S6-4: id do perfil cujos dados estão efetivamente carregados em memória
+// (estado). Fonte de verdade para a tag "Ativo" na seleção de perfil — evita
+// que a tag desapareça quando o perfil logado diverge do 'ativo' no disco.
+let perfilLogadoId = '';
+
+// S7: notificações nativas do SO. Preferências em estado.configuracoes.notificacoes
+// = { ativo: bool, intervaloMin: number }. Default 5 min (dev/teste). Intervalos
+// disponíveis: 5, 30, 60, 180, 300, 600, 1440 (min).
+const NOTIF_INTERVALOS = [5, 30, 60, 180, 300, 600, 1440];
+// Exposto para as views montarem o <select> de frequência.
+window.NOTIF_INTERVALOS = NOTIF_INTERVALOS;
+let notifTimer = null;
+function notifPrefs() {
+  estado.configuracoes = estado.configuracoes || {};
+  estado.configuracoes.notificacoes = estado.configuracoes.notificacoes || {};
+  const n = estado.configuracoes.notificacoes;
+  if (typeof n.ativo !== 'boolean') n.ativo = true;
+  // Padrão 5 minutos (ex.: perfil novo). Se ausente/inválido, garante 5.
+  if (typeof n.intervaloMin !== 'number' || n.intervaloMin <= 0) n.intervaloMin = 5;
+  return n;
+}
+
+// Atualiza DIRETAMENTE todos os <select> de frequência de notificação presentes
+// no DOM (gear-panel E página de Configurações) para o valor atual do estado.
+// Garante sincronia bidirecional sem depender do ciclo de render().
+function atualizarSelectsNotificacoes() {
+  const prefs = notifPrefs();
+  const val = String(prefs.intervaloMin || 5);
+  document.querySelectorAll('[data-notif-intervalo]').forEach(sel => { sel.value = val; });
+}
 
 // Ref reativo (Vue) que dispara a re-renderização das views. Toda ação que
 // antes chamava render() (e reescrevia app.innerHTML) agora incrementa este
@@ -429,6 +466,25 @@ function atualizarGearCripto() {
   atualizarBadgeNivel();
 }
 
+// S7: sincroniza o card de notificações do gear-panel (HTML estático) com as
+// preferências salvas, toda vez que o painel é aberto.
+function sincronizarGearNotificacoes() {
+  const prefs = notifPrefs();
+  const toggle = document.getElementById('gear-notif-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', prefs.ativo ? 'true' : 'false');
+    toggle.classList.toggle('active', prefs.ativo);
+    // Quando desativado: borda simples destacada + texto "Ativar notificações".
+    toggle.classList.toggle('notif-off', !prefs.ativo);
+    const check = toggle.querySelector('.notif-check');
+    if (check) check.hidden = !prefs.ativo;
+    const label = toggle.querySelector('.notif-label');
+    if (label) label.textContent = prefs.ativo ? t('notif.ativo') : t('notif.ativar');
+  }
+  const sel = document.getElementById('gear-notif-intervalo');
+  if (sel) atualizarSelectsNotificacoes();
+}
+
 // Preenche os badges dinâmicos da sidebar (só aparecem com valor > 0).
 function atualizarBadges() {
   const dividasAtivas = estado.dividas.length;
@@ -594,8 +650,12 @@ function graficoBarrasStatus(dados) {
 }
 
 // Gráfico de barras de XP por motivo (tela de detalhes de pontos).
-// Usa o MESMO degradê da barra do menu (primary -> success-claro) e a
-// animação .chart-bar (cresce de baixo para cima, suave).
+// IMPLEMENTAÇÃO EM HTML/CSS (sem Chart.js) por decisão explícita: no modo
+// maximizado o `#app` recebe `zoom: var(--app-width-scale)`, e o canvas do
+// Chart.js ampliado por zoom CSS dessincroniza o hit-test de hover e faz as
+// legendas internas sumirem. Com HTML puro, a legenda (à esquerda), a barra
+// (proporcional ao maior valor) e o percentual relativo ao total (à direita)
+// escalam fielmente com o zoom — nada desaparece.
 function graficoBarrasXP(historico) {
   if (!historico || !historico.length) return '<p class="stat-sub">' + t('game.logVazio') + '</p>';
   // Agrega XP positivo por motivo (categoria).
@@ -615,17 +675,19 @@ function graficoBarrasXP(historico) {
     .slice(0, 6);
   if (!dados.length) return '<p class="stat-sub">' + t('game.logVazio') + '</p>';
 
-  const id = 'chart-barras-xp-' + (__graficoSeq++);
-  if (window.ChartGraficos) {
-    window.ChartGraficos.registrar(id, {
-      tipo: 'bar',
-      degrade: true, // gradiente primário -> success-claro por barra
-      labels: dados.map(d => d.label),
-      valores: dados.map(d => d.xp),
-      fmt: (v) => '+' + v + ' XP'
-    });
-  }
-  return `<div class="game-grafico-wrap"><canvas id="${id}" role="img" aria-label="${t('game.graficoXP')}"></canvas></div>`;
+  const totalXP = dados.reduce((acc, d) => acc + d.xp, 0);
+  const maxXP = dados.reduce((m, d) => Math.max(m, d.xp), 0);
+  const barras = dados.map(d => {
+    const fill = maxXP > 0 ? (d.xp / maxXP) * 100 : 0;
+    const pct = totalXP > 0 ? (d.xp / totalXP) * 100 : 0;
+    return `<div class="xp-barra-linha">` +
+      `<span class="xp-barra-label" title="${escapeHtml(d.label)}">${escapeHtml(d.label)}</span>` +
+      `<div class="xp-barra-track"><div class="xp-barra-fill" style="width:${fill.toFixed(1)}%"></div></div>` +
+      `<span class="xp-barra-valor">+${d.xp}</span>` +
+      `<span class="xp-barra-pct">${pct.toFixed(1)}%</span>` +
+      `</div>`;
+  }).join('');
+  return `<div class="xp-barras">${barras}</div>`;
 }
 
 let _toastTimer = null;
@@ -683,6 +745,9 @@ async function carregar() {
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' }
   });
   dadosCarregados = true; // estado populado: persistir() liberado
+  // S6-4: rastreia o perfil efetivamente logado (cujos dados estão em estado)
+  // para a tag "Ativo" na seleção de perfil.
+  try { const lp = await listarPerfis(); perfilLogadoId = (lp && lp.ativo) || ''; } catch (_) { perfilLogadoId = ''; }
   if (!estado.configuracoes) estado.configuracoes = { moeda: 'BRL' };
   if (typeof estado.configuracoes.notificarVencimento !== 'boolean') estado.configuracoes.notificarVencimento = true;
   if (typeof estado.configuracoes.antecedenciaNotif !== 'number') estado.configuracoes.antecedenciaNotif = 3;
@@ -753,10 +818,13 @@ function abrirModalDesbloqueio() {
       await carregar();
       // Login real concluido (desbloqueio com sucesso) -> concede XP de acesso diario.
       concederXpAcessoDiario();
+      // Dispara a primeira notificação 10s após o login bem-sucedido.
+      agendarNotificacoes(10_000);
       if (window.render) window.render(); // garante a atualização da UI com os dados
       return true;
     },
     {
+      rotuloOk: 'acao.login',
       mensagem: t('cripto.desbloquearMsg') ||
         'Seus dados estão criptografados neste computador. Digite a senha para acessá-los. Se preferir, pode entrar sem senha — seus dados permanecerão salvos e protegidos, apenas ocultos até você desbloquear.',
       acaoSecundaria: {
@@ -774,16 +842,25 @@ async function listarPerfis() {
 // Tela de seleção de perfil ao abrir (ou via menu). Lista os perfis existentes
 // e permite escolher qual carregar, criar novo ou gerenciar.
 async function abrirSelecaoPerfil() {
+  // Captura o perfil ativo EM MEMÓRIA antes de listarPerfis() (que atualiza
+  // perfisInfo com o 'ativo' do disco). A tag "Ativo" deve refletir o perfil
+  // efetivamente logado, não apenas o do disco (que pode dessincronizar).
+  const ativoMem = (perfisInfo && perfisInfo.ativo) || '';
   const { ativo, perfis } = await listarPerfis();
   // So mostra a tag "Perfil atual" se ja houver um perfil efetivamente logado
   // (dadosCarregados). Na tela de entrada (boot) ninguem esta logado ainda,
   // entao nenhum perfil recebe a tag (evita aparecer no perfil errado antes
   // da senha ser validada).
   const logado = (typeof dadosCarregados !== 'undefined') ? dadosCarregados : false;
+  // Fonte de verdade do perfil ativo: o id logado em memória (perfilLogadoId),
+  // caindo para o cache (ativoMem) e por fim para o 'ativo' da API.
+  const ativoId = (logado && perfilLogadoId) ? perfilLogadoId
+    : (logado && ativoMem) ? ativoMem
+    : (ativo || '');
   const tag = t('perfil.atual') || 'Perfil atual';
   const itens = (perfis || []).map(p => `
     <div class="perfil-item">
-      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}${(logado && p.id === ativo) ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : ''}</button>
+      <button type="button" class="btn btn-primary perfil-escolher" data-id="${p.id}">${escapeHtml(p.nome)}${(logado && p.id === ativoId) ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : ''}</button>
       <button type="button" class="btn btn-ghost perfil-gerenciar" data-id="${p.id}" title="${t('perfil.gerenciar')}">⚙</button>
     </div>`).join('') || `<p class="modal-msg">${t('perfil.nenhum')}</p>`;
   abrirModal(
@@ -823,6 +900,7 @@ async function trocarPerfil(id) {
     if (window.mostrarToast) window.mostrarToast(t('perfil.erroTrocar') || 'Não foi possível trocar o perfil', 'erro');
     return;
   }
+  perfilLogadoId = id; // S6-4: perfil efetivamente logado em memória
   // Limpa a trava e recarrega do arquivo do novo perfil.
   dadosCarregados = false;
   await carregar(); // vai pedir senha se o perfil alvo estiver criptografado
@@ -832,7 +910,7 @@ async function trocarPerfil(id) {
   // (dadosCarregados=true). Se o perfil era criptografado e o usuario cancelou
   // o desbloqueio, NAO popula o sidebar com o nome (evita mostrar perfil sem
   // ter feito login).
-  if (dadosCarregados) { await atualizarPerfisInfo(); concederXpAcessoDiario(); }
+  if (dadosCarregados) { await atualizarPerfisInfo(); concederXpAcessoDiario(); agendarNotificacoes(10_000); }
 }
 // Fluxo de criar novo perfil (pede o nome; permite criptografar e definir senha).
 function criarPerfilFlow() {
@@ -1361,6 +1439,11 @@ async function persistir(silencio = false) {
 // ---------- Roteamento de views ----------
 let viewAtual = 'painel';
 function setView(v) {
+  // Saiu da página de Filtros: limpa os campos preenchidos para não vazarem
+  // para a próxima visita (o filtro é um estado compartilhado entre views).
+  if (viewAtual === 'filtros' && v !== 'filtros' && typeof limparFiltro === 'function') {
+    limparFiltro();
+  }
   viewAtual = v;
   if (window.__viewRef) window.__viewRef.value = v; // ref reativo: troca a view no root Vue
   document.querySelectorAll('.tab').forEach(t => {
@@ -1385,19 +1468,40 @@ function focarBusca() {
 // Aceita também um objeto parcial. Reseta a página ao filtrar.
 function definirFiltro(campo, valor) {
   if (typeof estado.filtro !== 'object' || estado.filtro === null) {
-    estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 };
+    estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', periodoDeDia: '', periodoDeMes: '', periodoDeAno: '', periodoAteDia: '', periodoAteMes: '', periodoAteAno: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: 12 };
   }
   if (typeof campo === 'object') {
     Object.assign(estado.filtro, campo);
   } else {
     estado.filtro[campo] = valor;
     if (campo !== 'pagina') estado.filtro.pagina = 1;
+    // Recompõe periodoDe/periodoAte só quando um dos selects dia/mês/ano muda.
+    // Se o próprio periodoDe/periodoAte foi passado direto (objeto ou string),
+    // NÃO recompõe — senão o valor seria apagado pelos campos auxiliares vazios.
+    if (/^periodo(De|Ate)(Dia|Mes|Ano)$/.test(campo)) recomporPeriodoFiltro();
   }
   render();
 }
 
+// Monta 'YYYY-MM-DD' (dia default 01 p/ De, fim do mês p/ Ate) a partir dos
+// campos separados. Se mês ou ano vazios, limpa o período correspondente.
+function recomporPeriodoFiltro() {
+  const f = estado.filtro;
+  if (!f) return;
+  const montar = (prefixo) => {
+    const dia = f[prefixo + 'Dia'] || '';
+    const mes = f[prefixo + 'Mes'] || '';
+    const ano = f[prefixo + 'Ano'] || '';
+    if (!mes || !ano) { f[prefixo] = ''; return; }
+    const d = dia || (prefixo === 'periodoAte' ? '31' : '01');
+    f[prefixo] = ano + '-' + String(mes).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  };
+  montar('periodoDe');
+  montar('periodoAte');
+}
+
 function limparFiltro() {
-  estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: estado.filtro ? estado.filtro.porPagina : 12 };
+  estado.filtro = { texto: '', categoria: '', status: '', periodo: '', periodoDe: '', periodoAte: '', periodoDeDia: '', periodoDeMes: '', periodoDeAno: '', periodoAteDia: '', periodoAteMes: '', periodoAteAno: '', ordenar: 'descricao', asc: true, pagina: 1, porPagina: estado.filtro ? estado.filtro.porPagina : 12 };
   render();
 }
 
@@ -2321,6 +2425,31 @@ function instalarDelegacaoBusca() {
       definirFiltro('texto', t.value);
     }
   });
+  // Selects de filtro (categoria/status/ordenar/divida/período dia-mês-ano)
+  // usam event delegation: os handlers inline onchange= não sobrevivem ao
+  // re-render do Vue (o DOM é recriado e o handler inline é perdido). O
+  // atributo data-filtro indica o campo do estado.filtro a atualizar.
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (!t || !t.classList) return;
+    // Card de notificações (Config/Config rápidas): escolhe o intervalo.
+    // Tratado ANTES do filtro abaixo, pois o <select> de frequência NÃO tem a
+    // classe .form-select e era barrado pelo return anterior (bug: mudança no
+    // select de frequência não persistia nem sincronizava com o outro lado).
+    if (t.hasAttribute('data-notif-intervalo')) {
+      const v = parseInt(t.value, 10);
+      salvarPrefsNotificacoes(notifPrefs().ativo, v);
+      atualizarSelectsNotificacoes();
+      render();
+      return;
+    }
+    if (!t.classList.contains('form-select')) return;
+    if (t.hasAttribute('data-filtro')) {
+      const campo = t.getAttribute('data-filtro');
+      if (campo === 'periodo') return;
+      definirFiltro(campo, t.value);
+    }
+  });
   window.__delegacaoBuscaOk = true;
 }
 
@@ -2916,6 +3045,127 @@ async function fazerBackupManual() {
 }
 
 // ---------- Inicialização ----------
+// ============================================================
+// ESCALA RESPONSIVA DE LARGURA (cards/fontes/gráficos ao maximizar)
+// ============================================================
+// No tamanho de abertura (modo janela) a escala é 1.0 (limitada). Ao
+// maximizar/redimensionar para além de W, os cards escalam proporcionalmente
+// (até um teto) via `zoom` no #app (ver --app-width-scale em styles.css). O
+// `zoom` re-rasteriza canvas/ícones com nitidez e altera o box de layout,
+// então a grid de cards ganha colunas e os gráficos Chart.js acompanham.
+let LARGURA_BASE = 1366;       // referência (atualizada no boot via IPC)
+let escalaAtual = 1;
+const ESCALA_TETO = 1.45;      // limite de ampliação ao maximizar
+
+function aplicarEscalaLargura() {
+  const w = window.innerWidth || LARGURA_BASE;
+  // Limitada a 1.0 no tamanho de abertura; cresce proporcional até o teto.
+  const scale = Math.min(ESCALA_TETO, Math.max(1, w / LARGURA_BASE));
+  if (Math.abs(scale - escalaAtual) < 0.001) return; // sem mudança: evita flicker/re-render
+  escalaAtual = scale;
+  document.documentElement.style.setProperty('--app-width-scale', scale.toFixed(3));
+  // Marca o body como "janela larga" quando além do tamanho de abertura:
+  // revela textos nos botões de dados do gear-panel e amplia o logo.
+  document.body.classList.toggle('janela-larga', scale > 1.05);
+  // Força re-render para os gráficos Chart.js (que observam o container) e
+  // para a grid de cards acomodarem a nova largura sem perder foco do busca.
+  if (typeof render === 'function') render();
+}
+
+// ============================================================
+// NOTIFICAÇÕES NATIVAS DO SISTEMA (S7)
+// ============================================================
+// Dispara lembretes periódicos do SO: dívidas atrasadas, a vencer em breve,
+// e incentivo a pontuar. Respeita o intervalo escolhido pelo usuário.
+function montarNotificacoes() {
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const em3 = new Date(hoje); em3.setDate(hoje.getDate() + 3);
+  // Lógica de contagem extraída para src/notificacoes-montar.js (testável).
+  return montarNotificacoesMod({ dividas: estado.dividas, hoje, em3, t, dadosCarregados });
+}
+
+async function dispararNotificacoes() {
+  const prefs = notifPrefs();
+  if (!prefs.ativo) { console.log('[NOTIF] desativado nas preferências — nada a disparar.'); return; }
+  const msgs = montarNotificacoes();
+  console.log('[NOTIF] disparando', msgs.length, 'mensagem(ns):', JSON.stringify(msgs));
+  if (!window.api || !window.api.notificarNativa) {
+    console.warn('[NOTIF] window.api.notificarNativa indisponível no renderer — não foi possível enviar.');
+    return;
+  }
+  for (const m of msgs) {
+    try {
+      const r = await window.api.notificarNativa(m);
+      console.log('[NOTIF] enviado ->', JSON.stringify(m), 'resposta:', JSON.stringify(r));
+    } catch (e) {
+      console.warn('[NOTIF] falha ao enviar notificação nativa:', e && e.message);
+    }
+  }
+}
+
+function agendarNotificacoes(delayPrimeiroMs) {
+  if (notifTimer) { clearInterval(notifTimer); notifTimer = null; }
+  const prefs = notifPrefs();
+  if (!prefs.ativo) { console.log('[NOTIF] agendamento cancelado (desativado).'); return; }
+  // No dev (ambienteAtual !== 'producao') usamos intervalo curto para facilitar
+  // a verificação pelo usuário; em produção, respeita o intervalo escolhido.
+  const emDev = (typeof ambienteAtual !== 'undefined' && ambienteAtual && ambienteAtual !== 'producao');
+  const ms = emDev ? Math.max(15_000, (prefs.intervaloMin || 5) * 1000) : Math.max(60_000, (prefs.intervaloMin || 5) * 60_000);
+  notifTimer = setInterval(() => { if (dadosCarregados) dispararNotificacoes(); }, ms);
+  // Primeiro disparo: 10s APÓS o usuário abrir e logar com sucesso (delay
+  // configurável). Agendado INDEPENDENTE de dadosCarregados já ser true: o
+  // próprio dispararNotificacoes() só envia quando os dados estiverem prontos.
+  const delay = (typeof delayPrimeiroMs === 'number') ? delayPrimeiroMs : 10_000;
+  setTimeout(() => { console.log('[NOTIF] disparo inicial (após login, ' + delay + 'ms)'); dispararNotificacoes(); }, delay);
+  console.log('[NOTIF] agendado — intervalo', ms, 'ms (emDev=' + emDev + ', ativo=' + prefs.ativo + ', primeiro em ' + delay + 'ms)');
+}
+
+// Liga/desliga e reagenda conforme o card de configurações.
+function salvarPrefsNotificacoes(ativo, intervaloMin) {
+  const prefs = notifPrefs();
+  prefs.ativo = !!ativo;
+  prefs.intervaloMin = intervaloMin || prefs.intervaloMin || 5;
+  if (estado.configuracoes) estado.configuracoes.notificacoes = prefs;
+  persistir();
+  agendarNotificacoes();
+}
+
+// Dispara uma notificação de TESTE (botão "Testar" do card de Configurações e
+// do gear-panel) e informa o resultado na tela, sem depender do DevTools.
+async function testarNotificacao() {
+  // Feedback NÃO-bloqueante (mostrarToast), nunca alert(): o alert() nativo do
+  // Electron trava a UI e deixa o <select> de frequência "preso" se ele estava
+  // com foco/aberto (bug reportado). mostrarToast é o padrão do app.
+  const feedback = (msg, tipo) => {
+    if (typeof window !== 'undefined' && window.mostrarToast) window.mostrarToast(msg, tipo || 'info');
+    else if (typeof console !== 'undefined') console.log('[NOTIF] ' + msg);
+  };
+  if (!window.api || !window.api.notificarNativa) {
+    feedback('API de notificação nativa indisponível neste build.', 'erro');
+    return;
+  }
+  const r = await window.api.notificarNativa({
+    titulo: 'MeuBolso',
+    corpo: 'Teste de notificação — se este Toast apareceu, o sistema está funcionando!'
+  });
+  if (r && r.ok) {
+    feedback('Notificação enviada com sucesso! O Toast do Windows deve ter aparecido.', 'sucesso');
+  } else {
+    feedback('Falha ao enviar notificação nativa: ' + JSON.stringify(r), 'erro');
+  }
+}
+
+async function initEscalaLargura() {
+  try { const base = await window.api.larguraBase(); if (base && base > 0) LARGURA_BASE = base; } catch (_) {}
+  aplicarEscalaLargura();
+  let pendente = false;
+  window.addEventListener('resize', () => {
+    if (pendente) return;
+    pendente = true;
+    requestAnimationFrame(() => { pendente = false; aplicarEscalaLargura(); });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Guard contra re-entrada: em alguns ambientes (ex.: jsdom em testes) o
   // DOMContentLoaded pode disparar mais de uma vez, o que duplicaria os
@@ -2924,6 +3174,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.__appInicializado) return;
   window.__appInicializado = true;
 
+  // Escala responsiva de largura (cards/fontes/gráficos) — aplica 1.0 no
+  // tamanho de abertura e cresce ao maximizar/redimensionar.
+  initEscalaLargura();
   // Preenche os ícones SVG marcados com data-ico no HTML estático
   // (o HTML não avalia ${...}; os SVGs vêm da biblioteca icons.js).
   if (typeof ICON !== 'undefined') {
@@ -2995,12 +3248,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       salvarPrefs();
       return;
     }
+    // Card de notificações (Config/Config rápidas): liga/desliga o recurso.
+    const notifToggle = e.target.closest('[data-acao="notif-toggle"]');
+    if (notifToggle) {
+      const prefs = notifPrefs();
+      // Preserva o intervalo atual (nunca reseta para 24h); garante default 5 min.
+      salvarPrefsNotificacoes(!prefs.ativo, prefs.intervaloMin);
+      sincronizarGearNotificacoes();
+      atualizarSelectsNotificacoes();
+      render();
+      return;
+    }
+    // Card de notificações (Config/Config rápidas): dispara notificação de teste.
+    const notifTestar = e.target.closest('[data-acao="notif-testar"]');
+    if (notifTestar) {
+      testarNotificacao();
+      return;
+    }
     // Alterna o painel de configurações rápidas (engrenagem ao lado do relógio).
     const gearBtn = e.target.closest('#btn-gear');
     if (gearBtn) {
       const panel = document.getElementById('gear-panel');
       const aberto = panel.classList.toggle('hidden') === false;
       gearBtn.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      if (aberto) sincronizarGearNotificacoes();
       return;
     }
     // Fecha o painel ao clicar fora dele (e fora da engrenagem).
@@ -3059,10 +3330,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregar();
     // 1 perfil: login direto (sem seletor) -> concede XP de acesso diario.
     if (dadosCarregados) concederXpAcessoDiario();
+    // Primeira notificação 10s após o login bem-sucedido.
+    agendarNotificacoes(10_000);
   }
-  // S5-3: notificações de vencimento — verifica no boot e a cada 6 horas.
-  verificarNotificacoes().catch(() => {});
-  setInterval(() => { verificarNotificacoes().catch(() => {}); }, 6 * 60 * 60 * 1000);
+  // S5-3/S7: notificações — agenda o sistema nativo conforme a preferência do
+  // usuário (intervalo escolhido; default 5 min em dev). Substitui o timer fixo.
+  agendarNotificacoes();
   // Lê preferências persistidas e aplica
   idiomaAtual = (estado.configuracoes && estado.configuracoes.idioma) || 'pt';
   temaAtual = (estado.configuracoes && estado.configuracoes.tema) || 'light';

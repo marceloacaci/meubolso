@@ -7,12 +7,13 @@
 > Legenda de esforço: **P** ≤ 8h · **M** 8–24h · **G** > 24h
 > Impacto: ⭐ baixo · ⭐⭐ médio · ⭐⭐⭐ alto
 >
-> **Status de implementação (atualizado em 14/ago/2026):** várias ideias deste
-> brainstorm já viraram realidade nas Sprints 1–5. Itens entregues estão marcados
+> **Status de implementação (atualizado em 16/ago/2026):** várias ideias deste
+> brainstorm já viraram realidade nas Sprints 1–6. Itens entregues estão marcados
 > com ✅ na coluna de Nota:
 > - **S1**: B1 (escrita atômica) ✅ · B2 (schema + migrações) ✅ · B3 (backup rotativo 7 gerações) ✅ · B4 (recuperação do .bak) ✅
 > - **S4**: A1 (juros e CET) ✅ · A2 (simulador avalanche × bola de neve) ✅ · A3 (despesas recorrentes) ✅ · A4 (metas financeiras) ✅
 > - **S5**: busca/filtros, ordenação/paginação, export CSV/PDF, notificações de vencimento, atalhos e anexos de comprovante ✅
+> - **S6-4**: **Multiperfis** (troca de perfil + criptografia por perfil) ✅ — atende parcialmente **H5** (Modo família multi-perfil): hoje é multi-*perfil* de dados no mesmo app, não multi-usuário concorrente.
 
 ---
 
@@ -187,3 +188,64 @@ Ordenado por **(impacto × urgência) ÷ esforço**:
 **O que eu NÃO faria agora:** C4/C7 (Vite + SFCs), H2 (Open Finance), F6 (app móvel),
 A5 (orçamento completo). São bons, mas grandes demais para o estágio — e três deles
 mudam a identidade do produto antes de a base estar sólida.
+
+---
+
+## Rodada de Brainstorm — 16/ago/2026 (pós S6-4)
+
+Revisão de estratégia após o fechamento do ciclo de multiperfis. O produto saiu do
+Beta (S6) e ganhou multiperfis (S6-4). O núcleo de "gestor de dívidas local e
+privado" está maduro. Próximo salto de valor = **confiança nos números** e
+**retenção pelo hábito**, não mais novas telas.
+
+### Diagnóstico (onde estamos)
+- ✅ Base sólida: dados atômicos, lixeira, backup, cripto opcional, multiperfis.
+- ✅ Qualidade: 108/108 testes Vitest + E2E headless nos fluxos críticos (seleção de
+  perfil, desbloqueio, sidebar, tag "Ativo", filtros auto-aplicáveis).
+- 🔴 **Dívida técnica confirmada por execução** (ver C11/C12 abaixo): dinheiro em
+  float e datas em UTC. Já causa XP de "dívida quitada" que não dispara e vencimentos
+  com 1 dia de defasagem perto da meia-noite. É o calcanhar de Aquiles para um app
+  financeiro.
+- 🟡 Documentação: README e As-Built alinhados; resta sincronizar MANUAL-DO-USUARIO
+  (multiperfis) e o cronograma de 3 meses.
+
+### Estratégia (princípios)
+1. **Corrigir antes de expandir.** Os bugs C11/C12 são silenciosos e financeiros —
+   prioridade zero. Um app de dinheiro que erra centavos ou datas quebra a confiança.
+2. **Retenção pelo hábito, não por gamificação exagerada** (ver E2/E3). Streak de
+   dias sem atraso > XP inflado.
+3. **Multiperfis como porta de entrada, não fim.** O próximo passo natural é B11
+   (sync por pasta) para o mesmo usuário em 2 PCs — não H5 completo (multi-usuário).
+4. **Zero nuvem por princípio.** Open Finance (H2) só como modo opt-in isolado.
+
+### Proposta de Sprints (próximos ~3 meses)
+
+| Sprint | Tema | Itens-chave | Esforço | Valor |
+|--------|------|-------------|:--------:|------|
+| **S7** | **Integridade numérica** | C11 (centavos inteiros), C12 (fuso BR), E4 (tabela NÍVEIS × nivelDe), testes de regressão do domínio | M | Crítico |
+| **S8** | **Confiança & auditoria** | C10 (unificar IPC duplicado), C5 (ESLint/Prettier+CI), B10 (hash SHA-256 de integridade), C2 (expandir suíte de testes) | M | Alto |
+| **S9** | **Hábito & retenção** | E2 (streak sem atraso), E6 (resumo mensal), D3 (notificação nativa de vencimento), D9 (estados vazios) | M | Alto |
+| **S10** | **Multiperfis 2.0** | B11 (sync por pasta OneDrive/Dropbox com detecção de conflito), H5 (modo família leve: convite de perfil), E5 (níveis além do 10) | G | Médio |
+
+### Cronograma sugerido (12 semanas)
+- **Semanas 1–3 (S7):** correção de float (centavos) + fuso BR + tabela de níveis.
+  Entrega: `npm run test` continua verde; nova suíte de regressão de domínio.
+- **Semanas 4–6 (S8):** lint/CI + hash de integridade + IPC único. Entrega: porta
+  de auditoria e build reproduzível no CI.
+- **Semanas 7–9 (S9):** streak + resumo mensal + notificações nativas. Entrega:
+  retenção mensurável (DAU de quem abre para ver o resumo).
+- **Semanas 10–12 (S10):** sync por pasta + modo família leve. Entrega: multiperfis
+  úteis entre dispositivos.
+
+### Top 5 próximos passos (agora)
+1. **S7-C11** — migrar soma de dinheiro para centavos inteiros (evita deriva).
+2. **S7-C12** — `hoje()` em fuso de Brasília (corrige vencimentos/atraso).
+3. **S7-E4** — alinhar `NIVEIS` e `nivelDe()` (nível correto em todo o XP).
+4. **S8-B10** — SHA-256 do arquivo para detectar corrupção antes de exibir.
+5. **S9-E2** — streak de dias sem atraso (mecânica de hábito de alto impacto).
+
+### O que deliberadamente NÃO entrará no roadmap
+- **A5 (orçamento 50/30/20)** e **H2 (Open Finance):** mudam a proposta de valor
+  "minimalista e offline". Reavaliar só após S10.
+- **C4/C7 (Vite + SFCs):** toolchain pesado para um app sem bundler; o modelo atual
+  (script clássico + Vue runtime) funciona e mantém o CSP sem `unsafe-eval`.

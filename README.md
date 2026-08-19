@@ -3,10 +3,10 @@
 Gerenciador de finanças pessoais **minimalista** para dívidas, empréstimos e cartão de crédito.
 100% local (sem nuvem, sem conta), foco em privacidade e em não perder os seus dados.
 
-![Versão](https://img.shields.io/badge/vers%C3%A3o-2.0.0--rc-green)
+![Versão](https://img.shields.io/badge/vers%C3%A3o-2.1.0-green)
 ![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 ![Plataforma](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20macOS-green)
-![Testes](https://img.shields.io/badge/testes-98%2F98%20Vitest-brightgreen)
+![Testes](https://img.shields.io/badge/testes-126%2F126%20Vitest-brightgreen)
 ![A11y](https://img.shields.io/badge/a11y-WCAG%202.1%20AA-green)
 ![CSP](https://img.shields.io/badge/CSP-sem%20unsafe--eval-green)
 
@@ -20,8 +20,27 @@ Gerenciador de finanças pessoais **minimalista** para dívidas, empréstimos e 
 - **Lixeira durável:** exclusão é *soft-delete* — restaure ou exclua definitivamente
   (dívidas + pagamentos, carteiras, recorrentes e metas). Nunca se perde um dado.
 - **Criptografia opcional (AES-256-GCM):** ative uma senha para cifrar o arquivo local.
+- **Multiperfis (S6-4):** separe dívidas e dados por perfil, com troca e criptografia
+  individual por perfil; a tag **"Ativo"** identifica o perfil logado.
+- **Configurações Rápidas:** painel accordeon (engrenagem ao lado do relógio) com tema,
+  cor de destaque, idioma, fonte, **Dados** (backup/exportar/importar/restaurar) e
+  **Perfis de dados** (trocar/gerenciar) — tudo sem sair da tela atual.
 - **Acessibilidade:** navegação por teclado, skip-link, foco visível, WCAG 2.1 AA.
 - **i18n:** Português, English, Español.
+
+## Atualizações recentes (v2.1.0)
+
+Melhorias de interface e tema (validadas por inspeção real no browser + suíte Vitest 126/126):
+
+- **Relevo raised** (metade clara em cima) em botões, cards e na **barra de rolagem** (thumb
+  com linha cortante nos estados parado/hover/arrastando), em ambos os temas.
+- **Botões secundários das janelas** (Cancelar, Voltar, ação secundária) agora com relevo raised.
+- **Contraste absoluto** (preto no claro / branco no escuro) em títulos, textos e labels;
+  valores coloridos (verde/vermelho) preservados.
+- **Cabeçalho de página** com relevo + sombra e título/botão centralizados na linha do relevo.
+- Correção de **cantos quadrados** em botões/cards (variável `--radius` restaurada).
+- Card de **Insights** com fundo consistente (itens herdam o card).
+- Detalhes em `docs/RELATORIO-ATUALIZACOES.md`.
 
 ## Instalação e execução (desenvolvimento)
 
@@ -83,11 +102,12 @@ da cópia) e pastas de versões obsoletas sem dados são removidas. Nada se perd
 | S4 | Funcionalidades II & UX (carteiras, recorrentes, metas) | FEITO | 100% |
 | S5 | Busca, filtros, exportação, notificações | FEITO | 100% |
 | S6 | Hardening & saída do Beta | FEITO | 100% |
+| S6-4 | Multiperfis (troca de perfil + criptografia por perfil) | FEITO | 100% |
 | B6/B7 | Lixeira (trash) durável | FEITO | 100% |
 
 ## Qualidade & verificação
 
-- **Suíte Vitest:** `98/98` testes verdes (`npm run test`).
+- **Suíte Vitest:** `108/108` testes verdes (`npm run test`).
 - **Auditoria de acessibilidade:** `scripts/audit-a11y.cjs` — 8/8 critérios WCAG 2.1 AA em Electron headless.
 - **Teste de carga:** `scripts/bench-carga.cjs` — `resumoParcelas` × 500 dívidas em ~4,7 ms.
 - **CSP:** `script-src 'self'` sem `unsafe-eval` (Vue 3 runtime-only).

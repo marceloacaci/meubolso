@@ -327,10 +327,23 @@ function filtrarDividas(dividas, filtro) {
   const texto = normalizarTexto(f.texto);
   const cat = f.categoria || '';
   const status = f.status || '';
-  // Período como range: periodoDe/periodoAte ('YYYY-MM'). Mantém compatível
-  // com o campo legado 'periodo' (mês único).
-  const de = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
-  const ate = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  // Período como range: periodoDe/periodoAte podem vir como 'YYYY-MM' (mês) ou
+  // 'YYYY-MM-DD' (dia/mês/ano nos novos filtros). Mantém compatível com o
+  // campo legado 'periodo' (mês único).
+  const deRaw = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  const ateRaw = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  // Se vier dia (AAAA-MM-DD), compara a data completa; senão compara só o mês.
+  const entre = (venc) => {
+    const v = venc || '';
+    const vMes = v.slice(0, 7);
+    if (deRaw && ateRaw) {
+      if (deRaw.length === 7 && ateRaw.length === 7) return vMes >= deRaw && vMes <= ateRaw;
+      return v >= deRaw && v <= ateRaw;
+    }
+    if (deRaw) return deRaw.length === 7 ? vMes >= deRaw : v >= deRaw;
+    if (ateRaw) return ateRaw.length === 7 ? vMes <= ateRaw : v <= ateRaw;
+    return true;
+  };
   return (dividas || []).filter(d => {
     if (cat && d.categoria !== cat) return false;
     if (texto) {
@@ -345,13 +358,8 @@ function filtrarDividas(dividas, filtro) {
       if (status === 'emDia' && (todasPagas || temAtraso)) return false;
       if (status === 'atrasado' && !temAtraso) return false;
     }
-    if (de || ate) {
-      const bate = (d.parcelas || []).some(p => {
-        const v = (p.vencimento || '').slice(0, 7); // 'YYYY-MM'
-        if (de && v < de) return false;
-        if (ate && v > ate) return false;
-        return !!(v && (!de || v >= de) && (!ate || v <= ate));
-      });
+    if (deRaw || ateRaw) {
+      const bate = (d.parcelas || []).some(p => entre(p.vencimento || ''));
       if (!bate) return false;
     }
     return true;
@@ -363,21 +371,32 @@ function filtrarPagamentos(pagamentos, dividas, filtro) {
   const f = filtro || {};
   const texto = normalizarTexto(f.texto);
   const dividaId = f.dividaId || '';
-  const de = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
-  const ate = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  const cat = f.categoria || '';
+  const deRaw = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
+  const ateRaw = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
   const porDiv = (id) => (dividas || []).find(d => d.id === id);
+  const catDiv = (id) => { const d = porDiv(id); return d ? d.categoria : ''; };
+  const entre = (data) => {
+    const v = data || '';
+    const vMes = v.slice(0, 7);
+    if (deRaw && ateRaw) {
+      if (deRaw.length === 7 && ateRaw.length === 7) return vMes >= deRaw && vMes <= ateRaw;
+      return v >= deRaw && v <= ateRaw;
+    }
+    if (deRaw) return deRaw.length === 7 ? vMes >= deRaw : v >= deRaw;
+    if (ateRaw) return ateRaw.length === 7 ? vMes <= ateRaw : v <= ateRaw;
+    return true;
+  };
   return (pagamentos || []).filter(p => {
     if (dividaId && p.dividaId !== dividaId) return false;
+    if (cat && catDiv(p.dividaId) !== cat) return false;
     if (texto) {
       const div = porDiv(p.dividaId);
       const alvo = normalizarTexto([p.nota, div ? div.descricao : ''].join(' '));
       if (!alvo.includes(texto)) return false;
     }
-    if (de || ate) {
-      const v = (p.data || '').slice(0, 7); // 'YYYY-MM'
-      if (de && v < de) return false;
-      if (ate && v > ate) return false;
-      if (!(v && (!de || v >= de) && (!ate || v <= ate))) return false;
+    if (deRaw || ateRaw) {
+      if (!entre(p.data || '')) return false;
     }
     return true;
   });

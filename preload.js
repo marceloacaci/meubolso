@@ -29,8 +29,12 @@ contextBridge.exposeInMainWorld('api', {
   listarBackups: () => ipcRenderer.invoke('dados:listar-backups'),
   restaurarBackup: (arquivo) => ipcRenderer.invoke('dados:restaurar-backup', arquivo),
   flashFoco: () => ipcRenderer.invoke('janela:flash-foco'),
+  // Largura de abertura (modo janela) — referência da escala responsiva de
+  // cards/fontes no renderer (ver --app-width-scale em styles.css/app.js).
+  larguraBase: () => ipcRenderer.invoke('app:largura-base'),
   abrirLink: (url) => ipcRenderer.invoke('link:abrir', url),
-  notificarVencimento: (item) => ipcRenderer.invoke('notificar:vencimento', item),
+  // Notificação nativa do sistema operacional (Windows Toast / macOS / Linux).
+  notificarNativa: (payload) => ipcRenderer.invoke('notificar:nativa', payload),
   selecionarAnexo: () => ipcRenderer.invoke('anexo:selecionar'),
   criptoDesbloquear: (senha) => ipcRenderer.invoke('cripto:desbloquear', senha),
   criptoAtivar: (senha) => ipcRenderer.invoke('cripto:ativar', senha),
