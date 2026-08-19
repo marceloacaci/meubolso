@@ -36,7 +36,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
 
   return `
     <div class="page-header">
-      <h2>${t('relatorio.titulo')}</h2>
+      <h2>${ICON.relatorio} ${t('relatorio.titulo')}</h2>
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary" data-acao="exportar-csv">${ICON.download || ''} CSV</button>
         <button class="btn btn-outline-secondary" data-acao="exportar-pdf">${ICON.download || ''} PDF</button>

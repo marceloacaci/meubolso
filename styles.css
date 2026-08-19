@@ -439,6 +439,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   /* Raised: gradiente de metade clara em cima (igual .gear-opt/.btn) + sombra
      para separar o título do conteúdo rolante (o header é sticky). */
   background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  /* Altura mínima para que páginas com e sem botão no cabeçalho tenham
+     o mesmo tamanho de "card de título" (evita desalinhamento visual). */
+  min-height: 60px;
   box-shadow: var(--shadow);
 }
 .page-header h2 { font-size: calc(22px * var(--app-font-scale)); font-weight: 600; margin: 0; }
@@ -1051,7 +1054,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* Tela de Gamificação */
 .config-grid--wide { max-width: 1000px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.sobre-grid { max-width: 760px; grid-template-columns: 1fr; }
+.sobre-grid { max-width: 820px; grid-template-columns: 1fr; }
 .game-resumo { text-align: center; }
 .game-nivel-grande { font-size: calc(22px * var(--app-font-scale)); font-weight: 700; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 12px; }
 .game-nivel-grande .ico-svg { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }

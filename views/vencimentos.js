@@ -125,7 +125,7 @@ window.__mbRender.vencimentos = function renderVencimentos() {
       </div>`}`;
 
   return `
-    <div class="page-header"><h2>${t('vencimentos.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.vencimentos} ${t('vencimentos.titulo')}</h2></div>
     ${renderPainelFiltrosVencimentos()}
     ${bloco(t('vencimentos.atrasadas'), atrasadas, true, t('vencimentos.nenhumaAtrasada'))}
     ${bloco(t('vencimentos.proximas'), proximas, false, t('vencimentos.nenhumaProxima'))}

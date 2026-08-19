@@ -116,7 +116,7 @@ window.__mbRender.gamificacao = function renderGamificacao() {
     </section>`;
 
   return `
-    <div class="page-header"><h2>${t('game.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.estrela} ${t('game.titulo')}</h2></div>
     <div class="config-grid config-grid--wide">
       ${detalhes}
       ${graficoXP}
@@ -125,7 +125,8 @@ window.__mbRender.gamificacao = function renderGamificacao() {
       ${tabela}
     </div>
   `;
-};
+}
+;
 
 /* View "Gamificação" (Pontuação e Conquistas) como componente Vue (Vue é DONO da view). */
 (function () {

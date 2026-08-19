@@ -4,7 +4,7 @@
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.backups = function renderBackups() {
   return `
-    <div class="page-header"><h2>${t('backup.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.pasta} ${t('backup.titulo')}</h2></div>
     <div class="row row-cols-1 row-cols-md-2 g-3">
       <div class="col">
         <section class="config-secao h-100">

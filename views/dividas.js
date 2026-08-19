@@ -89,7 +89,7 @@ window.__mbRender.dividas = function renderDividas() {
   if (estado.dividas.length === 0) {
     return `
       <div class="page-header">
-        <h2>${t('dividas.titulo')}</h2>
+        <h2>${ICON.dividas} ${t('dividas.titulo')}</h2>
         <button class="btn btn-primary" data-acao="nova-divida">${ICON.mais} ${t('divida.nova')}</button>
       </div>
       <div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
@@ -132,7 +132,7 @@ window.__mbRender.dividas = function renderDividas() {
 
   return `
     <div class="page-header">
-      <h2>${t('dividas.titulo')}</h2>
+      <h2>${ICON.dividas} ${t('dividas.titulo')}</h2>
       <button class="btn btn-primary" data-acao="nova-divida">${ICON.mais} ${t('divida.nova')}</button>
     </div>
     ${renderPainelFiltrosDividas()}

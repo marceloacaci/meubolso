@@ -35,7 +35,7 @@ window.__mbRender.conquistas = function renderConquistas() {
         </li>`).join('')}</ul>`;
 
   return `
-    <div class="page-header"><h2>${t('conquistas.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.trofeu} ${t('conquistas.titulo')}</h2></div>
     <div class="row g-3 mb-4">
       <div class="col">
         <section class="config-secao">

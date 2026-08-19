@@ -92,7 +92,7 @@ window.__mbRender.lixeira = function renderLixeira() {
 
   return `
     <div class="page-header">
-      <h2>${t('lixeira.titulo')}</h2>
+      <h2>${ICON.lixeira} ${t('lixeira.titulo')}</h2>
       ${total > 0 ? `
         <button class="btn btn-outline-danger" data-acao="esvaziar-lixeira-tudo">${ICON.lixeira || ''} ${t('acao.esvaziar')}</button>
       ` : ''}

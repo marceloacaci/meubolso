@@ -70,7 +70,7 @@ window.__mbRender.pagamentos = function renderPagamentos() {
   if (estado.dividas.length === 0) {
     return `
       <div class="page-header">
-        <h2>${t('pagamentos.titulo')}</h2>
+        <h2>${ICON.pagamentos} ${t('pagamentos.titulo')}</h2>
         <button class="btn btn-primary" data-acao="novo-pagamento">${t('pagamento.novo')}</button>
       </div>
       <div class="lista"><div class="empty">
@@ -181,7 +181,7 @@ window.__mbRender.pagamentos = function renderPagamentos() {
 
   return `
     <div class="page-header">
-      <h2>${t('pagamentos.titulo')}</h2>
+      <h2>${ICON.pagamentos} ${t('pagamentos.titulo')}</h2>
       <button class="btn btn-primary" data-acao="novo-pagamento">${ICON.mais} ${t('pagamento.novo')}</button>
     </div>
     ${renderPainelFiltrosPagamentos()}

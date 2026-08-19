@@ -4,7 +4,7 @@
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.filtros = function renderFiltros() {
   return `
-    <div class="page-header"><h2>${t('filtros.titulo')}</h2></div>
+    <div class="page-header"><h2>${ICON.filtro || ICON.pasta} ${t('filtros.titulo')}</h2></div>
     <p class="stat-sub">Filtros avançados serão implementados em breve.</p>
   `;
 };
