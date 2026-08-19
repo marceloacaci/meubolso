@@ -1897,7 +1897,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle);
   /* Raised mantendo a tonalidade original do alerta (verde sutil), nao o verde saturado. */
   background: linear-gradient(to bottom, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 0%, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 100%);
-  color: var(--success-text-emphasis);
+  color: var(--text);
 }
 .alert-danger { --bs-alert-color: var(--danger-text-emphasis); --bs-alert-bg: var(--bs-danger-bg-subtle); --bs-alert-border-color: var(--bs-danger-border-subtle); }
 .alert-warning { --bs-alert-color: var(--warning-text-emphasis); --bs-alert-bg: var(--bs-warning-bg-subtle); --bs-alert-border-color: var(--bs-warning-border-subtle); }
