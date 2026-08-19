@@ -4,11 +4,25 @@ Todas as versões notáveis deste projeto seguem o formato
 [Keep a Changelog](https://keepachangelog.com/) e o versionamento
 [SemVer](https://semver.org/).
 
-## [2.0.0-rc] — 2026-08-14
+## [2.1.0] — 2026-08-19
 
-Release candidato de saída do Beta. Foco: hardening, acessibilidade e performance.
+Release estável (antes `v2.0.0-rc`). Foco: hardening, acessibilidade, performance e
+melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
 
 ### Adicionado
+- **S6-7 — Multiperfis:** seleção/troca de perfil, criptografia por perfil, tag "Ativo"
+  no perfil efetivamente logado, card de usuário (busto SVG) na sidebar; Configurações
+  Rápidas com barra minimalista de **Dados** (ícones Backup/Exportar/Importar/Restaurar)
+  e card **Perfis de dados**. Suíte Vitest 108/108.
+- **UI/Theme pass 2:** relevo raised (50/50) em scrollbar (thumb com linha cortante,
+  track neutro, estados hover/active; hex fixos por tema para contornar `color-mix` em
+  `::-webkit-scrollbar-thumb`), `.btn-ghost` (Cancelar/Voltar/ação secundária) com raised;
+  contraste absoluto (preto/branco) em títulos/textos/labels via `--text`/`--text-muted`
+  (venceu `!important` do Bootstrap em `.text-secondary`); cards de filtros isolados via
+  `:has([data-filtro])`; `.page-header` com raised + sombra e título/botão centralizados
+  na linha do relevo (padding simétrico); correção de cantos quadrados (variável
+  `--radius` restaurada); card de Insights com fundo consistente; seção "Novidades" no
+  Sobre. Suíte Vitest **126/126**.
 - **S6-4 — Auditoria de acessibilidade (WCAG 2.1 AA):**
   - Skip-link "Pular para o conteúdo" (primeiro elemento focável) + `#app` com `tabindex="-1"`.
   - Foco visível global `:focus-visible` (anel `2px solid var(--primary)`).
