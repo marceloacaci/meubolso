@@ -358,7 +358,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: inline-flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow);
 }
-.nav-badge--alerta { background: var(--danger); color: #fff; }
+.nav-badge--alerta {
+  /* Mantém o relevo raised mesmo no estado de alerta (cor de perigo). */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--danger) 85%, white) 0%, color-mix(in srgb, var(--danger) 85%, white) 50%, color-mix(in srgb, var(--danger) 95%, black) 50%, color-mix(in srgb, var(--danger) 95%, black) 100%);
+  color: #fff;
+}
 
 .sidebar-perfil {
   margin-top: auto; border: 1px solid var(--border); border-radius: 12px;
@@ -735,7 +739,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1a1a1a;
+  /* Raised: gradiente de metade clara em cima (igual .gear-opt/.btn). */
+  background: linear-gradient(to bottom, color-mix(in srgb, #1a1a1a 85%, white) 0%, color-mix(in srgb, #1a1a1a 85%, white) 50%, color-mix(in srgb, #1a1a1a 95%, black) 50%, color-mix(in srgb, #1a1a1a 95%, black) 100%);
   color: #fff;
   padding: 10px 18px;
   border-radius: var(--radius);
@@ -750,8 +755,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.hidden { display: none; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
-.toast.success { background: var(--success); color: #fff; font-weight: 700; }
-.toast.error { background: var(--danger); color: #fff; font-weight: 700; }
+.toast.success { background: linear-gradient(to bottom, color-mix(in srgb, var(--success) 85%, white) 0%, color-mix(in srgb, var(--success) 85%, white) 50%, color-mix(in srgb, var(--success) 95%, black) 50%, color-mix(in srgb, var(--success) 95%, black) 100%); color: #fff; font-weight: 700; }
+.toast.error { background: linear-gradient(to bottom, color-mix(in srgb, var(--danger) 85%, white) 0%, color-mix(in srgb, var(--danger) 85%, white) 50%, color-mix(in srgb, var(--danger) 95%, black) 50%, color-mix(in srgb, var(--danger) 95%, black) 100%); color: #fff; font-weight: 700; }
 
 /* Barra de progresso: estilo unico (pill 18px) definido em `.barra-progresso`
    mais abaixo (na secao de barras de progresso do sistema). */
@@ -1881,7 +1886,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 
 /* Alertas Bootstrap na paleta da marca. */
 .alert-primary { --bs-alert-color: var(--primary-text-emphasis); --bs-alert-bg: var(--bs-primary-bg-subtle); --bs-alert-border-color: var(--bs-primary-border-subtle); }
-.alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle); }
+.alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle); background: linear-gradient(to bottom, color-mix(in srgb, var(--success) 85%, white) 0%, color-mix(in srgb, var(--success) 85%, white) 50%, color-mix(in srgb, var(--success) 95%, black) 50%, color-mix(in srgb, var(--success) 95%, black) 100%); color: #fff; }
 .alert-danger { --bs-alert-color: var(--danger-text-emphasis); --bs-alert-bg: var(--bs-danger-bg-subtle); --bs-alert-border-color: var(--bs-danger-border-subtle); }
 .alert-warning { --bs-alert-color: var(--warning-text-emphasis); --bs-alert-bg: var(--bs-warning-bg-subtle); --bs-alert-border-color: var(--bs-warning-border-subtle); }
 .alert-info { --bs-alert-color: var(--info-text-emphasis); --bs-alert-bg: var(--bs-info-bg-subtle); --bs-alert-border-color: var(--bs-info-border-subtle); }
@@ -1906,8 +1911,8 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .accordion-button:focus { box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
 .accordion-item, .accordion-button { background-color: var(--surface); color: var(--text); border-color: var(--border); }
 
-/* Toast do Bootstrap: usa o mesmo posicionamento do app (base central). */
-.toast { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+/* Toast do Bootstrap: mantém cores/borda; o relevo raised vem da regra `.toast` acima. */
+.toast { color: var(--text); border-color: var(--border); }
 .toast-container { z-index: 200; }
 
 /* ============================================================
@@ -2115,11 +2120,11 @@ input[type="checkbox"], input[type="radio"] {
    Botões neutros também acendem a fonte na cor de destaque (bloco anterior).
    Botões com fundo de cor mantêm a fonte legível e só acendem a borda. */
 .btn:hover { border-color: var(--primary); }
-.card, .modal-card, .tooltip, .toast {
+.card, .modal-card, .tooltip {
   background: var(--bg);
   border: 1px solid var(--border);
 }
-.card:hover, .modal-card:hover, .tooltip:hover, .toast:hover {
+.card:hover, .modal-card:hover, .tooltip:hover {
   border-color: var(--primary);
 }
 .toast-txt { display: inline-flex; align-items: center; min-width: 0; font-weight: inherit; color: inherit; }
