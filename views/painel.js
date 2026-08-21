@@ -7,7 +7,8 @@ window.__mbRender.painel = function renderPainel() {
   const insights = gerarInsights(metricas);
 
   return `
-    <div class="page-header"><h2>${t('painel.titulo')}</h2></div>
+    <div class="painel-view">
+    <div class="page-header"><h2>${ICON.painel} ${t('painel.titulo')}</h2></div>
 
     <div class="mb-4">
       <div class="card h-100">
@@ -79,8 +80,10 @@ window.__mbRender.painel = function renderPainel() {
         </div>
       </div>
     </div>
+    </div>
   `;
-};
+}
+;
 
 /* View "Painel" como componente Vue (Vue é DONO da view).
  * O template é fino: apenas injeta o HTML gerado por renderPainel()

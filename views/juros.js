@@ -54,7 +54,7 @@ window.__mbRender.juros = function renderJuros() {
         <div class="d-flex justify-content-between"><span>${t('juros.percentualJuros')}</span><b>${pctJuros}%</b></div>
       </div></div></div>
     </div>
-    <div class="card shadow-sm mb-4"><div class="card-body">
+    <div class="card mb-4"><div class="card-body">
       <h3 class="h6 text-secondary text-uppercase mb-3">${t('juros.tituloSecao')}</h3>
       ${tabela}
     </div></div>

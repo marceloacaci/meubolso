@@ -21,7 +21,7 @@ window.__mbRender.recorrentes = function renderRecorrentes() {
   const totalAnual = somaDinheiro(totalMensal, totalMensal * 11);
 
   const corpo = lista.length === 0
-    ? `<div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
          <span style="font-size:20px">${ICON.recorrente || ICON.recorrentes || ICON.cartao}</span>
          <div>${t('recorrentes.vazia')}</div>
        </div>`
@@ -51,7 +51,7 @@ window.__mbRender.recorrentes = function renderRecorrentes() {
       <h2>${ICON.recorrente || ICON.recorrentes || ICON.cartao} ${t('recorrentes.titulo')}</h2>
       <button class="btn btn-primary" data-acao="nova-recorrente">${ICON.mais} ${t('recorrentes.nova')}</button>
     </div>
-    <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-3" role="status">
+    <div class="alert alert-info raised-card d-inline-flex align-items-center gap-2 mb-3" role="status">
       <span>${t('recorrentes.total')}:</span> <b>${fmt.format(totalMensal)}</b>
       &nbsp;·&nbsp; <span>${t('recorrentes.totalAnual')}:</span> <b>${fmt.format(totalAnual)}</b>
     </div>

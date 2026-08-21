@@ -11,6 +11,8 @@
   --success: #166534;
   --success-claro: #4ade80; /* verde claro usado no final do degradê da barra de progresso */
   --shadow: 0 2px 5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  /* Sombra de realce no hover de cards/seções: preta no claro. */
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.10);
   /* Metade INFERIOR dos gradientes raised no claro: exatamente 5% de preto
      misturado (95% da cor original) = 5% mais escura. Redefinida como cor
      pura no modo escuro (ver [data-theme="dark"]). */
@@ -51,6 +53,9 @@
   --filtro-text: #444444;
   --filtro-text-muted: #444444;
   --border: #3a4049;          /* borda clara/visivel (tom de branco acinzentado) */
+  /* Borda branca suave para dar contraste extra em cards e botões no tema
+     escuro (sobrepõe --border nesses elementos; inputs/filtros mantêm --border). */
+  --border-dark: rgba(255,255,255,0.95);
   --primary: #3fb985;
   --primary-hover: #56c998;
   --danger: #e35d6a;
@@ -61,6 +66,9 @@
   /* No modo escuro a sombra preta some sobre o fundo claro/escuro — usa sombra
      BRANCA para destacar os elementos relevados (raised) sobre o fundo escuro. */
   --shadow: 0 2px 5px rgba(255,255,255,0.30), 0 1px 3px rgba(255,255,255,0.20);
+  /* Sombra de realce no hover de cards/seções: BRANCA no escuro (a preta
+     some sobre o fundo escuro). No claro vem do :root (preta). */
+  --shadow-hover: 0 4px 12px rgba(255,255,255,0.18);
   /* No modo escuro a metade inferior do raised fica na cor PURA (sem
      escurecimento), para o relevo vir da metade clara de cima + sombra branca. */
   --raised-bg-base: var(--bg);
@@ -268,7 +276,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .logo { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .logo-ico { font-size: calc(20px * var(--app-font-scale)); }
 /* Ícones SVG inline (biblioteca icons.js) — herdam currentColor e se ajustam ao container */
-.ico-svg { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: -0.18em; flex-shrink: 0; }
+.ico-svg { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: -0.18em; flex-shrink: 0; transition: color 0.15s; }
 .logo-ico .ico-svg { width: 22px; height: 22px; }
 .btn-cta .ico-svg { width: 18px; height: 18px; }
 .nav-ico .ico-svg { width: 18px; height: 18px; }
@@ -295,9 +303,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 4px 12px;
   max-width: 100%;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: var(--shadow);
   transition: border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.sidebar-usuario:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.sidebar-usuario:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .sidebar-usuario .usuario-ico { flex: 0 0 auto; }
 .sidebar-usuario .usuario-nome { overflow: hidden; text-overflow: ellipsis; }
 
@@ -310,8 +319,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* Botão "Limpar" dos filtros: borda/cor de destaque (igual ao botão Ativar da
    página de Configurações) para destacar a ação de limpar filtros. */
-.btn-limpar-destaque { border: 1px solid var(--primary); color: var(--primary); background: transparent; border-radius: 8px; padding: 6px 14px; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-.btn-limpar-destaque:hover:not(:disabled) { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-limpar-destaque { border: 1px solid var(--primary); color: var(--primary); background: transparent; border-radius: 8px; padding: 6px 14px; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s; box-shadow: var(--shadow); }
+.btn-limpar-destaque:hover:not(:disabled) { background: var(--primary); color: #fff; box-shadow: var(--shadow-hover); }
 .btn-limpar-destaque:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--border); color: var(--text-muted); }
 
 /* ---------- Carteiras ---------- */
@@ -326,8 +335,31 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .carteira-nome { font-weight: 600; font-size: calc(14px * var(--app-font-scale)); color: var(--text); }
 .carteira-saldo { font-weight: 700; font-size: calc(16px * var(--app-font-scale)); color: var(--primary); margin-top: 2px; font-variant-numeric: tabular-nums; }
 .carteira-meta { font-size: calc(11px * var(--app-font-scale)); color: var(--text-muted); margin-top: 3px; }
+
+/* Utilitário de relevo raised (metade clara em cima) — só sobrepõe fundo,
+   borda e sombra, PRESERVANDO a forma original do elemento (funciona tanto em
+   .alert quanto em .card). Usado nos cards de estado vazio/total de Lixeira,
+   Metas, Recorrentes e Carteiras. As regras .alert.raised-card / .card.raised-card
+   (0,2,0) vencem o .alert/.card do Bootstrap por ordem (styles.css vem depois). */
+.raised-card,
+.alert.raised-card,
+.card.raised-card {
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--surface) 85%, white) 0%,
+    color-mix(in srgb, var(--surface) 85%, white) 50%,
+    var(--raised-surface-base) 50%,
+    var(--raised-surface-base) 100%);
+  border-color: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
 .tag-carteira { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: calc(11px * var(--app-font-scale)); background: var(--primary); color: #fff; }
 .carteira-acoes { display: flex; gap: 6px; flex-shrink: 0; }
+/* Hover do card de carteira: lift + borda/fonte na cor de destaque + sombra
+   --shadow-hover, com a imagem/ícone acompanhando a cor (igual aos cards de
+   Configurações e ao menu lateral). */
+.carteira-card { transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s; }
+.carteira-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 .sidebar-nav { display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .nav-grupo { display: flex; flex-direction: column; gap: 2px; }
@@ -355,7 +387,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .nav-ico.ic svg, .ic svg { width: 100%; height: 100%; display: block; }
 .nav-link.active .ic { color: #fff; }
-.nav-link:hover .ic { color: var(--primary); }
+.nav-link:hover .ic { color: var(--text); }
 .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nav-badge {
   min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
@@ -379,7 +411,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.sidebar-perfil:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.10); }
+.sidebar-perfil:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .sidebar-perfil .nivel-ico { font-size: calc(15px * var(--app-font-scale)); }
 .sidebar-perfil .nivel-barra {
   width: 100%; height: 8px;
@@ -440,8 +472,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
      para separar o título do conteúdo rolante (o header é sticky). */
   background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
   /* Altura mínima para que páginas com e sem botão no cabeçalho tenham
-     o mesmo tamanho de "card de título" (evita desalinhamento visual). */
-  min-height: 60px;
+     o mesmo tamanho de "card de título" (evita desalinhamento visual).
+     76px > altura natural do header com botão (~70px em fonte padrão),
+     forçando o header sem botão a esticar até iguar. */
+  min-height: 76px;
   box-shadow: var(--shadow);
 }
 .page-header h2 { font-size: calc(22px * var(--app-font-scale)); font-weight: 600; margin: 0; }
@@ -538,7 +572,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .btn-primary { background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); color: #fff; }
-.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-hover); }
 .btn-ghost { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text-muted); }
 .btn-ghost:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); }
 /* Botão "Limpar filtros": borda simples inativa; vermelha (borda+fonte) quando
@@ -553,9 +587,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   white-space: nowrap; box-shadow: var(--shadow);
   transition: border-color .15s, color .15s, background .15s, transform .15s, box-shadow .15s;
 }
-.btn-limpar-filtros:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.btn-limpar-filtros:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* (Removido: não recolhe o ícone do "Limpar filtros" no hover — quando .ativo
+   (vermelho) o verde conflitava; estado normal já tem cor própria.) */
 .btn-limpar-filtros.ativo { border-color: var(--danger); color: var(--danger); font-weight: 600; }
-.btn-limpar-filtros.ativo:hover:not(:disabled) { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); border-color: var(--danger); }
+.btn-limpar-filtros.ativo:hover:not(:disabled) { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); border-color: var(--danger); box-shadow: var(--shadow-hover); }
 /* Mantém o raised mesmo desabilitado (só reduz a opacidade). */
 .btn-limpar-filtros:disabled { opacity: .5; cursor: not-allowed; }
 .btn-icon {
@@ -680,7 +716,6 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .campo input:focus, .campo select:focus, .campo textarea:focus {
   outline: none;
-  border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.15);
 }
 
@@ -740,7 +775,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   color: #fff;
   border: 1px solid var(--danger, #c1121f);
 }
-.btn-danger:hover { background: #a30d18; }
+.btn-danger:hover { background: #a30d18; box-shadow: var(--shadow-hover); }
 
 /* Toast */
 .toast {
@@ -766,8 +801,17 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.hidden { display: none; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
-.toast.success { background: linear-gradient(to bottom, color-mix(in srgb, var(--success) 85%, white) 0%, color-mix(in srgb, var(--success) 85%, white) 50%, color-mix(in srgb, var(--success) 95%, black) 50%, color-mix(in srgb, var(--success) 95%, black) 100%); color: #fff; font-weight: 700; }
-.toast.error { background: linear-gradient(to bottom, color-mix(in srgb, var(--danger) 85%, white) 0%, color-mix(in srgb, var(--danger) 85%, white) 50%, color-mix(in srgb, var(--danger) 95%, black) 50%, color-mix(in srgb, var(--danger) 95%, black) 100%); color: #fff; font-weight: 700; }
+.toast.success { background: color-mix(in srgb, var(--success) 24%, var(--surface)); color: var(--text); font-weight: 700; }
+.toast.error { background: color-mix(in srgb, var(--danger) 24%, var(--surface)); color: var(--text); font-weight: 700; }
+[data-theme="dark"] .toast.success { background: color-mix(in srgb, var(--success) 38%, var(--bg)); color: var(--text); }
+[data-theme="dark"] .toast.error { background: color-mix(in srgb, var(--danger) 38%, var(--bg)); color: var(--text); }
+/* Sem efeito de lift nos toasts (causava bug visual). Mantém só a posição central. */
+.toast:hover { transform: translateX(-50%); }
+
+/* Cards de estado vazio (.alert.raised-card, usados em Lixeira/Metas/Recorrentes):
+   ganham lift + sombra no hover, igual aos demais cards do sistema. */
+.alert.raised-card { transition: transform 0.15s, box-shadow 0.15s; }
+.alert.raised-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 /* Barra de progresso: estilo unico (pill 18px) definido em `.barra-progresso`
    mais abaixo (na secao de barras de progresso do sistema). */
@@ -964,8 +1008,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Configurações (view) */
 .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; max-width: 820px; }
 .config-secao { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s; }
-.config-secao:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
-.config-secao.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--bg)); }
+.config-secao:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* (Removido o recolorir de ícone no hover da SEÇÃO: vazava para os botões
+   .gear-opt internos, confundindo-os com "ativos". O ícone do botão passa a
+   obedecer só ao hover do próprio botão — ver .gear-opt:not(.active):hover.) */
+.config-secao.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--bg)); box-shadow: var(--shadow); }
 .config-secao h3 { font-size: calc(13px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 12px; }
 /* Efeito "saltado" (raised) nos BOTÕES da página de Configurações (não-ativos):
    metade superior mais clara que a metade inferior (tom --bg). O :not(.active)
@@ -981,6 +1028,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   );
   color: var(--text);
 }
+/* No hover da página de Configurações, o texto também ganha a cor de
+   destaque (a regra acima tem maior especificidade e anularia o :hover
+   base do .gear-opt, deixando só o ícone mudar). */
+.config-secao .gear-opt:not(.active):hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Lift (translateY -1px) no hover dos botões de Configuração — igual ao
+   padrão do resto do app (.gear-panel / .perfil-linha). Sem isso, o hover
+   desses botões só trocava a cor e não "subia" 1px como os demais. */
+.config-secao .gear-opt:hover { transform: translateY(-1px); }
 /* Active na página de Configurações: raised na cor de destaque (regra dedicada
    de alta especificidade, para GARANTIR que o efeito pegue no botão ativo). */
 .config-secao .gear-opt.active {
@@ -1011,14 +1066,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
 }
-.card-btn:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.card-btn:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); }
 .card-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .card-btn .ico-svg { width: 18px; height: 18px; color: var(--text); }
 /* Botão de destaque (ex.: Ativar criptografia) — reforça a borda e a cor. */
 .card-btn.card-btn--destaque { border-color: var(--primary); color: var(--primary); background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); }
-.card-btn.card-btn--destaque:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.card-btn.card-btn--destaque:hover { background: var(--primary); color: #fff; box-shadow: var(--shadow-hover); }
 .card-btn--perigo { border-color: var(--danger); color: var(--danger); }
-.card-btn--perigo:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.card-btn--perigo:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: var(--shadow-hover); }
 /* Agrupa botões de card em linha, uniforme com o gear-panel. */
 .card-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
@@ -1027,15 +1082,22 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .perfil-linha {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius, 10px);
-  background: var(--bg);
+  /* Raised de metade clara em cima (igual aos .gear-opt): relevo consistente
+     nos subcards do card "Perfil de dados". */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
   transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 /* Efeito "lift" no hover: tanto o próprio card (perfil-linha) quanto o botão
    de ação dentro dele sobem 1px, igual aos demais botões da página. */
-.perfil-linha:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.perfil-linha:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* (Removido: o ícone no hover da LINHA vazava para o botão .gear-opt de ação
+   dentro dela. O ícone do botão obedece só ao hover do próprio botão.) */
 .perfil-linha .btn, .perfil-linha .gear-opt { transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s; }
 .perfil-linha .btn:hover, .perfil-linha .gear-opt:hover { transform: translateY(-1px); }
-.perfil-linha--ativo { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--bg)); }
+.perfil-linha--ativo { border-color: var(--primary); /* Raised mantido, mas com tom
+  SUAVE de destaque (não a cor forte): metade clara em cima + base levemente
+  tingida de primário, igual ao visual anterior de "selecionado". */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, var(--bg)) 0%, color-mix(in srgb, var(--primary) 8%, var(--bg)) 50%, color-mix(in srgb, var(--primary) 14%, var(--bg)) 50%, color-mix(in srgb, var(--primary) 14%, var(--bg)) 100%); }
 .perfil-nome { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text); }
 
 
@@ -1050,11 +1112,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.nivel-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.nivel-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 /* Tela de Gamificação */
 .config-grid--wide { max-width: 1000px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.sobre-grid { max-width: 820px; grid-template-columns: 1fr; }
+.sobre-grid { max-width: none; width: 100%; grid-template-columns: 1fr; }
 .game-resumo { text-align: center; }
 .game-nivel-grande { font-size: calc(22px * var(--app-font-scale)); font-weight: 700; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 12px; }
 .game-nivel-grande .ico-svg { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
@@ -1110,7 +1172,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   #app { padding: 14px; padding-bottom: 80px; }
 
   .page-header { align-items: flex-start; }
-  .page-header h2 { font-size: calc(19px * var(--app-font-scale)); }
+  /* Fonte do título padronizada em 22px (igual ao desktop) em todas as telas. */
 
   .grid-dash { grid-template-columns: 1fr; }
   .cards { grid-template-columns: 1fr; }
@@ -1365,9 +1427,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Hover do card de data/hora: igual ao .gear-opt:hover — borda e fonte na cor
    de destaque selecionada pelo usuário (--primary) + "lift" (sobe 1px).
    Independente da engrenagem. */
-.relogio-brasilia:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.relogio-brasilia:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 [data-theme="dark"] .relogio-brasilia { color: var(--text-muted); }
-[data-theme="dark"] .relogio-brasilia:hover { color: var(--primary); }
 
 /* Botão de engrenagem ao lado do relógio */
 .relogio-gear {
@@ -1386,7 +1447,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: transform 0.2s, color 0.2s, background 0.2s;
 }
-.relogio-gear:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-1px); }
+.relogio-gear:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 /* Gira apenas o ícone (não o botão) para não descentralizar o botão. */
 .relogio-gear span[data-ico] { display: inline-flex; transition: transform 0.2s; }
 .relogio-gear:hover span[data-ico] { transform: rotate(35deg); }
@@ -1477,7 +1538,15 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transform: translateY(-1px);
 }
 .gear-opt--sm:hover { transform: translateY(-1px); color: var(--text); }
-.gear-opt:hover { border-color: var(--primary); color: var(--primary); }
+.gear-opt:hover { box-shadow: var(--shadow-hover); }
+/* No hover (de botões NÃO ativos), a imagem/ícone (SVG inline ou <img>) também
+   ganha a cor de destaque, igual ao texto — garante o efeito "texto + imagem"
+   no hover mesmo quando o ícone não herda currentColor por padrão.
+   Restrito a :not(.active): no botão ATIVO o fundo já é da cor de destaque e o
+   texto é branco, então o ícone deve permanecer branco (currentColor) e NÃO
+   virar verde no hover. */
+.gear-opt:not(.active):hover .ico-svg,
+.gear-opt:not(.active):hover img { color: var(--text); }
 /* Modo ativo: fundo na cor de destaque do usuário (--primary) COM o efeito
    raised de 50/50 (metade superior 70% mais clara, metade inferior na cor de
    destaque). Padronizado em todos os .gear-opt.active do sistema. */
@@ -1491,6 +1560,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   );
   border-color: var(--primary);
   color: #fff;
+  box-shadow: var(--shadow);
 }
 /* Check exibido quando a notificação está ATIVA (sino + ✓). */
 .notif-check { font-weight: 700; margin-left: 2px; }
@@ -1503,7 +1573,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* No hover, o botão "Ativar notificações" (desativado, com .notif-off) também
    ganha a cor de destaque — precisa de :hover mais específico para vencer a
    regra .gear-opt.notif-off acima (que sem o :hover sobrescreveria o hover). */
-.gear-opt.notif-off:hover { border-color: var(--primary); color: var(--primary); }
+.gear-opt.notif-off:hover { }
 /* Efeito "lift" no hover (botão sobe 1px) — igual à página de Configurações,
    agora também nos botões do menu de configurações rápida (gear-panel). */
 .gear-panel .gear-opt,
@@ -1524,31 +1594,105 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .gear-panel .gear-opt:hover,
 .gear-panel .gear-card-btn:hover,
-.gear-panel .gear-mini-btn:hover { transform: translateY(-1px); }
-/* Select de frequência de notificação: mesmo "formato" dos botões de
-   configuração (borda cinza --border, fundo --bg), com setinha explícita para
-   baixo e largura ajustada à maior opção (não esticada). */
-.notif-intervalo-select {
-  -webkit-appearance: auto; appearance: auto;
-  background-color: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+.gear-panel .gear-mini-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* ===== Dropdown customizado de frequência de notificação (S7) =====
+   Substitui o <select> nativo (lista do SO, sem estilo). Mesma linguagem
+   visual dos demais botões do sistema:
+   - .notif-dd-trigger: raised (gradiente de metade clara) como .gear-opt
+   - .notif-dd-panel: bordas arredondadas (igual a botões/cards)
+   - .notif-dd-item:hover: gradiente raised + translateY(-1px) + box-shadow de hover
+   - .notif-dd-item.active: raised na cor de destaque do sistema (--primary) */
+.notif-dd { position: relative; display: inline-block; }
+.notif-dd-trigger {
+  display: inline-flex; align-items: center; gap: 4px;
+  width: auto; min-width: 0;
+  white-space: nowrap;
+  padding: 6px 8px 6px 12px;
+  font-weight: 600; font-size: calc(14px * var(--app-font-scale));
   color: var(--text);
-  width: auto;
-  min-width: 116px;
-  padding: 6px 26px 6px 10px;
-  font-weight: 600;
-  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat, no-repeat;
-  background-position: center, right 8px center;
-  background-size: 100% 100%, auto;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+/* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
+.notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Quando o dropdown está ABERTO (trigger "selecionado"), mantém a aparência de
+   hover — borda, texto e seta (imagem) na cor de destaque do sistema — porém com
+   a sombra suavizada (igual aos botões em repouso). Fica assim enquanto o painel
+   está aberto e também ao passar o mouse sobre o card (trigger ou botões de tempo,
+   que são filhos do .notif-dd). */
+.notif-dd-trigger[aria-expanded="true"] {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
   box-shadow: var(--shadow);
 }
-.notif-intervalo-select:hover { transform: translateY(-1px); border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-/* Trava a cor das opções da lista para não herdar o --primary do hover do
-   select: só o valor selecionado (texto do campo fechado) fica colorido. */
-.notif-intervalo-select option { color: var(--text); }
+.notif-dd:hover .notif-dd-trigger {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.notif-dd-trigger:focus-visible { outline: 2px solid var(--primary); }
+/* Caret: caixa fixa de largura para o triângulo ficar CENTRALIZADO dentro dela
+   (text-align center), independente do texto à esquerda. margin-left:auto joga
+   a caixa para a direita do botão; a largura fixa evita que o alinhamento do
+   triângulo oscile conforme o rótulo. */
+.notif-dd-seta { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 16px; width: 16px; margin-left: auto; font-size: 15px; font-weight: 700; opacity: 0.85; line-height: 1; }
+/* Painel de opções: flutua abaixo do trigger, com bordas arredondadas e sombra.
+   Em repouso usa a sombra SUAVIZADA (igual aos cards/botões); no hover do card
+   (mouse sobre o próprio painel ou sobre o trigger) ganha a sombra de realce. */
+.notif-dd-panel {
+  position: absolute; z-index: 30; top: calc(100% + 6px); left: 0;
+  min-width: var(--notif-dd-w, 100%);
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+/* Hover do card (mouse sobre o painel OU sobre o trigger que o abriu): realce. */
+.notif-dd-panel:hover,
+.notif-dd:hover .notif-dd-panel {
+  box-shadow: var(--shadow-hover);
+}
+.notif-dd-panel[hidden] { display: none; }
+.notif-dd-item {
+  display: block; width: 100%; text-align: left;
+  padding: 7px 10px;
+  font-weight: 600; font-size: calc(14px * var(--app-font-scale));
+  color: var(--text);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+/* Hover do item: igual ao hover dos demais botões (gradiente raised + sobe 1px + sombra). */
+.notif-dd-item:hover,
+.notif-dd-item:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  outline: none;
+}
+/* Item selecionado: raised na cor de destaque do sistema (mesma regra de
+   .gear-opt.active), com texto branco para contraste. */
+.notif-dd-item.active {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--primary) 85%, white) 0%,
+    color-mix(in srgb, var(--primary) 85%, white) 50%,
+    var(--raised-primary-base) 50%,
+    var(--raised-primary-base) 100%
+  );
+  border-color: var(--primary);
+  color: #fff;
+}
+.notif-dd-item.active:hover { color: #fff; }
 /* Cards de "Dados" e "Perfis de dados" nas configurações rápidas: botões
    empilhados e em largura total, nos mesmos moldes dos cards da página
    de Configurações. */
@@ -1571,8 +1715,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   color: var(--text); border-radius: 8px; cursor: pointer; font-size: 15px;
   transition: border-color .15s, color .15s, background .15s;
 }
-.gear-mini-btn:hover { border-color: var(--primary); color: var(--primary); }
-.gear-mini-btn svg { width: 18px; height: 18px; display: block; }
+.gear-mini-btn:hover { color: var(--text); box-shadow: var(--shadow-hover); }
+.gear-mini-btn:hover svg { color: var(--text); }
+.gear-mini-btn svg { width: 18px; height: 18px; display: block; transition: color 0.15s; }
 /* Texto dos botões de dados no gear-panel: permanece Oculto (minimalista,
    só ícone) em ambos os modos — conforme pedido de voltar à versão compacta. */
 .gear-mini-txt { display: none; }
@@ -1606,13 +1751,13 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   height: 26px;
   border-radius: 50%;
   border: 2px solid var(--border);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--sw) 30%, white) 0%, color-mix(in srgb, var(--sw) 30%, white) 50%, var(--sw) 50%, var(--sw) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--sw) 85%, white) 0%, color-mix(in srgb, var(--sw) 85%, white) 50%, var(--sw) 50%, var(--sw) 100%);
   cursor: pointer;
   padding: 0;
   box-shadow: var(--shadow);
   transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
-.gear-cor:hover { transform: scale(1.12); border-color: var(--primary); }
+.gear-cor:hover { transform: scale(1.12); }
 .gear-cor.active { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--sw); border-color: var(--sw); }
 
 /* ---------- Celebração de subida de nível ---------- */
@@ -1813,17 +1958,42 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 .sobre-link:hover { background: var(--hover, #f1f5f9); border-color: var(--accent, #6366f1); transform: translateY(-1px); }
+.sobre-link:hover .ico-svg,
+.sobre-link:hover img { color: var(--accent, #6366f1); }
 .sobre-link .ico-svg { width: 18px; height: 18px; color: var(--text); }
 .sobre-link-dev { margin-top: 10px; align-self: flex-start; }
 .sobre-copy { color: var(--text); font-weight: 600; }
+/* Botões da página Sobre: igual ao .gear-opt PADRÃO (neutro, raised de metade
+   clara em cima em --bg), sem cor de sistema no estado normal — a cor de
+   destaque (--primary) aparece só no hover, como nos .gear-opt. Aplica-se ao
+   botão "Verificar atualização" (.card-btn) e aos links "Ver projeto" /
+   "Ver dev GitHub" (.sobre-link). Escopado a .sobre-grid para não alterar
+   .card-btn / .sobre-link das demais telas. */
+.sobre-grid .card-btn,
+.sobre-grid .sobre-link {
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.sobre-grid .card-btn .ico-svg,
+.sobre-grid .sobre-link .ico-svg { color: var(--text); }
+.sobre-grid .card-btn:hover,
+.sobre-grid .sobre-link:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
 
 /* ============================================================
    Integração Bootstrap 5.3 — harmonização com o layout do app
    (regras após o Bootstrap para vencerem em especificidade/ordem)
    ============================================================ */
 
-/* Mantém o container de conteúdo alinhado com o padrão anterior do app. */
-#app { max-width: 1200px; }
+/* O #app ocupa 100% da largura disponível (sidebar + conteúdo até a borda
+   direita), para que o card de título (page-header) e a scrollbar de rolagem
+   aproveitem toda a largura da janela (e não fiquem "no meio" em telas largas).
+   O limite de largura do conteúdo interno fica a cargo de cada view. */
+#app { max-width: none; }
 
 /* Botões: herda o raio do app e garante foco visível acessível. */
 .btn { border-radius: var(--radius); font-family: inherit; }
@@ -1849,10 +2019,14 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   box-shadow: var(--shadow);
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.sidebar-nav .nav-link:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--primary); border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.10); }
-.sidebar-nav .nav-link.active { background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); color: #fff; }
+.sidebar-nav .nav-link:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.sidebar-nav .nav-link.active { background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); color: #fff; box-shadow: var(--shadow); }
+.sidebar-nav .nav-link.active:hover { box-shadow: var(--shadow-hover); }
 .sidebar-nav .nav-link .nav-ico { font-size: calc(17px * var(--app-font-scale)); flex-shrink: 0; width: 20px; text-align: center; }
 .sidebar-nav .nav-link .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* No hover da aba (não-ativa): fundo raised + lift + sombra — sem mudar cor de
+   texto nem de ícone (estes herdam a cor normal do pai). */
+.sidebar-nav .nav-link:not(.active):hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 /* Cards Bootstrap alinhados ao estilo de cartão do app. */
 .card { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow); }
@@ -1891,8 +2065,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   color: var(--text);
   border-color: var(--border); box-shadow: none;
 }
-.form-control:focus, .form-select:focus { border-color: var(--primary);
-  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
+.form-control:focus, .form-select:focus { border-color: var(--border); box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
 .form-label { font-size: calc(12px * var(--app-font-scale)); font-weight: 600; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
 .form-text { color: var(--text-muted); }
@@ -1921,7 +2094,8 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 /* List-group na paleta do app. */
 .list-group-item { background-color: var(--surface); color: var(--text); border-color: var(--border); }
 .list-group-item-action:hover { background-color: var(--bg); }
-.list-group-item.active { background-color: var(--primary); border-color: var(--primary); }
+.list-group-item.active { background-color: var(--primary); border-color: var(--primary); box-shadow: var(--shadow); }
+.list-group-item.active:hover { box-shadow: var(--shadow-hover); }
 
 /* Accordion na paleta do app. */
 .accordion-button:not(.collapsed) { background-color: var(--bs-primary-bg-subtle); color: var(--primary-text-emphasis); }
@@ -2077,7 +2251,7 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
    ============================================================ */
 .btn, .btn-cta, .btn-limpar-destaque, .btn-limpar-filtros, .btn-icon, .btn-danger,
 .gear-mini-btn, .gear-card-btn, .gear-cor, .nav-link, .relogio-gear,
-.notif-intervalo-select, .card-btn, .fab-mobile,
+.notif-intervalo-select, .card-btn, .fab-mobile, .list-group-item-action,
 .card, .config-secao, .perfil-linha, .gear-panel, .modal-card, .relogio-brasilia,
 .relogio-gear {
   box-shadow: var(--shadow);
@@ -2094,12 +2268,6 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
 .btn-ghost, .btn-icon, .card-btn, .btn-limpar-filtros, .btn-limpar-destaque,
 .gear-card-btn, .fab-mobile, .sidebar-perfil, .perfil-linha {
   border: 1px solid var(--border);
-}
-.btn-ghost:hover, .btn-icon:hover, .card-btn:hover, .btn-limpar-filtros:hover,
-.btn-limpar-destaque:hover, .gear-card-btn:hover, .fab-mobile:hover,
-.sidebar-perfil:hover, .perfil-linha:hover {
-  border-color: var(--primary);
-  color: var(--primary);
 }
 
 /* ============================================================
@@ -2137,14 +2305,44 @@ input[type="checkbox"], input[type="radio"] {
    Fundo --bg pré-preenchido = mesmo "raised button" dos botões .gear-opt.
    Botões neutros também acendem a fonte na cor de destaque (bloco anterior).
    Botões com fundo de cor mantêm a fonte legível e só acendem a borda. */
-.btn:hover { border-color: var(--primary); }
-.card, .modal-card, .tooltip {
-  background: var(--bg);
-  border: 1px solid var(--border);
+.btn:hover { box-shadow: var(--shadow-hover); }
+/* (Removido o recolorir de ícone no hover do .btn: confundia botões neutros
+   das páginas com "destacados/ativos" (ex.: .btn-primary já verde, .btn-limpar-
+   filtros.ativo vermelho). Botões .gear-opt mantêm o efeito em sua regra própria.) */
+.card:not(.page-header):hover, .modal-card:hover, .tooltip:hover {
+  box-shadow: var(--shadow-hover);
 }
-.card:hover, .modal-card:hover, .tooltip:hover {
-  border-color: var(--primary);
+
+/* ===== Campos de filtro / formulário e janelas do sistema (efeito consistente) =====
+   Campos de digitação, seleção, checkbox/radio e áreas de texto: no hover/focus
+   ganham borda na cor de destaque (--primary) + sombra --shadow-hover + leve lift,
+   igual aos botões/cards. Aplica em TODAS as telas, inclusive dentro de janelas
+   (modal, diálogo, inserção, popover, dropdown, offcanvas, toast). */
+input:not([type="checkbox"]):not([type="radio"]),
+select, textarea, .form-control, .form-select {
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s;
 }
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover, textarea:hover, .form-control:hover, .form-select:hover,
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus, textarea:focus, .form-control:focus, .form-select:focus {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+/* Checkbox/radio: relevo na cor de destaque no hover/focus (mantém accent-color). */
+input[type="checkbox"]:hover, input[type="radio"]:hover,
+input[type="checkbox"]:focus, input[type="radio"]:focus {
+  box-shadow: var(--shadow-hover);
+}
+/* Janelas do sistema: sombra --shadow-hover consistente (além da sombra base).
+   Modal, diálogo, inserção, popover, dropdown, offcanvas, toast. */
+.modal, .modal-card, .toast, .popover, .dropdown-menu, .offcanvas, .dialog, .janela {
+  box-shadow: var(--shadow-hover);
+}
+/* No tema escuro as janelas mantêm sombra difusa branca (--shadow-hover). */
+[data-theme="dark"] .modal, [data-theme="dark"] .modal-card, [data-theme="dark"] .toast,
+[data-theme="dark"] .popover, [data-theme="dark"] .dropdown-menu, [data-theme="dark"] .offcanvas,
+[data-theme="dark"] .dialog, [data-theme="dark"] .janela { box-shadow: var(--shadow-hover); }
 .toast-txt { display: inline-flex; align-items: center; min-width: 0; font-weight: inherit; color: inherit; }
 
 /* ============================================================
@@ -2173,9 +2371,8 @@ input[type="checkbox"], input[type="radio"] {
   background-size: 100% 100%, 100% 100%;
   background-position: 0 0, 0 0;
 }
-::-webkit-scrollbar-thumb:hover { border-color: var(--primary); }
+::-webkit-scrollbar-thumb:hover { }
 ::-webkit-scrollbar-thumb:active {
-  border-color: var(--primary);
   background-image:
     linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
     linear-gradient(to bottom, #f8fafc 0%, #f8fafc 50%, #e2e8f0 50%, #e2e8f0 100%);
@@ -2194,3 +2391,158 @@ input[type="checkbox"], input[type="radio"] {
   --text-muted: #e6e9ee;
 }
 [data-theme="dark"] .card:has([data-filtro]) .text-secondary { color: #a7adb5 !important; }
+
+/* No tema escuro, cards e botões usam borda branca suave (--border-dark) para
+   melhorar o contraste sobre o fundo escuro. Inputs/selects e cards de filtros
+   mantêm a --border original (cinza) — estes não entram nessa regra.
+   IMPORTANTE: só no estado NORMAL (:not(:hover)). No hover, as regras de hover
+   (.card:hover, .gear-opt:hover, etc.) decidem a cor da borda (--primary);
+   sem o :not(:hover) esta regra (0,2,0, posição final) empataria com o :hover
+   (0,2,0) e VENCERIA, travando a borda branca no hover e quebrando o efeito. */
+[data-theme="dark"] .card,
+[data-theme="dark"] .config-secao,
+[data-theme="dark"] .modal-card,
+[data-theme="dark"] .btn,
+[data-theme="dark"] .btn-cta,
+[data-theme="dark"] .gear-opt,
+[data-theme="dark"] .gear-card-btn,
+[data-theme="dark"] .gear-mini-btn,
+[data-theme="dark"] .card-btn,
+[data-theme="dark"] .fab-mobile,
+[data-theme="dark"] .nav-link,
+[data-theme="dark"] .perfil-item,
+[data-theme="dark"] .perfil-linha,
+[data-theme="dark"] .gear-panel,
+[data-theme="dark"] .sobre-grid .card-btn,
+[data-theme="dark"] .sobre-grid .sobre-link {
+  border-color: var(--border-dark);
+}
+
+/* ===== Hover tema escuro — cards/botões gerais (equiparados aos cards de Configurações) =====
+   No hover: lift (translateY -1px) + borda e fonte na cor de destaque (--primary)
+   + sombra difusa branca (--shadow-hover). A imagem/ícone acompanha a cor.
+   Exceto cabeçalhos (.page-header). */
+[data-theme="dark"] .btn:not(:disabled):hover,
+[data-theme="dark"] .card:not(.page-header):hover,
+[data-theme="dark"] .modal-card:hover,
+[data-theme="dark"] .sidebar-usuario:hover,
+[data-theme="dark"] .sidebar-perfil:hover,
+[data-theme="dark"] .carteira-card:hover,
+[data-theme="dark"] .btn-limpar-filtros:not(:disabled):hover,
+[data-theme="dark"] .list-group-item-action:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ===== Menu lateral — tema escuro (hover equiparado aos cards de Configurações) =====
+   Hover (não-ativo): lift (translateY -1px) + borda e fonte na cor de destaque
+   (--primary) + sombra difusa branca (--shadow-hover). A imagem/ícone acompanha
+   a cor. O ativo (.active) mantém fundo cor de destaque + fonte branca no hover. */
+[data-theme="dark"] .sidebar-nav .nav-link:not(.active):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ===== Página de Configuração — tema escuro (bloco dedicado) =====
+   Cards (.config-secao) e botões (.gear-opt) dentro deles:
+   - Normal: borda branca suave (--border-dark, paralelo ao cinza do claro) +
+     sombra com desfoque (--shadow).
+   - Hover: lift (translateY -1px) + borda e fonte na cor do tema (--primary)
+     + sombra com desfoque mantida (--shadow-hover, branca/difusa no escuro).
+   As regras de hover têm especificidade (0,3,0), vencendo a regra de borda
+   normal acima. O ativo mantém fundo cor de destaque + fonte branca no hover. */
+[data-theme="dark"] .config-secao:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+/* (Removido: vazava para os botões .gear-opt internos — ver regra clara.) */
+[data-theme="dark"] .config-secao .gear-opt:not(.active):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+[data-theme="dark"] .config-secao .gear-opt.active:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+/* Tema escuro — hover dos .gear-opt do menu rápido (gear-panel): mesma
+   consistência do card de Configurações — lift + sombra difusa branca,
+   borda/fonte na cor de destaque (--primary). O estado normal (borda
+   branca suave) já é coberto pelo bloco [data-theme="dark"] … :not(:hover). */
+[data-theme="dark"] .gear-panel .gear-opt:not(.active):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+/* "Card exibidor" (o painel que abre ao clicar na engrenagem): no tema
+   escuro, ganha sombra difusa branca no hover para realce, igual aos cards.
+   A borda branca suave no estado normal já vem do bloco [data-theme="dark"]
+   … .gear-panel:not(:hover). */
+[data-theme="dark"] .gear-panel:hover {
+  box-shadow: 0 12px 34px rgba(0,0,0,0.22), var(--shadow-hover);
+}
+
+/* ============================================================
+   Página de Relatório Financeiro — sombra padrão (--shadow em
+   repouso + --shadow-hover no hover) nos cards de estado vazio
+   (.alert), que não entram no bloco global de .card. Os demais
+   cards da página (.card / .card.shadow-sm) já recebem via .card.
+   ============================================================ */
+.relatorio-view .alert {
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.relatorio-view .alert:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   Tema CLARO — neutraliza a borda branca/clara que o Bootstrap
+   pinta nos .btn no :hover/:focus (ex.: janela inicial, diálogos,
+   modais). Força a borda para o cinza do tema (--border) em todos
+   os estados, mantendo lift + sombra. Escopado a :not([data-theme=
+   "dark"]) para NÃO afetar o tema escuro (onde a borda quase-branca
+   vem de --border-dark). !important vence as regras .btn-* do BS.
+   ============================================================ */
+:root:not([data-theme="dark"]) .btn:hover,
+:root:not([data-theme="dark"]) .btn:focus,
+:root:not([data-theme="dark"]) .btn:focus-visible,
+:root:not([data-theme="dark"]) .btn:active,
+:root:not([data-theme="dark"]) .btn.show {
+  border-color: var(--border) !important;
+}
+
+/* ============================================================
+   Página Painel Financeiro — cards com o MESMO fundo dos cards
+   de Pontuação/Conquistas (.config-secao => var(--bg)), nos temas
+   claro e escuro. Os subcards de insights (itens da lista) ganham
+   fundo --surface para destacarem como mini-cards sobre o card --bg.
+   ============================================================ */
+.painel-view .card {
+  background: var(--bg);
+}
+.painel-view .card .list-group-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  margin-bottom: 6px;
+}
+
+/* Botões de exportação (CSV/PDF) da página Relatório: aparência de
+   "destacado/selecionado" (borda + texto na cor do tema, fundo levemente
+   tingido), SEM mudar a cor no hover (só lift + sombra). */
+.relatorio-view .btn-export {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+.relatorio-view .btn-export:hover,
+.relatorio-view .btn-export:focus {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+

@@ -7,13 +7,13 @@ window.__mbRender.carteiras = function renderCarteiras() {
   const total = saldoTotalCarteiras();
 
   const lista = carteiras.length === 0
-    ? `<div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
        <span style="font-size:20px">${ICON.carteira}</span>
        <div>${t('carteira.vazia')}</div>
      </div>`
     : `<div class="vstack gap-2">
          ${carteiras.map(c => `
-           <div class="card shadow-sm">
+           <div class="card shadow-sm raised-card">
              <div class="card-body d-flex align-items-center justify-content-between gap-3">
                <div>
                  <div class="fw-semibold">${escapeHtml(c.nome)}</div>
@@ -32,12 +32,13 @@ window.__mbRender.carteiras = function renderCarteiras() {
       <h2>${ICON.carteira} ${t('carteira.titulo')}</h2>
       <button class="btn btn-primary" data-acao="nova-carteira">${ICON.mais} ${t('carteira.nova')}</button>
     </div>
-    <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-3" role="status">
+    <div class="alert alert-info raised-card d-inline-flex align-items-center gap-2 mb-3" role="status">
       <span>${t('carteira.total')}:</span> <b>${fmt.format(total)}</b>
     </div>
     ${lista}
   `;
-};
+}
+;
 
 /* View "Carteiras" como componente Vue (Vue é DONO da view). */
 (function () {

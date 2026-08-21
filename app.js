@@ -288,6 +288,120 @@ function atualizarSelectsNotificacoes() {
   const prefs = notifPrefs();
   const val = String(prefs.intervaloMin || 5);
   document.querySelectorAll('[data-notif-intervalo]').forEach(sel => { sel.value = val; });
+  // S7: também sincroniza os dropdowns customizados (trigger + painel de opções),
+  // atualizando rótulo e item ativo quando o valor muda em outro lado.
+  sincronizarDropdownsFrequencia(prefs.intervaloMin || 5);
+}
+
+// S7: HTML do widget de frequência de notificação (dropdown customizado que
+// substitui o <select> nativo — cuja lista é do SO e não aceita estilo).
+// Linguagem visual = demais botões do sistema:
+//   - trigger (.notif-dd-trigger): raised (gradiente de metade clara) como .gear-opt
+//   - painel (.notif-dd-panel): bordas arredondadas (igual a botões/cards)
+//   - item em hover: gradiente raised + translateY(-1px) + box-shadow de hover
+//   - item selecionado (.active): raised na cor de destaque do sistema (--primary)
+// O trigger carrega data-notif-intervalo para o handler delegado de 'change'
+// (app.js ~2439) reaproveitar a lógica de persistência e sincronia bidirecional.
+function renderDropdownFrequenciaHTML(valor) {
+  const v = (typeof valor === 'number') ? valor : (notifPrefs().intervaloMin || 5);
+  const intervalos = window.NOTIF_INTERVALOS || [5, 30, 60, 180, 300, 600, 1440];
+  const labelAtual = t('notif.int' + v) || (v + ' min');
+  const itens = intervalos.map(min => {
+    const on = min === v;
+    return `<button type="button" class="notif-dd-item${on ? ' active' : ''}" role="option" ` +
+      `data-min="${min}" aria-selected="${on ? 'true' : 'false'}">${t('notif.int' + min) || (min + ' min')}</button>`;
+  }).join('');
+  return `<div class="notif-dd" data-notif-dd>` +
+    `<button type="button" class="notif-dd-trigger" data-notif-intervalo="" value="${v}" aria-haspopup="listbox" aria-expanded="false">` +
+      `<span class="notif-dd-valor">${labelAtual}</span>` +
+      `<span class="notif-dd-seta" aria-hidden="true">▾</span>` +
+    `</button>` +
+    `<div class="notif-dd-panel" role="listbox" hidden>${itens}</div>` +
+  `</div>`;
+}
+
+// S7b: mede o texto da opção mais larga (CONSIDERANDO TODAS as traduções
+// pt/en/es disponíveis em window.I18N) e ajusta a largura do trigger (e do
+// painel) para que o botão tenha tamanho fixo = maior texto da lista em
+// qualquer idioma. Assim o botão não muda de tamanho ao trocar de intervalo
+// nem ao trocar o idioma do app.
+function ajustarLarguraDropdownFrequencia(dd) {
+  const trigger = dd.querySelector('.notif-dd-trigger');
+  const valEl = dd.querySelector('.notif-dd-valor');
+  if (!trigger || !valEl) return;
+  const intervalos = window.NOTIF_INTERVALOS || [5, 30, 60, 180, 300, 600, 1440];
+  // Reúne todas as strings de rótulo (idioma atual + demais traduções) por min.
+  const chavesPorMin = {};
+  intervalos.forEach(min => {
+    const chave = 'notif.int' + min;
+    const langs = (typeof I18N === 'object' && I18N)
+      ? Object.keys(I18N)
+      : [idiomaAtual];
+    const textos = [];
+    langs.forEach(l => {
+      const txt = (I18N[l] && I18N[l][chave] != null) ? I18N[l][chave]
+        : (typeof t === 'function' ? t(chave) : null);
+      if (txt) textos.push(txt);
+    });
+    if (!textos.length && typeof t === 'function') textos.push(t(chave));
+    chavesPorMin[min] = textos.length ? textos : [String(min) + ' min'];
+  });
+  // Mede a maior largura real ciclando o rótulo do trigger por cada texto
+  // (síncrono, sem repaint visível). O caret é fixo (não entra na medição).
+  const labelOriginal = valEl.textContent;
+  trigger.style.width = 'auto';
+  let maior = 0;
+  intervalos.forEach(min => {
+    chavesPorMin[min].forEach(txt => {
+      valEl.textContent = txt;
+      const w = trigger.getBoundingClientRect().width;
+      if (w > maior) maior = w;
+    });
+  });
+  valEl.textContent = labelOriginal;
+  const px = Math.ceil(maior);
+  trigger.style.width = px + 'px';
+  dd.style.setProperty('--notif-dd-w', px + 'px');
+}
+
+// Atualiza rótulo e item ativo de todos os dropdowns customizados abertos/
+// presentes no DOM (usado pela sincronia bidirecional entre gear-panel e
+// página de Configurações).
+function sincronizarDropdownsFrequencia(min) {
+  document.querySelectorAll('.notif-dd').forEach(dd => {
+    const trigger = dd.querySelector('.notif-dd-trigger');
+    const valEl = dd.querySelector('.notif-dd-valor');
+    if (valEl) valEl.textContent = t('notif.int' + min) || (min + ' min');
+    if (trigger) { trigger.value = String(min); trigger.setAttribute('aria-expanded', 'false'); }
+    dd.querySelectorAll('.notif-dd-item').forEach(i => {
+      const on = i.dataset.min === String(min);
+      i.classList.toggle('active', on);
+      i.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    const panel = dd.querySelector('.notif-dd-panel');
+    if (panel) panel.hidden = true;
+    ajustarLarguraDropdownFrequencia(dd);
+  });
+}
+
+// Re-mede e fixa a largura de TODOS os dropdowns de frequência presentes no DOM.
+// Necessário porque a view de Configurações é re-renderizada via v-html a cada
+// tick do Vue, recriando o DOM do dropdown e apagando o width inline fixado.
+// Roda após cada render() para garantir que o botão fique travado no maior
+// texto (entre todas as línguas), independente da opção selecionada.
+function ajustarLargurasDropdownFrequencia() {
+  document.querySelectorAll('.notif-dd').forEach(dd => ajustarLarguraDropdownFrequencia(dd));
+}
+
+// Fecha qualquer dropdown de frequência aberto (delegação de clique fora /
+// Escape), mantendo um único painel aberto por vez.
+function fecharDropdownsFrequencia() {
+  document.querySelectorAll('.notif-dd').forEach(dd => {
+    const panel = dd.querySelector('.notif-dd-panel');
+    const trigger = dd.querySelector('.notif-dd-trigger');
+    if (panel) panel.hidden = true;
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  });
 }
 
 // Ref reativo (Vue) que dispara a re-renderização das views. Toda ação que
@@ -481,8 +595,17 @@ function sincronizarGearNotificacoes() {
     const label = toggle.querySelector('.notif-label');
     if (label) label.textContent = prefs.ativo ? t('notif.ativo') : t('notif.ativar');
   }
-  const sel = document.getElementById('gear-notif-intervalo');
-  if (sel) atualizarSelectsNotificacoes();
+  const host = document.getElementById('gear-notif-intervalo');
+  if (host) {
+    // Monta o dropdown customizado uma única vez (HTML estático do gear-panel
+    // não é re-renderizado pelo Vue); depois mantém sincronizado com o estado.
+    if (!host.querySelector('.notif-dd')) {
+      host.innerHTML = renderDropdownFrequenciaHTML(prefs.intervaloMin || 5);
+    } else {
+      sincronizarDropdownsFrequencia(prefs.intervaloMin || 5);
+    }
+    host.querySelector('.notif-dd-trigger')?.setAttribute('data-notif-intervalo', '');
+  }
 }
 
 // Preenche os badges dinâmicos da sidebar (só aparecem com valor > 0).
@@ -2402,6 +2525,14 @@ function render() {
   // sincronia com o estado do perfil ativo — inclusive quando o usuário
   // ativa/desativa na página Configurações (que só chama render()).
   if (typeof atualizarGearCripto === 'function') atualizarGearCripto();
+  // S7b: a view de Configurações recria o DOM do dropdown a cada tick; re-fixa
+  // a largura do botão no maior texto (todas as línguas) após o Vue aplicar o
+  // v-html, evitando que o botão acompanhe o texto da opção selecionada.
+  if (typeof Vue !== 'undefined' && Vue.nextTick) {
+    Vue.nextTick(ajustarLargurasDropdownFrequencia);
+  } else {
+    ajustarLargurasDropdownFrequencia();
+  }
   // A montagem dos gráficos Chart.js (canvas dentro do v-html) é feita no hook
   // updated() de cada view que os usa (painel/relatorio/gamificacao). O updated()
   // roda APÓS o Vue aplicar o novo v-html e popular os pendentes — garantindo que
@@ -3174,6 +3305,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.__appInicializado) return;
   window.__appInicializado = true;
 
+  // S7b: ao trocar o idioma, re-medir a largura do dropdown (o texto da opção
+  // mais larga muda de tamanho) e re-sincronizar os rótulos.
+  window.addEventListener('idiomaAlterado', () => {
+    document.querySelectorAll('.notif-dd').forEach(dd => {
+      const min = parseInt(dd.querySelector('.notif-dd-trigger')?.value, 10) || 5;
+      sincronizarDropdownsFrequencia(min);
+    });
+  });
+
   // Escala responsiva de largura (cards/fontes/gráficos) — aplica 1.0 no
   // tamanho de abertura e cresce ao maximizar/redimensionar.
   initEscalaLargura();
@@ -3194,6 +3334,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Delegação de eventos para ações (data-acao) — cobre itens da sidebar,
   // botões das views (incluindo Configurações) e o FAB mobile.
   document.addEventListener('click', (e) => {
+    // S7: dropdown customizado de frequência de notificação. Tratado ANTES do
+    // bloco [data-acao] (que faz `if (!alvo) return`), pois o trigger/item do
+    // dropdown não carregam data-acao. Toggle do painel ao clicar no trigger;
+    // seleção de item já trata o change via delegação abaixo (ou direto aqui).
+    const ddTrigger = e.target.closest('.notif-dd-trigger');
+    if (ddTrigger) {
+      const dd = ddTrigger.closest('.notif-dd');
+      const panel = dd && dd.querySelector('.notif-dd-panel');
+      if (panel) {
+        const abrir = panel.hidden;
+        fecharDropdownsFrequencia();
+        if (abrir) { panel.hidden = false; ddTrigger.setAttribute('aria-expanded', 'true'); }
+      }
+      return;
+    }
+    const ddItem = e.target.closest('.notif-dd-item');
+    if (ddItem) {
+      const v = parseInt(ddItem.dataset.min, 10);
+      // Marca o item ativo e fecha o painel antes de disparar o change.
+      const dd = ddItem.closest('.notif-dd');
+      dd.querySelectorAll('.notif-dd-item').forEach(i => {
+        const on = i.dataset.min === String(v);
+        i.classList.toggle('active', on);
+        i.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      const valEl = dd.querySelector('.notif-dd-valor');
+      if (valEl) valEl.textContent = t('notif.int' + v) || (v + ' min');
+      const trigger = dd.querySelector('.notif-dd-trigger');
+      if (trigger) trigger.value = String(v);
+      fecharDropdownsFrequencia();
+      // Dispara change no trigger (data-notif-intervalo) p/ handler delegado persistir.
+      if (trigger) trigger.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    // Fecha qualquer dropdown de frequência ao clicar fora dele.
+    if (!e.target.closest('.notif-dd')) fecharDropdownsFrequencia();
     // Navegação por data-view (sidebar OU qualquer botão, ex.: "Ver detalhes" do game).
     const nav = e.target.closest('[data-view]');
     if (nav) { setView(nav.dataset.view); return; }

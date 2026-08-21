@@ -35,11 +35,12 @@ window.__mbRender.relatorio = function renderRelatorio() {
   const progresso = total > 0 ? Math.min(100, (pago / total) * 100) : 0;
 
   return `
+    <div class="relatorio-view">
     <div class="page-header">
       <h2>${ICON.relatorio} ${t('relatorio.titulo')}</h2>
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary" data-acao="exportar-csv">${ICON.download || ''} CSV</button>
-        <button class="btn btn-outline-secondary" data-acao="exportar-pdf">${ICON.download || ''} PDF</button>
+        <button class="btn btn-outline-secondary btn-export" data-acao="exportar-csv" title="${t('relatorio.csvTooltip') || 'Baixar relatório em CSV'}">${ICON.download || ''} CSV</button>
+        <button class="btn btn-outline-secondary btn-export" data-acao="exportar-pdf" title="${t('relatorio.pdfTooltip') || 'Baixar relatório em PDF'}">${ICON.download || ''} PDF</button>
       </div>
     </div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
@@ -88,7 +89,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
         <div>${t('relatorio.semAtraso')}</div>
       </div>
     ` : `
-      <div class="card shadow-sm">
+      <div class="card">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead>
@@ -130,7 +131,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
         <div>${t('resumo.nenhumaProxima')}</div>
       </div>
     ` : `
-      <div class="card shadow-sm">
+      <div class="card">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead>
@@ -164,6 +165,7 @@ window.__mbRender.relatorio = function renderRelatorio() {
         </div>
       </div>
     `}
+    </div>
   `;
 };
 

@@ -10,7 +10,7 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
   const notif = { ativo: prefsNotif.ativo !== false, intervaloMin: prefsNotif.intervaloMin || 5 };
   return `
     <div class="page-header"><h2>${ICON.config} ${t('config.titulo')}</h2></div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" style="max-width:1000px">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 g-3">
       <div class="col">
         <section class="config-secao h-100 aparencia">
           <h3>${t('config.aparencia')}</h3>
@@ -85,9 +85,7 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           </div>
           <div class="config-linha">
             <span>${t('notif.intervalo')}</span>
-            <select class="notif-intervalo-select" data-notif-intervalo>
-              ${(window.NOTIF_INTERVALOS || [5,30,60,180,300,600,1440]).map(min => `<option value="${min}"${notif.intervaloMin === min ? ' selected' : ''}>${t('notif.int' + min)}</option>`).join('')}
-            </select>
+            ${renderDropdownFrequenciaHTML(notif.intervaloMin)}
           </div>
           <div class="config-linha">
             <span>${t('notif.testeLabel')}</span>

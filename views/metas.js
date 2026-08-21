@@ -6,7 +6,7 @@ window.__mbRender = window.__mbRender || {};
 window.__mbRender.metas = function renderMetas() {
   const metas = estado.metas || [];
   const corpo = metas.length === 0
-    ? `<div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
          <span style="font-size:20px">${ICON.meta}</span>
          <div>${t('metas.vazia')}</div>
        </div>`

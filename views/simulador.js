@@ -11,8 +11,10 @@ window.__mbRender.simulador = function renderSimulador() {
   const comSaldo = dividas.filter(d => saldoDivida(d, estado.pagamentos) > 0);
 
   const form = `
-    <div class="card shadow-sm mb-4"><div class="card-body">
-      <h3 class="h6 text-secondary text-uppercase mb-3">${t('simulador.titulo')}</h3>
+    <div class="page-header"><h2>${ICON.simulador} ${t('simulador.titulo')}</h2></div>
+
+    <div class="card mb-4"><div class="card-body">
+      <h3 class="h6 text-secondary text-uppercase mb-3">${t('simulador.calcular')}</h3>
       <div class="row g-3 align-items-end">
         <div class="col-md-5">
           <label class="form-label">${t('simulador.metodo')}</label>
@@ -49,7 +51,7 @@ window.__mbRender.simulador = function renderSimulador() {
       : melhor === 'bolaNeve' ? t('simulador.bolaNeve') : '—';
     const economia = Math.abs(av.totalJuros - bn.totalJuros);
     resultado = `
-      <div class="card shadow-sm"><div class="card-body">
+      <div class="card"><div class="card-body">
         <h3 class="h6 text-secondary text-uppercase mb-3">${t('simulador.resumo')}</h3>
         <div class="row g-3">
           <div class="col"><div class="text-secondary small">${t('simulador.meses')}</div><div class="h4">${res.meses} ${un}</div></div>

@@ -154,15 +154,7 @@
       <div class="gear-panel-titulo" data-i18n="notif.secao">Notificações</div>
       <div class="gear-grupo gear-grupo-col gear-col-auto" role="group" aria-label="Notificações">
         <button class="gear-opt" id="gear-notif-toggle" data-acao="notif-toggle" aria-pressed="true"><span data-ico="sino"></span> <span class="notif-check" hidden>✓</span> <span class="notif-label">Notificações ativas</span></button>
-        <select class="notif-intervalo-select" id="gear-notif-intervalo" data-notif-intervalo>
-          <option value="5" data-i18n="notif.int5">5 minutos</option>
-          <option value="30" data-i18n="notif.int30">30 minutos</option>
-          <option value="60" data-i18n="notif.int60">1 hora</option>
-          <option value="180" data-i18n="notif.int180">3 horas</option>
-          <option value="300" data-i18n="notif.int300">5 horas</option>
-          <option value="600" data-i18n="notif.int600">10 horas</option>
-          <option value="1440" data-i18n="notif.int1440">24 horas</option>
-        </select>
+        <div class="notif-dd-host" id="gear-notif-intervalo" data-notif-dd-host></div>
         <button class="gear-opt" data-acao="notif-testar" title="Enviar notificação de teste"><span data-ico="sino"></span> <span data-i18n="notif.testar">Testar</span></button>
       </div>
     </div>

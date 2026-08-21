@@ -98,7 +98,7 @@ window.__mbRender.lixeira = function renderLixeira() {
       ` : ''}
     </div>
     ${total === 0 ? `
-      <div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
+      <div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
         <span style="font-size:18px">${ICON.lixeira || ''}</span>
         <div>${t('lixeira.vazia')}</div>
       </div>
