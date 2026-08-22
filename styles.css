@@ -55,7 +55,7 @@
   --border: #3a4049;          /* borda clara/visivel (tom de branco acinzentado) */
   /* Borda branca suave para dar contraste extra em cards e botões no tema
      escuro (sobrepõe --border nesses elementos; inputs/filtros mantêm --border). */
-  --border-dark: rgba(255,255,255,0.95);
+  --border-dark: color-mix(in srgb, #ffffff 50%, #000000);
   --primary: #3fb985;
   --primary-hover: #56c998;
   --danger: #e35d6a;
@@ -88,16 +88,19 @@
   background-color: transparent;
   background-image:
     linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.20) calc(50% - 0.5px), rgba(255,255,255,0.20) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, #4a505a 0%, #4a505a 50%, #2c3138 50%, #2c3138 100%);
+    linear-gradient(to bottom, color-mix(in srgb, #4a505a 70%, white) 0%, #2c3138 100%)
   background-size: 100% 100%, 100% 100%;
   background-position: 0 0, 0 0;
 }
 
-/* Toast no tema escuro: fundo CLARO (raised) para contrastar com o app escuro,
-   em vez de sumir contra o fundo. Mantem o relevo raised. */
+/* Toast no tema escuro: degradê raised suave (metade clara #4a505a no topo ->
+   mix 50/50 no meio -> base #2c3138 embaixo), sem linha de luz cortante. */
 [data-theme="dark"] .toast {
-  background: linear-gradient(to bottom, color-mix(in srgb, #e2e8f0 85%, white) 0%, color-mix(in srgb, #e2e8f0 85%, white) 50%, color-mix(in srgb, #e2e8f0 95%, black) 50%, color-mix(in srgb, #e2e8f0 95%, black) 100%);
-  color: #14161a;
+  background-color: var(--surface);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, #4a505a 70%, white) 0%,
+    #2c3138 100%);
+  color: var(--text);
 }
 
 /* ============================================================
@@ -297,7 +300,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: inline-flex; align-items: center; gap: 6px;
   font-size: calc(14px * var(--app-font-scale)); font-weight: 700;
   color: var(--text-muted); cursor: pointer;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 85%, white) 0%, color-mix(in srgb, var(--surface) 85%, white) 50%, var(--raised-surface-base) 50%, var(--raised-surface-base) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 70%, white) 0%, var(--surface) 100%);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px 12px;
@@ -329,7 +332,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .carteiras-lista { display: flex; flex-direction: column; gap: 10px; }
 .carteira-card {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px 16px; box-shadow: var(--shadow);
 }
 .carteira-nome { font-weight: 600; font-size: calc(14px * var(--app-font-scale)); color: var(--text); }
@@ -344,16 +347,12 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .raised-card,
 .alert.raised-card,
 .card.raised-card {
-  background: linear-gradient(to bottom,
-    color-mix(in srgb, var(--surface) 85%, white) 0%,
-    color-mix(in srgb, var(--surface) 85%, white) 50%,
-    var(--raised-surface-base) 50%,
-    var(--raised-surface-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border-color: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
-.tag-carteira { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: calc(11px * var(--app-font-scale)); background: var(--primary); color: #fff; }
+.tag-carteira { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: calc(11px * var(--app-font-scale)); background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); color: #fff; }
 .carteira-acoes { display: flex; gap: 6px; flex-shrink: 0; }
 /* Hover do card de carteira: lift + borda/fonte na cor de destaque + sombra
    --shadow-hover, com a imagem/ícone acompanhando a cor (igual aos cards de
@@ -373,8 +372,36 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-radius: 8px; color: var(--text-muted); font-size: calc(14px * var(--app-font-scale)); font-weight: 500;
   font-family: inherit; position: relative; text-align: left; width: 100%;
 }
-.nav-item:hover { background: var(--bg); color: var(--text); }
-.nav-item.active { background: var(--primary); color: #fff; }
+.nav-item:hover {
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, #f8fafc 70%, white) 0%,
+    #e2e8f0 100%);
+  color: var(--text);
+}
+.nav-item.active {
+  background-color: var(--primary);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, var(--primary) 72%, white) 0%,
+    color-mix(in srgb, var(--primary) 86%, white) 50%,
+    var(--primary) 100%);
+  color: #fff;
+}
+[data-theme="dark"] .nav-item:hover {
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, #4a505a 70%, white) 0%,
+    #2c3138 100%);
+  color: var(--text);
+}
+[data-theme="dark"] .nav-item.active {
+  background-color: var(--primary);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, var(--primary) 86%, white) 0%,
+    color-mix(in srgb, var(--primary) 72%, white) 50%,
+    color-mix(in srgb, var(--primary) 58%, black) 100%);
+  color: #fff;
+}
 .nav-item.active .nav-ico { filter: none; }
 .nav-ico { font-size: calc(17px * var(--app-font-scale)); flex-shrink: 0; width: 20px; text-align: center; }
 /* Ícone SVG (carteira semi-aberta) — herda o box do .nav-ico e usa currentColor */
@@ -392,21 +419,21 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .nav-badge {
   min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
   /* Raised: gradiente de metade clara em cima (igual .gear-opt). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text); font-size: calc(11px * var(--app-font-scale)); font-weight: 700;
   display: inline-flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow);
 }
 .nav-badge--alerta {
   /* Mantém o relevo raised mesmo no estado de alerta (cor de perigo). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--danger) 85%, white) 0%, color-mix(in srgb, var(--danger) 85%, white) 50%, color-mix(in srgb, var(--danger) 95%, black) 50%, color-mix(in srgb, var(--danger) 95%, black) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--danger) 70%, white) 0%, var(--danger) 100%);
   color: #fff;
 }
 
 .sidebar-perfil {
   margin-top: auto; border: 1px solid var(--border); border-radius: 12px;
   padding: 10px 12px;
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted);
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
@@ -415,7 +442,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .sidebar-perfil .nivel-ico { font-size: calc(15px * var(--app-font-scale)); }
 .sidebar-perfil .nivel-barra {
   width: 100%; height: 8px;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--border) 85%, white) 0%, color-mix(in srgb, var(--border) 85%, white) 50%, var(--raised-border-base) 50%, var(--raised-border-base) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--border) 70%, white) 0%, var(--border) 100%);
   border-radius: 4px;
   display: block; margin-top: 6px;
 }
@@ -427,10 +454,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   background-image:
     linear-gradient(90deg, var(--primary), var(--success-claro)),
     linear-gradient(to bottom,
-      color-mix(in srgb, var(--primary) 85%, white) 0%,
-      color-mix(in srgb, var(--primary) 85%, white) 50%,
-      var(--raised-primary-base) 50%,
-      var(--raised-primary-base) 100%);
+      color-mix(in srgb, var(--primary) 70%, white) 0%,
+      var(--primary) 100%);
   background-repeat: no-repeat, no-repeat;
   background-size: 100% 100%, 100% 100%;
   background-position: 0 0, 0 0;
@@ -470,7 +495,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 16px 24px;
   /* Raised: gradiente de metade clara em cima (igual .gear-opt/.btn) + sombra
      para separar o título do conteúdo rolante (o header é sticky). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   /* Altura mínima para que páginas com e sem botão no cabeçalho tenham
      o mesmo tamanho de "card de título" (evita desalinhamento visual).
      76px > altura natural do header com botão (~70px em fonte padrão),
@@ -490,7 +515,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   margin-bottom: 24px;
 }
 .card {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 20px;
@@ -511,7 +536,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* Tabela / lista */
 .lista {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow-x: auto;
@@ -528,7 +553,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   min-width: 640px;
 }
 .lista-header {
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   font-weight: 600;
   font-size: calc(12px * var(--app-font-scale));
   color: var(--text-muted);
@@ -536,7 +561,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   letter-spacing: 0.5px;
 }
 .item-linha { border-top: 1px solid var(--border); }
-.item-linha:hover { background: var(--bg); }
+.item-linha:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); }
 .item-linha .titulo { font-weight: 500; }
 .item-linha .subtitulo { font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted); margin-top: 2px; }
 
@@ -548,10 +573,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   font-weight: 600;
   text-transform: uppercase;
 }
-.tag.emprestimo { background: #dbeafe; color: #1e40af; }
-.tag.cartao { background: #fee2e2; color: #991b1b; }
-.tag.servico { background: #fef3c7; color: #92400e; }
-.tag.outro { background: #e5e7eb; color: #374151; }
+.tag.emprestimo { background-color: #dbeafe; background-image: linear-gradient(to bottom, color-mix(in srgb, #dbeafe 70%, white) 0%, #dbeafe 100%); color: #1e40af; }
+.tag.cartao { background-color: #fee2e2; background-image: linear-gradient(to bottom, color-mix(in srgb, #fee2e2 70%, white) 0%, #fee2e2 100%); color: #991b1b; }
+.tag.servico { background-color: #fef3c7; background-image: linear-gradient(to bottom, color-mix(in srgb, #fef3c7 70%, white) 0%, #fef3c7 100%); color: #92400e; }
+.tag.outro { background-color: #e5e7eb; background-image: linear-gradient(to bottom, color-mix(in srgb, #e5e7eb 70%, white) 0%, #e5e7eb 100%); color: #374151; }
 
 .valor-saldo { font-weight: 600; }
 .valor-saldo.pago { color: var(--success); }
@@ -567,14 +592,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   font-weight: 500;
   font-family: inherit;
   /* Raised: gradiente de metade clara em cima (igual .gear-opt). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.btn-primary { background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); color: #fff; }
+.btn-primary { background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); color: #fff; }
 .btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-hover); }
-.btn-ghost { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text-muted); }
-.btn-ghost:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); }
+.btn-ghost { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text-muted); }
+.btn-ghost:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); }
 /* Botão "Limpar filtros": borda simples inativa; vermelha (borda+fonte) quando
    há filtro ativo, para sinalizar que algo está filtrando. Tooltip detalhada
    (via title) explica o que será restaurado. */
@@ -582,7 +607,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 12px; border: 1px solid var(--border);
   /* Raised: gradiente de metade clara em cima (igual .gear-opt). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text); border-radius: 8px; cursor: pointer; font-size: 14px;
   white-space: nowrap; box-shadow: var(--shadow);
   transition: border-color .15s, color .15s, background .15s, transform .15s, box-shadow .15s;
@@ -591,7 +616,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* (Removido: não recolhe o ícone do "Limpar filtros" no hover — quando .ativo
    (vermelho) o verde conflitava; estado normal já tem cor própria.) */
 .btn-limpar-filtros.ativo { border-color: var(--danger); color: var(--danger); font-weight: 600; }
-.btn-limpar-filtros.ativo:hover:not(:disabled) { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); border-color: var(--danger); box-shadow: var(--shadow-hover); }
+.btn-limpar-filtros.ativo:hover:not(:disabled) { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border-color: var(--danger); box-shadow: var(--shadow-hover); }
 /* Mantém o raised mesmo desabilitado (só reduz a opacidade). */
 .btn-limpar-filtros:disabled { opacity: .5; cursor: not-allowed; }
 .btn-icon {
@@ -604,7 +629,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   color: var(--text-muted);
   margin-right: 4px;
 }
-.btn-icon:hover { background: var(--bg); color: var(--text); }
+.btn-icon:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); }
 .btn-icon.danger:hover { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
 
 .empty {
@@ -629,7 +654,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .modal.hidden { display: none; }
 .modal-card {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border-radius: var(--radius);
   padding: 24px;
   width: 100%;
@@ -653,7 +678,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    no perfil efetivamente logado (info.ativo, definido apos o desbloqueio/
    carregamento com sucesso). Fundo na cor selecionada do sistema
    (var(--primary)), fonte branca e borda branca. */
-.perfil-ativo-tag { font-size: calc(11px * var(--app-font-scale)); font-weight: 700; color: #fff !important; background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); border: 1px solid #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; position: relative; top: -1px; vertical-align: middle; }
+.perfil-ativo-tag { font-size: calc(11px * var(--app-font-scale)); font-weight: 700; color: #fff !important; background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); border: 1px solid var(--border-dark); border-radius: 999px; padding: 1px 8px; margin-left: 6px; position: relative; top: -1px; vertical-align: middle; }
 .perfil-item .perfil-gerenciar { flex: 0 0 auto; padding-left: 12px; padding-right: 12px; }
 
 /* ---- Campo de senha com "Visualizar senha" (S6-4) ---- */
@@ -711,7 +736,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   font-size: calc(14px * var(--app-font-scale));
   font-family: inherit;
   /* Raised: gradiente de metade clara em cima (igual .gear-opt). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
 }
 .campo input:focus, .campo select:focus, .campo textarea:focus {
@@ -784,10 +809,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  /* Raised ESCURO (como funcionava no claro). No tema escuro, o override abaixo
-     deixa o fundo claro para contrastar com o app escuro. */
-  background: linear-gradient(to bottom, color-mix(in srgb, #1a1a1a 85%, white) 0%, color-mix(in srgb, #1a1a1a 85%, white) 50%, color-mix(in srgb, #1a1a1a 95%, black) 50%, color-mix(in srgb, #1a1a1a 95%, black) 100%);
-  color: #fff;
+  /* Degradê raised suave: metade clara (topo) -> mix 50/50 das cores do card
+     no meio -> base escura (embaixo). Sem linha de luz cortante. Cores solidas
+     + color-mix validado (pinta). background-color de fallback garante cor. */
+  background-color: var(--surface);
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, #f8fafc 70%, white) 0%,
+    #e2e8f0 100%);
+  color: var(--text);
   padding: 10px 18px;
   border-radius: var(--radius);
   font-size: calc(14px * var(--app-font-scale));
@@ -801,10 +830,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.hidden { display: none; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
-.toast.success { background: color-mix(in srgb, var(--success) 24%, var(--surface)); color: var(--text); font-weight: 700; }
-.toast.error { background: color-mix(in srgb, var(--danger) 24%, var(--surface)); color: var(--text); font-weight: 700; }
-[data-theme="dark"] .toast.success { background: color-mix(in srgb, var(--success) 38%, var(--bg)); color: var(--text); }
-[data-theme="dark"] .toast.error { background: color-mix(in srgb, var(--danger) 38%, var(--bg)); color: var(--text); }
+.toast.success { background-color: color-mix(in srgb, var(--success) 24%, var(--surface)); color: var(--text); font-weight: 700; }
+.toast.error { background-color: color-mix(in srgb, var(--danger) 24%, var(--surface)); color: var(--text); font-weight: 700; }
+[data-theme="dark"] .toast.success { background-color: color-mix(in srgb, var(--success) 38%, var(--bg)); color: var(--text); }
+[data-theme="dark"] .toast.error { background-color: color-mix(in srgb, var(--danger) 38%, var(--bg)); color: var(--text); }
 /* Sem efeito de lift nos toasts (causava bug visual). Mantém só a posição central. */
 .toast:hover { transform: translateX(-50%); }
 
@@ -820,7 +849,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .ticker {
   display: flex;
   align-items: center;
-  background: linear-gradient(to bottom, color-mix(in srgb, #0f172a 85%, white) 0%, color-mix(in srgb, #0f172a 85%, white) 50%, var(--raised-dicas-base) 50%, var(--raised-dicas-base) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, #0f172a 70%, white) 0%, #0f1728 100%);
   color: #e2e8f0;
   height: 38px;
   overflow: hidden;
@@ -828,7 +857,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   zoom: var(--app-width-scale);
 }
 .ticker-tag {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%);
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   color: #fff;
   font-weight: 700;
   font-size: calc(12px * var(--app-font-scale));
@@ -845,7 +874,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   flex: 1;
   overflow: hidden;
   height: 100%;
-  background: linear-gradient(to bottom, color-mix(in srgb, #0f172a 85%, white) 0%, color-mix(in srgb, #0f172a 85%, white) 50%, var(--raised-dicas-base) 50%, var(--raised-dicas-base) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, #0f172a 70%, white) 0%, #0f1728 100%);
 }
 .ticker-track {
   position: absolute;
@@ -871,6 +900,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   color: #475569;
 }
 .ticker-item .star { color: #fbbf24; margin-right: 6px; }
+.ticker-autor { font-style: italic; font-weight: 700; color: var(--primary); margin-left: 4px; }
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -884,7 +914,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   margin-bottom: 24px;
 }
 .panel {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
@@ -924,7 +954,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   max-width: 160px;
 }
 .xp-barra-track {
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: 6px;
   height: 18px;
@@ -965,9 +995,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   line-height: 1.4;
   padding: 10px 12px;
   border-radius: 6px;
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border-left: 3px solid var(--border);
+  box-shadow: var(--shadow);
 }
+.insight:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .insight .ico { font-size: calc(16px * var(--app-font-scale)); line-height: 1.2; }
 .insight.bom { border-left-color: var(--success); }
 .insight.ruim { border-left-color: var(--danger); }
@@ -983,7 +1015,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
 }
 .parcela-item .parcela-topo {
   display: flex;
@@ -1007,25 +1039,18 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 
 /* Configurações (view) */
 .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; max-width: 820px; }
-.config-secao { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s; }
+.config-secao { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s; }
 .config-secao:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 /* (Removido o recolorir de ícone no hover da SEÇÃO: vazava para os botões
    .gear-opt internos, confundindo-os com "ativos". O ícone do botão passa a
    obedecer só ao hover do próprio botão — ver .gear-opt:not(.active):hover.) */
-.config-secao.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--bg)); box-shadow: var(--shadow); }
 .config-secao h3 { font-size: calc(13px * var(--app-font-scale)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 12px; }
 /* Efeito "saltado" (raised) nos BOTÕES da página de Configurações (não-ativos):
    metade superior mais clara que a metade inferior (tom --bg). O :not(.active)
    garante que o botão ativo use a regra base .gear-opt.active (cor de destaque
    com raised), mantendo a padronização. */
 .config-secao .gear-opt:not(.active) {
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--bg) 85%, white) 0%,
-    color-mix(in srgb, var(--bg) 85%, white) 50%,
-    var(--raised-bg-base) 50%,
-    var(--raised-bg-base) 100%
-  );
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--bg) 100%);
   color: var(--text);
 }
 /* No hover da página de Configurações, o texto também ganha a cor de
@@ -1039,13 +1064,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Active na página de Configurações: raised na cor de destaque (regra dedicada
    de alta especificidade, para GARANTIR que o efeito pegue no botão ativo). */
 .config-secao .gear-opt.active {
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--primary) 85%, white) 0%,
-    color-mix(in srgb, var(--primary) 85%, white) 50%,
-    var(--raised-primary-base) 50%,
-    var(--raised-primary-base) 100%
-  );
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
 }
@@ -1059,18 +1078,18 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 12px; border-radius: 10px;
   /* Raised: gradiente de metade clara em cima (igual .gear-opt). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   color: var(--text); font-size: calc(13px * var(--app-font-scale)); font-weight: 600;
   text-decoration: none; cursor: pointer;
   box-shadow: var(--shadow);
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
 }
-.card-btn:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); }
+.card-btn:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); }
 .card-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .card-btn .ico-svg { width: 18px; height: 18px; color: var(--text); }
 /* Botão de destaque (ex.: Ativar criptografia) — reforça a borda e a cor. */
-.card-btn.card-btn--destaque { border-color: var(--primary); color: var(--primary); background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); }
+.card-btn.card-btn--destaque { border-color: var(--primary); color: var(--primary); background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); }
 .card-btn.card-btn--destaque:hover { background: var(--primary); color: #fff; box-shadow: var(--shadow-hover); }
 .card-btn--perigo { border-color: var(--danger); color: var(--danger); }
 .card-btn--perigo:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: var(--shadow-hover); }
@@ -1084,7 +1103,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius, 10px);
   /* Raised de metade clara em cima (igual aos .gear-opt): relevo consistente
      nos subcards do card "Perfil de dados". */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 /* Efeito "lift" no hover: tanto o próprio card (perfil-linha) quanto o botão
@@ -1106,7 +1125,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    com raised (gradiente de metade clara em cima). */
 .nivel-btn {
   margin-top: 8px; width: 100%; border: 1px solid var(--border);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text); font-size: calc(12px * var(--app-font-scale)); font-weight: 600; padding: 6px 8px;
   border-radius: 8px; cursor: pointer; font-family: inherit;
   box-shadow: var(--shadow);
@@ -1124,11 +1143,12 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .game-faltam { font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted); margin-top: 8px; }
 .game-grafico-wrap { display: flex; justify-content: center; padding: 8px 0 4px; width: 100%; height: 200px; position: relative; }
 .game-grafico-wrap canvas { width: 100% !important; height: 100% !important; max-width: 340px; display: block; }
-.game-log { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+.game-log { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 8px; max-height: 320px; overflow-y: auto; }
 .game-log li {
   display: grid; grid-template-columns: 1fr auto; grid-template-areas: "motivo pontos" "meta meta";
-  gap: 2px 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
+  gap: 2px 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); box-shadow: var(--shadow); width: 100%;
 }
+.game-log li:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .game-log-motivo { grid-area: motivo; font-weight: 600; font-size: calc(13px * var(--app-font-scale)); display: inline-flex; align-items: center; gap: 8px; }
 .game-log-motivo .ico-svg { width: 18px; height: 18px; vertical-align: -3px; }
 .game-log-pontos { grid-area: pontos; font-weight: 700; font-size: calc(13px * var(--app-font-scale)); font-variant-numeric: tabular-nums; }
@@ -1165,7 +1185,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
     flex-direction: column; gap: 2px; justify-content: center;
     border-radius: 0; font-size: calc(11px * var(--app-font-scale)); padding: 6px 4px; flex: 1;
   }
-  .sidebar-nav .nav-link.active { background: var(--surface); color: var(--primary); border-top: 3px solid var(--primary); }
+  .sidebar-nav .nav-link.active { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--primary); border-top: 3px solid var(--primary); }
   .nav-ico { font-size: calc(18px * var(--app-font-scale)); }
   .nav-badge { position: absolute; top: 6px; right: 50%; transform: translateX(14px); }
   .conteudo { height: auto; min-height: 100vh; }
@@ -1303,13 +1323,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 
 .cartao-divida {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 18px;
   margin-bottom: 16px;
   box-shadow: var(--shadow);
 }
+.cartao-divida:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .divida-cabecalho {
   display: flex;
   align-items: center;
@@ -1365,7 +1386,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .prefs-grupo {
   display: flex;
   gap: 6px;
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 5px;
@@ -1385,7 +1406,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   gap: 5px;
   line-height: 1;
 }
-.prefs-btn:hover { background: var(--bg); }
+.prefs-btn:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); }
 .prefs-btn.ativo {
   background: var(--primary);
   color: #fff;
@@ -1414,7 +1435,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   font-size: calc(12px * var(--app-font-scale));
   font-weight: 600;
   color: var(--text-muted);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 5px 12px;
@@ -1439,7 +1460,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text-muted);
   border-radius: 999px;
   font-size: calc(16px * var(--app-font-scale));
@@ -1454,7 +1475,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .relogio-gear[aria-expanded="true"] {
   color: #fff;
   border-color: var(--primary);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%);
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
 }
 
 /* Painel que se expande ao clicar na engrenagem */
@@ -1463,7 +1484,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   bottom: calc(100% + 10px);
   right: 0;
   width: 248px;
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: 0 12px 34px rgba(0,0,0,0.22);
@@ -1506,7 +1527,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-opt {
   border: 1px solid var(--border);
   /* Raised: gradiente de metade clara em cima (igual .btn/.card-btn). */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
   border-radius: 8px;
   padding: 6px 10px;
@@ -1551,13 +1572,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    raised de 50/50 (metade superior 70% mais clara, metade inferior na cor de
    destaque). Padronizado em todos os .gear-opt.active do sistema. */
 .gear-opt.active {
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--primary) 85%, white) 0%,
-    color-mix(in srgb, var(--primary) 85%, white) 50%,
-    var(--raised-primary-base) 50%,
-    var(--raised-primary-base) 100%
-  );
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
   box-shadow: var(--shadow);
@@ -1584,11 +1599,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Raised (gradiente de metade clara em cima) nos botões do gear-panel. */
 .gear-panel .gear-opt:not(.active),
 .gear-panel .gear-card-btn {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
 }
 /* Active no gear-panel: raised na cor de destaque (regra dedicada). */
 .gear-panel .gear-opt.active {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%);
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
 }
@@ -1610,7 +1625,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 6px 8px 6px 12px;
   font-weight: 600; font-size: calc(14px * var(--app-font-scale));
   color: var(--text);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -1648,7 +1663,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   min-width: var(--notif-dd-w, 100%);
   display: flex; flex-direction: column; gap: 4px;
   padding: 6px;
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -1665,7 +1680,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   padding: 7px 10px;
   font-weight: 600; font-size: calc(14px * var(--app-font-scale));
   color: var(--text);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
@@ -1682,13 +1697,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Item selecionado: raised na cor de destaque do sistema (mesma regra de
    .gear-opt.active), com texto branco para contraste. */
 .notif-dd-item.active {
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--primary) 85%, white) 0%,
-    color-mix(in srgb, var(--primary) 85%, white) 50%,
-    var(--raised-primary-base) 50%,
-    var(--raised-primary-base) 100%
-  );
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
 }
@@ -1711,7 +1720,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center;
   padding: 7px 0;
   border: 1px solid var(--border);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text); border-radius: 8px; cursor: pointer; font-size: 15px;
   transition: border-color .15s, color .15s, background .15s;
 }
@@ -1751,7 +1760,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   height: 26px;
   border-radius: 50%;
   border: 2px solid var(--border);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--sw) 85%, white) 0%, color-mix(in srgb, var(--sw) 85%, white) 50%, var(--sw) 50%, var(--sw) 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--sw) 70%, white) 0%, var(--sw) 100%);
   cursor: pointer;
   padding: 0;
   box-shadow: var(--shadow);
@@ -1790,7 +1799,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   z-index: 1;
   width: min(92vw, 420px);
   text-align: center;
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 34px 28px 28px;
@@ -1918,17 +1927,27 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--border);
   border-radius: 50%;
-  background: transparent;
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text-muted);
   font-size: calc(22px * var(--app-font-scale));
   line-height: 1;
+  padding: 0;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  box-shadow: var(--shadow);
+  transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
   z-index: 2;
 }
-.modal-fechar:hover { background: var(--bg); color: var(--text); }
+.modal-fechar:hover {
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  color: var(--text-muted);
+  border-color: var(--border);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
 .modal-card h2 { padding-right: 36px; }
 
 /* ---------- Seção "Sobre" ---------- */
@@ -1953,13 +1972,18 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .sobre-link {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 12px; border-radius: 10px;
-  background: var(--surface); border: 1px solid var(--border);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   color: var(--text); font-size: calc(13px * var(--app-font-scale)); font-weight: 600; text-decoration: none;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
-.sobre-link:hover { background: var(--hover, #f1f5f9); border-color: var(--accent, #6366f1); transform: translateY(-1px); }
+.sobre-link:hover {
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  border-color: var(--border); color: var(--text);
+  transform: translateY(-1px); box-shadow: var(--shadow-hover);
+}
 .sobre-link:hover .ico-svg,
-.sobre-link:hover img { color: var(--accent, #6366f1); }
+.sobre-link:hover img { color: var(--text); }
 .sobre-link .ico-svg { width: 18px; height: 18px; color: var(--text); }
 .sobre-link-dev { margin-top: 10px; align-self: flex-start; }
 .sobre-copy { color: var(--text); font-weight: 600; }
@@ -1971,7 +1995,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
    .card-btn / .sobre-link das demais telas. */
 .sobre-grid .card-btn,
 .sobre-grid .sobre-link {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border-color: var(--border);
   color: var(--text);
   box-shadow: var(--shadow);
@@ -2015,21 +2039,21 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px;
   color: var(--text-muted); font-size: calc(14px * var(--app-font-scale)); font-weight: 500;
   cursor: pointer; width: 100%; text-align: left;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   box-shadow: var(--shadow);
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.sidebar-nav .nav-link:hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-.sidebar-nav .nav-link.active { background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 85%, white) 0%, color-mix(in srgb, var(--primary) 85%, white) 50%, var(--raised-primary-base) 50%, var(--raised-primary-base) 100%); color: #fff; box-shadow: var(--shadow); }
+.sidebar-nav .nav-link:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.sidebar-nav .nav-link.active { background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); color: #fff; box-shadow: var(--shadow); }
 .sidebar-nav .nav-link.active:hover { box-shadow: var(--shadow-hover); }
 .sidebar-nav .nav-link .nav-ico { font-size: calc(17px * var(--app-font-scale)); flex-shrink: 0; width: 20px; text-align: center; }
 .sidebar-nav .nav-link .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* No hover da aba (não-ativa): fundo raised + lift + sombra — sem mudar cor de
    texto nem de ícone (estes herdam a cor normal do pai). */
-.sidebar-nav .nav-link:not(.active):hover { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.sidebar-nav .nav-link:not(.active):hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 /* Cards Bootstrap alinhados ao estilo de cartão do app. */
-.card { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow); }
+.card { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border-color: var(--border); box-shadow: var(--shadow); }
 .card .label, .card .stat-sub { color: var(--text-muted); }
 .card .valor { color: var(--text); }
 .card .valor.positivo { color: var(--success); }
@@ -2053,7 +2077,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .badge.text-bg-info { background-color: var(--bs-info) !important; color: #fff !important; }
 /* Tag de categoria (text-bg-secondary): raised de metade clara em cima. */
 .badge.text-bg-secondary {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%) !important;
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
   color: var(--text) !important;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
@@ -2061,7 +2085,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 
 /* Formulários: campos Bootstrap com a mesma cor de foco do app. */
 .form-control, .form-select, .form-control:focus, .form-select:focus {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
   border-color: var(--border); box-shadow: none;
 }
@@ -2074,33 +2098,37 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 .alert-primary { --bs-alert-color: var(--primary-text-emphasis); --bs-alert-bg: var(--bs-primary-bg-subtle); --bs-alert-border-color: var(--bs-primary-border-subtle); }
 .alert-success { --bs-alert-color: var(--success-text-emphasis); --bs-alert-bg: var(--bs-success-bg-subtle); --bs-alert-border-color: var(--bs-success-border-subtle);
   /* Raised mantendo a tonalidade original do alerta (verde sutil), nao o verde saturado. */
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 0%, color-mix(in srgb, var(--bs-success-bg-subtle) 85%, white) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 50%, color-mix(in srgb, var(--bs-success-bg-subtle) 95%, black) 100%);
+  background-color: var(--bs-success-bg-subtle); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bs-success-bg-subtle) 70%, white) 0%, var(--bs-success-bg-subtle) 100%);
   color: var(--text);
+  box-shadow: var(--shadow);
 }
+.alert-success:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 .alert-danger { --bs-alert-color: var(--danger-text-emphasis); --bs-alert-bg: var(--bs-danger-bg-subtle); --bs-alert-border-color: var(--bs-danger-border-subtle); }
 .alert-warning { --bs-alert-color: var(--warning-text-emphasis); --bs-alert-bg: var(--bs-warning-bg-subtle); --bs-alert-border-color: var(--bs-warning-border-subtle); }
 .alert-info { --bs-alert-color: var(--info-text-emphasis); --bs-alert-bg: var(--bs-info-bg-subtle); --bs-alert-border-color: var(--bs-info-border-subtle); }
 
 /* Dropdown Bootstrap respeita o tema escuro do app. */
-.dropdown-menu { background-color: var(--surface); border-color: var(--border);
+.dropdown-menu { background-color: var(--surface); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 70%, white) 0%, var(--surface) 100%); border-color: var(--border);
   box-shadow: var(--shadow); color: var(--text); }
 .dropdown-item { color: var(--text); }
-.dropdown-item:hover, .dropdown-item:focus { background-color: var(--bg); color: var(--text); }
+.dropdown-item:hover, .dropdown-item:focus { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); }
 .dropdown-divider { border-color: var(--border); }
 
 /* Offcanvas (menu mobile) integrado ao tema. */
-.offcanvas { background-color: var(--surface); color: var(--text); }
+.offcanvas { background-color: var(--surface); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 70%, white) 0%, var(--surface) 100%); color: var(--text); box-shadow: var(--shadow); }
 
 /* List-group na paleta do app. */
-.list-group-item { background-color: var(--surface); color: var(--text); border-color: var(--border); }
-.list-group-item-action:hover { background-color: var(--bg); }
+.list-group-item { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); border-color: var(--border); box-shadow: var(--shadow); }
+.list-group-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.list-group-item-action:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); }
 .list-group-item.active { background-color: var(--primary); border-color: var(--primary); box-shadow: var(--shadow); }
 .list-group-item.active:hover { box-shadow: var(--shadow-hover); }
 
 /* Accordion na paleta do app. */
 .accordion-button:not(.collapsed) { background-color: var(--bs-primary-bg-subtle); color: var(--primary-text-emphasis); }
 .accordion-button:focus { box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
-.accordion-item, .accordion-button { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+.accordion-item, .accordion-button { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); border-color: var(--border); box-shadow: var(--shadow); }
+.accordion-item:hover, .accordion-button:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
 
 /* Toast do Bootstrap: mantém borda; cor/raised vêm da regra `.toast` acima
    (nao sobrescrever a cor, senao o texto do toast base fica ilegivel). */
@@ -2165,7 +2193,7 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
 
 /* Modal: garante que o modal customizado do app conviva com o do Bootstrap.
    Mantém o overlay e o card do app; apenas evita conflito de fundo. */
-.modal-content { background-color: var(--surface); color: var(--text); border-color: var(--border); }
+.modal-content { background-color: var(--surface); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 70%, white) 0%, var(--surface) 100%); color: var(--text); border-color: var(--border); box-shadow: var(--shadow); }
 .modal-header, .modal-footer { border-color: var(--border); }
 
 /* ============================================================
@@ -2288,7 +2316,7 @@ td.text-end, .carteira-saldo, .card-body .h4, .card-body .h3 {
    (fundo que parece saltar), igual aos botões .gear-opt. Ver documentação em .gear-opt.
    Campos de digitação e seleção usam o gradiente raised de metade clara em cima. */
 input:not([type="checkbox"]):not([type="radio"]), select, textarea, .form-control, .form-select {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, white) 0%, color-mix(in srgb, var(--bg) 85%, white) 50%, var(--raised-bg-base) 50%, var(--raised-bg-base) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -2356,7 +2384,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track {
   /* Track (fundo da barra): neutro, sem raised — o efeito fica só no thumb. */
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
 }
 ::-webkit-scrollbar-thumb {
   border-radius: 999px;
@@ -2367,7 +2395,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   background-color: transparent;
   background-image:
     linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, #f8fafc 0%, #f8fafc 50%, #e2e8f0 50%, #e2e8f0 100%);
+    linear-gradient(to bottom, color-mix(in srgb, #f8fafc 70%, white) 0%, #e2e8f0 100%)
   background-size: 100% 100%, 100% 100%;
   background-position: 0 0, 0 0;
 }
@@ -2375,7 +2403,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 ::-webkit-scrollbar-thumb:active {
   background-image:
     linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% - 0.5px), rgba(0,0,0,0.22) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, #f8fafc 0%, #f8fafc 50%, #e2e8f0 50%, #e2e8f0 100%);
+    linear-gradient(to bottom, color-mix(in srgb, #f8fafc 70%, white) 0%, #e2e8f0 100%)
   box-shadow: var(--shadow);
 }
 
@@ -2414,8 +2442,49 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .perfil-linha,
 [data-theme="dark"] .gear-panel,
 [data-theme="dark"] .sobre-grid .card-btn,
-[data-theme="dark"] .sobre-grid .sobre-link {
+[data-theme="dark"] .sobre-grid .sobre-link,
+[data-theme="dark"] .cartao-divida,
+[data-theme="dark"] .insight,
+[data-theme="dark"] .game-log li,
+[data-theme="dark"] .list-group-item,
+[data-theme="dark"] .accordion-item,
+[data-theme="dark"] .accordion-button,
+[data-theme="dark"] .raised-card,
+[data-theme="dark"] .panel,
+[data-theme="dark"] .lista,
+[data-theme="dark"] .carteira-card,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .offcanvas,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .tooltip {
   border-color: var(--border-dark);
+}
+
+/* Complemento: borda clara (--border-dark) em elementos que ainda usavam
+   --border no tema escuro — relógio/data, headers, campos de filtro/janelas
+   e scrollbars. Respeita o gear-opt.active (mantém cor de destaque). */
+[data-theme="dark"] .relogio-brasilia,
+[data-theme="dark"] .relogio-gear,
+[data-theme="dark"] .sidebar-perfil,
+[data-theme="dark"] .nivel-btn,
+[data-theme="dark"] .page-header,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .campo input,
+[data-theme="dark"] .campo select,
+[data-theme="dark"] .campo textarea,
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  border-color: var(--border-dark);
+}
+/* Scrollbar (thumb) no tema escuro: borda clara para combinar com os cards. */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  border-color: var(--border-dark);
+}
+/* gear-opt ATIVO/Destacado mantém a cor de destaque na borda (não a clara). */
+[data-theme="dark"] .gear-opt.active {
+  border-color: var(--primary);
 }
 
 /* ===== Hover tema escuro — cards/botões gerais (equiparados aos cards de Configurações) =====
@@ -2518,10 +2587,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
    fundo --surface para destacarem como mini-cards sobre o card --bg.
    ============================================================ */
 .painel-view .card {
-  background: var(--bg);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
 }
 .painel-view .card .list-group-item {
-  background: var(--surface);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm, 8px);
   margin-bottom: 6px;

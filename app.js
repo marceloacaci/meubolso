@@ -178,7 +178,19 @@ const DICAS = [
   { pt: 'Estabeleça um teto de gastos com cartão por mês.', en: 'Set a monthly card-spending ceiling.', es: 'Establece un tope de gasto con tarjeta por mes.' },
   { pt: 'Use a técnica "compre um, use um ano" antes de repetir.', en: 'Use the "buy one, use one year" test before repeating.', es: 'Usa la técnica "compra uno, usa un año" antes de repetir.' },
   { pt: 'Evite juros compostos contra você: quite cedo.', en: 'Avoid compound interest against you: pay off early.', es: 'Evita intereses compuestos en su contra: paga temprano.' },
-  { pt: 'Mantenha foco no "porquê" do seu plano financeiro.', en: 'Keep focus on the "why" of your financial plan.', es: 'Manten el foco en el "porqué" de tu plan financiero.' }
+  { pt: 'Mantenha foco no "porquê" do seu plano financeiro.', en: 'Keep focus on the "why" of your financial plan.', es: 'Manten el foco en el "porqué" de tu plan financiero.' },
+
+  // === Dicas de autores famosos de finanças (citação explícita) ===
+  { autor: 'Rick Chester', pt: 'Rick Chester ensina a Regra de 3: separe todo salário ou pagamento recebido em 3 partes iguais — 1/3 para o seu salário, 1/3 para um fundo de emergência e 1/3 para reinvestir no seu próprio negócio.', en: 'Rick Chester teaches the Rule of 3: split every salary or payment received into 3 equal parts — 1/3 for your pay, 1/3 for an emergency fund, and 1/3 to reinvest in your own business.', es: 'Rick Chester enseña la Regla de 3: divide cada salario o pago recibido en 3 partes iguales — 1/3 para tu sueldo, 1/3 para un fondo de emergencia y 1/3 para reinvertir en tu propio negocio.' },
+  { autor: 'Warren Buffett', pt: 'Warren Buffett: "O preço é o que você paga; o valor é o que você recebe." Não confunda o que custa com o que vale.', en: 'Warren Buffett: "Price is what you pay; value is what you get." Do not confuse what costs with what is worth.', es: 'Warren Buffett: "El precio es lo que pagas; el valor es lo que recibes." No confundas lo que cuesta con lo que vale.' },
+  { autor: 'Warren Buffett', pt: 'Warren Buffett: "Não coloque todos os ovos na mesma cesta." Diversifique para proteger seu patrimônio.', en: 'Warren Buffett: "Do not put all your eggs in one basket." Diversify to protect your wealth.', es: 'Warren Buffett: "No pongas todos los huevos en la misma cesta." Diversifica para proteger tu patrimonio.' },
+  { autor: 'Benjamin Franklin', pt: 'Benjamin Franklin: "Um tostão economizado é um tostão ganho." Pequenas economias se acumulam.', en: 'Benjamin Franklin: "A penny saved is a penny earned." Small savings add up.', es: 'Benjamin Franklin: "Un centavo ahorrado es un centavo ganado." Los pequeños ahorros se acumulan.' },
+  { autor: 'George S. Clason', pt: 'George S. Clason (O Homem Mais Rico da Babilônia): "Parte de tudo que ganhas deve ser tua para guardar." Pague a si mesmo primeiro.', en: 'George S. Clason (The Richest Man in Babylon): "A part of all you earn is yours to keep." Pay yourself first.', es: 'George S. Clason (El Hombre Más Rico de Babilonia): "Una parte de todo lo que ganas debe ser tuya para guardar." Páguese a sí mismo primero.' },
+  { autor: 'Robert Kiyosaki', pt: 'Robert Kiyosaki: "Os ricos não trabalham pelo dinheiro; fazem o dinheiro trabalhar por eles." Compre ativos, não passivos.', en: 'Robert Kiyosaki: "The rich do not work for money; they make money work for them." Buy assets, not liabilities.', es: 'Robert Kiyosaki: "Los ricos no trabajan por dinero; hacen que el dinero trabaje por ellos." Compra activos, no pasivos.' },
+  { autor: 'Dave Ramsey', pt: 'Dave Ramsey: "Viva como ninguém vive hoje, para poder viver como ninguém viverá amanhã." Sacrifique o presente pela liberdade futura.', en: 'Dave Ramsey: "Live like no one else today, so you can live like no one else tomorrow." Sacrifice the present for future freedom.', es: 'Dave Ramsey: "Vive como nadie vive hoy, para poder vivir como nadie vivirá mañana." Sacrifica el presente por la libertad futura.' },
+  { autor: 'Charlie Munger', pt: 'Charlie Munger: "O primeiro dever da inteligência é evitar a estupidez, não o saber tudo." Evite erros caros antes de buscar ganhos.', en: 'Charlie Munger: "The first duty of intelligence is to avoid stupidity, not to learn everything." Avoid costly mistakes before chasing gains.', es: 'Charlie Munger: "El primer deber de la inteligencia es evitar la estupidez, no saberlo todo." Evita errores costosos antes de buscar ganancias.' },
+  { autor: 'Suze Orman', pt: 'Suze Orman: "Quando você tem controle do seu dinheiro, tem controle da sua vida." Organização financeira é autonomia.', en: 'Suze Orman: "When you control your money, you control your life." Financial organization is autonomy.', es: 'Suze Orman: "Cuando controlas tu dinero, controlas tu vida." La organización financiera es autonomía.' },
+  { autor: 'Thiago Nigro (Primo Rico)', pt: 'Thiago Nigro: "O segredo não é ganhar muito, é não perder." Proteja o que já conquistou.', en: 'Thiago Nigro (Primo Rico): "The secret is not to earn a lot, but not to lose." Protect what you have already conquered.', es: 'Thiago Nigro (Primo Rico): "El secreto no es ganar mucho, es no perder." Protege lo que ya conquistaste.' }
 ];
 
 // ⚠️ Funções de cálculo financeiro foram EXTRAÍDAS para `src/dominio.js`
@@ -655,7 +667,9 @@ function calcularMetricas() {
 
   const hojeDt = new Date();
   const todosStatus = { pendente: 0, pago: 0, atrasado: 0, negociado: 0 };
+  const atrasadasDividas = new Set();
   for (const d of estado.dividas) {
+    let dividaAtrasada = false;
     for (const p of (d.parcelas || [])) {
       const s = p.status || 'pendente';
       todosStatus[s] = (todosStatus[s] || 0) + 1;
@@ -663,14 +677,16 @@ function calcularMetricas() {
         // vencida e não paga -> conta como atrasada no gráfico
         todosStatus.pendente--;
         todosStatus.atrasado++;
+        dividaAtrasada = true;
       }
     }
+    if (dividaAtrasada) atrasadasDividas.add(d.id);
   }
   const porStatus = Object.keys(todosStatus)
     .filter(k => todosStatus[k] > 0)
     .map(k => ({ key: k, label: t(STATUS_LABEL[k]) || k, cor: CORES_STATUS[k] || '#64748b', qtd: todosStatus[k] }));
 
-  return { totalGeral, totalPago, saldo, progresso, porCategoria, porStatus };
+  return { totalGeral, totalPago, saldo, progresso, porCategoria, porStatus, atrasadasDividas: atrasadasDividas.size };
 }
 
 function gerarInsights(m) {
@@ -684,7 +700,7 @@ function gerarInsights(m) {
   else if (m.progresso > 0) out.push({ tipo: 'aten', ico: ICON.ampulheta, texto: ti('insight.quitadoBaixo', { p: m.progresso.toFixed(0) }) });
   else out.push({ tipo: 'ruim', ico: ICON.alerta, texto: ti('insight.nenhumPagamento') });
 
-  const atrasadas = (m.porStatus.find(s => s.key === 'atrasado') || {}).qtd || 0;
+  const atrasadas = m.atrasadasDividas || 0;
   if (atrasadas > 0) out.push({ tipo: 'ruim', ico: ICON.alerta, texto: ti('insight.atrasadas', { n: atrasadas }) });
 
   const maior = estado.dividas.reduce((max, d) => (totalDivida(d) > totalDivida(max) ? d : max), estado.dividas[0]);
@@ -2435,7 +2451,7 @@ function lancarPagamentoParcela(d, parc) {
     // Recalcula o cache da parcela (valorPago, dataPagamento, status) a partir de
     // TODOS os pagamentos vinculados — fonte de verdade única. Garante que, ao
     // editar a dívida depois, o campo "valor pago" da parcela esteja correto.
-    sincronizarParcela(d, parc.id);
+    sincronizarParcela(d, parc.id, estado.pagamentos);
     // Nota unificada: o pagamento e a dívida compartilham a mesma observação.
     if (nota) d.observacao = nota;
     persistir();
@@ -2898,20 +2914,40 @@ function initTicker() {
   // Embaralha as dicas (Fisher-Yates) UMA vez por sessão, para que a ordem
   // aleatória seja mantida ao trocar de idioma (a mesma dica segue sendo exibida, só traduzida).
   if (!ordemTicker) {
-    ordemTicker = DICAS.map(d => d);
-    for (let i = ordemTicker.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [ordemTicker[i], ordemTicker[j]] = [ordemTicker[j], ordemTicker[i]];
+    const autores = DICAS.filter(d => d.autor);
+    const comuns = DICAS.filter(d => !d.autor);
+    const embaralha = (arr) => {
+      const a = arr.map(d => d);
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+    const comunsEmb = embaralha(comuns);
+    const autoresEmb = embaralha(autores);
+    // Regra: a cada 5 dicas exibidas, 1 deve ser de autor (citação explícita).
+    // Intercala 1 autor a cada 4 dicas comuns => bloco de 5 (4 comuns + 1 autor).
+    const ordem = [];
+    let ai = 0;
+    for (let i = 0; i < comunsEmb.length; i++) {
+      ordem.push(comunsEmb[i]);
+      if ((i + 1) % 4 === 0 && autoresEmb.length > 0) {
+        ordem.push(autoresEmb[ai % autoresEmb.length]);
+        ai++;
+      }
     }
+    ordemTicker = ordem;
   }
   // Duplica a lista embaralhada para o scroll ser contínuo (translateX -50%)
   const umaVolta = ordemTicker.map(d => {
     const texto = (d[idiomaAtual] || d.pt || d);
-    return `<span class="ticker-item"><span class="star">${ICON.estrela}</span>${escapeHtml(texto)}</span>`;
+    const citacao = d.autor ? `${texto} <span class="ticker-autor">— ${escapeHtml(d.autor)}</span>` : escapeHtml(texto);
+    return `<span class="ticker-item"><span class="star">${ICON.estrela}</span>${citacao}</span>`;
   }).join('');
   track.innerHTML = umaVolta + umaVolta;
   // Duração proporcional à quantidade, com velocidade mais lenta (mais leitura)
-  const segundos = Math.max(90, DICAS.length * 5);
+  const segundos = Math.max(90, ordemTicker.length * 5);
   track.style.animationDuration = `${segundos}s`;
 }
 // Ordem aleatória do carrossel (gerada uma vez por sessão).
