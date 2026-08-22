@@ -128,11 +128,68 @@ window.__mbRender.gamificacao = function renderGamificacao() {
       </table>
     </section>`;
 
+  // --- S9: Hábito & retenção (streak de hoje + ações de desbloqueio) ---
+  const hoje = hojeLocal ? hojeLocal() : new Date().toISOString().slice(0, 10);
+  const dividas = estado.dividas || [];
+  // Dívidas em atraso HOJE: parcela com vencimento < hoje e dívida com saldo > 0.
+  let atrasosHoje = 0;
+  for (const d of dividas) {
+    const saldo =
+      d.saldo != null
+        ? d.saldo
+        : typeof saldoDivida === 'function'
+          ? saldoDivida(d, estado.pagamentos || [])
+          : 0;
+    if (saldo > 0.005) {
+      const venc = (d.parcelas || []).filter((p) => p.vencimento && p.vencimento < hoje);
+      if (venc.length) atrasosHoje++;
+    }
+  }
+  const semAtrasoHoje = atrasosHoje === 0;
+  // E2: streak de hoje (0 se há atraso; 1 se limpo — histórico multi-dia fica p/ etapa de persistência).
+  const streakHoje = semAtrasoHoje ? 1 : 0;
+  // E3: XP de consistência que o streak representa.
+  const xpCons = typeof xpConsistencia === 'function' ? xpConsistencia(streakHoje) : 0;
+  // B5: ações que desbloqueiam gamificação, a partir do estado atual.
+  const estadoFlags = {
+    temDivida: dividas.length > 0,
+    temPagamento: (estado.pagamentos || []).length > 0,
+    temCarteira: (estado.carteiras || []).length > 0,
+    temMeta: (estado.metas || []).length > 0,
+  };
+  const acoes = typeof acoesDesbloqueio === 'function' ? acoesDesbloqueio(estadoFlags) : [];
+  const concluidas =
+    typeof desbloqueiosConcluidos === 'function' ? desbloqueiosConcluidos(acoes) : 0;
+  const habitoHtml = `
+    <section class="config-secao game-habito">
+      <h3>${ICON.fogo || '🔥'} ${t('game.habito') || 'Hábito & consistência'}</h3>
+      <div class="game-streak-linha">
+        <span class="game-streak-badge ${semAtrasoHoje ? 'ok' : 'quebrado'}">
+          ${semAtrasoHoje ? (ICON.fogo || '🔥') + ' Sem atrasos hoje' : '⚠ ' + atrasosHoje + ' dívida(s) em atraso'}
+        </span>
+        <span class="game-streak-xp">${xpCons > 0 ? '+' + xpCons + ' XP de consistência' : ''}</span>
+      </div>
+      <p class="game-faltam">${t('game.habitoDica') || 'Mantenha os pagamentos em dia para alongar seu streak e ganhar XP de consistência.'}</p>
+      <h4>${t('game.desbloqueios') || 'Como desbloquear'} (${concluidas}/${acoes.length})</h4>
+      <ul class="game-desbloqueios">
+        ${acoes
+          .map(
+            (a) => `
+          <li class="${a.feito ? 'feito' : ''}">
+            <span class="game-desb-ico">${a.feito ? ICON.check || '✅' : ICON.lock || '🔒'}</span>
+            <span class="game-desb-acao">${escapeHtml(a.acao)}</span>
+          </li>`
+          )
+          .join('')}
+      </ul>
+    </section>`;
+
   return `
     <div class="page-header"><h2>${ICON.estrela} ${t('game.titulo')}</h2></div>
     <div class="config-grid config-grid--wide">
       ${detalhes}
       ${graficoXP}
+      ${habitoHtml}
       ${log}
       ${questsHtml}
       ${tabela}

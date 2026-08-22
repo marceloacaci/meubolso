@@ -1821,8 +1821,11 @@ function criarPerfilFlow() {
     }
   );
 }
-// Gerencia um perfil: renomear e trocar senha (exige senha atual se criptografado).
+// Gerencia um perfil: renomear, trocar senha (exige senha atual se criptografado)
+// e S10 — modo família (toggle) + sync de pasta.
 function gerenciarPerfil(id) {
+  const p =
+    (perfisInfo && perfisInfo.perfis ? perfisInfo.perfis : []).find((x) => x.id === id) || {};
   abrirModal(
     t('perfil.gerenciar') || 'Gerenciar perfil',
     [
@@ -1831,6 +1834,7 @@ function gerenciarPerfil(id) {
         name: 'nome',
         type: 'text',
         required: true,
+        value: p.nome || '',
       },
       {
         label: t('perfil.senhaAtual') || 'Senha atual (se criptografado)',
@@ -1844,6 +1848,12 @@ function gerenciarPerfil(id) {
         type: 'password',
         required: false,
       },
+      {
+        label: t('perfil.familiar') || 'Modo família (compartilhado)',
+        name: 'familiar',
+        type: 'checkbox',
+        checked: !!p.familiar,
+      },
     ],
     async (vals) => {
       const nome = ((vals && vals.nome) || '').trim();
@@ -1856,6 +1866,16 @@ function gerenciarPerfil(id) {
       if (!rr || !rr.ok) {
         if (window.mostrarToast)
           window.mostrarToast(t('perfil.erroRenomear') || 'Não foi possível renomear', 'erro');
+        return false;
+      }
+      // S10 — aplica modo família.
+      const rf = await window.api.perfilFamiliar(id, !!vals.familiar);
+      if (!rf || !rf.ok) {
+        if (window.mostrarToast)
+          window.mostrarToast(
+            t('perfil.erroFamiliar') || 'Não foi possível definir modo família',
+            'erro'
+          );
         return false;
       }
       if (vals.senhaNova) {
@@ -1876,6 +1896,32 @@ function gerenciarPerfil(id) {
       if (window.mostrarToast) window.mostrarToast(t('perfil.salvo') || 'Perfil salvo', 'sucesso');
       await atualizarPerfisInfo();
       return true;
+    },
+    {
+      // S10 — botão de sincronização de pasta (fora do formulário de campos).
+      customHtml: `<div class="form-actions"><button type="button" class="btn btn-ghost" id="btn-sinc-pasta">${ICON ? ICON.gestao + ' ' : ''}${t('perfil.sincPasta') || 'Sincronizar pasta'}</button></div>`,
+      aoMontar: (modalCard) => {
+        const btn = modalCard && modalCard.querySelector('#btn-sinc-pasta');
+        if (btn)
+          btn.onclick = async () => {
+            const destino = await window.api.selecionarPasta();
+            if (!destino) return;
+            const r = await window.api.perfilSincronizarPasta(destino);
+            if (r && r.ok) {
+              if (window.mostrarToast)
+                window.mostrarToast(
+                  (t('perfil.sincOk') || 'Perfis sincronizados') + ` (${r.copiados})`,
+                  'sucesso'
+                );
+            } else {
+              if (window.mostrarToast)
+                window.mostrarToast(
+                  (t('perfil.sincErro') || 'Falha ao sincronizar') + ': ' + ((r && r.erro) || ''),
+                  'erro'
+                );
+            }
+          };
+      },
     }
   );
 }
