@@ -630,7 +630,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   margin-right: 4px;
 }
 .btn-icon:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); }
-.btn-icon.danger:hover { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
+/* Removido .btn-icon.danger:hover (regra morta: nenhum elemento usa .btn-icon.danger no app; P1 hover=SÓ lift). */
 
 .empty {
   text-align: center;
@@ -1701,7 +1701,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-color: var(--primary);
   color: #fff;
 }
-.notif-dd-item.active:hover { color: #fff; }
+.notif-dd-item.active:hover { box-shadow: var(--shadow-hover); }
 /* Cards de "Dados" e "Perfis de dados" nas configurações rápidas: botões
    empilhados e em largura total, nos mesmos moldes dos cards da página
    de Configurações. */
