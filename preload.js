@@ -51,6 +51,11 @@ contextBridge.exposeInMainWorld('api', {
   perfilRenomear: (p) => ipcRenderer.invoke('perfil:renomear', p),
   perfilTrocarSenha: (p) => ipcRenderer.invoke('perfil:trocarSenha', p),
   perfilRemover: (id) => ipcRenderer.invoke('perfil:remover', id),
+  // S10 — modo família (marca perfil compartilhado) e sync de pasta externa.
+  perfilFamiliar: (id, ativa) => ipcRenderer.invoke('perfil:familiar', { id, ativa }),
+  perfilSincronizarPasta: (destino) => ipcRenderer.invoke('perfil:sincronizar-pasta', destino),
+  // S10 — diálogo do SO para escolher pasta de destino do sync.
+  selecionarPasta: () => ipcRenderer.invoke('app:selecionar-pasta'),
   // ---- Atualização do sistema ----
   updateBaixar: () => ipcRenderer.invoke('update:baixar'),
   updateInstalarAgora: () => ipcRenderer.invoke('update:instalar-agora'),

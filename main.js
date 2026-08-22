@@ -142,6 +142,15 @@ function saveToDB(data) {
       conteudo = cripto.criptografar(senhaSessao, conteudo);
     }
     salvarArquivoAtomico(dbFile, conteudo);
+    // B10 (S8): grava sidecar de integridade SHA-256 do conteúdo salvo.
+    // Não-bloqueante: falha de escrita do sidecar não invalida o salvamento.
+    try {
+      const hash = cripto.sha256Arquivo(conteudo);
+      const hashFile = dbFile + '.sha256';
+      fs.writeFileSync(hashFile, hash, 'utf8');
+    } catch (_) {
+      /* ignora falha do sidecar de integridade */
+    }
     console.log(
       '[DB] ✓ Dados salvos (' +
         conteudo.length +
@@ -181,6 +190,24 @@ function loadFromDB() {
     throw new Error('formato inválido (sem dividas/pagamentos)');
   };
   try {
+    // B10 (S8): verifica integridade contra o sidecar SHA-256 gravado no save.
+    // Apenas AVISA (não bloqueia) — o fluxo de recuperação de backup abaixo
+    // entra em ação se o parse falhar de facto.
+    try {
+      const hashFile = dbFile + '.sha256';
+      if (fs.existsSync(hashFile)) {
+        const content = fs.readFileSync(dbFile, 'utf8');
+        const esperado = fs.readFileSync(hashFile, 'utf8').trim();
+        const atual = cripto.sha256Arquivo(content);
+        if (atual !== esperado) {
+          console.warn(
+            '[DB] ⚠ Integridade: hash SHA-256 do arquivo divergiu do sidecar (possível corrupção de disco).'
+          );
+        }
+      }
+    } catch (_) {
+      /* ignora falha de leitura do sidecar */
+    }
     const parsed = ler(dbFile);
     if (parsed && parsed.__criptografado) return { __criptografado: true };
     console.log('[DB] ✓ Dados carregados:', parsed.dividas.length, 'dívidas');
@@ -378,6 +405,16 @@ ipcMain.handle('perfil:remover', async (_evt, id) => {
   return r;
 });
 
+// S10 — Modo família: marca/desmarca um perfil como compartilhado.
+ipcMain.handle('perfil:familiar', async (_evt, { id, ativa }) => {
+  return perfis.definirFamiliar(userDataPath, id, ativa);
+});
+
+// S10 — Sync de pasta: espelha os perfis para um destino externo (nuvem).
+ipcMain.handle('perfil:sincronizar-pasta', async (_evt, destino) => {
+  return perfis.sincronizarPasta(userDataPath, destino);
+});
+
 ipcMain.handle('dados:salvar-agora', async (_evt, data) => {
   console.log('[IPC] dados:salvar-agora - SALVANDO IMEDIATAMENTE');
   const ok = saveToDB(data);
@@ -421,6 +458,20 @@ ipcMain.handle('dados:backup-info', () => {
     return { existe: true, modificadoEm: stat.mtime.toISOString(), tamanho: stat.size };
   } catch (err) {
     return { existe: false, erro: err.message };
+  }
+});
+
+// S10 — diálogo do SO para escolher uma pasta de destino (sync de perfis).
+ipcMain.handle('app:selecionar-pasta', async () => {
+  try {
+    const resultado = dialog.showOpenDialogSync(mainWin, {
+      title: 'Selecionar pasta de sincronização',
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (Array.isArray(resultado) && resultado.length) return resultado[0];
+    return null;
+  } catch (e) {
+    return null;
   }
 });
 
