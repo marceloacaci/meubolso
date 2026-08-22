@@ -30,6 +30,19 @@ function numDinheiro(v) {
   return Math.round((Number(v) || 0) * 100) / 100;
 }
 
+// Data local (fuso do SO) no formato YYYY-MM-DD, SEM conversão UTC.
+// Corrige o defeito D-01 (C12): `new Date().toISOString().slice(0,10)` usava
+// UTC e, perto da meia-noite no Brasil (UTC−3), apontava o dia SEGUINTE,
+// deslocando o cálculo de vencimento/atraso. Aqui usamos getFullYear/getMonth/
+// getDate (horário local) — 23h30 em Brasília devolve o dia corrente.
+function hojeLocal() {
+  const d = new Date();
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
 // ============================================================
 // FINANCEIRO
 // ============================================================
@@ -466,6 +479,7 @@ const API = {
   ordenarDividas,
   ordenarPagamentos,
   paginar,
+  hojeLocal,
 };
 
 // Anexa ao global (window no browser / globalThis no Node) para app.js continuar

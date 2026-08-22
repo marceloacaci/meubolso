@@ -41,16 +41,10 @@ const fmtData = (iso) => {
   return `${d}/${m}/${a}`;
 };
 // Data de HOJE no fuso LOCAL (não UTC). Motivo: `new Date().toISOString()`
-// devolve a data em UTC; logo após a meia-noite local (ex.: 23h30 em brasília,
-// UTC−3) ela já aponta o dia SEGUINTE, fazendo pagamentos e vencimentos baterem
-// no dia errado (defeito D-01 do AS-BUILT §8.1).
-const hoje = () => {
-  const d = new Date();
-  const ano = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const dia = String(d.getDate()).padStart(2, '0');
-  return `${ano}-${mes}-${dia}`;
-};
+// Data de hoje em fuso LOCAL (não UTC), formato YYYY-MM-DD.
+// Usa hojeLocal() de src/dominio.js (anexada a globalThis) — corrige o
+// defeito D-01 (C12): evita que 23h30 em Brasília aponte o dia seguinte.
+const hoje = hojeLocal;
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
 // ---------- Dinheiro (defeito D-02 do AS-BUILT §8.1) ----------
