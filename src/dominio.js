@@ -326,6 +326,61 @@ function recalcularHistorico(historico) {
 }
 
 // ============================================================
+// S9 — HÁBITO & RETENÇÃO (streak, XP de consistência, desbloqueios)
+// ============================================================
+
+// Formata Date -> YYYY-MM-DD em fuso LOCAL (igual a hojeLocal, sem UTC).
+function _dataLocal(d) {
+  const a = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${a}-${m}-${dia}`;
+}
+
+// E2 — Streak de dias SEGUIDOS sem nenhuma dívida em atraso, terminando em
+// `hojeStr` (YYYY-MM-DD). `diasComAtraso` = array/Set de 'YYYY-MM-DD' onde
+// houve ao menos uma parcela vencida. Se hoje está em atraso, o streak de hoje
+// é 0 (a contagem de dias "limpos" recua para ontem). Guarda contra loop infinito.
+function streakDiasSemAtraso(diasComAtraso, hojeStr) {
+  const set = new Set(diasComAtraso || []);
+  const hoje = new Date(`${hojeStr}T00:00:00`);
+  if (isNaN(hoje.getTime())) return 0;
+  let streak = 0;
+  let d = new Date(hoje);
+  while (streak <= 3650) {
+    if (set.has(_dataLocal(d))) break; // dia com atraso quebra a sequência
+    streak++;
+    d.setDate(d.getDate() - 1); // recua um dia
+  }
+  return streak;
+}
+
+// E3 — XP de consistência: bónus por manter o streak. Não-linear e com teto
+// (30 dias) para não inflar o nível sozinho. Dia 1 = 5 XP, +2 por dia seguinte.
+function xpConsistencia(streak) {
+  const s = Math.max(0, Math.min(30, Number(streak) || 0));
+  if (s <= 0) return 0;
+  return 5 + (s - 1) * 2;
+}
+
+// B5 — Ações que desbloqueiam painéis de gamificação. Recebe um estado mínimo
+// (flags) e devolve a lista de ações com `feito` (bool). Função pura/testável.
+function acoesDesbloqueio(estado) {
+  const e = estado || {};
+  return [
+    { id: 'primeira-divida', feito: !!e.temDivida, acao: 'Cadastre sua primeira dívida' },
+    { id: 'primeiro-pagamento', feito: !!e.temPagamento, acao: 'Registre um pagamento' },
+    { id: 'carteira', feito: !!e.temCarteira, acao: 'Crie uma carteira' },
+    { id: 'meta', feito: !!e.temMeta, acao: 'Defina uma meta financeira' },
+  ];
+}
+
+// B5 — quantas ações de desbloqueio já foram concluídas.
+function desbloqueiosConcluidos(acoes) {
+  return (acoes || []).filter((a) => a.feito).length;
+}
+
+// ============================================================
 // SPRINT 5 — Busca, filtros, ordenação e paginação (funções puras)
 // ============================================================
 
@@ -490,6 +545,10 @@ const API = {
   ordenarPagamentos,
   paginar,
   hojeLocal,
+  streakDiasSemAtraso,
+  xpConsistencia,
+  acoesDesbloqueio,
+  desbloqueiosConcluidos,
 };
 
 // Anexa ao global (window no browser / globalThis no Node) para app.js continuar
