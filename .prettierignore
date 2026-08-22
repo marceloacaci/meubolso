@@ -1,0 +1,15 @@
+# Dependências e builds (não formatar)
+node_modules/
+dist/
+coverage/
+build/
+*.ico
+
+# Bibliotecas de terceiros (minificadas) — não formatar
+vendor/
+
+# Lockfile gerado pelo npm
+package-lock.json
+
+# Documentação (evita diffs grandes não-relacionados a código)
+docs/

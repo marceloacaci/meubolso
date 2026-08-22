@@ -13,6 +13,8 @@
   "scripts": {
     "start": "electron .",
     "test": "vitest run",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
+    "lint": "prettier --check \"**/*.{js,json,md}\"",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win",
     "dist:linux": "electron-builder --linux",
@@ -94,6 +96,7 @@
     "electron": "^43.2.0",
     "electron-builder": "^26.15.3",
     "jsdom": "^30.0.1",
+    "prettier": "^3.3.3",
     "vitest": "^4.1.10"
   },
   "dependencies": {

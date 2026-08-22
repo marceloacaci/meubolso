@@ -51,4 +51,10 @@ function eArquivoCriptografado(conteudo) {
   return typeof conteudo === 'string' && conteudo.startsWith(PREFIXO + ':');
 }
 
-module.exports = { criptografar, descriptografar, eArquivoCriptografado, PREFIXO };
+module.exports = { criptografar, descriptografar, eArquivoCriptografado, PREFIXO, sha256Arquivo };
+
+// B10 (S8): hash SHA-256 do conteúdo do arquivo de dados, para detecção de
+// corrupção ANTES de exibir. Função pura e testável (node:crypto).
+function sha256Arquivo(conteudo) {
+  return crypto.createHash('sha256').update(String(conteudo), 'utf8').digest('hex');
+}

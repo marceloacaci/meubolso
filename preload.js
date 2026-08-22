@@ -9,18 +9,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 // plano via JSON. JSON.stringify funciona normalmente em Proxies reativos.
 function paraPlano(data) {
   if (data === null || typeof data !== 'object') return data;
-  try { return JSON.parse(JSON.stringify(data)); } catch (_) { return data; }
+  try {
+    return JSON.parse(JSON.stringify(data));
+  } catch (_) {
+    return data;
+  }
 }
 
 contextBridge.exposeInMainWorld('api', {
   carregar: () => ipcRenderer.invoke('dados:carregar'),
-  // salvar() agora salva IMEDIATAMENTE (sem debounce) — chama salvarAgora internamente
-  salvar: (data) => ipcRenderer.invoke('dados:salvar-agora', paraPlano(data)),
+  // salvarAgora(): grava IMEDIATAMENTE (sem debounce) o plano de dados.
+  // Expõe um único nome (S8-C10: unificado; app.js usa este).
   salvarAgora: (data) => ipcRenderer.invoke('dados:salvar-agora', paraPlano(data)),
   caminho: () => ipcRenderer.invoke('dados:caminho'),
   sistemaInfo: () => ipcRenderer.invoke('sistema:info'),
   exportar: () => ipcRenderer.invoke('dados:exportar'),
-  exportarCSV: (conteudo, nomeSugerido) => ipcRenderer.invoke('dados:exportar-csv', conteudo, nomeSugerido),
+  exportarCSV: (conteudo, nomeSugerido) =>
+    ipcRenderer.invoke('dados:exportar-csv', conteudo, nomeSugerido),
   exportarPDF: (nomeSugerido) => ipcRenderer.invoke('dados:exportar-pdf', nomeSugerido),
   importar: () => ipcRenderer.invoke('dados:importar'),
   restaurar: () => ipcRenderer.invoke('dados:restaurar'),
@@ -56,5 +61,5 @@ contextBridge.exposeInMainWorld('api', {
     const wrapper = (_e, payload) => cb(payload);
     ipcRenderer.on(canal, wrapper);
     return () => ipcRenderer.removeListener(canal, wrapper);
-  }
+  },
 });
