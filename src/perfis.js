@@ -153,6 +153,54 @@ function migrarLegado(base, nomePadrao) {
   return { ok: true, migrou: true, id: r.id, nome };
 }
 
+// ============================================================
+// S10 — Multiperfis 2.0 (sync de pasta + modo família)
+// ============================================================
+
+// Sync de pasta: espelha o índice e os arquivos de perfis para um destino
+// externo (ex.: pasta de nuvem/Dropbox). Faz cópia fiel (perfil a perfil),
+// criando a subpasta perfis/ no destino. Retorna { ok, copiados, erro? }.
+function sincronizarPasta(base, destino) {
+  if (!destino) return { ok: false, erro: 'destino vazio' };
+  try {
+    fs.mkdirSync(path.join(destino, 'perfis'), { recursive: true });
+    let copiados = 0;
+    const indice = path.join(base, 'perfis.json');
+    if (fs.existsSync(indice)) {
+      fs.copyFileSync(indice, path.join(destino, 'perfis.json'));
+      copiados++;
+    }
+    const dirPerfis = path.join(base, 'perfis');
+    if (fs.existsSync(dirPerfis)) {
+      for (const f of fs.readdirSync(dirPerfis)) {
+        if (f.startsWith('perfil-') && f.endsWith('.json')) {
+          fs.copyFileSync(path.join(dirPerfis, f), path.join(destino, 'perfis', f));
+          copiados++;
+        }
+      }
+    }
+    return { ok: true, copiados };
+  } catch (e) {
+    return { ok: false, erro: e.message };
+  }
+}
+
+// Modo família: marca/desmarca um perfil como compartilhado (família).
+function definirFamiliar(base, id, ativa) {
+  const indice = lerIndice(base);
+  const p = indice.perfis.find((x) => x.id === id);
+  if (!p) return { ok: false, erro: 'perfil inexistente' };
+  p.familiar = !!ativa;
+  salvarIndice(base, indice);
+  return { ok: true };
+}
+
+// Lista os perfis marcados como família.
+function perfisFamiliares(base) {
+  const indice = lerIndice(base);
+  return indice.perfis.filter((p) => p.familiar);
+}
+
 module.exports = {
   slugify,
   caminhoPerfil,
@@ -164,4 +212,7 @@ module.exports = {
   marcarCripto,
   removerPerfil,
   migrarLegado,
+  sincronizarPasta,
+  definirFamiliar,
+  perfisFamiliares,
 };
