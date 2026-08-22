@@ -25,4 +25,4 @@ O tema é pertinente ao curso de ADS por articular diversas áreas da grade: pro
 
 ---
 
-*Documento elaborado para atividade de TCC — entrega conforme cronograma da disciplina.*
+_Documento elaborado para atividade de TCC — entrega conforme cronograma da disciplina._

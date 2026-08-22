@@ -13,15 +13,23 @@ window.__mbRender.sobre = function renderSobre() {
     </div>`;
 
   const techs = [
-    { ico: ICON.raio, nome: 'Electron', desc: t('sobre.versaoElectron') + (info.electron ? ' ' + info.electron : '') },
-    { ico: ICON.nodejs, nome: 'Node.js', desc: t('sobre.versaoNode') + (info.node ? ' ' + info.node : '') },
+    {
+      ico: ICON.raio,
+      nome: 'Electron',
+      desc: t('sobre.versaoElectron') + (info.electron ? ' ' + info.electron : ''),
+    },
+    {
+      ico: ICON.nodejs,
+      nome: 'Node.js',
+      desc: t('sobre.versaoNode') + (info.node ? ' ' + info.node : ''),
+    },
     { ico: ICON.globo, nome: 'Chromium', desc: info.chrome ? 'v' + info.chrome : 'Browser engine' },
     { ico: ICON.javascript, nome: 'JavaScript (ES2022)', desc: 'Vanilla JS' },
     { ico: ICON.bootstrap, nome: 'Bootstrap 5.3', desc: t('sobre.bootstrap') },
     { ico: ICON.cadeado, nome: 'Context Isolation', desc: 'Electron preload + ipcRenderer' },
     { ico: ICON.engrenagem, nome: 'Vue 3', desc: t('techVue') },
     { ico: ICON.documento, nome: 'SQLite', desc: t('techSQLite') },
-    { ico: ICON.grafico || ICON.relatorio, nome: 'Chart.js', desc: t('techChart') }
+    { ico: ICON.grafico || ICON.relatorio, nome: 'Chart.js', desc: t('techChart') },
   ];
 
   return `
@@ -55,10 +63,14 @@ window.__mbRender.sobre = function renderSobre() {
       <section class="config-secao sobre-secao">
         <h3>${ICON.ferramenta} ${t('sobre.tech')}</h3>
         <ul class="list-group">
-          ${techs.map(te => `
+          ${techs
+            .map(
+              (te) => `
             <li class="list-group-item d-flex align-items-center gap-3"><span class="sobre-tech-ico">${te.ico}</span>
               <span class="sobre-tech-nome">${te.nome}</span>
-              <span class="sobre-tech-desc ms-auto">${escapeHtml(te.desc)}</span></li>`).join('')}
+              <span class="sobre-tech-desc ms-auto">${escapeHtml(te.desc)}</span></li>`
+            )
+            .join('')}
         </ul>
       </section>
 
@@ -93,8 +105,7 @@ window.__mbRender.sobre = function renderSobre() {
 
     </div>
   `;
-}
-;
+};
 
 /* View "Sobre" como componente Vue (Vue é DONO da view).
  * O renderSobre() depende de _sobreInfoCache (preenchido via IPC).
@@ -111,8 +122,10 @@ window.__mbRender.sobre = function renderSobre() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.sobre;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

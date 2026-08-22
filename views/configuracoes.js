@@ -3,10 +3,15 @@
 // gerarInsights, window.api, etc.) e registra window.__mbRender.configuracoes.
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.configuracoes = function renderConfiguracoes() {
-  const fs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) || 1;
+  const fs =
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-font-scale')) ||
+    1;
   const tamFonte = fs > 1.2 ? t('fonte.extra') : fs > 1.05 ? t('fonte.grande') : t('fonte.normal');
   // Preferências de notificação (S7): garante existência com default 5min.
-  const prefsNotif = (estado.configuracoes && estado.configuracoes.notificacoes) || { ativo: true, intervaloMin: 5 };
+  const prefsNotif = (estado.configuracoes && estado.configuracoes.notificacoes) || {
+    ativo: true,
+    intervaloMin: 5,
+  };
   const notif = { ativo: prefsNotif.ativo !== false, intervaloMin: prefsNotif.intervaloMin || 5 };
   return `
     <div class="page-header"><h2>${ICON.config} ${t('config.titulo')}</h2></div>
@@ -99,9 +104,11 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           <h3>${t('cripto.titulo')}</h3>
           <p class="text-secondary small">${t('cripto.descricao')}</p>
           <div class="card-botoes">
-            ${(estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa)
-              ? `<button class="gear-opt" data-acao="cripto-desativar" title="${t('title.criptoDesativar')}"><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span> ${t('cripto.desativar')}</button>`
-              : `<button class="gear-opt" data-acao="cripto-ativar" title="${t('title.criptoAtivar')}"><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span> ${t('cripto.ativar')}</button>`}
+            ${
+              estado.configuracoes.criptografia && estado.configuracoes.criptografia.ativa
+                ? `<button class="gear-opt" data-acao="cripto-desativar" title="${t('title.criptoDesativar')}"><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span> ${t('cripto.desativar')}</button>`
+                : `<button class="gear-opt" data-acao="cripto-ativar" title="${t('title.criptoAtivar')}"><span class="cripto-ico cripto-ico-fechado">${ICON.cadeado}</span><span class="cripto-ico cripto-ico-aberto">${ICON.cadeadoAberto}</span> ${t('cripto.ativar')}</button>`
+            }
           </div>
         </section>
       </div>
@@ -110,22 +117,55 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
         <section class="config-secao h-100">
           <h3>${t('perfil.titulo')}</h3>
           ${(() => {
-            const info = (typeof window !== 'undefined' && window.__perfisInfo) || { ativo: null, perfis: [] };
+            const info = (typeof window !== 'undefined' && window.__perfisInfo) || {
+              ativo: null,
+              perfis: [],
+            };
             const perfis = info.perfis || [];
             const tag = t('perfil.atual') || 'Perfil atual';
             const txtTrocar = t('perfil.trocar');
             const txtGerenciar = t('perfil.gerenciar');
-            const itens = perfis.map(function (p) {
-              const ehAtivo = p.id === info.ativo;
-              const tagAtivo = ehAtivo ? ' <span class="perfil-ativo-tag">' + tag + '</span>' : '';
-              const acao = ehAtivo
-                ? '<button class="gear-opt" data-acao="gerenciar-perfil-ativo" title="' + txtGerenciar + '">' + txtGerenciar + '</button>'
-                : '<button class="gear-opt" data-acao="perfil-trocar" data-id="' + p.id + '" title="' + txtTrocar + '">' + txtTrocar + '</button>';
-              return '<li class="perfil-linha ' + (ehAtivo ? 'perfil-linha--ativo' : '') + '">' +
-                '<span class="perfil-nome">' + escapeHtml(p.nome) + tagAtivo + '</span>' + acao + '</li>';
-            }).join('');
+            const itens = perfis
+              .map(function (p) {
+                const ehAtivo = p.id === info.ativo;
+                const tagAtivo = ehAtivo
+                  ? ' <span class="perfil-ativo-tag">' + tag + '</span>'
+                  : '';
+                const acao = ehAtivo
+                  ? '<button class="gear-opt" data-acao="gerenciar-perfil-ativo" title="' +
+                    txtGerenciar +
+                    '">' +
+                    txtGerenciar +
+                    '</button>'
+                  : '<button class="gear-opt" data-acao="perfil-trocar" data-id="' +
+                    p.id +
+                    '" title="' +
+                    txtTrocar +
+                    '">' +
+                    txtTrocar +
+                    '</button>';
+                return (
+                  '<li class="perfil-linha ' +
+                  (ehAtivo ? 'perfil-linha--ativo' : '') +
+                  '">' +
+                  '<span class="perfil-nome">' +
+                  escapeHtml(p.nome) +
+                  tagAtivo +
+                  '</span>' +
+                  acao +
+                  '</li>'
+                );
+              })
+              .join('');
             const lista = itens || '<p class="modal-msg">' + (t('perfil.nenhum') || '') + '</p>';
-            const btnTrocar = '<div class="card-botoes"><button class="gear-opt" data-acao="perfil-selecionar" title="' + (t('perfil.selecioneMsg') || '') + '">' + (ICON.cadeado || '👥') + ' ' + txtTrocar + '</button></div>';
+            const btnTrocar =
+              '<div class="card-botoes"><button class="gear-opt" data-acao="perfil-selecionar" title="' +
+              (t('perfil.selecioneMsg') || '') +
+              '">' +
+              (ICON.cadeado || '👥') +
+              ' ' +
+              txtTrocar +
+              '</button></div>';
             return '<ul class="perfil-lista">' + lista + '</ul>' + btnTrocar;
           })()}
         </section>
@@ -145,8 +185,10 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.configuracoes;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

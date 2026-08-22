@@ -47,32 +47,39 @@ window.__mbRender.gamificacao = function renderGamificacao() {
   const log = `
     <section class="config-secao">
       <h3>${t('game.log')}</h3>
-      ${historico.length === 0 ? `<p class="stat-sub">${t('game.logVazio')}</p>` : `
+      ${
+        historico.length === 0
+          ? `<p class="stat-sub">${t('game.logVazio')}</p>`
+          : `
       <ul class="game-log">
-        ${historico.map(h => {
-          // Resolve ícone + nome (igual à lista de quests). 'xp.saldoAnterior' mantém o nome, mas traduzido.
-          const res = resolverMotivo(h.motivo);
-          let ico = '', nome;
-          if (res) {
-            ico = res.ico + ' ';
-            if (res.quest) {
-              nome = t(res.quest);
+        ${historico
+          .map((h) => {
+            // Resolve ícone + nome (igual à lista de quests). 'xp.saldoAnterior' mantém o nome, mas traduzido.
+            const res = resolverMotivo(h.motivo);
+            let ico = '',
+              nome;
+            if (res) {
+              ico = res.ico + ' ';
+              if (res.quest) {
+                nome = t(res.quest);
+              } else {
+                // Sem nome de quest (ex.: saldo anterior): traduz o próprio motivo (normalizado p/ chave).
+                nome = t(normalizarMotivoChave(h.motivo));
+              }
             } else {
-              // Sem nome de quest (ex.: saldo anterior): traduz o próprio motivo (normalizado p/ chave).
+              // Fallback: normaliza motivos legados (texto ou chave) para o texto traduzido.
               nome = t(normalizarMotivoChave(h.motivo));
             }
-          } else {
-            // Fallback: normaliza motivos legados (texto ou chave) para o texto traduzido.
-            nome = t(normalizarMotivoChave(h.motivo));
-          }
-          const motivoExibir = ico + escapeHtml(nome);
-          return `\n          <li>
+            const motivoExibir = ico + escapeHtml(nome);
+            return `\n          <li>
             <span class="game-log-motivo">${motivoExibir}</span>
             <span class="game-log-pontos ${h.pontos >= 0 ? 'pos' : 'neg'}">${h.pontos >= 0 ? '+' : ''}${h.pontos} XP</span>
             <span class="game-log-meta">${escapeHtml(h.horario || '')} · ${t('nivel.titulo')} ${h.nivel || '-'}</span>
           </li>`;
-        }).join('')}
-      </ul>`}
+          })
+          .join('')}
+      </ul>`
+      }
     </section>`;
 
   // --- Quests (desafios) que geram pontos ---
@@ -85,16 +92,20 @@ window.__mbRender.gamificacao = function renderGamificacao() {
     { ico: ICON.trofeu, tit: t('game.q.quitou'), pts: '+50 XP' },
     { ico: ICON.carteira, tit: t('game.q.novaCarteira'), pts: '+20 XP' },
     { ico: ICON.editarCarteira, tit: t('game.q.editarCarteira'), pts: '+5 XP' },
-    { ico: ICON.acesso, tit: t('game.q.acesso'), pts: '+3 XP' }
+    { ico: ICON.acesso, tit: t('game.q.acesso'), pts: '+3 XP' },
   ];
   const questsHtml = `
     <section class="config-secao">
       <h3>${t('game.quests')}</h3>
       <ul class="game-quests">
-        ${quests.map(q => `
+        ${quests
+          .map(
+            (q) => `
           <li><span class="game-quest-ico">${q.ico}</span>
             <span class="game-quest-tit">${q.tit}</span>
-            <span class="game-quest-pts">${q.pts}</span></li>`).join('')}
+            <span class="game-quest-pts">${q.pts}</span></li>`
+          )
+          .join('')}
       </ul>
     </section>`;
 
@@ -105,12 +116,14 @@ window.__mbRender.gamificacao = function renderGamificacao() {
       <table class="game-table">
         <thead><tr><th>${t('game.nivel')}</th><th>XP</th><th>${t('game.tituloNivel')}</th></tr></thead>
         <tbody>
-          ${NIVEIS.map(n => `
+          ${NIVEIS.map(
+            (n) => `
             <tr class="${n.nivel === nivel ? 'atual' : ''}">
               <td>${n.nivel}</td>
               <td>${n.xp}</td>
               <td>${tituloNivel(n.nivel)}</td>
-            </tr>`).join('')}
+            </tr>`
+          ).join('')}
         </tbody>
       </table>
     </section>`;
@@ -125,8 +138,7 @@ window.__mbRender.gamificacao = function renderGamificacao() {
       ${tabela}
     </div>
   `;
-}
-;
+};
 
 /* View "Gamificação" (Pontuação e Conquistas) como componente Vue (Vue é DONO da view). */
 (function () {
@@ -139,20 +151,26 @@ window.__mbRender.gamificacao = function renderGamificacao() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.gamificacao;
         return fn ? fn() : '';
-      }
+      },
     },
     // (Re)monta os gráficos APÓS o v-html ser aplicado no DOM (ver views/painel.js).
     // 'mounted' cobre abertura via setView; 'updated' cobre re-renderizações.
     mounted() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
     updated() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

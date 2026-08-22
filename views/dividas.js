@@ -9,29 +9,75 @@ window.__mbRender = window.__mbRender || {};
 // via handler inline (funciona em elementos v-html: o browser executa o global).
 function renderPainelFiltrosDividas() {
   const f = estado.filtro || {};
-  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro'].map(c =>
-    `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`).join('');
+  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro']
+    .map(
+      (c) =>
+        `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`
+    )
+    .join('');
   const optsStatus = [
     ['', t('filtro.todos')],
     ['emDia', t('filtro.emDia')],
     ['atrasado', t('filtro.atrasado')],
-    ['quitado', t('filtro.quitado')]
-  ].map(([v, l]) => `<option value="${v}"${f.status === v ? ' selected' : ''}>${l}</option>`).join('');
+    ['quitado', t('filtro.quitado')],
+  ]
+    .map(([v, l]) => `<option value="${v}"${f.status === v ? ' selected' : ''}>${l}</option>`)
+    .join('');
   const optsOrd = [
     ['descricao', t('ord.descricao')],
     ['credor', t('ord.credor')],
     ['total', t('ord.total')],
-    ['saldo', t('ord.saldo')]
-  ].map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`).join('');
+    ['saldo', t('ord.saldo')],
+  ]
+    .map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`)
+    .join('');
   const temFiltro = f.texto || f.categoria || f.status || f.periodo || f.periodoDe || f.periodoAte;
-  const tituloLimpar = temFiltro ? (t('filtro.limparTooltip') || 'Restaura todos os filtros') : (t('acao.limparFiltros') || 'Limpar filtros');
+  const tituloLimpar = temFiltro
+    ? t('filtro.limparTooltip') || 'Restaura todos os filtros'
+    : t('acao.limparFiltros') || 'Limpar filtros';
   const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
-  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const optDia = (sel) => { let o='<option value="">'+t('filtro.dia')+'</option>'; for(let i=1;i<=31;i++) o+='<option value="'+i+'"'+(sel==String(i)?' selected':'')+'>'+i+'</option>'; return o; };
-  const optMes = (sel) => { let o='<option value="">'+t('filtro.mes')+'</option>'; MESES.forEach((m,i)=>{ const v=String(i+1); o+='<option value="'+v+'"'+(sel==v?' selected':'')+'>'+m+'</option>'; }); return o; };
-  const optAno = (sel) => { let o='<option value="">'+t('filtro.ano')+'</option>'; for(let a=2020;a<=2035;a++) o+='<option value="'+a+'"'+(sel==String(a)?' selected':'')+'>'+a+'</option>'; return o; };
-  const deDia = f.periodoDeDia || (f.periodoDe||'').slice(8,10), deMes = f.periodoDeMes || (f.periodoDe||'').slice(5,7), deAno = f.periodoDeAno || (f.periodoDe||'').slice(0,4);
-  const ateDia = f.periodoAteDia || (f.periodoAte||'').slice(8,10), ateMes = f.periodoAteMes || (f.periodoAte||'').slice(5,7), ateAno = f.periodoAteAno || (f.periodoAte||'').slice(0,4);
+  const MESES = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
+  const optDia = (sel) => {
+    let o = '<option value="">' + t('filtro.dia') + '</option>';
+    for (let i = 1; i <= 31; i++)
+      o +=
+        '<option value="' + i + '"' + (sel == String(i) ? ' selected' : '') + '>' + i + '</option>';
+    return o;
+  };
+  const optMes = (sel) => {
+    let o = '<option value="">' + t('filtro.mes') + '</option>';
+    MESES.forEach((m, i) => {
+      const v = String(i + 1);
+      o += '<option value="' + v + '"' + (sel == v ? ' selected' : '') + '>' + m + '</option>';
+    });
+    return o;
+  };
+  const optAno = (sel) => {
+    let o = '<option value="">' + t('filtro.ano') + '</option>';
+    for (let a = 2020; a <= 2035; a++)
+      o +=
+        '<option value="' + a + '"' + (sel == String(a) ? ' selected' : '') + '>' + a + '</option>';
+    return o;
+  };
+  const deDia = f.periodoDeDia || (f.periodoDe || '').slice(8, 10),
+    deMes = f.periodoDeMes || (f.periodoDe || '').slice(5, 7),
+    deAno = f.periodoDeAno || (f.periodoDe || '').slice(0, 4);
+  const ateDia = f.periodoAteDia || (f.periodoAte || '').slice(8, 10),
+    ateMes = f.periodoAteMes || (f.periodoAte || '').slice(5, 7),
+    ateAno = f.periodoAteAno || (f.periodoAte || '').slice(0, 4);
   const selPeriodo = (prefixo, dia, mes, ano) => `
     <div class="d-flex gap-1">
       <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Dia">${optDia(dia)}</select>
@@ -103,11 +149,13 @@ window.__mbRender.dividas = function renderDividas() {
   lista = ordenarDividas(lista, f.ordenar || 'descricao', f.asc !== false);
   const pg = paginar(lista, f.pagina || 1, f.porPagina || 12);
 
-  const linhas = pg.itens.map(d => `
+  const linhas = pg.itens
+    .map(
+      (d) => `
     <tr>
       <td>
         <div class="fw-semibold">${escapeHtml(d.descricao)}</div>
-        <div class="text-secondary small">${escapeHtml(d.credor)} · ${(d.parcelas||[]).length} ${t('divida.parcelas')}${(d.parcelas||[]).some(p => (p.status || 'pendente') === 'atrasado') ? ' · <span class="text-danger fw-semibold">' + t('divida.comAtraso') + '</span>' : ''}${d.observacao ? ` · <span class="text-secondary">${escapeHtml(d.observacao)}</span>` : ''}</div>
+        <div class="text-secondary small">${escapeHtml(d.credor)} · ${(d.parcelas || []).length} ${t('divida.parcelas')}${(d.parcelas || []).some((p) => (p.status || 'pendente') === 'atrasado') ? ' · <span class="text-danger fw-semibold">' + t('divida.comAtraso') + '</span>' : ''}${d.observacao ? ` · <span class="text-secondary">${escapeHtml(d.observacao)}</span>` : ''}</div>
       </td>
       <td><span class="badge rounded-pill text-bg-secondary">${t(CATEGORIAS[d.categoria]?.label) || d.categoria}</span></td>
       <td class="text-end">${fmt.format(totalDivida(d))}</td>
@@ -118,9 +166,13 @@ window.__mbRender.dividas = function renderDividas() {
         <button class="gear-opt gear-opt--sm gear-opt--danger" data-acao="excluir-divida" data-id="${d.id}">${t('acao.excluir')}</button>
         <button class="btn btn-sm btn-primary" data-acao="gerenciar-pagamentos" data-id="${d.id}">${t('pagamento.gerenciar')}</button>
       </td>
-    </tr>`).join('');
+    </tr>`
+    )
+    .join('');
 
-  const paginacao = pg.totalPaginas > 1 ? `
+  const paginacao =
+    pg.totalPaginas > 1
+      ? `
     <div class="d-flex justify-content-between align-items-center mt-3">
       <span class="text-secondary small">${t('paginacao.mostrando')} ${pg.itens.length} / ${pg.total}</span>
       <div class="btn-group">
@@ -128,7 +180,8 @@ window.__mbRender.dividas = function renderDividas() {
         <span class="btn btn-sm btn-outline-secondary disabled">${pg.pagina} / ${pg.totalPaginas}</span>
         <button class="btn btn-sm btn-outline-secondary" ${pg.pagina >= pg.totalPaginas ? 'disabled' : ''} data-acao="pagina" data-pag="${pg.pagina + 1}">${t('paginacao.proxima')}</button>
       </div>
-    </div>` : '';
+    </div>`
+      : '';
 
   return `
     <div class="page-header">
@@ -170,8 +223,10 @@ window.__mbRender.dividas = function renderDividas() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.dividas;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

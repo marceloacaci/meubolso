@@ -6,19 +6,66 @@ window.__mbRender = window.__mbRender || {};
 
 function renderPainelFiltrosPagamentos() {
   const f = estado.filtro || {};
-  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro'].map(c =>
-    `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`).join('');
-  const optsDiv = estado.dividas.map(d =>
-    `<option value="${d.id}"${f.dividaId === d.id ? ' selected' : ''}>${escapeHtml(d.descricao)}</option>`).join('');
-  const temFiltro = f.texto || f.categoria || f.dividaId || f.periodo || f.periodoDe || f.periodoAte;
-  const tituloLimpar = temFiltro ? (t('filtro.limparTooltip') || 'Restaura todos os filtros') : (t('acao.limparFiltros') || 'Limpar filtros');
+  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro']
+    .map(
+      (c) =>
+        `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`
+    )
+    .join('');
+  const optsDiv = estado.dividas
+    .map(
+      (d) =>
+        `<option value="${d.id}"${f.dividaId === d.id ? ' selected' : ''}>${escapeHtml(d.descricao)}</option>`
+    )
+    .join('');
+  const temFiltro =
+    f.texto || f.categoria || f.dividaId || f.periodo || f.periodoDe || f.periodoAte;
+  const tituloLimpar = temFiltro
+    ? t('filtro.limparTooltip') || 'Restaura todos os filtros'
+    : t('acao.limparFiltros') || 'Limpar filtros';
   const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
-  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const optDia = (sel) => { let o='<option value="">'+t('filtro.dia')+'</option>'; for(let i=1;i<=31;i++) o+='<option value="'+i+'"'+(sel==String(i)?' selected':'')+'>'+i+'</option>'; return o; };
-  const optMes = (sel) => { let o='<option value="">'+t('filtro.mes')+'</option>'; MESES.forEach((m,i)=>{ const v=String(i+1); o+='<option value="'+v+'"'+(sel==v?' selected':'')+'>'+m+'</option>'; }); return o; };
-  const optAno = (sel) => { let o='<option value="">'+t('filtro.ano')+'</option>'; for(let a=2020;a<=2035;a++) o+='<option value="'+a+'"'+(sel==String(a)?' selected':'')+'>'+a+'</option>'; return o; };
-  const deDia = f.periodoDeDia || (f.periodoDe||'').slice(8,10), deMes = f.periodoDeMes || (f.periodoDe||'').slice(5,7), deAno = f.periodoDeAno || (f.periodoDe||'').slice(0,4);
-  const ateDia = f.periodoAteDia || (f.periodoAte||'').slice(8,10), ateMes = f.periodoAteMes || (f.periodoAte||'').slice(5,7), ateAno = f.periodoAteAno || (f.periodoAte||'').slice(0,4);
+  const MESES = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
+  const optDia = (sel) => {
+    let o = '<option value="">' + t('filtro.dia') + '</option>';
+    for (let i = 1; i <= 31; i++)
+      o +=
+        '<option value="' + i + '"' + (sel == String(i) ? ' selected' : '') + '>' + i + '</option>';
+    return o;
+  };
+  const optMes = (sel) => {
+    let o = '<option value="">' + t('filtro.mes') + '</option>';
+    MESES.forEach((m, i) => {
+      const v = String(i + 1);
+      o += '<option value="' + v + '"' + (sel == v ? ' selected' : '') + '>' + m + '</option>';
+    });
+    return o;
+  };
+  const optAno = (sel) => {
+    let o = '<option value="">' + t('filtro.ano') + '</option>';
+    for (let a = 2020; a <= 2035; a++)
+      o +=
+        '<option value="' + a + '"' + (sel == String(a) ? ' selected' : '') + '>' + a + '</option>';
+    return o;
+  };
+  const deDia = f.periodoDeDia || (f.periodoDe || '').slice(8, 10),
+    deMes = f.periodoDeMes || (f.periodoDe || '').slice(5, 7),
+    deAno = f.periodoDeAno || (f.periodoDe || '').slice(0, 4);
+  const ateDia = f.periodoAteDia || (f.periodoAte || '').slice(8, 10),
+    ateMes = f.periodoAteMes || (f.periodoAte || '').slice(5, 7),
+    ateAno = f.periodoAteAno || (f.periodoAte || '').slice(0, 4);
   const selPeriodo = (prefixo, dia, mes, ano) => `
     <div class="d-flex gap-1">
       <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Dia">${optDia(dia)}</select>
@@ -96,8 +143,8 @@ window.__mbRender.pagamentos = function renderPagamentos() {
   const blocoDivida = (d, pagosDesta) => {
     const r = resumoParcelas(d);
     const ordenados = pagosDesta.sort((a, b) => {
-      const na = (d.parcelas || []).find(pc => pc.id === a.parcelaId)?.numero || 0;
-      const nb = (d.parcelas || []).find(pc => pc.id === b.parcelaId)?.numero || 0;
+      const na = (d.parcelas || []).find((pc) => pc.id === a.parcelaId)?.numero || 0;
+      const nb = (d.parcelas || []).find((pc) => pc.id === b.parcelaId)?.numero || 0;
       return na - nb;
     });
     // Soma de pagamentos por parcela (para exibir saldo de cada parcela).
@@ -135,18 +182,23 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                 <th class="text-end">${t('col.acao')}</th>
               </tr></thead>
               <tbody>
-                ${(d.parcelas || []).map(parc => {
-                  const pagoParc = pagosPorParcela[parc.id] || 0;
-                  const restanteParc = (Number(parc.valor) || 0) - pagoParc;
-                  const pagosParc = porParcela[d.id + '|' + parc.id] || [];
-                  const acoes = pagosParc.map(p => `
+                ${(d.parcelas || [])
+                  .map((parc) => {
+                    const pagoParc = pagosPorParcela[parc.id] || 0;
+                    const restanteParc = (Number(parc.valor) || 0) - pagoParc;
+                    const pagosParc = porParcela[d.id + '|' + parc.id] || [];
+                    const acoes = pagosParc
+                      .map(
+                        (p) => `
                     <div class="d-flex gap-1 justify-content-end mb-1">
                       <button class="btn btn-sm btn-outline-secondary" data-acao="editar-pagamento" data-id="${p.id}">${t('acao.editar')}</button>
                       <button class="btn btn-sm btn-outline-danger" data-acao="excluir-pagamento" data-id="${p.id}">${t('acao.excluir')}</button>
-                    </div>`).join('');
-                  const registrar = `
+                    </div>`
+                      )
+                      .join('');
+                    const registrar = `
                     <button class="btn btn-sm btn-primary" data-acao="gerenciar-pagamentos" data-id="${d.id}">${t('pagamento.registrar')}</button>`;
-                  return `
+                    return `
                     <tr>
                       <td><div class="fw-semibold">${t('label.parcela')} ${parc.numero}</div>
                       <div class="text-secondary small">${escapeHtml(d.credor || '')}</div></td>
@@ -155,7 +207,8 @@ window.__mbRender.pagamentos = function renderPagamentos() {
                       <td>${restanteParc > 0 ? `<span class="text-danger">${fmt.format(restanteParc)}</span>` : `<span class="text-success">${t('pagamentos.quitada')}</span>`}</td>
                       <td class="text-end text-nowrap">${pagosParc.length ? acoes : registrar}</td>
                     </tr>`;
-                }).join('')}
+                  })
+                  .join('')}
               </tbody>
             </table>
           </div>
@@ -164,12 +217,16 @@ window.__mbRender.pagamentos = function renderPagamentos() {
   };
 
   const pg = paginar(idsComPagamento, f.pagina || 1, f.porPagina || 12);
-  const cartoes = pg.itens.map(id => {
-    const d = estado.dividas.find(x => x.id === id);
-    return d ? blocoDivida(d, porDivida[id]) : '';
-  }).join('');
+  const cartoes = pg.itens
+    .map((id) => {
+      const d = estado.dividas.find((x) => x.id === id);
+      return d ? blocoDivida(d, porDivida[id]) : '';
+    })
+    .join('');
 
-  const paginacao = pg.totalPaginas > 1 ? `
+  const paginacao =
+    pg.totalPaginas > 1
+      ? `
     <div class="d-flex justify-content-between align-items-center mt-3">
       <span class="text-secondary small">${t('paginacao.mostrando')} ${pg.itens.length} / ${pg.total}</span>
       <div class="btn-group">
@@ -177,7 +234,8 @@ window.__mbRender.pagamentos = function renderPagamentos() {
         <span class="btn btn-sm btn-outline-secondary disabled">${pg.pagina} / ${pg.totalPaginas}</span>
         <button class="btn btn-sm btn-outline-secondary" ${pg.pagina >= pg.totalPaginas ? 'disabled' : ''} data-acao="pagina" data-pag="${pg.pagina + 1}">${t('paginacao.proxima')}</button>
       </div>
-    </div>` : '';
+    </div>`
+      : '';
 
   return `
     <div class="page-header">
@@ -185,12 +243,16 @@ window.__mbRender.pagamentos = function renderPagamentos() {
       <button class="btn btn-primary" data-acao="novo-pagamento">${ICON.mais} ${t('pagamento.novo')}</button>
     </div>
     ${renderPainelFiltrosPagamentos()}
-    ${idsComPagamento.length === 0 ? `
+    ${
+      idsComPagamento.length === 0
+        ? `
       <div class="alert alert-secondary d-flex align-items-center gap-2" role="status">
         <span style="font-size:20px">${ICON.dinheiro}</span>
         <div>${t('filtro.nenhumResultado')}</div>
       </div>
-    ` : cartoes + paginacao}
+    `
+        : cartoes + paginacao
+    }
   `;
 };
 
@@ -205,8 +267,10 @@ window.__mbRender.pagamentos = function renderPagamentos() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.pagamentos;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

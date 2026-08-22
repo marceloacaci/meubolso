@@ -10,6 +10,7 @@ Release estável (antes `v2.0.0-rc`). Foco: hardening, acessibilidade, performan
 melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
 
 ### Adicionado
+
 - **S6-7 — Multiperfis:** seleção/troca de perfil, criptografia por perfil, tag "Ativo"
   no perfil efetivamente logado, card de usuário (busto SVG) na sidebar; Configurações
   Rápidas com barra minimalista de **Dados** (ícones Backup/Exportar/Importar/Restaurar)
@@ -30,13 +31,13 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
   - Checklist em `docs/auditoria/ACCESSIBILITY-WCAG21-AA.md`.
 - **S6-5 — Teste de carga:** `scripts/bench-carga.cjs` (500 dívidas / 5.000 pagamentos).
 - **S6-6 — Documentação:** `docs/ADR.md` (6 ADRs), CHANGELOG, As-Built e Cronograma atualizados.
-- **Lixeira (trash) durável (B6/B7):** exclusão passa a ser *soft-delete* para
+- **Lixeira (trash) durável (B6/B7):** exclusão passa a ser _soft-delete_ para
   dívidas (com pagamentos vinculados), carteiras, recorrentes e metas. Itens vão
   para `estado.lixeira` (persistido) e podem ser **restaurados** ou **excluídos
   definitivamente** (por item ou "Esvaziar tudo"). Botão "Lixeira" no grupo
   Sistema da navegação + badge de contagem. View com 4 seções (Dívidas,
   Carteiras, Recorrentes, Metas) e rótulos pt/en/es.
-  - *Regra de integridade:* nenhum dado é perdido na exclusão; o metadado
+  - _Regra de integridade:_ nenhum dado é perdido na exclusão; o metadado
     interno `_excluidoEm` não vaza para o estado ativo após restaurar.
 - **Separação de ambientes de dados (dev / portátil / instalado):** `initPaths()`
   em `main.js` agora grava em pastas distintas conforme o ambiente — desenvolvimento
@@ -47,14 +48,14 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
   caminho exato do arquivo de dados (pt/en/es).
 - **Sistema de atualização estilo comercial (B8):** ao detectar nova versão, o app
   exibe (1) modal **"Atualização disponível"** com versão, relatório de fix/atualizações
-  (release notes), tamanho e botões *Atualizar agora* / *Lembrar depois*; (2) modal de
+  (release notes), tamanho e botões _Atualizar agora_ / _Lembrar depois_; (2) modal de
   **progresso** com barra e percentual; (3) ao baixar, modal **"Reiniciar agora ou depois"**.
-  - *Instalado (NSIS):* usa `electron-updater` (auto-download desligado; o usuário decide);
+  - _Instalado (NSIS):_ usa `electron-updater` (auto-download desligado; o usuário decide);
     instala ao reiniciar. O `latest.yml` da release é requerido para o auto-update.
-  - *Portátil:* mecanismo próprio — baixa o asset `*-portable.exe` da última release
+  - _Portátil:_ mecanismo próprio — baixa o asset `*-portable.exe` da última release
     do GitHub e, ao reiniciar, um `.bat` auxiliar troca o executável e relança (sem
     download manual). Reaproveita os mesmos modais.
-  - *Migração de dados entre versões (instalado):* ao abrir versão nova, os dados da
+  - _Migração de dados entre versões (instalado):_ ao abrir versão nova, os dados da
     pasta da versão anterior são **copiados** para a atual (nunca movidos/apagados antes
     da cópia); pastas de versões obsoletas sem dados são removidas. Lógica em
     `src/caminhos-dados.js` (`executarMigracaoFS`, pura e testada) + 3 testes em
@@ -62,6 +63,7 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
     i18n pt/en/es (`upd.*`) e CSS em `styles.css`.
 
 ### Alterado
+
 - **S6-5 — Performance:** indexação de pagamentos por `dividaId` (`src/dominio.js`).
   `resumoParcelas` × 500 dívidas caiu de **93 ms → 4,7 ms** (~20×); todas as
   operações de domínio agora < 15 ms (limite do cronograma: 100 ms).
@@ -74,6 +76,7 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
   `barra-progresso`) que fazia a barra perder o gradiente verde.
 
 ### Segurança
+
 - **S6-1 — CSP sem `unsafe-eval`:** Vue 3 runtime-only + render functions
   (`vendor/vue.runtime.global.prod.js`); `script-src 'self'`.
 - **S6-2 — Auditoria XSS:** `escapeHtml()`/`escapeAttr()` sistemáticos em
@@ -86,6 +89,7 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
 ## [1.2.0] — 2026-08-14 (release estável)
 
 ### Adicionado (Sprint 5 — Funcionalidades II e UX)
+
 - Busca e filtros em Dívidas/Pagamentos (texto, categoria, status, período).
 - Exportar relatório em PDF e dados em CSV.
 - Notificações de vencimento (nativas do SO, 3 dias antes).
@@ -98,6 +102,7 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
 ## [1.1.0] — 2026-09 (release de refatoração)
 
 ### Adicionado (Sprint 3 — Refatoração do monólito)
+
 - Extração de i18n (`src/i18n/{pt,en,es}.js`).
 - Extração de gamificação para `src/dominio.js`.
 - Extração de modais para `src/ui/modais.js`.
@@ -109,6 +114,7 @@ melhorias de tema/UI (relevo raised, contraste absoluto, cabeçalho com relevo).
 ## [1.0.0] — Beta (base do cronograma)
 
 ### Adicionado (Sprints 1–2 — Fundação e Integridade)
+
 - Suíte Vitest + domínio financeiro extraído (S1).
 - Escrita atômica de arquivo + CI (S1-5/S1-6).
 - Schema versionado + migrações + validação (S2-1/2/3, depois simplificado).

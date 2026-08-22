@@ -17,7 +17,7 @@ Gerenciador de finanças pessoais **minimalista** para dívidas, empréstimos e 
 - **Vencimentos:** parcelas a vencer e em atraso, com dias de antecedência/atraso.
 - **Relatório:** resumo financeiro, dívidas em atraso e vencendo nos próximos 7 dias.
 - **Carteiras, Recorrentes & Metas:** gestão de saldos, despesas recorrentes e objetivos.
-- **Lixeira durável:** exclusão é *soft-delete* — restaure ou exclua definitivamente
+- **Lixeira durável:** exclusão é _soft-delete_ — restaure ou exclua definitivamente
   (dívidas + pagamentos, carteiras, recorrentes e metas). Nunca se perde um dado.
 - **Criptografia opcional (AES-256-GCM):** ative uma senha para cifrar o arquivo local.
 - **Multiperfis (S6-4):** separe dívidas e dados por perfil, com troca e criptografia
@@ -65,11 +65,11 @@ npm run dist:win   # gera o instalador Windows (.exe) via electron-builder
 
 O MeuBolso separa os dados de cada forma de execução para **não misturar entradas**:
 
-| Ambiente | Como roda | Onde ficam os dados |
-|----------|-----------|--------------------|
-| **Desenvolvimento** | `npm start` (código-fonte) | `%APPDATA%\meubolso\meubolso.json` |
-| **Portátil** | `MeuBolso-*-portable.exe` baixado | na **própria pasta do executável** (`meubolso.json` ao lado do `.exe`) |
-| **Instalado** | `MeuBolso-*-setup.exe` instalado | `%APPDATA%\meubolso\<versão>\meubolso.json` (isolado por versão) |
+| Ambiente            | Como roda                         | Onde ficam os dados                                                    |
+| ------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| **Desenvolvimento** | `npm start` (código-fonte)        | `%APPDATA%\meubolso\meubolso.json`                                     |
+| **Portátil**        | `MeuBolso-*-portable.exe` baixado | na **própria pasta do executável** (`meubolso.json` ao lado do `.exe`) |
+| **Instalado**       | `MeuBolso-*-setup.exe` instalado  | `%APPDATA%\meubolso\<versão>\meubolso.json` (isolado por versão)       |
 
 A página **Sobre** mostra o ambiente ativo e o caminho exato do arquivo de dados.
 Para mover dados entre ambientes, use **Exportar/Importar** (CSV/JSON) na interface.
@@ -88,22 +88,23 @@ fix/atualizações, tamanho), **barra de progresso** durante o download e, ao co
   Os dados ficam na própria pasta do executável e são preservados.
 
 ### Migração de dados entre versões (instalado)
+
 Os dados do instalado ficam em `%APPDATA%\meubolso\<versão>\`. Ao abrir uma versão
 nova, os dados da pasta anterior são **copiados** para a atual (nunca apagados antes
 da cópia) e pastas de versões obsoletas sem dados são removidas. Nada se perde ao atualizar.
 
 ## Roadmap de Sprints
 
-| Sprint | Tema | Status | % |
-|--------|------|--------|---|
-| S1 | Fundação & integridade de dados | FEITO | 100% |
-| S2 | Recuperação & backups | FEITO | 100% |
-| S3 | Extração de views (Vue 3) | FEITO | 100% |
-| S4 | Funcionalidades II & UX (carteiras, recorrentes, metas) | FEITO | 100% |
-| S5 | Busca, filtros, exportação, notificações | FEITO | 100% |
-| S6 | Hardening & saída do Beta | FEITO | 100% |
-| S6-4 | Multiperfis (troca de perfil + criptografia por perfil) | FEITO | 100% |
-| B6/B7 | Lixeira (trash) durável | FEITO | 100% |
+| Sprint | Tema                                                    | Status | %    |
+| ------ | ------------------------------------------------------- | ------ | ---- |
+| S1     | Fundação & integridade de dados                         | FEITO  | 100% |
+| S2     | Recuperação & backups                                   | FEITO  | 100% |
+| S3     | Extração de views (Vue 3)                               | FEITO  | 100% |
+| S4     | Funcionalidades II & UX (carteiras, recorrentes, metas) | FEITO  | 100% |
+| S5     | Busca, filtros, exportação, notificações                | FEITO  | 100% |
+| S6     | Hardening & saída do Beta                               | FEITO  | 100% |
+| S6-4   | Multiperfis (troca de perfil + criptografia por perfil) | FEITO  | 100% |
+| B6/B7  | Lixeira (trash) durável                                 | FEITO  | 100% |
 
 ## Qualidade & verificação
 

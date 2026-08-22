@@ -9,39 +9,47 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
   const modalCard = document.querySelector('.modal-card');
   modalCard.classList.remove('modal-card--gestao'); // garante modal padrão
 
-  const escapeAttr = (s) => String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escapeAttr = (s) =>
+    String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
 
-  const camposHtml = campos.map(c => {
-  let inputHtml;
-  if (c.type === 'select') {
-    const optionsHtml = c.options.map(opt => {
-      const sel = String(opt.value) === String(c.value) ? ' selected' : '';
-      return `<option value="${escapeAttr(opt.value)}"${sel}>${escapeHtml(opt.label)}</option>`;
-    }).join('');
-    inputHtml = `<select class="form-select" name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
-  } else if (c.type === 'checkbox') {
-    inputHtml = `<div class="form-check"><input class="form-check-input" type="checkbox" name="${escapeAttr(c.name)}"${c.value ? ' checked' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} /></div>`;
-  } else if (c.type === 'textarea') {
-    inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
-  } else if (c.type === 'password') {
-    // Campo de senha. O toggle "Visualizar senha" é ÚNICO por modal (não por
-    // campo) e controla todos os inputs password — evitando caixas duplicadas
-    // quando há senha + confirmar senha. Veja a montagem após os campos.
-    inputHtml = `<div class="senha-wrap">
+  const camposHtml = campos
+    .map((c) => {
+      let inputHtml;
+      if (c.type === 'select') {
+        const optionsHtml = c.options
+          .map((opt) => {
+            const sel = String(opt.value) === String(c.value) ? ' selected' : '';
+            return `<option value="${escapeAttr(opt.value)}"${sel}>${escapeHtml(opt.label)}</option>`;
+          })
+          .join('');
+        inputHtml = `<select class="form-select" name="${escapeAttr(c.name)}"${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${optionsHtml}</select>`;
+      } else if (c.type === 'checkbox') {
+        inputHtml = `<div class="form-check"><input class="form-check-input" type="checkbox" name="${escapeAttr(c.name)}"${c.value ? ' checked' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} /></div>`;
+      } else if (c.type === 'textarea') {
+        inputHtml = `<textarea class="form-control" name="${escapeAttr(c.name)}" rows="3"${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''}>${escapeHtml(c.value || '')}</textarea>`;
+      } else if (c.type === 'password') {
+        // Campo de senha. O toggle "Visualizar senha" é ÚNICO por modal (não por
+        // campo) e controla todos os inputs password — evitando caixas duplicadas
+        // quando há senha + confirmar senha. Veja a montagem após os campos.
+        inputHtml = `<div class="senha-wrap">
       <input class="form-control" type="password" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />
     </div>`;
-  } else {
-    inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
-  }
-  return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
-  }).join('');
+      } else {
+        inputHtml = `<input class="form-control" type="${escapeAttr(c.type || 'text')}" name="${escapeAttr(c.name)}"${c.value !== undefined && c.value !== null ? ` value="${escapeAttr(c.value)}"` : ''}${c.placeholder ? ` placeholder="${escapeAttr(c.placeholder)}"` : ''}${c.required ? ' required' : ''}${c.step ? ` step="${escapeAttr(c.step)}"` : ''}${c.inputmode ? ` inputmode="${escapeAttr(c.inputmode)}"` : ''}${c.id ? ` id="${escapeAttr(c.id)}"` : ''} />`;
+      }
+      return `<div class="mb-3"><label class="form-label">${escapeHtml(c.label)}</label>${inputHtml}</div>`;
+    })
+    .join('');
 
   const msgHtml = o.mensagem ? `<p class="modal-msg">${escapeHtml(o.mensagem)}</p>` : '';
-  const acaoSecHtml = (o.acaoSecundaria && o.acaoSecundaria.texto)
-    ? `<button type="button" id="btn-acao-secundaria" class="btn btn-ghost">${escapeHtml(o.acaoSecundaria.texto)}</button>`
-    : '';
+  const acaoSecHtml =
+    o.acaoSecundaria && o.acaoSecundaria.texto
+      ? `<button type="button" id="btn-acao-secundaria" class="btn btn-ghost">${escapeHtml(o.acaoSecundaria.texto)}</button>`
+      : '';
   const customHtml = o.customHtml ? o.customHtml : '';
 
   modalCard.innerHTML = `
@@ -76,7 +84,10 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     const valores = {};
     campos.forEach((c) => {
       const el = form.querySelector(`[name="${c.name}"]`);
-      if (!el) { valores[c.name] = ''; return; }
+      if (!el) {
+        valores[c.name] = '';
+        return;
+      }
       if (c.type === 'checkbox') valores[c.name] = !!el.checked;
       else valores[c.name] = el.value ?? '';
     });
@@ -91,7 +102,11 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
   // Botão de ação secundária (ex.: "Entrar sem senha" no desbloqueio).
   if (o.acaoSecundaria && o.acaoSecundaria.aoClicar) {
     const btnSec = document.getElementById('btn-acao-secundaria');
-    if (btnSec) btnSec.onclick = () => { fecharModal(); o.acaoSecundaria.aoClicar(); };
+    if (btnSec)
+      btnSec.onclick = () => {
+        fecharModal();
+        o.acaoSecundaria.aoClicar();
+      };
   }
   // Toggle "Visualizar senha" ÚNICO por modal: controla TODOS os inputs password
   // do formulário (senha + confirmar senha) com uma só caixa. Inserido uma única
@@ -105,7 +120,9 @@ function abrirModal(titulo, campos, onSubmit, opcoes) {
     if (campos) campos.insertAdjacentElement('afterend', toggle);
     const chk = toggle.querySelector('.senha-ver-check');
     chk.onclick = () => {
-      senhasDoForm.forEach(inp => { inp.type = chk.checked ? 'text' : 'password'; });
+      senhasDoForm.forEach((inp) => {
+        inp.type = chk.checked ? 'text' : 'password';
+      });
     };
   }
   // Callback de montagem (ex.: seleção de perfil com lista customizada).
@@ -146,8 +163,9 @@ function capturarModalSnapshot() {
   if (!modal || modal.classList.contains('hidden')) return '';
   const campos = modal.querySelectorAll('input, select, textarea');
   return Array.from(campos)
-    .map(e => `${e.name || e.id || ''}=${e.value || ''}`)
-    .sort().join('|');
+    .map((e) => `${e.name || e.id || ''}=${e.value || ''}`)
+    .sort()
+    .join('|');
 }
 function modalFoiAlterado() {
   if (!modalSnapshotInicial) return false;
@@ -155,14 +173,17 @@ function modalFoiAlterado() {
 }
 // Fecha o modal, mas pergunta confirmação se houve alterações não salvas.
 function tentarFecharModal() {
-  if (!modalFoiAlterado()) { fecharModal(); return; }
+  if (!modalFoiAlterado()) {
+    fecharModal();
+    return;
+  }
   abrirConfirmacao({
     titulo: t('acao.fechar'),
     mensagem: t('msg.confirmFecharSemSalvar'),
     textoConfirmar: t('acao.fecharSemSalvar'),
     textoCancelar: t('acao.continuarEditando'),
     perigo: false,
-    aoConfirmar: () => fecharModal()
+    aoConfirmar: () => fecharModal(),
   });
 }
 
@@ -177,16 +198,22 @@ function abrirConfirmacao(opts) {
     const o = opts || {};
     const modal = document.getElementById('modal');
     const modalCard = document.querySelector('.modal-card');
-    if (!modal || !modalCard) { resolve(false); return; }
+    if (!modal || !modalCard) {
+      resolve(false);
+      return;
+    }
     modalCard.classList.remove('modal-card--gestao');
 
     // Preserva o conteúdo do modal "pai" (ex.: formulário em edição) para
     // restaurá-lo caso o usuário CANCELE a confirmação (continuar editando).
     const htmlAnterior = modalCard.innerHTML;
 
-    const escapeAttr = (s) => String(s ?? '')
-      .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapeAttr = (s) =>
+      String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     const isPerigo = o.perigo !== false; // perigo por padrão (exclusões)
     const clsConfirmar = isPerigo ? 'btn btn-danger' : 'btn btn-primary';
     modalCard.innerHTML = `
@@ -202,24 +229,31 @@ function abrirConfirmacao(opts) {
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
 
-    const restaurarAnterior = () => { modalCard.innerHTML = htmlAnterior; };
+    const restaurarAnterior = () => {
+      modalCard.innerHTML = htmlAnterior;
+    };
 
     const btnCancelar = document.getElementById('confirm-cancelar');
     const btnOk = document.getElementById('confirm-ok');
     // Cancelar = NÃO sair: restaura o formulário e mantém o modal aberto.
-    if (btnCancelar) btnCancelar.onclick = () => {
-      restaurarAnterior();
-      if (typeof o.aoCancelar === 'function') o.aoCancelar();
-      resolve(false);
-    };
+    if (btnCancelar)
+      btnCancelar.onclick = () => {
+        restaurarAnterior();
+        if (typeof o.aoCancelar === 'function') o.aoCancelar();
+        resolve(false);
+      };
     // Confirmar = executa a ação e fecha o modal.
-    if (btnOk) btnOk.onclick = () => {
-      if (typeof o.aoConfirmar === 'function') o.aoConfirmar();
-      fecharModal();
-      resolve(true);
-    };
+    if (btnOk)
+      btnOk.onclick = () => {
+        if (typeof o.aoConfirmar === 'function') o.aoConfirmar();
+        fecharModal();
+        resolve(true);
+      };
     // Foco no botão de confirmação para navegação por teclado.
-    if (btnOk) { window.api.flashFoco(); setTimeout(() => btnOk.focus(), 60); }
+    if (btnOk) {
+      window.api.flashFoco();
+      setTimeout(() => btnOk.focus(), 60);
+    }
   });
 }
 
@@ -229,4 +263,3 @@ document.addEventListener('click', (e) => {
     tentarFecharModal();
   }
 });
-

@@ -23,18 +23,33 @@ globalThis.Vue = {
   computed: (f) => ({ value: f() }),
   createApp: () => ({ mount: () => {} }),
   h: () => ({}),
-  nextTick: (fn) => { if (typeof fn === 'function') fn(); return Promise.resolve(); },
+  nextTick: (fn) => {
+    if (typeof fn === 'function') fn();
+    return Promise.resolve();
+  },
 };
 globalThis.window.api = {
-  carregar: () => Promise.resolve({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], perfis: [], configuracoes: { moeda: 'BRL' } }),
+  carregar: () =>
+    Promise.resolve({
+      dividas: [],
+      pagamentos: [],
+      carteiras: [],
+      recorrentes: [],
+      metas: [],
+      perfis: [],
+      configuracoes: { moeda: 'BRL' },
+    }),
   perfilListar: () => Promise.resolve({ perfis: [], ativo: null }),
   notificarNativa: () => Promise.resolve({ ok: true }),
   larguraBase: () => Promise.resolve(1366),
   on: () => {},
 };
 globalThis.I18N = {
-  pt: Object.fromEntries([5, 30, 60, 180, 300, 600, 1440].map((m) => ['notif.int' + m, m + ' min'])),
-  en: {}, es: {},
+  pt: Object.fromEntries(
+    [5, 30, 60, 180, 300, 600, 1440].map((m) => ['notif.int' + m, m + ' min'])
+  ),
+  en: {},
+  es: {},
 };
 globalThis.ICON = new Proxy({}, { get: () => '' });
 
@@ -64,8 +79,7 @@ test('dropdown frequencia: clique persiste intervaloMin e sincroniza gear-panel'
 
   // Monta a view de Configurações + o host do gear-panel no DOM (jsdom).
   document.body.innerHTML =
-    '<div id="app"></div>' +
-    '<div class="gear-panel"><div id="gear-notif-intervalo"></div></div>';
+    '<div id="app"></div>' + '<div class="gear-panel"><div id="gear-notif-intervalo"></div></div>';
   const app = document.getElementById('app');
   app.innerHTML = window.__mbRender.configuracoes();
   const host = document.getElementById('gear-notif-intervalo');
@@ -117,8 +131,16 @@ test('dropdown frequencia: clique persiste intervaloMin e sincroniza gear-panel'
   // "5 min" e de "30 min" e conferimos que o trigger bate com a maior.
   const cfgTrigger = app.querySelector('.notif-dd-trigger');
   const cfgValor = cfgTrigger.querySelector('.notif-dd-valor');
-  const natural5 = (() => { cfgValor.textContent = '5 min'; const w = cfgTrigger.getBoundingClientRect().width; return w; })();
-  const natural30 = (() => { cfgValor.textContent = '30 min'; const w = cfgTrigger.getBoundingClientRect().width; return w; })();
+  const natural5 = (() => {
+    cfgValor.textContent = '5 min';
+    const w = cfgTrigger.getBoundingClientRect().width;
+    return w;
+  })();
+  const natural30 = (() => {
+    cfgValor.textContent = '30 min';
+    const w = cfgTrigger.getBoundingClientRect().width;
+    return w;
+  })();
   cfgValor.textContent = '30 min';
   const fixa = parseFloat(cfgTrigger.style.width);
   expect(fixa).toBeGreaterThan(0);

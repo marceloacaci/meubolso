@@ -16,7 +16,10 @@
   'use strict';
   if (typeof window === 'undefined') return;
   const Chart = window.Chart;
-  if (!Chart) { window.ChartGraficos = { registrar() {}, montar() {}, destruirTodos() {} }; return; }
+  if (!Chart) {
+    window.ChartGraficos = { registrar() {}, montar() {}, destruirTodos() {} };
+    return;
+  }
 
   const pendentes = {};
   const instancias = new Map();
@@ -25,11 +28,14 @@
   function coresTema() {
     const cs = getComputedStyle(document.documentElement);
     return {
-      text: (cs.getPropertyValue('--text').trim() || '#1a1a1a'),
-      muted: (cs.getPropertyValue('--text-muted').trim() || '#6b6b6b'),
-      primary: (cs.getPropertyValue('--primary').trim() || '#2d6a4f'),
-      success: (cs.getPropertyValue('--success-claro').trim() || '#52b788'),
-      border: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(0,0,0,0.35)' : '#ffffff'
+      text: cs.getPropertyValue('--text').trim() || '#1a1a1a',
+      muted: cs.getPropertyValue('--text-muted').trim() || '#6b6b6b',
+      primary: cs.getPropertyValue('--primary').trim() || '#2d6a4f',
+      success: cs.getPropertyValue('--success-claro').trim() || '#52b788',
+      border:
+        document.documentElement.getAttribute('data-theme') === 'dark'
+          ? 'rgba(0,0,0,0.35)'
+          : '#ffffff',
     };
   }
 
@@ -45,10 +51,11 @@
       const cy = (chartArea.top + chartArea.bottom) / 2;
       const t = coresTema();
       // Fonte escala com a largura da janela (nitidez ao maximizar).
-      const s = (o.escala && o.escala > 1) ? o.escala : 1;
+      const s = o.escala && o.escala > 1 ? o.escala : 1;
       // Tamanho base reduzido; encolhe conforme o nº de casas do valor para
       // não estourar o círculo interior e aproveitar melhor a área.
-      const baseValor = 15, baseLabel = 12;
+      const baseValor = 15,
+        baseLabel = 12;
       const casas = (o.valor || '').replace(/[^\d]/g, '').length; // dígitos do valor
       const reducao = casas >= 8 ? 0.6 : casas >= 6 ? 0.72 : casas >= 4 ? 0.82 : 1;
       const fv = Math.max(8, Math.round(baseValor * s * reducao));
@@ -56,10 +63,18 @@
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      if (o.label) { ctx.fillStyle = t.muted; ctx.font = '600 ' + fl + 'px system-ui, sans-serif'; ctx.fillText(o.label, cx, cy - 10 * s); }
-      if (o.valor) { ctx.fillStyle = t.text; ctx.font = '700 ' + fv + 'px system-ui, sans-serif'; ctx.fillText(o.valor, cx, cy + 8 * s); }
+      if (o.label) {
+        ctx.fillStyle = t.muted;
+        ctx.font = '600 ' + fl + 'px system-ui, sans-serif';
+        ctx.fillText(o.label, cx, cy - 10 * s);
+      }
+      if (o.valor) {
+        ctx.fillStyle = t.text;
+        ctx.font = '700 ' + fv + 'px system-ui, sans-serif';
+        ctx.fillText(o.valor, cx, cy + 8 * s);
+      }
       ctx.restore();
-    }
+    },
   };
 
   // Plugin: hover por ÁREA TOTAL da fatia/barra (imune ao zoom CSS do #app).
@@ -92,7 +107,10 @@
       // de bater com o chartArea e o hover "quebra" ao maximizar. Recalculamos
       // a partir do MouseEvent nativo e do rect visual do canvas, escalando pela
       // razão entre o tamanho interno do canvas e o tamanho exibido.
-      const rect = chart.canvas && chart.canvas.getBoundingClientRect ? chart.canvas.getBoundingClientRect() : null;
+      const rect =
+        chart.canvas && chart.canvas.getBoundingClientRect
+          ? chart.canvas.getBoundingClientRect()
+          : null;
       if (rect && rect.width && rect.height && ev.native) {
         const scaleX = chart.width / rect.width;
         const scaleY = chart.height / rect.height;
@@ -106,31 +124,43 @@
         const rx = (ca.right - ca.left) / 2;
         const ry = (ca.bottom - ca.top) / 2;
         if (!rx || !ry) return;
-        const dx = ev.x - cx, dy = ev.y - cy;
+        const dx = ev.x - cx,
+          dy = ev.y - cy;
         // Normaliza para um círculo unitário (o doughnut pode ser elíptico).
-        const nx = dx / rx, ny = dy / ry;
+        const nx = dx / rx,
+          ny = dy / ry;
         const r = Math.hypot(nx, ny);
         const cutRaw = chart.options.cutout;
-        const cut = (typeof cutRaw === 'string' ? parseFloat(cutRaw) : (cutRaw || 0)) / 100;
-        if (r < cut || r > 1.0) { // fora do anel
-          if (chart._hoverIdx !== -1) { chart._hoverIdx = -1; chart.setActiveElements([]); if (chart.tooltip) chart.tooltip.setActiveElements([]); }
+        const cut = (typeof cutRaw === 'string' ? parseFloat(cutRaw) : cutRaw || 0) / 100;
+        if (r < cut || r > 1.0) {
+          // fora do anel
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
           return;
         }
         let pa = Math.atan2(dy, dx);
-        pa = (pa % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        pa = ((pa % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         let idx = -1;
         for (let i = 0; i < meta.data.length; i++) {
           const el = meta.data[i];
-          let s = el.startAngle, e = el.endAngle;
-          s = (s % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-          e = (e % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-          const inArc = s <= e ? (pa >= s && pa <= e) : (pa >= s || pa <= e);
-          if (inArc) { idx = i; break; }
+          let s = el.startAngle,
+            e = el.endAngle;
+          s = ((s % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          e = ((e % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          const inArc = s <= e ? pa >= s && pa <= e : pa >= s || pa <= e;
+          if (inArc) {
+            idx = i;
+            break;
+          }
         }
         if (idx < 0 || idx === chart._hoverIdx) return;
         chart._hoverIdx = idx;
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
-        if (chart.tooltip) chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        if (chart.tooltip)
+          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
         chart.update('none');
       } else if (type === 'bar') {
         // Barras: ativa a barra cuja coluna (x) o ponteiro está em cima — cobre
@@ -140,30 +170,46 @@
         // o texto do label, NÃO devemos ativar a barra (antes contava o label
         // como parte da abrangência). Por isso checamos o Y dentro do chartArea.
         if (ev.y < ca.top || ev.y > ca.bottom) {
-          if (chart._hoverIdx !== -1) { chart._hoverIdx = -1; chart.setActiveElements([]); if (chart.tooltip) chart.tooltip.setActiveElements([]); }
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
           return;
         }
         const x = ev.x;
         let idx = -1;
         for (let i = 0; i < meta.data.length; i++) {
           const el = meta.data[i];
-          const xc = (el.x !== undefined) ? el.x : (el.getCenterPoint ? el.getCenterPoint().x : null);
-          const half = (el.width !== undefined ? el.width : (el.getProps ? el.getProps(['width']).width : 0)) / 2;
-          if (xc != null && half && Math.abs(x - xc) <= half) { idx = i; break; }
+          const xc = el.x !== undefined ? el.x : el.getCenterPoint ? el.getCenterPoint().x : null;
+          const half =
+            (el.width !== undefined ? el.width : el.getProps ? el.getProps(['width']).width : 0) /
+            2;
+          if (xc != null && half && Math.abs(x - xc) <= half) {
+            idx = i;
+            break;
+          }
         }
         if (idx < 0 || idx === chart._hoverIdx) return;
         chart._hoverIdx = idx;
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
-        if (chart.tooltip) chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        if (chart.tooltip)
+          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
         chart.update('none');
       }
-    }
+    },
   };
 
-  function registrar(id, cfg) { pendentes[id] = cfg; }
+  function registrar(id, cfg) {
+    pendentes[id] = cfg;
+  }
 
   function destruirTodos() {
-    for (const ch of instancias.values()) { try { ch.destroy(); } catch (_) {} }
+    for (const ch of instancias.values()) {
+      try {
+        ch.destroy();
+      } catch (_) {}
+    }
     instancias.clear();
   }
 
@@ -172,7 +218,10 @@
     if (!pendentes || !Object.keys(pendentes).length) return;
     // Escala de largura (viewport): ao maximizar, turbina o devicePixelRatio
     // para nitidez dos gráficos e amplia as fontes internas/legendas.
-    const escala = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-width-scale')) || 1;
+    const escala =
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--app-width-scale')
+      ) || 1;
     const dpr = Math.max(1, (window.devicePixelRatio || 1) * (escala > 1 ? escala : 1));
 
     for (const id of Object.keys(pendentes)) {
@@ -197,9 +246,15 @@
             : cfg.cores;
           chart = new Chart(el, {
             type: 'bar',
-            data: { labels: cfg.labels, datasets: [{ data: cfg.valores, backgroundColor: bg, borderRadius: 4, borderSkipped: false }] },
+            data: {
+              labels: cfg.labels,
+              datasets: [
+                { data: cfg.valores, backgroundColor: bg, borderRadius: 4, borderSkipped: false },
+              ],
+            },
             options: {
-              responsive: true, maintainAspectRatio: false,
+              responsive: true,
+              maintainAspectRatio: false,
               devicePixelRatio: dpr,
               // Hit-test: só ativa se o ponteiro ESTÁ na barra (intersect), não
               // em ponto próximo (corrige item 6: rótulos do eixo x NÃO contam
@@ -209,19 +264,25 @@
               interaction: { mode: 'nearest', intersect: true },
               animation: { duration: 900, easing: 'easeOutQuart' },
               scales: {
-                x: { grid: { display: false }, ticks: { color: t.muted, font: { size: Math.round(10 * escala) } }, border: { display: false } },
-                y: { display: false, grid: { display: false }, beginAtZero: true }
+                x: {
+                  grid: { display: false },
+                  ticks: { color: t.muted, font: { size: Math.round(10 * escala) } },
+                  border: { display: false },
+                },
+                y: { display: false, grid: { display: false }, beginAtZero: true },
               },
               plugins: {
                 legend: { display: false },
                 tooltip: { callbacks: { label: (ctx) => ' ' + cfg.fmt(ctx.parsed.y) } },
-                hoverPorArea: {}
+                hoverPorArea: {},
               },
               onHover: (e, els) => {
-                try { e.native.target.style.cursor = (els && els.length) ? 'pointer' : 'default'; } catch (_) {}
-              }
+                try {
+                  e.native.target.style.cursor = els && els.length ? 'pointer' : 'default';
+                } catch (_) {}
+              },
             },
-            plugins: [hoverPorArea]
+            plugins: [hoverPorArea],
           });
         } else {
           // Doughnut (pizza/rosca): inicia no TOPO (0°) e varre como relógio.
@@ -230,16 +291,19 @@
             type: 'doughnut',
             data: {
               labels: cfg.labels,
-              datasets: [{
-                data: cfg.valores,
-                backgroundColor: cfg.cores,
-                borderColor: t.border,
-                borderWidth: 2,
-                hoverOffset: 12 // fatias se separam no hover (efeito pedido)
-              }]
+              datasets: [
+                {
+                  data: cfg.valores,
+                  backgroundColor: cfg.cores,
+                  borderColor: t.border,
+                  borderWidth: 2,
+                  hoverOffset: 12, // fatias se separam no hover (efeito pedido)
+                },
+              ],
             },
             options: {
-              responsive: true, maintainAspectRatio: false,
+              responsive: true,
+              maintainAspectRatio: false,
               devicePixelRatio: dpr,
               layout: { padding: 16 }, // folga p/ o hoverOffset (fatias se separam) não estourar o canvas
               // Hit-test: só ativa se o ponteiro ESTÁ na fatia (intersect), não
@@ -247,24 +311,32 @@
               // anel NÃO contam como área da fatia). O plugin hoverPorArea cuida
               // da ativação por ângulo+raio em QUALQUER ponto da fatia.
               interaction: { mode: 'nearest', intersect: true },
-              rotation: -Math.PI / 2,   // início no topo (0°), varrendo como relógio
+              rotation: -Math.PI / 2, // início no topo (0°), varrendo como relógio
               cutout: '62%',
-              animation: { animateRotate: true, animateScale: true, duration: 1100, easing: 'easeOutQuart' },
+              animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1100,
+                easing: 'easeOutQuart',
+              },
               plugins: {
                 legend: { display: false },
                 tooltip: { callbacks: { label: (ctx) => ' ' + cfg.fmt(ctx.parsed) } },
                 textoCentral: { label: cfg.centroLabel, valor: cfg.centroValor, escala: escala },
-                hoverPorArea: {}
+                hoverPorArea: {},
               },
               onHover: (e, els) => {
-                try { e.native.target.style.cursor = (els && els.length) ? 'pointer' : 'default'; } catch (_) {}
-              }
+                try {
+                  e.native.target.style.cursor = els && els.length ? 'pointer' : 'default';
+                } catch (_) {}
+              },
             },
-            plugins: [textoCentral, hoverPorArea]
+            plugins: [textoCentral, hoverPorArea],
           });
         }
       } catch (err) {
-        if (typeof console !== 'undefined' && console.warn) console.warn('Chart não pôde ser criado:', err && err.message);
+        if (typeof console !== 'undefined' && console.warn)
+          console.warn('Chart não pôde ser criado:', err && err.message);
         continue;
       }
       instancias.set(id, chart);
@@ -288,7 +360,9 @@
         }
         // 'none' = redesenha sem reanimar; dispara afterDraw (texto central correto).
         chart.update('none');
-      } catch (_) { /* gráfico pode ter sido destruído */ }
+      } catch (_) {
+        /* gráfico pode ter sido destruído */
+      }
     }
   }
 

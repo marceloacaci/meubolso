@@ -9,14 +9,15 @@ window.__mbRender.relatorio = function renderRelatorio() {
   const restantes = estado.dividas.length;
 
   const hojeDt = new Date();
-  const limite = new Date(); limite.setDate(limite.getDate() + 7);
+  const limite = new Date();
+  limite.setDate(limite.getDate() + 7);
   const proximas = [];
   const atrasadas = [];
   for (const d of estado.dividas) {
     const pagosIds = new Set(
-      estado.pagamentos.filter(p => p.dividaId === d.id && p.parcelaId).map(p => p.parcelaId)
+      estado.pagamentos.filter((p) => p.dividaId === d.id && p.parcelaId).map((p) => p.parcelaId)
     );
-    for (const p of (d.parcelas || [])) {
+    for (const p of d.parcelas || []) {
       if (pagosIds.has(p.id)) continue;
       const dt = new Date(p.vencimento);
       if (dt >= hojeDt && dt <= limite) {
@@ -83,12 +84,15 @@ window.__mbRender.relatorio = function renderRelatorio() {
     </div>
 
     <h3 class="h6 text-danger mb-2">${t('vencimentos.atrasadas')}</h3>
-    ${atrasadas.length === 0 ? `
+    ${
+      atrasadas.length === 0
+        ? `
       <div class="alert alert-success d-flex align-items-center gap-2" role="status">
         <span style="font-size:18px">${ICON.check}</span>
         <div>${t('relatorio.semAtraso')}</div>
       </div>
-    ` : `
+    `
+        : `
       <div class="card">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -103,7 +107,9 @@ window.__mbRender.relatorio = function renderRelatorio() {
               </tr>
             </thead>
             <tbody>
-              ${atrasadas.map(({divida, parcela, dias}) => `
+              ${atrasadas
+                .map(
+                  ({ divida, parcela, dias }) => `
                 <tr>
                   <td>
                     <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
@@ -117,20 +123,26 @@ window.__mbRender.relatorio = function renderRelatorio() {
                     <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
                   </td>
                 </tr>
-              `).join('')}
+              `
+                )
+                .join('')}
             </tbody>
           </table>
         </div>
       </div>
-    `}
+    `
+    }
 
     <h3 class="h6 text-secondary mb-2">${t('resumo.proximos7')}</h3>
-    ${proximas.length === 0 ? `
+    ${
+      proximas.length === 0
+        ? `
       <div class="alert alert-success d-flex align-items-center gap-2" role="status">
         <span style="font-size:18px">${ICON.check}</span>
         <div>${t('resumo.nenhumaProxima')}</div>
       </div>
-    ` : `
+    `
+        : `
       <div class="card">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -145,7 +157,9 @@ window.__mbRender.relatorio = function renderRelatorio() {
               </tr>
             </thead>
             <tbody>
-              ${proximas.map(({divida, parcela, dias}) => `
+              ${proximas
+                .map(
+                  ({ divida, parcela, dias }) => `
                 <tr>
                   <td>
                     <div class="fw-semibold">${escapeHtml(divida.descricao)}</div>
@@ -159,12 +173,15 @@ window.__mbRender.relatorio = function renderRelatorio() {
                     <button class="btn btn-sm btn-primary" data-acao="pagar" data-id="${divida.id}">${t('acao.pagar')}</button>
                   </td>
                 </tr>
-              `).join('')}
+              `
+                )
+                .join('')}
             </tbody>
           </table>
         </div>
       </div>
-    `}
+    `
+    }
     </div>
   `;
 };
@@ -180,20 +197,26 @@ window.__mbRender.relatorio = function renderRelatorio() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.relatorio;
         return fn ? fn() : '';
-      }
+      },
     },
     // (Re)monta os gráficos APÓS o v-html ser aplicado no DOM (ver views/painel.js).
     // 'mounted' cobre abertura via setView; 'updated' cobre re-renderizações.
     mounted() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
     updated() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

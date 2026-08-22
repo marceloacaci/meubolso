@@ -6,13 +6,16 @@ window.__mbRender.carteiras = function renderCarteiras() {
   const carteiras = estado.carteiras || [];
   const total = saldoTotalCarteiras();
 
-  const lista = carteiras.length === 0
-    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
+  const lista =
+    carteiras.length === 0
+      ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
        <span style="font-size:20px">${ICON.carteira}</span>
        <div>${t('carteira.vazia')}</div>
      </div>`
-    : `<div class="vstack gap-2">
-         ${carteiras.map(c => `
+      : `<div class="vstack gap-2">
+         ${carteiras
+           .map(
+             (c) => `
            <div class="card shadow-sm raised-card">
              <div class="card-body d-flex align-items-center justify-content-between gap-3">
                <div>
@@ -24,7 +27,9 @@ window.__mbRender.carteiras = function renderCarteiras() {
                  <button class="btn btn-sm btn-outline-danger" data-acao="excluir-carteira" data-id="${c.id}" title="${t('carteira.excluir')}">${t('acao.excluir')}</button>
                </div>
              </div>
-           </div>`).join('')}
+           </div>`
+           )
+           .join('')}
        </div>`;
 
   return `
@@ -37,8 +42,7 @@ window.__mbRender.carteiras = function renderCarteiras() {
     </div>
     ${lista}
   `;
-}
-;
+};
 
 /* View "Carteiras" como componente Vue (Vue é DONO da view). */
 (function () {
@@ -51,8 +55,10 @@ window.__mbRender.carteiras = function renderCarteiras() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.carteiras;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

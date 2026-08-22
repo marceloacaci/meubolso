@@ -36,8 +36,16 @@ window.__mbRender.painel = function renderPainel() {
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.categoria')}</h3>
             <div class="chart-wrap">${graficoPizza(metricas.porCategoria)}</div>
-            ${metricas.porCategoria.length ? `<div class="legend">${metricas.porCategoria.map(c => `
-              <span class="legend-item"><span class="legend-dot" style="background:${c.cor}"></span>${c.label} ${fmt.format(c.valor)}</span>`).join('')}</div>` : `<p class="text-secondary small mb-0">${t('painel.semDados')}</p>`}
+            ${
+              metricas.porCategoria.length
+                ? `<div class="legend">${metricas.porCategoria
+                    .map(
+                      (c) => `
+              <span class="legend-item"><span class="legend-dot" style="background:${c.cor}"></span>${c.label} ${fmt.format(c.valor)}</span>`
+                    )
+                    .join('')}</div>`
+                : `<p class="text-secondary small mb-0">${t('painel.semDados')}</p>`
+            }
           </div>
         </div>
       </div>
@@ -61,7 +69,7 @@ window.__mbRender.painel = function renderPainel() {
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.status')}</h3>
             <div class="chart-wrap">${graficoBarrasStatus(metricas.porStatus)}</div>
             <div class="legend">
-              ${metricas.porStatus.map(s => `<span class="legend-item"><span class="legend-dot" style="background:${s.cor}"></span>${s.label} ${s.qtd}</span>`).join('')}
+              ${metricas.porStatus.map((s) => `<span class="legend-item"><span class="legend-dot" style="background:${s.cor}"></span>${s.label} ${s.qtd}</span>`).join('')}
             </div>
           </div>
         </div>
@@ -74,7 +82,7 @@ window.__mbRender.painel = function renderPainel() {
           <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.insights')}</h3>
             <ul class="list-group list-group-flush">
-              ${insights.map(i => `<li class="list-group-item d-flex gap-2 align-items-start px-0 border-0"><span>${i.ico}</span><span>${i.texto}</span></li>`).join('')}
+              ${insights.map((i) => `<li class="list-group-item d-flex gap-2 align-items-start px-0 border-0"><span>${i.ico}</span><span>${i.texto}</span></li>`).join('')}
             </ul>
           </div>
         </div>
@@ -82,8 +90,7 @@ window.__mbRender.painel = function renderPainel() {
     </div>
     </div>
   `;
-}
-;
+};
 
 /* View "Painel" como componente Vue (Vue é DONO da view).
  * O template é fino: apenas injeta o HTML gerado por renderPainel()
@@ -101,7 +108,7 @@ window.__mbRender.painel = function renderPainel() {
         if (window.uiTick) window.uiTick.value; // registra dependência reativa
         const fn = window.__mbRender && window.__mbRender.painel;
         return fn ? fn() : '';
-      }
+      },
     },
     // O gráfico (Chart.js) precisa ser (re)montado APÓS o Vue aplicar o novo
     // v-html no DOM. O render() global agenda montar() via nextTick, mas esse
@@ -112,14 +119,20 @@ window.__mbRender.painel = function renderPainel() {
     // 'updated' cobre re-renderizações (ex: inserir dívida estando já no painel).
     mounted() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
     updated() {
       if (typeof Vue !== 'undefined' && window.ChartGraficos) {
-        try { window.ChartGraficos.montar(); } catch (_) {}
+        try {
+          window.ChartGraficos.montar();
+        } catch (_) {}
       }
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

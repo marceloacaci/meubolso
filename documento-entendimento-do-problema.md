@@ -8,9 +8,9 @@
 
 ## 1. Integrantes do grupo
 
-| Nome completo | RA / Matrícula |
-|---|---|
-| Marcelo Luiz de Acácio | [preencher RA] |
+| Nome completo                         | RA / Matrícula |
+| ------------------------------------- | -------------- |
+| Marcelo Luiz de Acácio                | [preencher RA] |
 | [Nome completo do(a) colega de grupo] | [preencher RA] |
 
 > Caso o trabalho seja individual, remova a segunda linha da tabela.
@@ -65,4 +65,4 @@ O entendimento do problema direciona o desenvolvimento para um produto de organi
 
 ---
 
-*Documento elaborado para atividade acadêmica — Entrega prevista: 19/08/2026.*
+_Documento elaborado para atividade acadêmica — Entrega prevista: 19/08/2026._

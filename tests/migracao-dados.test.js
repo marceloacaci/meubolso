@@ -15,7 +15,10 @@ test('migracao copia meubolso.json da versao antiga para a nova', () => {
   const base = criarTmp();
   try {
     fs.mkdirSync(path.join(base, '1.0.0'), { recursive: true });
-    fs.writeFileSync(path.join(base, '1.0.0', 'meubolso.json'), JSON.stringify({ dividas: [{ id: 'x' }] }));
+    fs.writeFileSync(
+      path.join(base, '1.0.0', 'meubolso.json'),
+      JSON.stringify({ dividas: [{ id: 'x' }] })
+    );
     fs.mkdirSync(path.join(base, '1.0.0', 'backups'), { recursive: true });
     fs.writeFileSync(path.join(base, '1.0.0', 'backups', 'b1.json'), '{}');
     fs.mkdirSync(path.join(base, '2.0.0'), { recursive: true });

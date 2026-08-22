@@ -39,8 +39,10 @@ window.__mbRender.backups = function renderBackups() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.backups;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

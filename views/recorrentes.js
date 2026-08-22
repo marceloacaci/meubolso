@@ -8,25 +8,30 @@ const RECORRENTE_CATS = {
   servico: { label: 'cat.servico', cor: '#b45309' },
   cartao: { label: 'cat.cartao', cor: '#c1121f' },
   emprestimo: { label: 'cat.emprestimo', cor: '#2d6a4f' },
-  outro: { label: 'cat.outro', cor: '#64748b' }
+  outro: { label: 'cat.outro', cor: '#64748b' },
 };
 // Expõe no global para app.js consumir (scripts clássicos, sem bundler).
 if (typeof globalThis !== 'undefined') globalThis.RECORRENTE_CATS = RECORRENTE_CATS;
-function recorrenteCatLabel(c) { return t(RECORRENTE_CATS[c]?.label) || c; }
+function recorrenteCatLabel(c) {
+  return t(RECORRENTE_CATS[c]?.label) || c;
+}
 
 window.__mbRender.recorrentes = function renderRecorrentes() {
   const lista = estado.recorrentes || [];
-  const ativos = lista.filter(r => !r.pausada);
+  const ativos = lista.filter((r) => !r.pausada);
   const totalMensal = ativos.reduce((acc, r) => somaDinheiro(acc, numDinheiro(r.valor)), 0);
   const totalAnual = somaDinheiro(totalMensal, totalMensal * 11);
 
-  const corpo = lista.length === 0
-    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
+  const corpo =
+    lista.length === 0
+      ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
          <span style="font-size:20px">${ICON.recorrente || ICON.recorrentes || ICON.cartao}</span>
          <div>${t('recorrentes.vazia')}</div>
        </div>`
-    : `<div class="vstack gap-2">
-         ${lista.map(r => `
+      : `<div class="vstack gap-2">
+         ${lista
+           .map(
+             (r) => `
            <div class="card shadow-sm">
              <div class="card-body d-flex align-items-center justify-content-between gap-3">
                <div>
@@ -43,7 +48,9 @@ window.__mbRender.recorrentes = function renderRecorrentes() {
                  <button class="btn btn-sm btn-outline-danger" data-acao="excluir-recorrente" data-id="${r.id}" title="${t('recorrentes.excluir')}">${t('acao.excluir')}</button>
                </div>
              </div>
-           </div>`).join('')}
+           </div>`
+           )
+           .join('')}
        </div>`;
 
   return `
@@ -70,8 +77,10 @@ window.__mbRender.recorrentes = function renderRecorrentes() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.recorrentes;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

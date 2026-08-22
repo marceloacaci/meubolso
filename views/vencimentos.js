@@ -5,28 +5,74 @@
 window.__mbRender = window.__mbRender || {};
 function renderPainelFiltrosVencimentos() {
   const f = estado.filtro || {};
-  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro'].map(c =>
-    `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`).join('');
+  const optsCat = ['servico', 'cartao', 'emprestimo', 'outro']
+    .map(
+      (c) =>
+        `<option value="${c}"${f.categoria === c ? ' selected' : ''}>${t(CATEGORIAS[c]?.label) || c}</option>`
+    )
+    .join('');
   const optsStatus = [
     ['', t('filtro.todos')],
     ['emDia', t('filtro.emDia')],
     ['atrasado', t('filtro.atrasado')],
-    ['quitado', t('filtro.quitado')]
-  ].map(([v, l]) => `<option value="${v}"${f.status === v ? ' selected' : ''}>${l}</option>`).join('');
+    ['quitado', t('filtro.quitado')],
+  ]
+    .map(([v, l]) => `<option value="${v}"${f.status === v ? ' selected' : ''}>${l}</option>`)
+    .join('');
   const optsOrd = [
     ['vencimento', t('ord.vencimento')],
     ['descricao', t('ord.descricao')],
-    ['valor', t('ord.valor')]
-  ].map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`).join('');
+    ['valor', t('ord.valor')],
+  ]
+    .map(([v, l]) => `<option value="${v}"${f.ordenar === v ? ' selected' : ''}>${l}</option>`)
+    .join('');
   const temFiltro = f.texto || f.categoria || f.status || f.periodo || f.periodoDe || f.periodoAte;
-  const tituloLimpar = temFiltro ? (t('filtro.limparTooltip') || 'Restaura todos os filtros') : (t('acao.limparFiltros') || 'Limpar filtros');
+  const tituloLimpar = temFiltro
+    ? t('filtro.limparTooltip') || 'Restaura todos os filtros'
+    : t('acao.limparFiltros') || 'Limpar filtros';
   const lupa = `<span class="input-lupa" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>`;
-  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const optDia = (sel) => { let o='<option value="">'+t('filtro.dia')+'</option>'; for(let i=1;i<=31;i++) o+='<option value="'+i+'"'+(sel==String(i)?' selected':'')+'>'+i+'</option>'; return o; };
-  const optMes = (sel) => { let o='<option value="">'+t('filtro.mes')+'</option>'; MESES.forEach((m,i)=>{ const v=String(i+1); o+='<option value="'+v+'"'+(sel==v?' selected':'')+'>'+m+'</option>'; }); return o; };
-  const optAno = (sel) => { let o='<option value="">'+t('filtro.ano')+'</option>'; for(let a=2020;a<=2035;a++) o+='<option value="'+a+'"'+(sel==String(a)?' selected':'')+'>'+a+'</option>'; return o; };
-  const deDia = f.periodoDeDia || (f.periodoDe||'').slice(8,10), deMes = f.periodoDeMes || (f.periodoDe||'').slice(5,7), deAno = f.periodoDeAno || (f.periodoDe||'').slice(0,4);
-  const ateDia = f.periodoAteDia || (f.periodoAte||'').slice(8,10), ateMes = f.periodoAteMes || (f.periodoAte||'').slice(5,7), ateAno = f.periodoAteAno || (f.periodoAte||'').slice(0,4);
+  const MESES = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
+  const optDia = (sel) => {
+    let o = '<option value="">' + t('filtro.dia') + '</option>';
+    for (let i = 1; i <= 31; i++)
+      o +=
+        '<option value="' + i + '"' + (sel == String(i) ? ' selected' : '') + '>' + i + '</option>';
+    return o;
+  };
+  const optMes = (sel) => {
+    let o = '<option value="">' + t('filtro.mes') + '</option>';
+    MESES.forEach((m, i) => {
+      const v = String(i + 1);
+      o += '<option value="' + v + '"' + (sel == v ? ' selected' : '') + '>' + m + '</option>';
+    });
+    return o;
+  };
+  const optAno = (sel) => {
+    let o = '<option value="">' + t('filtro.ano') + '</option>';
+    for (let a = 2020; a <= 2035; a++)
+      o +=
+        '<option value="' + a + '"' + (sel == String(a) ? ' selected' : '') + '>' + a + '</option>';
+    return o;
+  };
+  const deDia = f.periodoDeDia || (f.periodoDe || '').slice(8, 10),
+    deMes = f.periodoDeMes || (f.periodoDe || '').slice(5, 7),
+    deAno = f.periodoDeAno || (f.periodoDe || '').slice(0, 4);
+  const ateDia = f.periodoAteDia || (f.periodoAte || '').slice(8, 10),
+    ateMes = f.periodoAteMes || (f.periodoAte || '').slice(5, 7),
+    ateAno = f.periodoAteAno || (f.periodoAte || '').slice(0, 4);
   const selPeriodo = (prefixo, dia, mes, ano) => `
     <div class="d-flex gap-1">
       <select class="form-select form-select-sm" style="width:auto" data-filtro="${prefixo}Dia">${optDia(dia)}</select>
@@ -98,12 +144,15 @@ window.__mbRender.vencimentos = function renderVencimentos() {
 
   const bloco = (titulo, itens, atrasada, vazio) => `
     <h3 class="h6 ${atrasada ? 'text-danger' : 'text-secondary'} mb-2">${titulo}</h3>
-    ${itens.length === 0 ? `
+    ${
+      itens.length === 0
+        ? `
       <div class="alert ${atrasada ? 'alert-danger' : 'alert-success'} d-flex align-items-center gap-2" role="status">
         <span style="font-size:18px">${ICON.check}</span>
         <div>${vazio}</div>
       </div>
-    ` : `
+    `
+        : `
       <div class="card shadow-sm mb-3">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -118,11 +167,12 @@ window.__mbRender.vencimentos = function renderVencimentos() {
               </tr>
             </thead>
             <tbody>
-              ${itens.map(i => linha(i, atrasada)).join('')}
+              ${itens.map((i) => linha(i, atrasada)).join('')}
             </tbody>
           </table>
         </div>
-      </div>`}`;
+      </div>`
+    }`;
 
   return `
     <div class="page-header"><h2>${ICON.vencimentos} ${t('vencimentos.titulo')}</h2></div>
@@ -131,8 +181,6 @@ window.__mbRender.vencimentos = function renderVencimentos() {
     ${bloco(t('vencimentos.proximas'), proximas, false, t('vencimentos.nenhumaProxima'))}
   `;
 };
-;
-
 /* View "Vencimentos" como componente Vue (Vue é DONO da view). */
 (function () {
   'use strict';
@@ -144,8 +192,10 @@ window.__mbRender.vencimentos = function renderVencimentos() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.vencimentos;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
 })();

@@ -16,7 +16,7 @@ function divida(id, valorTotal, taxaMensal, prazoMeses) {
       vencimento: '2026-0' + ((i % 9) + 1) + '-15',
       status: 'pendente',
       valorPago: 0,
-      dataPagamento: ''
+      dataPagamento: '',
     });
   }
   return { id, descricao: 'D' + id, categoria: 'outro', taxaMensal, prazoMeses: n, parcelas };
@@ -72,12 +72,20 @@ test('Simulador: sem dívidas com saldo é impossível', () => {
 });
 test('Simulador: pagamento zero é impossível', () => {
   const dividas = [divida('d', 1000, 0, 12)];
-  const r = simularQuitacao(dividas, { estrategia: 'avalanche', pagamentoMensal: 0, pagamentos: [] });
+  const r = simularQuitacao(dividas, {
+    estrategia: 'avalanche',
+    pagamentoMensal: 0,
+    pagamentos: [],
+  });
   expect(r.possivel).toBe(false);
 });
 test('Simulador: dívida sem juros -> tempo = principal / pagamento', () => {
   const dividas = [divida('e', 1000, 0, 12)];
-  const r = simularQuitacao(dividas, { estrategia: 'avalanche', pagamentoMensal: 100, pagamentos: [] });
+  const r = simularQuitacao(dividas, {
+    estrategia: 'avalanche',
+    pagamentoMensal: 100,
+    pagamentos: [],
+  });
   expect(r.possivel).toBe(true);
   expect(r.meses).toBe(10);
   expect(r.totalJuros).toBeCloseTo(0, 4);
@@ -86,8 +94,16 @@ test('Simulador: dívida sem juros -> tempo = principal / pagamento', () => {
 });
 test('Simulador: avalanche gera juros <= bola de neve (taxas assimétricas)', () => {
   const dividas = [divida('alta', 2000, 8, 24), divida('baixa', 5000, 1, 60)];
-  const av = simularQuitacao(dividas, { estrategia: 'avalanche', pagamentoMensal: 800, pagamentos: [] });
-  const bn = simularQuitacao(dividas, { estrategia: 'bolaNeve', pagamentoMensal: 800, pagamentos: [] });
+  const av = simularQuitacao(dividas, {
+    estrategia: 'avalanche',
+    pagamentoMensal: 800,
+    pagamentos: [],
+  });
+  const bn = simularQuitacao(dividas, {
+    estrategia: 'bolaNeve',
+    pagamentoMensal: 800,
+    pagamentos: [],
+  });
   expect(av.possivel).toBe(true);
   expect(bn.possivel).toBe(true);
   // Avalanche (maior juros primeiro) deve custar menos juros.
@@ -95,7 +111,11 @@ test('Simulador: avalanche gera juros <= bola de neve (taxas assimétricas)', ()
 });
 test('Simulador: pagamento alto quita rápido e com juros finito', () => {
   const dividas = [divida('f', 3000, 4, 36)];
-  const r = simularQuitacao(dividas, { estrategia: 'avalanche', pagamentoMensal: 1000, pagamentos: [] });
+  const r = simularQuitacao(dividas, {
+    estrategia: 'avalanche',
+    pagamentoMensal: 1000,
+    pagamentos: [],
+  });
   expect(r.possivel).toBe(true);
   expect(r.meses).toBeGreaterThan(0);
   expect(r.meses).toBeLessThan(36);

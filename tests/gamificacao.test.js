@@ -12,9 +12,22 @@ import {
 
 // ---- nivelDe (D-03 — coerente com a tabela NIVEIS) ----
 const casos = [
-  [0, 1], [50, 1], [100, 2], [199, 2], [200, 3], [300, 4], [400, 5],
-  [599, 5], [600, 6], [799, 6], [800, 7], [1000, 8], [1300, 9],
-  [1599, 9], [1600, 10], [5000, 10],
+  [0, 1],
+  [50, 1],
+  [100, 2],
+  [199, 2],
+  [200, 3],
+  [300, 4],
+  [400, 5],
+  [599, 5],
+  [600, 6],
+  [799, 6],
+  [800, 7],
+  [1000, 8],
+  [1300, 9],
+  [1599, 9],
+  [1600, 10],
+  [5000, 10],
 ];
 for (const [xp, nv] of casos) {
   test('nivelDe(' + xp + ') = ' + nv, () => {
@@ -62,7 +75,10 @@ test('truncar lista vazia', () => {
 
 // ---- recalcularHistorico (migração retroativa) ----
 test('recalcula xp e nível de histórico mais-recente-primeiro', () => {
-  const h = [{ pontos: 10, nivel: 99 }, { pontos: 10, nivel: 1 }];
+  const h = [
+    { pontos: 10, nivel: 99 },
+    { pontos: 10, nivel: 1 },
+  ];
   const { historico, xp, nivel } = recalcularHistorico(h);
   expect(xp).toBe(20);
   expect(nivel).toBe(1);
@@ -72,14 +88,20 @@ test('recalcula xp e nível de histórico mais-recente-primeiro', () => {
   expect(historico[0].nivel).toBe(1);
 });
 test('recalcularHistorico é idempotente', () => {
-  const h = [{ pontos: 100, nivel: 1 }, { pontos: 100, nivel: 1 }];
+  const h = [
+    { pontos: 100, nivel: 1 },
+    { pontos: 100, nivel: 1 },
+  ];
   const r1 = recalcularHistorico(h);
   const r2 = recalcularHistorico(r1.historico);
   expect(r1.xp).toBe(r2.xp);
   expect(r1.nivel).toBe(r2.nivel);
 });
 test('corrige nível antigo errado (ex.: migração gestão 30->5)', () => {
-  const h = [{ pontos: 5, nivel: 99 }, { pontos: 5, nivel: 99 }];
+  const h = [
+    { pontos: 5, nivel: 99 },
+    { pontos: 5, nivel: 99 },
+  ];
   const { historico, xp } = recalcularHistorico(h);
   expect(historico[1].nivel).toBe(1);
   expect(xp).toBe(10);

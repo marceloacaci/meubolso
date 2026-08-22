@@ -17,7 +17,11 @@ const requireReal = createRequire(import.meta.url);
 test('(A) preload: api.notificarNativa chama ipcRenderer.invoke com o canal correto', async () => {
   const invokeMock = vi.fn(() => Promise.resolve({ ok: true }));
   const electronStub = {
-    contextBridge: { exposeInMainWorld: (_nome, api) => { globalThis.__apiCapturado = api; } },
+    contextBridge: {
+      exposeInMainWorld: (_nome, api) => {
+        globalThis.__apiCapturado = api;
+      },
+    },
     ipcRenderer: { invoke: invokeMock, on: vi.fn(), removeListener: vi.fn() },
   };
   const Module = requireReal('module');
@@ -45,13 +49,17 @@ test('(A) preload: api.notificarNativa chama ipcRenderer.invoke com o canal corr
 });
 
 // ============================ (B) MAIN (handler extraído) ============================
-const { criarNotificacaoNativa } = requireReal(path.join(__dirname, '..', 'src', 'notificacoes-nativas.js'));
+const { criarNotificacaoNativa } = requireReal(
+  path.join(__dirname, '..', 'src', 'notificacoes-nativas.js')
+);
 
 test('(B) criarNotificacaoNativa: cria Notification nativa e dispara .show()', () => {
   const showMock = vi.fn();
   const NotificationMock = vi.fn();
   // function (não arrow) para que `new` aplique this.show corretamente.
-  NotificationMock.mockImplementation(function () { this.show = showMock; });
+  NotificationMock.mockImplementation(function () {
+    this.show = showMock;
+  });
   const res = criarNotificacaoNativa(
     { titulo: 'MeuBolso', corpo: 'Lembrete de pontuar!' },
     { Notification: NotificationMock, platform: 'win32' }
@@ -67,7 +75,9 @@ test('(B) criarNotificacaoNativa: cria Notification nativa e dispara .show()', (
 test('(B) criarNotificacaoNativa: ignora payload sem corpo', () => {
   const showMock = vi.fn();
   const NotificationMock = vi.fn();
-  NotificationMock.mockImplementation(function () { this.show = showMock; });
+  NotificationMock.mockImplementation(function () {
+    this.show = showMock;
+  });
   const res = criarNotificacaoNativa(
     { titulo: 'X' },
     { Notification: NotificationMock, platform: 'win32' }
@@ -78,7 +88,9 @@ test('(B) criarNotificacaoNativa: ignora payload sem corpo', () => {
 
 test('(B) criarNotificacaoNativa: captura erro de criação (SO sem suporte)', () => {
   const NotificationMock = vi.fn();
-  NotificationMock.mockImplementation(function () { throw new Error('no daemon'); });
+  NotificationMock.mockImplementation(function () {
+    throw new Error('no daemon');
+  });
   const res = criarNotificacaoNativa(
     { titulo: 'MeuBolso', corpo: 'oi' },
     { Notification: NotificationMock, platform: 'linux' }
@@ -90,7 +102,9 @@ test('(B) criarNotificacaoNativa: captura erro de criação (SO sem suporte)', (
 test('(B) criarNotificacaoNativa: plataforma não suportada retorna so-nao-suportado', () => {
   const showMock = vi.fn();
   const NotificationMock = vi.fn();
-  NotificationMock.mockImplementation(function () { this.show = showMock; });
+  NotificationMock.mockImplementation(function () {
+    this.show = showMock;
+  });
   const res = criarNotificacaoNativa(
     { titulo: 'MeuBolso', corpo: 'oi' },
     { Notification: NotificationMock, platform: 'android' }
@@ -103,15 +117,17 @@ test('(B) criarNotificacaoNativa: plataforma não suportada retorna so-nao-supor
 // (C) montarNotificacoes — contagem de dívidas (regressão do bug de
 // vencimento em datetime ISO que zerava as atrasadas).
 // ============================================================
-const T_FAKE = (k) => ({
-  'notif.titulo': 'MeuBolso',
-  'notif.atrasadas': 'Você tem {n} dívida(s) em atraso.',
-  'notif.aVencer': 'Você tem {n} dívida(s) vencendo em até 3 dias.',
-  'notif.pontuar': 'Pontue!',
-}[k] || k);
+const T_FAKE = (k) =>
+  ({
+    'notif.titulo': 'MeuBolso',
+    'notif.atrasadas': 'Você tem {n} dívida(s) em atraso.',
+    'notif.aVencer': 'Você tem {n} dívida(s) vencendo em até 3 dias.',
+    'notif.pontuar': 'Pontue!',
+  })[k] || k;
 
 function hojeMais(dias) {
-  const h = new Date(); h.setHours(0, 0, 0, 0);
+  const h = new Date();
+  h.setHours(0, 0, 0, 0);
   h.setDate(h.getDate() + dias);
   return h;
 }
@@ -128,7 +144,7 @@ test('(C) conta dívida ATRASADA (vencimento data ISO)', () => {
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
+  expect(msgs.some((m) => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
 });
 
 test('(C) REGRESSÃO: 1 dívida com 2 parcelas atrasadas conta como 1 (não 2)', () => {
@@ -136,16 +152,20 @@ test('(C) REGRESSÃO: 1 dívida com 2 parcelas atrasadas conta como 1 (não 2)',
   // notificação "2 dívidas em atraso". O {n} deve ser nº de DÍVIDAS, não parcelas.
   const msgs = montarNotificacoes({
     dadosCarregados: true,
-    dividas: [{ parcelas: [
-      { status: 'pendente', vencimento: isoData(hojeMais(-5)) },
-      { status: 'pendente', vencimento: isoData(hojeMais(-2)) },
-    ] }],
+    dividas: [
+      {
+        parcelas: [
+          { status: 'pendente', vencimento: isoData(hojeMais(-5)) },
+          { status: 'pendente', vencimento: isoData(hojeMais(-2)) },
+        ],
+      },
+    ],
     hoje: hojeMais(0),
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
-  expect(msgs.some(m => m.corpo.includes('2 dívida(s) em atraso'))).toBe(false);
+  expect(msgs.some((m) => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
+  expect(msgs.some((m) => m.corpo.includes('2 dívida(s) em atraso'))).toBe(false);
 });
 
 test('(C) 2 dívidas distintas atrasadas contam 2', () => {
@@ -159,7 +179,7 @@ test('(C) 2 dívidas distintas atrasadas contam 2', () => {
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('2 dívida(s) em atraso'))).toBe(true);
+  expect(msgs.some((m) => m.corpo.includes('2 dívida(s) em atraso'))).toBe(true);
 });
 test('(C) REGRESSÃO: dívida atrasada com vencimento DATETIME ISO não zera', () => {
   // Antes o parse fazia new Date('...THH:MM:SS' + 'T00:00:00') -> Invalid Date.
@@ -171,7 +191,7 @@ test('(C) REGRESSÃO: dívida atrasada com vencimento DATETIME ISO não zera', (
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
+  expect(msgs.some((m) => m.corpo.includes('1 dívida(s) em atraso'))).toBe(true);
 });
 
 test('(C) conta dívida A VENCER em até 3 dias (data e datetime ISO)', () => {
@@ -185,7 +205,7 @@ test('(C) conta dívida A VENCER em até 3 dias (data e datetime ISO)', () => {
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('2 dívida(s) vencendo'))).toBe(true);
+  expect(msgs.some((m) => m.corpo.includes('2 dívida(s) vencendo'))).toBe(true);
 });
 
 test('(C) ignora parcelas pagas', () => {
@@ -196,8 +216,8 @@ test('(C) ignora parcelas pagas', () => {
     em3: hojeMais(3),
     t: T_FAKE,
   });
-  expect(msgs.some(m => m.corpo.includes('em atraso'))).toBe(false);
-  expect(msgs.some(m => m.corpo.includes('vencendo'))).toBe(false);
+  expect(msgs.some((m) => m.corpo.includes('em atraso'))).toBe(false);
+  expect(msgs.some((m) => m.corpo.includes('vencendo'))).toBe(false);
 });
 
 test('(C) retorna [] se dados não carregados', () => {

@@ -1,13 +1,24 @@
 import { test, expect } from 'vitest';
 import dominio from '../src/dominio.js';
 
-const divida = (over) => Object.assign({
-  id: 'd1', descricao: 'Netflix', credor: 'Netflix', categoria: 'servico',
-  parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-09-01', status: 'pendente' }],
-  observacao: ''
-}, over);
+const divida = (over) =>
+  Object.assign(
+    {
+      id: 'd1',
+      descricao: 'Netflix',
+      credor: 'Netflix',
+      categoria: 'servico',
+      parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-09-01', status: 'pendente' }],
+      observacao: '',
+    },
+    over
+  );
 
-const pg = (over) => Object.assign({ id: 'pg1', dividaId: 'd1', parcelaId: 'p1', valor: 50, data: '2026-08-10', nota: 'pix' }, over);
+const pg = (over) =>
+  Object.assign(
+    { id: 'pg1', dividaId: 'd1', parcelaId: 'p1', valor: 50, data: '2026-08-10', nota: 'pix' },
+    over
+  );
 
 test('filtrarDividas por texto (case-insensitive, sem acento)', () => {
   const lista = [divida({}), divida({ id: 'd2', descricao: 'Energia', credor: 'Enel' })];
@@ -23,22 +34,36 @@ test('filtrarDividas por categoria', () => {
 });
 
 test('filtrarDividas por status quitado/atrasado', () => {
-  const quitada = divida({ parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'pago' }] });
-  const atrasada = divida({ parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'atrasado' }] });
+  const quitada = divida({
+    parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'pago' }],
+  });
+  const atrasada = divida({
+    parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'atrasado' }],
+  });
   const lista = [quitada, atrasada];
   expect(dominio.filtrarDividas(lista, { status: 'quitado' }).length).toBe(1);
   expect(dominio.filtrarDividas(lista, { status: 'atrasado' }).length).toBe(1);
 });
 
 test('filtrarDividas por período (YYYY-MM)', () => {
-  const lista = [divida({ parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-09-15', status: 'pendente' }] })];
+  const lista = [
+    divida({
+      parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-09-15', status: 'pendente' }],
+    }),
+  ];
   expect(dominio.filtrarDividas(lista, { periodo: '2026-09' }).length).toBe(1);
   expect(dominio.filtrarDividas(lista, { periodo: '2026-08' }).length).toBe(0);
 });
 
 test('ordenarDividas por total e saldo', () => {
-  const a = divida({ id: 'a', parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'pendente' }] });
-  const b = divida({ id: 'b', parcelas: [{ id: 'p1', numero: 1, valor: 300, vencimento: '2026-01-01', status: 'pendente' }] });
+  const a = divida({
+    id: 'a',
+    parcelas: [{ id: 'p1', numero: 1, valor: 100, vencimento: '2026-01-01', status: 'pendente' }],
+  });
+  const b = divida({
+    id: 'b',
+    parcelas: [{ id: 'p1', numero: 1, valor: 300, vencimento: '2026-01-01', status: 'pendente' }],
+  });
   const asc = dominio.ordenarDividas([b, a], 'total', true);
   expect(asc[0].id).toBe('a');
   const desc = dominio.ordenarDividas([a, b], 'total', false);

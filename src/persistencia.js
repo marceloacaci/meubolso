@@ -25,10 +25,14 @@ function limparTemporarios(pasta, prefixo) {
         try {
           fs.unlinkSync(require('path').join(pasta, nome));
           removidos++;
-        } catch (_) { /* ignora */ }
+        } catch (_) {
+          /* ignora */
+        }
       }
     }
-  } catch (_) { /* pasta inexistente: ignora */ }
+  } catch (_) {
+    /* pasta inexistente: ignora */
+  }
   return removidos;
 }
 
@@ -44,8 +48,10 @@ const BACKUP_GERACOES = 7;
 // Gera o nome de arquivo de uma geração a partir de uma data (YYYYMMDD-HHMMSS).
 function nomeGeracao(data) {
   const p = (n, l = 2) => String(n).padStart(l, '0');
-  return `meubolso-${data.getFullYear()}${p(data.getMonth() + 1)}${p(data.getDate())}-` +
-    `${p(data.getHours())}${p(data.getMinutes())}${p(data.getSeconds())}.json`;
+  return (
+    `meubolso-${data.getFullYear()}${p(data.getMonth() + 1)}${p(data.getDate())}-` +
+    `${p(data.getHours())}${p(data.getMinutes())}${p(data.getSeconds())}.json`
+  );
 }
 
 // Copia `origem` para `pasta/meubolso-<timestamp>.json` (escrita atômica: escreve
@@ -76,14 +82,19 @@ function fazerBackupRotativo(origem, pasta, agora) {
 // os mais antigos. Não lança: erros são ignorados individualmente.
 function rotacionarBackups(pasta, limite) {
   try {
-    const arquivos = fs.readdirSync(pasta)
-      .filter(n => /^meubolso-\d{8}-\d{6}\.json$/.test(n))
+    const arquivos = fs
+      .readdirSync(pasta)
+      .filter((n) => /^meubolso-\d{8}-\d{6}\.json$/.test(n))
       .sort(); // ordem crescente = mais antigo primeiro
     while (arquivos.length > limite) {
       const antigo = arquivos.shift();
-      try { fs.unlinkSync(require('path').join(pasta, antigo)); } catch (_) {}
+      try {
+        fs.unlinkSync(require('path').join(pasta, antigo));
+      } catch (_) {}
     }
-  } catch (_) { /* pasta inexistente: ignora */ }
+  } catch (_) {
+    /* pasta inexistente: ignora */
+  }
 }
 
 // Lista as gerações disponíveis (mais recente primeiro) com metadados úteis à
@@ -92,22 +103,26 @@ function rotacionarBackups(pasta, limite) {
 function listarBackups(pasta) {
   const lista = [];
   try {
-    const arquivos = fs.readdirSync(pasta)
-      .filter(n => /^meubolso-\d{8}-\d{6}\.json$/.test(n))
+    const arquivos = fs
+      .readdirSync(pasta)
+      .filter((n) => /^meubolso-\d{8}-\d{6}\.json$/.test(n))
       .sort(); // mais antigo primeiro
     for (const nome of arquivos) {
       const caminho = require('path').join(pasta, nome);
       try {
         const stat = fs.statSync(caminho);
-        let valido = false, info = {};
+        let valido = false,
+          info = {};
         try {
           const d = JSON.parse(fs.readFileSync(caminho, 'utf8'));
           valido = Array.isArray(d.dividas) && Array.isArray(d.pagamentos);
           info = {
             dividas: (d.dividas || []).length,
-            pagamentos: (d.pagamentos || []).length
+            pagamentos: (d.pagamentos || []).length,
           };
-        } catch (_) { /* ilegível: valido=false */ }
+        } catch (_) {
+          /* ilegível: valido=false */
+        }
         // Extrai a data do próprio nome do arquivo (sem depender de mtime).
         const m = nome.match(/(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/);
         const data = m ? `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}` : '';
@@ -118,11 +133,15 @@ function listarBackups(pasta) {
           modificadoEm: stat.mtime.toISOString(),
           tamanho: stat.size,
           valido,
-          info
+          info,
         });
-      } catch (_) { /* pula arquivo problemático */ }
+      } catch (_) {
+        /* pula arquivo problemático */
+      }
     }
-  } catch (_) { /* pasta inexistente: retorna lista vazia */ }
+  } catch (_) {
+    /* pasta inexistente: retorna lista vazia */
+  }
   return lista.reverse(); // mais recente primeiro
 }
 
@@ -149,5 +168,5 @@ module.exports = {
   fazerBackupRotativo,
   rotacionarBackups,
   listarBackups,
-  restaurarBackup
+  restaurarBackup,
 };

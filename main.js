@@ -32,12 +32,14 @@ function initPaths() {
     isPackaged: app.isPackaged,
     portableDir: process.env.PORTABLE_EXECUTABLE_DIR,
     userData: app.getPath('userData'),
-    versao
+    versao,
   });
   ambienteAtual = ambiente;
   userDataPath = base;
   // Migra o meubolso.json legado para o primeiro perfil (se ainda não houver perfis).
-  try { perfis.migrarLegado(base, 'Marcelo'); } catch (_) {}
+  try {
+    perfis.migrarLegado(base, 'Marcelo');
+  } catch (_) {}
   // Define o perfil ativo (do índice) e recalcula dbFile/backupFile.
   const indice = perfis.lerIndice(base);
   perfilAtivo = indice.ativo || (indice.perfis[0] && indice.perfis[0].id) || null;
@@ -52,7 +54,9 @@ function atualizarCaminhosPerfil() {
   backupFile = path.join(userDataPath, 'perfis', `perfil-${id}.bak.json`);
   pontosFile = path.join(userDataPath, 'perfis', `perfil-${id}.pontos.json`);
   // Garante que a pasta existe.
-  try { require('fs').mkdirSync(path.dirname(dbFile), { recursive: true }); } catch (_) {}
+  try {
+    require('fs').mkdirSync(path.dirname(dbFile), { recursive: true });
+  } catch (_) {}
 }
 
 // ---------- Normalizar dados ----------
@@ -66,7 +70,8 @@ function normalizar(d) {
   if (typeof d.configuracoes.criptografia !== 'object' || d.configuracoes.criptografia === null) {
     d.configuracoes.criptografia = { ativa: false };
   }
-  if (typeof d.configuracoes.criptografia.ativa !== 'boolean') d.configuracoes.criptografia.ativa = false;
+  if (typeof d.configuracoes.criptografia.ativa !== 'boolean')
+    d.configuracoes.criptografia.ativa = false;
   return d;
 }
 
@@ -95,11 +100,17 @@ function fazerBackup() {
       const conteudo = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
       const g = conteudo.gamificacao || { xp: 0, nivel: 1, historico: [] };
       salvarArquivoAtomico(pontosFile, JSON.stringify(g, null, 2));
-    } catch (_) { /* gamificacao ausente ou ilegível: ignora */ }
+    } catch (_) {
+      /* gamificacao ausente ou ilegível: ignora */
+    }
     // Backup ROTATIVO (S2-5): empurra uma nova geração com timestamp em backups/,
     // mantendo só as BACKUP_GERACOES mais recentes. Protege contra corrupção
     // percebida tardiamente — há até 7 cópias anteriores para restaurar.
-    try { fazerBackupRotativo(dbFile, backupsDir); } catch (_) { /* ignora falha do rotativo */ }
+    try {
+      fazerBackupRotativo(dbFile, backupsDir);
+    } catch (_) {
+      /* ignora falha do rotativo */
+    }
     return true;
   } catch (err) {
     console.warn('[DB] ⚠ Falha ao fazer backup automático:', err.message);
@@ -114,7 +125,7 @@ const {
   fazerBackupRotativo,
   listarBackups,
   restaurarBackup,
-  BACKUP_GERACOES
+  BACKUP_GERACOES,
 } = require('./src/persistencia.js');
 function saveToDB(data) {
   if (!data) {
@@ -131,7 +142,14 @@ function saveToDB(data) {
       conteudo = cripto.criptografar(senhaSessao, conteudo);
     }
     salvarArquivoAtomico(dbFile, conteudo);
-    console.log('[DB] ✓ Dados salvos (' + conteudo.length + ' bytes' + (cfg.ativa ? ', criptografado' : '') + ') perfil=' + perfilAtivo);
+    console.log(
+      '[DB] ✓ Dados salvos (' +
+        conteudo.length +
+        ' bytes' +
+        (cfg.ativa ? ', criptografado' : '') +
+        ') perfil=' +
+        perfilAtivo
+    );
     return true;
   } catch (err) {
     console.error('[DB] ✗ Erro ao salvar:', err.message);
@@ -176,7 +194,9 @@ function loadFromDB() {
       const parsed = ler(backupFile);
       console.warn('[DB] ⚠ Principal inválido; recuperado do backup:', backupFile);
       // Re-salva a versão recuperada como principal, corrigindo o arquivo quebrado.
-      try { salvarArquivoAtomico(dbFile, JSON.stringify(normalizar(parsed))); } catch (_) {}
+      try {
+        salvarArquivoAtomico(dbFile, JSON.stringify(normalizar(parsed)));
+      } catch (_) {}
       return normalizar(parsed);
     } catch (err2) {
       console.error('[DB] ✗ Backup também inválido:', err2.message);
@@ -187,7 +207,15 @@ function loadFromDB() {
 }
 
 function fallbackData() {
-  return { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' } };
+  return {
+    dividas: [],
+    pagamentos: [],
+    carteiras: [],
+    recorrentes: [],
+    metas: [],
+    lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] },
+    configuracoes: { moeda: 'BRL' },
+  };
 }
 
 // ============================================================
@@ -195,7 +223,9 @@ function fallbackData() {
 // ============================================================
 function createWindow() {
   let area = { width: 1366, height: 768 };
-  try { if (screen && screen.getPrimaryDisplay) area = screen.getPrimaryDisplay().workAreaSize; } catch (_) {}
+  try {
+    if (screen && screen.getPrimaryDisplay) area = screen.getPrimaryDisplay().workAreaSize;
+  } catch (_) {}
 
   const W = Math.min(1366, Math.max(1024, area.width));
   const H = Math.min(800, Math.max(700, area.height));
@@ -266,7 +296,9 @@ ipcMain.handle('cripto:ativar', async (_evt, senha) => {
     atual.configuracoes = atual.configuracoes || {};
     atual.configuracoes.criptografia = { ativa: true };
     saveToDB(atual);
-    try { perfis.marcarCripto(userDataPath, perfilAtivo, true); } catch (_) {}
+    try {
+      perfis.marcarCripto(userDataPath, perfilAtivo, true);
+    } catch (_) {}
   }
   return { ok: true };
 });
@@ -275,12 +307,15 @@ ipcMain.handle('cripto:ativar', async (_evt, senha) => {
 ipcMain.handle('cripto:desativar', async () => {
   const perfil = perfilAtivo;
   const atual = loadFromDB();
-  if (!atual || atual.__criptografado) return { ok: false, erro: 'nao foi possivel descriptografar' };
+  if (!atual || atual.__criptografado)
+    return { ok: false, erro: 'nao foi possivel descriptografar' };
   if (perfil) senhaSessaoPorPerfil[perfil] = null;
   atual.configuracoes = atual.configuracoes || {};
   atual.configuracoes.criptografia = { ativa: false };
   saveToDB(atual);
-  try { perfis.marcarCripto(userDataPath, perfil, false); } catch (_) {}
+  try {
+    perfis.marcarCripto(userDataPath, perfil, false);
+  } catch (_) {}
   return { ok: true };
 });
 
@@ -314,7 +349,11 @@ ipcMain.handle('perfil:trocarSenha', async (_evt, { id, senhaAtual, senhaNova })
   const content = fs.readFileSync(arq, 'utf8');
   const criptografado = cripto.eArquivoCriptografado(content);
   if (criptografado) {
-    try { cripto.descriptografar(senhaAtual, content); } catch (_) { return { ok: false, erro: 'senha atual incorreta' }; }
+    try {
+      cripto.descriptografar(senhaAtual, content);
+    } catch (_) {
+      return { ok: false, erro: 'senha atual incorreta' };
+    }
   }
   // Relê descriptografado, re-salva com a nova senha.
   let dados;
@@ -325,12 +364,17 @@ ipcMain.handle('perfil:trocarSenha', async (_evt, { id, senhaAtual, senhaNova })
   const cfg = cripto.criptografar(senhaNova, JSON.stringify(dados));
   fs.writeFileSync(arq, cfg);
   if (id === perfilAtivo) senhaSessaoPorPerfil[id] = senhaNova;
-  try { perfis.marcarCripto(userDataPath, id, true); } catch (_) {}
+  try {
+    perfis.marcarCripto(userDataPath, id, true);
+  } catch (_) {}
   return { ok: true };
 });
 ipcMain.handle('perfil:remover', async (_evt, id) => {
   const r = perfis.removerPerfil(userDataPath, id);
-  if (r.ok && r.ativo) { perfilAtivo = r.ativo; atualizarCaminhosPerfil(); }
+  if (r.ok && r.ativo) {
+    perfilAtivo = r.ativo;
+    atualizarCaminhosPerfil();
+  }
   return r;
 });
 
@@ -349,7 +393,8 @@ ipcMain.handle('app:largura-base', () => janelaBaseW);
 // Recebe { titulo, corpo, icone? } e usa a Notification da Electron (nativa).
 const { criarNotificacaoNativa } = require('./src/notificacoes-nativas.js');
 ipcMain.handle('notificar:nativa', async (_e, payload) =>
-  criarNotificacaoNativa(payload, { Notification, platform: process.platform }));
+  criarNotificacaoNativa(payload, { Notification, platform: process.platform })
+);
 
 ipcMain.handle('sistema:info', () => ({
   appVersion: app.getVersion(),
@@ -402,7 +447,7 @@ ipcMain.handle('dados:listar-backups', async () => {
   return {
     geracoes,
     limite: BACKUP_GERACOES,
-    pasta: backupsDir
+    pasta: backupsDir,
   };
 });
 
@@ -440,8 +485,13 @@ ipcMain.handle('janela:flash-foco', (evt) => {
 ipcMain.handle('link:abrir', (_evt, url) => {
   if (typeof url !== 'string') return false;
   if (!/^https?:\/\//i.test(url)) return false;
-  try { shell.openExternal(url); return true; }
-  catch (err) { console.error('Falha ao abrir link:', err); return false; }
+  try {
+    shell.openExternal(url);
+    return true;
+  } catch (err) {
+    console.error('Falha ao abrir link:', err);
+    return false;
+  }
 });
 
 ipcMain.handle('dados:exportar', async (evt) => {
@@ -465,7 +515,7 @@ ipcMain.handle('dados:exportar-csv', async (evt, conteudo, nomeSugerido) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const result = await dialog.showSaveDialog(win, {
     title: 'Exportar CSV',
-    defaultPath: nomeSugerido || ('meubolso-' + new Date().toISOString().slice(0, 10) + '.csv'),
+    defaultPath: nomeSugerido || 'meubolso-' + new Date().toISOString().slice(0, 10) + '.csv',
     filters: [{ name: 'CSV', extensions: ['csv'] }],
   });
   if (result.canceled || !result.filePath) return { ok: false, cancelado: true };
@@ -481,7 +531,8 @@ ipcMain.handle('dados:exportar-pdf', async (evt, nomeSugerido) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const result = await dialog.showSaveDialog(win, {
     title: 'Exportar PDF',
-    defaultPath: nomeSugerido || ('meubolso-relatorio-' + new Date().toISOString().slice(0, 10) + '.pdf'),
+    defaultPath:
+      nomeSugerido || 'meubolso-relatorio-' + new Date().toISOString().slice(0, 10) + '.pdf',
     filters: [{ name: 'PDF', extensions: ['pdf'] }],
   });
   if (result.canceled || !result.filePath) return { ok: false, cancelado: true };
@@ -499,7 +550,8 @@ ipcMain.handle('notificar:vencimento', async (evt, item) => {
   try {
     const { Notification } = require('electron');
     if (!Notification.isSupported()) return { ok: false, suportado: false };
-    const dataV = typeof item.vencimento === 'string' ? item.vencimento : String(item.vencimento || '');
+    const dataV =
+      typeof item.vencimento === 'string' ? item.vencimento : String(item.vencimento || '');
     const titulo = 'MeuBolso — vencimento em breve';
     const corpo = `${item.descricao}${item.credor ? ' · ' + item.credor : ''}\nParcela ${item.parcela} vence em ${dataV}`;
     const n = new Notification({ title: titulo, body: corpo });
@@ -518,10 +570,11 @@ ipcMain.handle('anexo:selecionar', async (evt) => {
     filters: [
       { name: 'Imagens', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] },
       { name: 'PDF', extensions: ['pdf'] },
-      { name: 'Todos', extensions: ['*'] }
-    ]
+      { name: 'Todos', extensions: ['*'] },
+    ],
   });
-  if (result.canceled || !result.filePaths || !result.filePaths.length) return { ok: false, cancelado: true };
+  if (result.canceled || !result.filePaths || !result.filePaths.length)
+    return { ok: false, cancelado: true };
   return { ok: true, caminho: result.filePaths[0] };
 });
 
@@ -563,15 +616,20 @@ function iniciarAutoUpdate() {
     const verificar = () => {
       if (verificando) return;
       verificando = true;
-      autoUpdater.checkForUpdates().catch((err) => {
-        console.warn('Verificação de atualização falhou:', err.message);
-      }).finally(() => { verificando = false; });
+      autoUpdater
+        .checkForUpdates()
+        .catch((err) => {
+          console.warn('Verificação de atualização falhou:', err.message);
+        })
+        .finally(() => {
+          verificando = false;
+        });
     };
     autoUpdater.on('update-available', (info) => {
       const file = (info.files && info.files[0]) || {};
-      const sizeBytes = file.size || info.updateInfo && info.updateInfo.size || 0;
+      const sizeBytes = file.size || (info.updateInfo && info.updateInfo.size) || 0;
       enviarUpdate('update:disponivel', {
-        version: info.version || info.updateInfo && info.updateInfo.version,
+        version: info.version || (info.updateInfo && info.updateInfo.version),
         releaseNotes: info.releaseNotes || '',
         releaseDate: info.releaseDate || '',
         sizeBytes: Number(sizeBytes) || 0,
@@ -591,10 +649,28 @@ function iniciarAutoUpdate() {
       enviarUpdate('update:erro', { message: err && err.message ? err.message : String(err) });
     });
 
-    ipcMain.handle('update:baixar', async () => { try { return await autoUpdater.downloadUpdate(); } catch (e) { return { erro: e.message }; } });
-    ipcMain.handle('update:instalar-agora', async () => { try { autoUpdater.quitAndInstall(false, true); return { ok: true }; } catch (e) { return { erro: e.message }; } });
-    ipcMain.handle('update:adiar', async () => { return { ok: true }; });
-    ipcMain.handle('update:verificar-agora', async () => { verificar(); return { ok: true }; });
+    ipcMain.handle('update:baixar', async () => {
+      try {
+        return await autoUpdater.downloadUpdate();
+      } catch (e) {
+        return { erro: e.message };
+      }
+    });
+    ipcMain.handle('update:instalar-agora', async () => {
+      try {
+        autoUpdater.quitAndInstall(false, true);
+        return { ok: true };
+      } catch (e) {
+        return { erro: e.message };
+      }
+    });
+    ipcMain.handle('update:adiar', async () => {
+      return { ok: true };
+    });
+    ipcMain.handle('update:verificar-agora', async () => {
+      verificar();
+      return { ok: true };
+    });
 
     // Verifica ao iniciar (pequeno atraso para a janela estar pronta).
     setTimeout(verificar, 4000);
@@ -628,7 +704,7 @@ function iniciarAutoUpdatePortatil() {
       if (!rel) return { ok: true, disponivel: false };
       const cmp = compararVersoes(rel.tag, app.getVersion());
       if (cmp <= 0) return { ok: true, disponivel: false };
-      const asset = (rel.assets || []).find(a => /portable\.exe$/i.test(a.name));
+      const asset = (rel.assets || []).find((a) => /portable\.exe$/i.test(a.name));
       if (!asset) return { ok: true, disponivel: false };
       enviarUpdate('update:disponivel', {
         version: rel.tag,
@@ -705,24 +781,35 @@ function buscarUltimaRelease() {
     const opts = {
       hostname: 'api.github.com',
       path: '/repos/marceloacaci/meubolso/releases/latest',
-      headers: { 'User-Agent': 'MeuBolso', 'Accept': 'application/vnd.github+json' },
+      headers: { 'User-Agent': 'MeuBolso', Accept: 'application/vnd.github+json' },
     };
-    https.get(opts, (res) => {
-      if (res.statusCode !== 200) { res.resume(); return reject(new Error('GitHub API ' + res.statusCode)); }
-      let body = '';
-      res.on('data', (c) => (body += c));
-      res.on('end', () => {
-        try {
-          const j = JSON.parse(body);
-          resolve({
-            tag: String(j.tag_name || '').replace(/^v/, ''),
-            notes: j.body || '',
-            published: j.published_at || '',
-            assets: (j.assets || []).map(a => ({ name: a.name, size: a.size, browser_download_url: a.browser_download_url })),
-          });
-        } catch (e) { reject(e); }
-      });
-    }).on('error', reject);
+    https
+      .get(opts, (res) => {
+        if (res.statusCode !== 200) {
+          res.resume();
+          return reject(new Error('GitHub API ' + res.statusCode));
+        }
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          try {
+            const j = JSON.parse(body);
+            resolve({
+              tag: String(j.tag_name || '').replace(/^v/, ''),
+              notes: j.body || '',
+              published: j.published_at || '',
+              assets: (j.assets || []).map((a) => ({
+                name: a.name,
+                size: a.size,
+                browser_download_url: a.browser_download_url,
+              })),
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -730,31 +817,53 @@ function buscarUltimaRelease() {
 function baixarArquivo(url, dest, onProgress) {
   return new Promise((resolve, reject) => {
     const f = fs.createWriteStream(dest);
-    https.get(url, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        f.close(); fs.unlinkSync(dest);
-        return baixarArquivo(res.headers.location, dest, onProgress).then(resolve, reject);
-      }
-      if (res.statusCode !== 200) { f.close(); fs.unlinkSync(dest); return reject(new Error('HTTP ' + res.statusCode)); }
-      const total = Number(res.headers['content-length']) || 0;
-      let transferred = 0;
-      res.on('data', (chunk) => {
-        transferred += chunk.length;
-        if (total) onProgress({ percent: (transferred / total) * 100, transferred, total });
+    https
+      .get(url, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          f.close();
+          fs.unlinkSync(dest);
+          return baixarArquivo(res.headers.location, dest, onProgress).then(resolve, reject);
+        }
+        if (res.statusCode !== 200) {
+          f.close();
+          fs.unlinkSync(dest);
+          return reject(new Error('HTTP ' + res.statusCode));
+        }
+        const total = Number(res.headers['content-length']) || 0;
+        let transferred = 0;
+        res.on('data', (chunk) => {
+          transferred += chunk.length;
+          if (total) onProgress({ percent: (transferred / total) * 100, transferred, total });
+        });
+        res.pipe(f);
+        f.on('finish', () => f.close(() => resolve(dest)));
+        f.on('error', (e) => {
+          f.close();
+          fs.unlinkSync(dest);
+          reject(e);
+        });
+      })
+      .on('error', (e) => {
+        f.close();
+        fs.unlinkSync(dest);
+        reject(e);
       });
-      res.pipe(f);
-      f.on('finish', () => f.close(() => resolve(dest)));
-      f.on('error', (e) => { f.close(); fs.unlinkSync(dest); reject(e); });
-    }).on('error', (e) => { f.close(); fs.unlinkSync(dest); reject(e); });
   });
 }
 
 // Compara versões semânticas simples (retorna >0 se a > b).
 function compararVersoes(a, b) {
-  const pa = String(a || '').split(/[-+]/)[0].split('.').map(Number);
-  const pb = String(b || '').split(/[-+]/)[0].split('.').map(Number);
+  const pa = String(a || '')
+    .split(/[-+]/)[0]
+    .split('.')
+    .map(Number);
+  const pb = String(b || '')
+    .split(/[-+]/)[0]
+    .split('.')
+    .map(Number);
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const x = pa[i] || 0, y = pb[i] || 0;
+    const x = pa[i] || 0,
+      y = pb[i] || 0;
     if (x !== y) return x - y;
   }
   return 0;
@@ -769,11 +878,20 @@ function migrarDadosInstalado(opts = {}) {
   const ambiente = opts.ambiente !== undefined ? opts.ambiente : ambienteAtual;
   if (ambiente !== 'instalado') return { copiado: false, limpar: [] };
   const base = opts.base !== undefined ? opts.base : app.getPath('userData');
-  const versaoAtual = opts.versaoAtual !== undefined ? opts.versaoAtual : (app.getVersion() || '0.0.0');
+  const versaoAtual =
+    opts.versaoAtual !== undefined ? opts.versaoAtual : app.getVersion() || '0.0.0';
   const { executarMigracaoFS } = require('./src/caminhos-dados');
   try {
     const r = executarMigracaoFS({ base, versaoAtual, fs, path });
-    if (r.copiado) console.log('[MIGRAÇÃO] Dados copiados de', r.origem, '->', versaoAtual, '; removidas:', r.removidos.join(', '));
+    if (r.copiado)
+      console.log(
+        '[MIGRAÇÃO] Dados copiados de',
+        r.origem,
+        '->',
+        versaoAtual,
+        '; removidas:',
+        r.removidos.join(', ')
+      );
     return r;
   } catch (err) {
     console.warn('[MIGRAÇÃO] Ignorada (não crítica):', err.message);
@@ -787,7 +905,9 @@ function migrarDadosInstalado(opts = {}) {
 app.whenReady().then(() => {
   // Necessário no Windows para que as notificações nativas (Toast) apareçam
   // com o ícone/aplicativo corretos (sem isso, o SO silencia o toast).
-  try { app.setAppUserModelId('com.meubolso.app'); } catch (_) {}
+  try {
+    app.setAppUserModelId('com.meubolso.app');
+  } catch (_) {}
   console.log('========================================');
   console.log('[APP] MeuBolso iniciando...');
   console.log('[APP] Backend de persistência: JSON (arquivo simples)');
@@ -818,5 +938,8 @@ app.on('before-quit', () => {
 // Exporta funções internas para testes (não afeta o runtime do Electron, que
 // não consome module.exports do entry-point).
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { migrarDadosInstalado, planejarMigracao: require('./src/caminhos-dados').planejarMigracao };
+  module.exports = {
+    migrarDadosInstalado,
+    planejarMigracao: require('./src/caminhos-dados').planejarMigracao,
+  };
 }

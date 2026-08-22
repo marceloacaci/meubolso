@@ -3,7 +3,15 @@ import { test, expect, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { salvarArquivoAtomico, limparTemporarios, fazerBackupRotativo, rotacionarBackups, listarBackups, restaurarBackup, BACKUP_GERACOES } from '../src/persistencia.js';
+import {
+  salvarArquivoAtomico,
+  limparTemporarios,
+  fazerBackupRotativo,
+  rotacionarBackups,
+  listarBackups,
+  restaurarBackup,
+  BACKUP_GERACOES,
+} from '../src/persistencia.js';
 
 let arquivos = [];
 function tmpFile(name) {
@@ -15,9 +23,13 @@ function tmpFile(name) {
 afterEach(() => {
   for (const a of arquivos) {
     for (const suf of ['', '.tmp-' + process.pid + '-' + a.length]) {
-      try { fs.unlinkSync(a + suf); } catch (_) {}
+      try {
+        fs.unlinkSync(a + suf);
+      } catch (_) {}
     }
-    try { fs.unlinkSync(a); } catch (_) {}
+    try {
+      fs.unlinkSync(a);
+    } catch (_) {}
   }
 });
 
@@ -34,7 +46,9 @@ test('salvarArquivoAtomico não deixa arquivo .tmp órfão', () => {
   const f = tmpFile('sem-tmp.json');
   salvarArquivoAtomico(f, JSON.stringify({ ok: true }));
   const dir = path.dirname(f);
-  const resto = fs.readdirSync(dir).filter((n) => n.includes('meubolso-test-' + process.pid) && n.includes('.tmp-'));
+  const resto = fs
+    .readdirSync(dir)
+    .filter((n) => n.includes('meubolso-test-' + process.pid) && n.includes('.tmp-'));
   expect(resto.length).toBe(0);
 });
 
@@ -59,7 +73,9 @@ test('limparTemporarios remove apenas os .tmp do prefixo', () => {
   expect(removidos).toBe(1);
   expect(fs.existsSync(orfao)).toBe(false);
   expect(fs.existsSync(legit)).toBe(true);
-  try { fs.unlinkSync(orfao); } catch (_) {}
+  try {
+    fs.unlinkSync(orfao);
+  } catch (_) {}
 });
 
 // ---------- Backup rotativo (S2-5) ----------
@@ -81,8 +97,10 @@ test('fazerBackupRotativo cria geração com timestamp e mantém só as N mais r
   expect(geracoes[0].data).toBe('2026-01-01 00:00:09');
   expect(geracoes[geracoes.length - 1].data).toBe('2026-01-01 00:00:03');
   // Cada geração deve ser válida (estrutura mínima).
-  expect(geracoes.every(g => g.valido)).toBe(true);
-  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
+  expect(geracoes.every((g) => g.valido)).toBe(true);
+  try {
+    fs.rmSync(pasta, { recursive: true, force: true });
+  } catch (_) {}
 });
 
 test('listarBackups retorna vazio e sem lançar quando a pasta não existe', () => {
@@ -101,7 +119,9 @@ test('restaurarBackup copia geração para o destino de forma atômica', () => {
   expect(ok).toBe(true);
   const lido = JSON.parse(fs.readFileSync(destino, 'utf8'));
   expect(lido.dividas[0].id).toBe('x');
-  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
+  try {
+    fs.rmSync(pasta, { recursive: true, force: true });
+  } catch (_) {}
 });
 
 test('rotacionarBackups remove apenas os mais antigos acima do limite', () => {
@@ -109,11 +129,14 @@ test('rotacionarBackups remove apenas os mais antigos acima do limite', () => {
   fs.mkdirSync(pasta, { recursive: true });
   const base = new Date(2026, 0, 1, 0, 0, 0);
   for (let i = 0; i < 9; i++) {
-    const nome = `meubolso-${base.getFullYear()}${String(base.getMonth()+1).padStart(2,'0')}${String(base.getDate()).padStart(2,'0')}-` +
-      `${String(base.getHours()).padStart(2,'0')}${String(base.getMinutes()).padStart(2,'0')}${String(base.getSeconds()+i).padStart(2,'0')}.json`;
+    const nome =
+      `meubolso-${base.getFullYear()}${String(base.getMonth() + 1).padStart(2, '0')}${String(base.getDate()).padStart(2, '0')}-` +
+      `${String(base.getHours()).padStart(2, '0')}${String(base.getMinutes()).padStart(2, '0')}${String(base.getSeconds() + i).padStart(2, '0')}.json`;
     fs.writeFileSync(path.join(pasta, nome), '{}');
   }
   rotacionarBackups(pasta, 7);
-  expect(fs.readdirSync(pasta).filter(n => n.endsWith('.json')).length).toBe(7);
-  try { fs.rmSync(pasta, { recursive: true, force: true }); } catch (_) {}
+  expect(fs.readdirSync(pasta).filter((n) => n.endsWith('.json')).length).toBe(7);
+  try {
+    fs.rmSync(pasta, { recursive: true, force: true });
+  } catch (_) {}
 });

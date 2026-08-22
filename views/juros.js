@@ -6,7 +6,7 @@ window.__mbRender = window.__mbRender || {};
 
 window.__mbRender.juros = function renderJuros() {
   const dividas = estado.dividas || [];
-  const comTaxa = dividas.filter(d => numDinheiro(d.taxaMensal) > 0 && totalDivida(d) > 0);
+  const comTaxa = dividas.filter((d) => numDinheiro(d.taxaMensal) > 0 && totalDivida(d) > 0);
 
   const totalPrincipal = dividas.reduce((acc, d) => somaDinheiro(acc, totalDivida(d)), 0);
   const totalJuros = comTaxa.reduce((acc, d) => {
@@ -15,9 +15,10 @@ window.__mbRender.juros = function renderJuros() {
   }, 0);
   const pctJuros = totalPrincipal > 0 ? Math.round((totalJuros / totalPrincipal) * 100) : 0;
 
-  const tabela = dividas.length === 0
-    ? `<div class="alert alert-secondary" role="status">${t('juros.semTaxa')}</div>`
-    : `<div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  const tabela =
+    dividas.length === 0
+      ? `<div class="alert alert-secondary" role="status">${t('juros.semTaxa')}</div>`
+      : `<div class="table-responsive"><table class="table table-hover align-middle mb-0">
          <thead><tr>
            <th>${t('juros.descricao')}</th>
            <th class="text-end">${t('juros.totalPagar')}</th>
@@ -27,11 +28,16 @@ window.__mbRender.juros = function renderJuros() {
            <th class="text-end">${t('acao.editar')}</th>
          </tr></thead>
          <tbody>
-           ${dividas.map(d => {
-             const r = (numDinheiro(d.taxaMensal) > 0)
-               ? calcularJurosDivida(d, { taxaMensal: d.taxaMensal, prazoMeses: d.prazoMeses || 12 })
-               : { total: totalDivida(d), juros: 0, cet: 0 };
-             return `
+           ${dividas
+             .map((d) => {
+               const r =
+                 numDinheiro(d.taxaMensal) > 0
+                   ? calcularJurosDivida(d, {
+                       taxaMensal: d.taxaMensal,
+                       prazoMeses: d.prazoMeses || 12,
+                     })
+                   : { total: totalDivida(d), juros: 0, cet: 0 };
+               return `
                <tr>
                  <td><div class="fw-semibold">${escapeHtml(d.descricao)}</div></td>
                  <td class="text-end">${fmt.format(r.total)}</td>
@@ -40,7 +46,8 @@ window.__mbRender.juros = function renderJuros() {
                  <td class="text-end">${numDinheiro(d.taxaMensal).toFixed(2)}%</td>
                  <td class="text-end"><button class="btn btn-sm btn-outline-secondary" data-acao="editar-juros" data-id="${d.id}">${t('juros.salvarTaxa')}</button></td>
                </tr>`;
-           }).join('')}
+             })
+             .join('')}
          </tbody>
        </table></div>`;
 
@@ -72,8 +79,10 @@ window.__mbRender.juros = function renderJuros() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.juros;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

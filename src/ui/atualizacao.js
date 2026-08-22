@@ -11,13 +11,19 @@
     if (n <= 0) return '—';
     const u = ['B', 'KB', 'MB', 'GB'];
     let i = 0;
-    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    while (n >= 1024 && i < u.length - 1) {
+      n /= 1024;
+      i++;
+    }
     return (n >= 10 ? n.toFixed(0) : n.toFixed(1)) + ' ' + u[i];
   };
 
-  const escapeAttr = (s) => String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escapeAttr = (s) =>
+    String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
 
   // Abre o overlay #modal com conteúdo customizado (igual abrirConfirmacao).
   function abrirModalUpdate(html) {
@@ -33,7 +39,10 @@
   function fecharModalUpdate() {
     const modal = document.getElementById('modal');
     const card = document.querySelector('.modal-card');
-    if (modal) { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+    }
     if (card) card.classList.remove('modal-card--gestao');
   }
 
@@ -62,18 +71,23 @@
       </div>`);
     const btnAgora = document.getElementById('upd-agora');
     const btnDepois = document.getElementById('upd-depois');
-    if (btnAgora) btnAgora.onclick = () => {
-      fecharModalUpdate();
-      const url = info.downloadUrl || null;
-      window.api.updateBaixar(url).catch(() => {});
-      mostrarProgresso();
-    };
-    if (btnDepois) btnDepois.onclick = () => {
-      fecharModalUpdate();
-      window.api.updateAdiar().catch(() => {});
-      if (window.mostrarToast) window.mostrarToast(t('upd.adiado'), 'info');
-    };
-    if (btnAgora) { window.api.flashFoco(); setTimeout(() => btnAgora.focus(), 60); }
+    if (btnAgora)
+      btnAgora.onclick = () => {
+        fecharModalUpdate();
+        const url = info.downloadUrl || null;
+        window.api.updateBaixar(url).catch(() => {});
+        mostrarProgresso();
+      };
+    if (btnDepois)
+      btnDepois.onclick = () => {
+        fecharModalUpdate();
+        window.api.updateAdiar().catch(() => {});
+        if (window.mostrarToast) window.mostrarToast(t('upd.adiado'), 'info');
+      };
+    if (btnAgora) {
+      window.api.flashFoco();
+      setTimeout(() => btnAgora.focus(), 60);
+    }
   }
 
   // ---- 2) Progresso do download ----
@@ -124,20 +138,26 @@
       </div>`);
     const dep = document.getElementById('upd-depois2');
     const rein = document.getElementById('upd-reiniciar');
-    if (dep) dep.onclick = () => {
-      fecharModalUpdate();
-      if (window.mostrarToast) window.mostrarToast(t('upd.instalaraAoFechar'), 'info');
-    };
-    if (rein) rein.onclick = () => {
-      fecharModalUpdate();
-      window.api.updateInstalarAgora().catch(() => {});
-    };
-    if (rein) { window.api.flashFoco(); setTimeout(() => rein.focus(), 60); }
+    if (dep)
+      dep.onclick = () => {
+        fecharModalUpdate();
+        if (window.mostrarToast) window.mostrarToast(t('upd.instalaraAoFechar'), 'info');
+      };
+    if (rein)
+      rein.onclick = () => {
+        fecharModalUpdate();
+        window.api.updateInstalarAgora().catch(() => {});
+      };
+    if (rein) {
+      window.api.flashFoco();
+      setTimeout(() => rein.focus(), 60);
+    }
   }
 
   // ---- 4) Erro ----
   function mostrarErro(e) {
-    if (window.mostrarToast) window.mostrarToast(t('upd.erro') + (e && e.message ? ': ' + e.message : ''), 'erro');
+    if (window.mostrarToast)
+      window.mostrarToast(t('upd.erro') + (e && e.message ? ': ' + e.message : ''), 'erro');
   }
 
   // ---- Wiring dos eventos do main ----
@@ -155,5 +175,11 @@
     iniciar();
   }
 
-  window.__mbAtualizacao = { mostrarDisponivel, mostrarProgresso, mostrarBaixado, mostrarErro, atualizarProgresso };
+  window.__mbAtualizacao = {
+    mostrarDisponivel,
+    mostrarProgresso,
+    mostrarBaixado,
+    mostrarErro,
+    atualizarProgresso,
+  };
 })();

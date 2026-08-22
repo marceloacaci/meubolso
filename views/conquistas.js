@@ -8,7 +8,7 @@ window.__mbRender.conquistas = function renderConquistas() {
   const nivel = g.nivel || 1;
   const historico = (g.historico || []).slice(0, 20);
 
-  const linhas = NIVEIS.map(n => {
+  const linhas = NIVEIS.map((n) => {
     const atingido = nivel >= n.nivel;
     const pct = Math.max(0, Math.min(100, progressoNivel(xpTotal) * 100));
     return `
@@ -25,14 +25,19 @@ window.__mbRender.conquistas = function renderConquistas() {
       </tr>`;
   }).join('');
 
-  const log = historico.length === 0
-    ? `<p class="stat-sub">${t('game.logVazio')}</p>`
-    : `<ul class="game-log">${historico.map(h => `
+  const log =
+    historico.length === 0
+      ? `<p class="stat-sub">${t('game.logVazio')}</p>`
+      : `<ul class="game-log">${historico
+          .map(
+            (h) => `
         <li>
           <span class="game-log-motivo">${escapeHtml(h.motivo || '')}</span>
           <span class="game-log-pontos ${h.pontos >= 0 ? 'pos' : 'neg'}">${h.pontos >= 0 ? '+' : ''}${h.pontos} XP</span>
           <span class="game-log-meta">${escapeHtml(h.horario || '')} · ${t('nivel.titulo')} ${h.nivel || '-'}</span>
-        </li>`).join('')}</ul>`;
+        </li>`
+          )
+          .join('')}</ul>`;
 
   return `
     <div class="page-header"><h2>${ICON.trofeu} ${t('conquistas.titulo')}</h2></div>
@@ -80,8 +85,10 @@ window.__mbRender.conquistas = function renderConquistas() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.conquistas;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

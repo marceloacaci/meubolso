@@ -9,12 +9,15 @@ const crypto = require('crypto');
 
 // Gera um id estável a partir do nome (slug) — usado no nome do arquivo.
 function slugify(nome) {
-  return String(nome || '')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove acentos
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40) || 'perfil';
+  return (
+    String(nome || '')
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '') // remove acentos
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40) || 'perfil'
+  );
 }
 
 // Caminho do arquivo de um perfil dentro da pasta de dados.
@@ -30,7 +33,9 @@ function lerIndice(base) {
     const j = JSON.parse(fs.readFileSync(arquivo, 'utf8'));
     if (!j || !Array.isArray(j.perfis)) return { ativo: null, perfis: [] };
     return j;
-  } catch (_) { return { ativo: null, perfis: [] }; }
+  } catch (_) {
+    return { ativo: null, perfis: [] };
+  }
 }
 
 // Salva o índice de perfis.
@@ -45,12 +50,12 @@ function criarPerfil(base, nome) {
   nome = (nome || '').trim();
   if (!nome) return { ok: false, erro: 'nome vazio' };
   const indice = lerIndice(base);
-  if (indice.perfis.some(p => p.nome.toLowerCase() === nome.toLowerCase())) {
+  if (indice.perfis.some((p) => p.nome.toLowerCase() === nome.toLowerCase())) {
     return { ok: false, erro: 'nome duplicado' };
   }
   let id = slugify(nome);
   // Garante unicidade do id (nomes diferentes podem colidir no slug).
-  const ids = new Set(indice.perfis.map(p => p.id));
+  const ids = new Set(indice.perfis.map((p) => p.id));
   if (ids.has(id)) {
     id = `${id}-${crypto.randomBytes(3).toString('hex')}`;
   }
@@ -62,7 +67,23 @@ function criarPerfil(base, nome) {
   const arq = caminhoPerfil(base, id);
   fs.mkdirSync(path.dirname(arq), { recursive: true });
   if (!fs.existsSync(arq)) {
-    fs.writeFileSync(arq, JSON.stringify({ dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [], lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] }, configuracoes: { moeda: 'BRL' }, gamificacao: { xp: 0, nivel: 1, historico: [] } }, null, 2));
+    fs.writeFileSync(
+      arq,
+      JSON.stringify(
+        {
+          dividas: [],
+          pagamentos: [],
+          carteiras: [],
+          recorrentes: [],
+          metas: [],
+          lixeira: { dividas: [], pagamentos: [], carteiras: [], recorrentes: [], metas: [] },
+          configuracoes: { moeda: 'BRL' },
+          gamificacao: { xp: 0, nivel: 1, historico: [] },
+        },
+        null,
+        2
+      )
+    );
   }
   return { ok: true, id, perfil };
 }
@@ -70,7 +91,7 @@ function criarPerfil(base, nome) {
 // Define o perfil ativo.
 function definirAtivo(base, id) {
   const indice = lerIndice(base);
-  if (!indice.perfis.some(p => p.id === id)) return { ok: false, erro: 'perfil inexistente' };
+  if (!indice.perfis.some((p) => p.id === id)) return { ok: false, erro: 'perfil inexistente' };
   indice.ativo = id;
   salvarIndice(base, indice);
   return { ok: true };
@@ -81,9 +102,9 @@ function renomearPerfil(base, id, novoNome) {
   novoNome = (novoNome || '').trim();
   if (!novoNome) return { ok: false, erro: 'nome vazio' };
   const indice = lerIndice(base);
-  const p = indice.perfis.find(x => x.id === id);
+  const p = indice.perfis.find((x) => x.id === id);
   if (!p) return { ok: false, erro: 'perfil inexistente' };
-  if (indice.perfis.some(x => x.id !== id && x.nome.toLowerCase() === novoNome.toLowerCase())) {
+  if (indice.perfis.some((x) => x.id !== id && x.nome.toLowerCase() === novoNome.toLowerCase())) {
     return { ok: false, erro: 'nome duplicado' };
   }
   p.nome = novoNome;
@@ -94,7 +115,7 @@ function renomearPerfil(base, id, novoNome) {
 // Marca se o perfil está criptografado (após ativar).
 function marcarCripto(base, id, ativa) {
   const indice = lerIndice(base);
-  const p = indice.perfis.find(x => x.id === id);
+  const p = indice.perfis.find((x) => x.id === id);
   if (!p) return { ok: false, erro: 'perfil inexistente' };
   p.cripto = !!ativa;
   salvarIndice(base, indice);
@@ -104,11 +125,13 @@ function marcarCripto(base, id, ativa) {
 // Remove um perfil (e seu arquivo de dados).
 function removerPerfil(base, id) {
   const indice = lerIndice(base);
-  indice.perfis = indice.perfis.filter(x => x.id !== id);
+  indice.perfis = indice.perfis.filter((x) => x.id !== id);
   if (indice.ativo === id) indice.ativo = indice.perfis.length ? indice.perfis[0].id : null;
   salvarIndice(base, indice);
   const arq = caminhoPerfil(base, id);
-  try { if (fs.existsSync(arq)) fs.unlinkSync(arq); } catch (_) {}
+  try {
+    if (fs.existsSync(arq)) fs.unlinkSync(arq);
+  } catch (_) {}
   return { ok: true, ativo: indice.ativo };
 }
 
@@ -122,13 +145,23 @@ function migrarLegado(base, nomePadrao) {
   if (!r.ok) return { ok: false, erro: r.erro };
   if (fs.existsSync(legado)) {
     const dest = caminhoPerfil(base, r.id);
-    try { fs.copyFileSync(legado, dest); } catch (_) {}
+    try {
+      fs.copyFileSync(legado, dest);
+    } catch (_) {}
     // Não apaga o legado imediatamente para segurança; o app decide.
   }
   return { ok: true, migrou: true, id: r.id, nome };
 }
 
 module.exports = {
-  slugify, caminhoPerfil, lerIndice, salvarIndice, criarPerfil, definirAtivo,
-  renomearPerfil, marcarCripto, removerPerfil, migrarLegado
+  slugify,
+  caminhoPerfil,
+  lerIndice,
+  salvarIndice,
+  criarPerfil,
+  definirAtivo,
+  renomearPerfil,
+  marcarCripto,
+  removerPerfil,
+  migrarLegado,
 };

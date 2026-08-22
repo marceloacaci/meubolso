@@ -1,8 +1,12 @@
 // Reprodução + validação dos bugs reportados (FCS).
 import { test, expect } from 'vitest';
 import {
-  totalDivida, totalPago, saldoDivida,
-  valorPagoParcela, sincronizarParcela, resumoParcelas,
+  totalDivida,
+  totalPago,
+  saldoDivida,
+  valorPagoParcela,
+  sincronizarParcela,
+  resumoParcelas,
 } from '../src/dominio.js';
 
 const divida = (opts = {}) => ({
@@ -13,7 +17,10 @@ const divida = (opts = {}) => ({
   ],
 });
 const pg = (valor, dividaId = 'd1', parcelaId = 'p1', extra = {}) =>
-  Object.assign({ id: 'pg' + Math.random(), dividaId, parcelaId, valor, data: '2026-08-05' }, extra);
+  Object.assign(
+    { id: 'pg' + Math.random(), dividaId, parcelaId, valor, data: '2026-08-05' },
+    extra
+  );
 
 // ---------- BUG 2 ----------
 test('BUG2: após registrar pagamento de 100, resumoParcelas mostra valorPago=100', () => {
@@ -50,11 +57,13 @@ function calcularResumoAtrasadasCorrigido(dividas, hoje = new Date()) {
   const atrasadasDividas = new Set();
   for (const d of dividas) {
     let dividaAtrasada = false;
-    for (const p of (d.parcelas || [])) {
+    for (const p of d.parcelas || []) {
       const s = p.status || 'pendente';
       todosStatus[s] = (todosStatus[s] || 0) + 1;
       if (s === 'pendente' && p.vencimento && new Date(p.vencimento) < hoje) {
-        todosStatus.pendente--; todosStatus.atrasado++; dividaAtrasada = true;
+        todosStatus.pendente--;
+        todosStatus.atrasado++;
+        dividaAtrasada = true;
       }
     }
     if (dividaAtrasada) atrasadasDividas.add(d.id);
@@ -63,20 +72,25 @@ function calcularResumoAtrasadasCorrigido(dividas, hoje = new Date()) {
 }
 
 test('BUG1-fix: 1 dívida com 2 parcelas vencidas => 1 DÍVIDA atrasada (nao 2)', () => {
-  const dividas = [{
-    id: 'd1',
-    parcelas: [
-      { id: 'p1', valor: 100, status: 'pendente', vencimento: '2026-01-01' },
-      { id: 'p2', valor: 200, status: 'pendente', vencimento: '2026-01-01' },
-    ],
-  }];
+  const dividas = [
+    {
+      id: 'd1',
+      parcelas: [
+        { id: 'p1', valor: 100, status: 'pendente', vencimento: '2026-01-01' },
+        { id: 'p2', valor: 200, status: 'pendente', vencimento: '2026-01-01' },
+      ],
+    },
+  ];
   const r = calcularResumoAtrasadasCorrigido(dividas, new Date('2026-08-22'));
   expect(r.atrasadasDividas).toBe(1); // CORRIGIDO: 1 dívida, nao 2 parcelas
 });
 
 test('BUG1-fix: 2 dívidas cada uma com 1 parcela vencida => 2 DÍVIDAS atrasadas', () => {
   const dividas = [
-    { id: 'd1', parcelas: [{ id: 'p1', valor: 100, status: 'pendente', vencimento: '2026-01-01' }] },
+    {
+      id: 'd1',
+      parcelas: [{ id: 'p1', valor: 100, status: 'pendente', vencimento: '2026-01-01' }],
+    },
     { id: 'd2', parcelas: [{ id: 'p1', valor: 50, status: 'pendente', vencimento: '2026-01-01' }] },
   ];
   const r = calcularResumoAtrasadasCorrigido(dividas, new Date('2026-08-22'));
@@ -84,10 +98,12 @@ test('BUG1-fix: 2 dívidas cada uma com 1 parcela vencida => 2 DÍVIDAS atrasada
 });
 
 test('BUG1-fix: dívida quitada (parcela paga) nao conta como atrasada mesmo vencida', () => {
-  const dividas = [{
-    id: 'd1',
-    parcelas: [{ id: 'p1', valor: 100, status: 'pago', vencimento: '2026-01-01' }],
-  }];
+  const dividas = [
+    {
+      id: 'd1',
+      parcelas: [{ id: 'p1', valor: 100, status: 'pago', vencimento: '2026-01-01' }],
+    },
+  ];
   const r = calcularResumoAtrasadasCorrigido(dividas, new Date('2026-08-22'));
   expect(r.atrasadasDividas).toBe(0);
 });

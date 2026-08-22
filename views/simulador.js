@@ -8,7 +8,7 @@ window.__simCache = window.__simCache || null;
 
 window.__mbRender.simulador = function renderSimulador() {
   const dividas = estado.dividas || [];
-  const comSaldo = dividas.filter(d => saldoDivida(d, estado.pagamentos) > 0);
+  const comSaldo = dividas.filter((d) => saldoDivida(d, estado.pagamentos) > 0);
 
   const form = `
     <div class="page-header"><h2>${ICON.simulador} ${t('simulador.titulo')}</h2></div>
@@ -35,7 +35,9 @@ window.__mbRender.simulador = function renderSimulador() {
     </div></div>`;
 
   if (comSaldo.length === 0) {
-    return form + `<div class="alert alert-secondary" role="status">${t('simulador.semDivida')}</div>`;
+    return (
+      form + `<div class="alert alert-secondary" role="status">${t('simulador.semDivida')}</div>`
+    );
   }
 
   const res = window.__simCache;
@@ -43,12 +45,28 @@ window.__mbRender.simulador = function renderSimulador() {
   if (res) {
     const un = res.meses === 1 ? t('simulador.mesesSing') : t('simulador.mesesPlural');
     // Compara avalanche x bola de neve para apontar a melhor estratégia.
-    const av = simularQuitacao(estado.dividas, { estrategia: 'avalanche', pagamentoMensal: res.pagamento, pagamentos: estado.pagamentos });
-    const bn = simularQuitacao(estado.dividas, { estrategia: 'bolaNeve', pagamentoMensal: res.pagamento, pagamentos: estado.pagamentos });
-    const melhor = (!av.possivel && !bn.possivel) ? null
-      : (av.totalJuros <= bn.totalJuros ? 'avalanche' : 'bolaNeve');
-    const melhorTxt = melhor === 'avalanche' ? t('simulador.avalanche')
-      : melhor === 'bolaNeve' ? t('simulador.bolaNeve') : '—';
+    const av = simularQuitacao(estado.dividas, {
+      estrategia: 'avalanche',
+      pagamentoMensal: res.pagamento,
+      pagamentos: estado.pagamentos,
+    });
+    const bn = simularQuitacao(estado.dividas, {
+      estrategia: 'bolaNeve',
+      pagamentoMensal: res.pagamento,
+      pagamentos: estado.pagamentos,
+    });
+    const melhor =
+      !av.possivel && !bn.possivel
+        ? null
+        : av.totalJuros <= bn.totalJuros
+          ? 'avalanche'
+          : 'bolaNeve';
+    const melhorTxt =
+      melhor === 'avalanche'
+        ? t('simulador.avalanche')
+        : melhor === 'bolaNeve'
+          ? t('simulador.bolaNeve')
+          : '—';
     const economia = Math.abs(av.totalJuros - bn.totalJuros);
     resultado = `
       <div class="card"><div class="card-body">
@@ -78,8 +96,10 @@ window.__mbRender.simulador = function renderSimulador() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.simulador;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

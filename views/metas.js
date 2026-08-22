@@ -5,26 +5,31 @@ window.__mbRender = window.__mbRender || {};
 
 window.__mbRender.metas = function renderMetas() {
   const metas = estado.metas || [];
-  const corpo = metas.length === 0
-    ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
+  const corpo =
+    metas.length === 0
+      ? `<div class="alert alert-secondary raised-card d-flex align-items-center gap-2" role="status">
          <span style="font-size:20px">${ICON.meta}</span>
          <div>${t('metas.vazia')}</div>
        </div>`
-    : `<div class="vstack gap-3">
-         ${metas.map(m => {
-           const alvo = Math.max(0, numDinheiro(m.valorAlvo));
-           const atual = Math.max(0, numDinheiro(m.valorAtual));
-           const pct = alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : (atual > 0 ? 100 : 0);
-           const concluida = m.concluida || pct >= 100;
-           const faltam = Math.max(0, somaDinheiro(alvo, -atual));
-           return `
+      : `<div class="vstack gap-3">
+         ${metas
+           .map((m) => {
+             const alvo = Math.max(0, numDinheiro(m.valorAlvo));
+             const atual = Math.max(0, numDinheiro(m.valorAtual));
+             const pct =
+               alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : atual > 0 ? 100 : 0;
+             const concluida = m.concluida || pct >= 100;
+             const faltam = Math.max(0, somaDinheiro(alvo, -atual));
+             return `
              <div class="card shadow-sm">
                <div class="card-body">
                  <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
                    <div class="fw-semibold">${ICON.meta} ${escapeHtml(m.titulo)}</div>
-                   ${concluida
-                     ? `<span class="badge text-bg-success">${t('metas.concluida')}</span>`
-                     : `<span class="text-secondary small">${t('metas.faltam')} ${fmt.format(faltam)}</span>`}
+                   ${
+                     concluida
+                       ? `<span class="badge text-bg-success">${t('metas.concluida')}</span>`
+                       : `<span class="text-secondary small">${t('metas.faltam')} ${fmt.format(faltam)}</span>`
+                   }
                  </div>
                  <div class="d-flex justify-content-between text-secondary small mb-1">
                    <span>${fmt.format(atual)} / ${fmt.format(alvo)}</span>
@@ -40,7 +45,8 @@ window.__mbRender.metas = function renderMetas() {
                  </div>
                </div>
              </div>`;
-         }).join('')}
+           })
+           .join('')}
        </div>`;
 
   return `
@@ -63,8 +69,10 @@ window.__mbRender.metas = function renderMetas() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.metas;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

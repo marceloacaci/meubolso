@@ -3,10 +3,10 @@ import { test, expect } from 'vitest';
 
 // Replicação da lógica de montagem do ticker (app.js) para testar isoladamente.
 function montarOrdem(DICAS) {
-  const autores = DICAS.filter(d => d.autor);
-  const comuns = DICAS.filter(d => !d.autor);
+  const autores = DICAS.filter((d) => d.autor);
+  const comuns = DICAS.filter((d) => !d.autor);
   const embaralha = (arr) => {
-    const a = arr.map(d => d);
+    const a = arr.map((d) => d);
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
@@ -45,15 +45,16 @@ test('DICAS de autor incluem Rick Chester com a Regra de 3', () => {
   // Verifica que nenhum autor aparece nas primeiras 4 posições SEM um bloco de 4 comuns antes
   // (ou seja, o padrão 4 comuns + 1 autor se mantém nas primeiras inserções)
   const primeiras5 = ordem.slice(0, 5);
-  const autoresNas5 = primeiras5.filter(d => d.autor).length;
+  const autoresNas5 = primeiras5.filter((d) => d.autor).length;
   expect(autoresNas5).toBe(1); // exatamente 1 autor a cada 5
 });
 
 test('Rick Chester está presente na lista de autores', () => {
   const DICAS = [
-    { pt: 'a' }, { pt: 'b' },
+    { pt: 'a' },
+    { pt: 'b' },
     { autor: 'Rick Chester', pt: 'Regra de 3: 1/3 salário, 1/3 emergência, 1/3 reinvestir' },
   ];
-  const autores = DICAS.filter(d => d.autor);
-  expect(autores.some(a => a.autor === 'Rick Chester' && /1\/3/.test(a.pt))).toBe(true);
+  const autores = DICAS.filter((d) => d.autor);
+  expect(autores.some((a) => a.autor === 'Rick Chester' && /1\/3/.test(a.pt))).toBe(true);
 });

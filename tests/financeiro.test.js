@@ -42,7 +42,10 @@ const divida = (opts = {}) => ({
   ],
 });
 const pg = (valor, dividaId = 'd1', parcelaId = 'p1', extra = {}) =>
-  Object.assign({ id: 'pg' + Math.random(), dividaId, parcelaId, valor, data: '2026-08-05' }, extra);
+  Object.assign(
+    { id: 'pg' + Math.random(), dividaId, parcelaId, valor, data: '2026-08-05' },
+    extra
+  );
 
 // ---- totalDivida ----
 test('totalDivida soma parcelas', () => {
@@ -52,7 +55,9 @@ test('totalDivida de dívida vazia', () => {
   expect(totalDivida({ id: 'x' })).toBe(0);
 });
 test('totalDivida com valores em float fecha exato', () => {
-  expect(totalDivida({ parcelas: [{ valor: 33.33 }, { valor: 33.33 }, { valor: 33.34 }] })).toBe(100);
+  expect(totalDivida({ parcelas: [{ valor: 33.33 }, { valor: 33.33 }, { valor: 33.34 }] })).toBe(
+    100
+  );
 });
 
 // ---- totalPago ----
@@ -110,7 +115,11 @@ test('sincroniza parcela como pendente sem pagamento', () => {
 });
 test('quitacao exata com float marca como pago (D-02)', () => {
   const d = { id: 'd', parcelas: [{ id: 'p', valor: 100, status: 'pendente' }] };
-  const r = sincronizarParcela(d, 'p', [pg(33.33, 'd', 'p'), pg(33.33, 'd', 'p'), pg(33.34, 'd', 'p')]);
+  const r = sincronizarParcela(d, 'p', [
+    pg(33.33, 'd', 'p'),
+    pg(33.33, 'd', 'p'),
+    pg(33.34, 'd', 'p'),
+  ]);
   expect(r.status).toBe('pago');
 });
 test('excedente ainda é pago', () => {

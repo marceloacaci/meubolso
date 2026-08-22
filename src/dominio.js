@@ -76,7 +76,7 @@ function _indicePorDivida(pagamentos) {
 // E parcelaId pertencente à dívida). `pagamentos` é a lista global de pagamentos.
 function totalPago(d, pagamentos) {
   const ids = new Set((d.parcelas || []).filter((p) => p.id).map((p) => p.id));
-  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  const daDivida = _indicePorDivida(pagamentos).get(d.id) || [];
   return daDivida
     .filter((p) => ids.has(p.parcelaId))
     .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
@@ -90,7 +90,7 @@ function saldoDivida(d, pagamentos) {
 // Total pago em UMA parcela específica da dívida.
 function valorPagoParcela(d, parcelaId, pagamentos) {
   if (!parcelaId) return totalPago(d, pagamentos); // caso legado: sem parcela
-  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  const daDivida = _indicePorDivida(pagamentos).get(d.id) || [];
   return daDivida
     .filter((p) => p.parcelaId === parcelaId)
     .reduce((acc, p) => somaDinheiro(acc, numDinheiro(p.valor)), 0);
@@ -102,7 +102,7 @@ function valorPagoParcela(d, parcelaId, pagamentos) {
 function sincronizarParcela(divida, parcelaId, pagamentos) {
   const parc = (divida.parcelas || []).find((p) => p.id === parcelaId);
   if (!parc) return parc;
-  const daDivida = (_indicePorDivida(pagamentos).get(divida.id) || []);
+  const daDivida = _indicePorDivida(pagamentos).get(divida.id) || [];
   const pagos = daDivida.filter((p) => p.parcelaId === parcelaId);
   const valParc = numDinheiro(parc.valor);
   parc.valorPago = pagos.reduce((a, p) => somaDinheiro(a, numDinheiro(p.valor)), 0);
@@ -131,24 +131,24 @@ function sincronizarParcela(divida, parcelaId, pagamentos) {
 // alterar os objetos de registro existentes via Object.assign).
 function reconciliarPagamentosAposEdicao(divida, pagamentos) {
   const lista = (pagamentos || []).slice();
-  for (const parc of (divida.parcelas || [])) {
-    const existente = lista.find(p => p.dividaId === divida.id && p.parcelaId === parc.id);
+  for (const parc of divida.parcelas || []) {
+    const existente = lista.find((p) => p.dividaId === divida.id && p.parcelaId === parc.id);
     if (parc.valorPago > 0) {
       if (existente) {
         Object.assign(existente, {
           valor: parc.valorPago,
           status: parc.status,
-          dataPagamento: parc.dataPagamento
+          dataPagamento: parc.dataPagamento,
         });
       } else {
         lista.push({
-          id: (typeof uid === 'function' ? uid() : 'pg_' + divida.id + '_' + parc.id),
+          id: typeof uid === 'function' ? uid() : 'pg_' + divida.id + '_' + parc.id,
           dividaId: divida.id,
           parcelaId: parc.id,
           valor: parc.valorPago,
           data: parc.dataPagamento || '',
           nota: parc.nota || '',
-          carteiraId: null
+          carteiraId: null,
         });
       }
     } else if (existente) {
@@ -163,7 +163,7 @@ function reconciliarPagamentosAposEdicao(divida, pagamentos) {
 // Resumo de parcelas de uma dívida para exibição.
 function resumoParcelas(d, pagamentos) {
   const total = (d.parcelas || []).length;
-  const daDivida = (_indicePorDivida(pagamentos).get(d.id) || []);
+  const daDivida = _indicePorDivida(pagamentos).get(d.id) || [];
   const pagamentoParcelas = new Set(daDivida.map((p) => p.parcelaId));
   const pagas = (d.parcelas || []).filter((p) => pagamentoParcelas.has(p.id)).length;
   const restantes = total - pagas;
@@ -206,7 +206,7 @@ function calcularJurosDivida(d, opts) {
   const n = Math.max(1, Math.round(Number(opts && opts.prazoMeses) || 1));
   if (principal <= 0) return { principal: 0, juros: 0, total: 0, parcela: 0, cet: 0 };
   if (i <= 0) return { principal, juros: 0, total: principal, parcela: principal / n, cet: 0 };
-  const parcela = principal * i / (1 - Math.pow(1 + i, -n));
+  const parcela = (principal * i) / (1 - Math.pow(1 + i, -n));
   const total = parcela * n;
   const juros = total - principal;
   return { principal, juros, total, parcela, cet: cet(opts.taxaMensal) };
@@ -221,18 +221,22 @@ function calcularJurosDivida(d, opts) {
 function simularQuitacao(dividas, opts) {
   const estrategia = (opts && opts.estrategia) || 'avalanche';
   const pagamento = Math.max(0, Number(opts && opts.pagamentoMensal) || 0);
-  let debs = (dividas || []).map(d => ({
-    id: d.id,
-    saldo: saldoDivida(d, opts && opts.pagamentos),
-    taxa: (Number(d.taxaMensal) || 0) / 100
-  })).filter(x => x.saldo > 0.005);
+  let debs = (dividas || [])
+    .map((d) => ({
+      id: d.id,
+      saldo: saldoDivida(d, opts && opts.pagamentos),
+      taxa: (Number(d.taxaMensal) || 0) / 100,
+    }))
+    .filter((x) => x.saldo > 0.005);
   if (debs.length === 0 || pagamento <= 0) {
     return { meses: 0, totalJuros: 0, totalPago: 0, possivel: false };
   }
-  debs.sort((a, b) => estrategia === 'avalanche' ? (b.taxa - a.taxa) : (a.saldo - b.saldo));
-  let meses = 0, totalJuros = 0, totalPago = 0;
+  debs.sort((a, b) => (estrategia === 'avalanche' ? b.taxa - a.taxa : a.saldo - b.saldo));
+  let meses = 0,
+    totalJuros = 0,
+    totalPago = 0;
   const LIMITE = 1200; // teto de 100 anos (segurança contra loop infinito)
-  while (debs.some(d => d.saldo > 0.005) && meses < LIMITE) {
+  while (debs.some((d) => d.saldo > 0.005) && meses < LIMITE) {
     meses++;
     let orcamento = pagamento;
     for (const d of debs) {
@@ -252,7 +256,7 @@ function simularQuitacao(dividas, opts) {
       }
     }
   }
-  const possivel = debs.every(d => d.saldo <= 0.005);
+  const possivel = debs.every((d) => d.saldo <= 0.005);
   return { meses, totalJuros, totalPago, possivel };
 }
 
@@ -328,8 +332,10 @@ function recalcularHistorico(historico) {
 // Normaliza uma string para comparação (minúscula, sem acentos, trim).
 function normalizarTexto(s) {
   return String(s || '')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().trim();
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 }
 
 // Filtra dívidas por texto (descrição/credor/observacao), categoria, status e
@@ -357,7 +363,7 @@ function filtrarDividas(dividas, filtro) {
     if (ateRaw) return ateRaw.length === 7 ? vMes <= ateRaw : v <= ateRaw;
     return true;
   };
-  return (dividas || []).filter(d => {
+  return (dividas || []).filter((d) => {
     if (cat && d.categoria !== cat) return false;
     if (texto) {
       const alvo = normalizarTexto([d.descricao, d.credor, d.observacao].join(' '));
@@ -365,14 +371,15 @@ function filtrarDividas(dividas, filtro) {
     }
     if (status) {
       const parcelas = d.parcelas || [];
-      const todasPagas = parcelas.length > 0 && parcelas.every(p => (p.status || 'pendente') === 'pago');
-      const temAtraso = parcelas.some(p => (p.status || 'pendente') === 'atrasado');
+      const todasPagas =
+        parcelas.length > 0 && parcelas.every((p) => (p.status || 'pendente') === 'pago');
+      const temAtraso = parcelas.some((p) => (p.status || 'pendente') === 'atrasado');
       if (status === 'quitado' && !todasPagas) return false;
       if (status === 'emDia' && (todasPagas || temAtraso)) return false;
       if (status === 'atrasado' && !temAtraso) return false;
     }
     if (deRaw || ateRaw) {
-      const bate = (d.parcelas || []).some(p => entre(p.vencimento || ''));
+      const bate = (d.parcelas || []).some((p) => entre(p.vencimento || ''));
       if (!bate) return false;
     }
     return true;
@@ -387,8 +394,11 @@ function filtrarPagamentos(pagamentos, dividas, filtro) {
   const cat = f.categoria || '';
   const deRaw = f.periodoDe || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
   const ateRaw = f.periodoAte || (f.periodo && f.periodo.length >= 7 ? f.periodo : '') || '';
-  const porDiv = (id) => (dividas || []).find(d => d.id === id);
-  const catDiv = (id) => { const d = porDiv(id); return d ? d.categoria : ''; };
+  const porDiv = (id) => (dividas || []).find((d) => d.id === id);
+  const catDiv = (id) => {
+    const d = porDiv(id);
+    return d ? d.categoria : '';
+  };
   const entre = (data) => {
     const v = data || '';
     const vMes = v.slice(0, 7);
@@ -400,7 +410,7 @@ function filtrarPagamentos(pagamentos, dividas, filtro) {
     if (ateRaw) return ateRaw.length === 7 ? vMes <= ateRaw : v <= ateRaw;
     return true;
   };
-  return (pagamentos || []).filter(p => {
+  return (pagamentos || []).filter((p) => {
     if (dividaId && p.dividaId !== dividaId) return false;
     if (cat && catDiv(p.dividaId) !== cat) return false;
     if (texto) {
@@ -451,7 +461,7 @@ function paginar(lista, pagina, porPagina) {
     pagina: paginaOk,
     totalPaginas,
     total,
-    porPagina: n
+    porPagina: n,
   };
 }
 

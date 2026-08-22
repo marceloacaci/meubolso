@@ -29,32 +29,39 @@ for (const h of historico) {
   if ((h.pontos || 0) <= 0) continue;
   agregado[h.motivo] = (agregado[h.motivo] || 0) + h.pontos;
 }
-const dados = Object.entries(agregado).map(([k, xp]) => ({ label: labelMap[k], xp }))
+const dados = Object.entries(agregado)
+  .map(([k, xp]) => ({ label: labelMap[k], xp }))
   .sort((a, b) => b.xp - a.xp);
 const totalXP = dados.reduce((a, d) => a + d.xp, 0);
 const maxXP = dados.reduce((m, d) => Math.max(m, d.xp), 0);
 
 test('graficoBarrasXP: % relativo ao total soma 100 e barra é proporcional ao máx', () => {
   expect(totalXP).toBe(100); // 50+30+20
-  const pcts = dados.map(d => (d.xp / totalXP) * 100);
+  const pcts = dados.map((d) => (d.xp / totalXP) * 100);
   const somaPct = pcts.reduce((a, b) => a + b, 0);
   expect(Math.round(somaPct)).toBe(100); // 100% do total
   // A maior barra (maior xp) deve ter fill 100%.
   const maior = dados[0];
   expect((maior.xp / maxXP) * 100).toBeCloseTo(100, 5);
   // A menor (20) deve ter fill 20% do total relativo ao máx (20/50 = 40%).
-  const menor = dados.find(d => d.xp === 20);
+  const menor = dados.find((d) => d.xp === 20);
   expect((menor.xp / maxXP) * 100).toBeCloseTo(40, 5);
 });
 
 test('graficoBarrasXP: não gera <canvas> (HTML puro evita legendas sumindo)', () => {
   // Sanidade: a função real retornaria <div class="xp-barras">. Validamos a
   // estrutura esperada que a view injeta.
-  const html = `<div class="xp-barras">` + dados.map(d =>
-    `<div class="xp-barra-linha"><span class="xp-barra-label">${d.label}</span>` +
-    `<div class="xp-barra-track"><div class="xp-barra-fill" style="width:${(d.xp / maxXP * 100).toFixed(1)}%"></div></div>` +
-    `<span class="xp-barra-valor">+${d.xp}</span><span class="xp-barra-pct">${(d.xp / totalXP * 100).toFixed(1)}%</span></div>`
-  ).join('') + `</div>`;
+  const html =
+    `<div class="xp-barras">` +
+    dados
+      .map(
+        (d) =>
+          `<div class="xp-barra-linha"><span class="xp-barra-label">${d.label}</span>` +
+          `<div class="xp-barra-track"><div class="xp-barra-fill" style="width:${((d.xp / maxXP) * 100).toFixed(1)}%"></div></div>` +
+          `<span class="xp-barra-valor">+${d.xp}</span><span class="xp-barra-pct">${((d.xp / totalXP) * 100).toFixed(1)}%</span></div>`
+      )
+      .join('') +
+    `</div>`;
   expect(html).not.toContain('<canvas');
   expect(html).toContain('xp-barra-label');
   expect(html).toContain('xp-barra-pct');
@@ -67,11 +74,17 @@ test('graficoBarrasXP: não gera <canvas> (HTML puro evita legendas sumindo)', (
 const HOVER_PLUGIN_IDX = 1; // [0]=textoCentral (doughnut), [1]=hoverPorArea
 let capturado = null;
 
-function ChartStub(el, cfg) { capturado = cfg; return { update() {}, setActiveElements() {}, tooltip: { setActiveElements() {} }, config: cfg }; }
+function ChartStub(el, cfg) {
+  capturado = cfg;
+  return { update() {}, setActiveElements() {}, tooltip: { setActiveElements() {} }, config: cfg };
+}
 
 const docStub = {
   documentElement: { style: { setProperty() {} }, getAttribute: () => null },
-  getElementById: () => ({ getContext: () => ({}), getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 200 }) }),
+  getElementById: () => ({
+    getContext: () => ({}),
+    getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 200 }),
+  }),
 };
 const getComputedStyleStub = () => ({ getPropertyValue: () => '1' });
 
@@ -90,7 +103,9 @@ window.ChartGraficos.registrar('test-doughnut', {
   labels: ['A', 'B', 'C'],
   valores: [10, 20, 30],
   cores: ['#1', '#2', '#3'],
-  centroLabel: 'X', centroValor: '60', fmt: (v) => String(v),
+  centroLabel: 'X',
+  centroValor: '60',
+  fmt: (v) => String(v),
 });
 window.ChartGraficos.montar();
 const plugin = capturado.plugins[HOVER_PLUGIN_IDX];
@@ -99,9 +114,9 @@ const plugin = capturado.plugins[HOVER_PLUGIN_IDX];
 // cutout 50%. Raios: chartArea 200x200 -> rx=ry=100, centro (100,100).
 const meta = {
   data: [
-    { startAngle: 0, endAngle: Math.PI * 2 / 3 },
-    { startAngle: Math.PI * 2 / 3, endAngle: Math.PI * 4 / 3 },
-    { startAngle: Math.PI * 4 / 3, endAngle: Math.PI * 2 },
+    { startAngle: 0, endAngle: (Math.PI * 2) / 3 },
+    { startAngle: (Math.PI * 2) / 3, endAngle: (Math.PI * 4) / 3 },
+    { startAngle: (Math.PI * 4) / 3, endAngle: Math.PI * 2 },
   ],
 };
 const chartFake = {
@@ -121,7 +136,8 @@ function evento(x, y) {
 
 test('hoverPorArea: ponto em QUALQUER área da fatia 0 (ângulo 60°, raio 75%) ativa idx 0', () => {
   // centro (100,100); ângulo 60° => x=100+75*cos60=137.5, y=100+75*sin60=164.95
-  const r = 0.75, ang = Math.PI / 3;
+  const r = 0.75,
+    ang = Math.PI / 3;
   const x = 100 + r * 100 * Math.cos(ang);
   const y = 100 + r * 100 * Math.sin(ang);
   plugin.afterEvent(chartFake, { event: evento(x, y) });
@@ -131,10 +147,12 @@ test('hoverPorArea: ponto em QUALQUER área da fatia 0 (ângulo 60°, raio 75%) 
 });
 
 test('hoverPorArea: ponto na fatia 2 (ângulo 300°, raio 90%) ativa idx 2', () => {
-  const r = 0.9, ang = Math.PI * 5 / 3; // 300°
+  const r = 0.9,
+    ang = (Math.PI * 5) / 3; // 300°
   const x = 100 + r * 100 * Math.cos(ang);
   const y = 100 + r * 100 * Math.sin(ang);
-  chartFake._hoverIdx = -1; chartFake.setActiveElements.mockClear();
+  chartFake._hoverIdx = -1;
+  chartFake.setActiveElements.mockClear();
   plugin.afterEvent(chartFake, { event: evento(x, y) });
   const arg = chartFake.setActiveElements.mock.calls[0][0];
   expect(arg[0].index).toBe(2);
@@ -142,14 +160,17 @@ test('hoverPorArea: ponto na fatia 2 (ângulo 300°, raio 90%) ativa idx 2', () 
 
 test('hoverPorArea: ponto no buraco central (r < cutout) NÃO ativa fatia', () => {
   // raio 30% (< 50% cutout) -> fora do anel
-  const x = 100 + 30, y = 100; // r=0.30
-  chartFake._hoverIdx = -1; chartFake.setActiveElements.mockClear();
+  const x = 100 + 30,
+    y = 100; // r=0.30
+  chartFake._hoverIdx = -1;
+  chartFake.setActiveElements.mockClear();
   plugin.afterEvent(chartFake, { event: evento(x, y) });
   expect(chartFake.setActiveElements).not.toHaveBeenCalled();
 });
 
 test('hoverPorArea: mouseout limpa a seleção', () => {
-  chartFake._hoverIdx = 2; chartFake.setActiveElements.mockClear();
+  chartFake._hoverIdx = 2;
+  chartFake.setActiveElements.mockClear();
   plugin.afterEvent(chartFake, { event: { type: 'mouseout', x: 0, y: 0 } });
   expect(chartFake.setActiveElements).toHaveBeenCalledWith([]);
   expect(chartFake._hoverIdx).toBe(-1);

@@ -6,11 +6,10 @@
 
 function criarNotificacaoNativa(payload, deps) {
   deps = deps || {};
-  const Notification = deps.Notification ||
-    (typeof globalThis !== 'undefined' ? globalThis.Notification : undefined);
-  const platform = (deps.platform != null)
-    ? deps.platform
-    : (typeof process !== 'undefined' ? process.platform : '');
+  const Notification =
+    deps.Notification || (typeof globalThis !== 'undefined' ? globalThis.Notification : undefined);
+  const platform =
+    deps.platform != null ? deps.platform : typeof process !== 'undefined' ? process.platform : '';
 
   const titulo = (payload && payload.titulo) || 'MeuBolso';
   const corpo = (payload && payload.corpo) || '';

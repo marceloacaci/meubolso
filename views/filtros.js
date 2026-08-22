@@ -20,8 +20,10 @@ window.__mbRender.filtros = function renderFiltros() {
         if (window.uiTick) window.uiTick.value;
         const fn = window.__mbRender && window.__mbRender.filtros;
         return fn ? fn() : '';
-      }
+      },
     },
-    render() { return Vue.h('div', { class: 'view', innerHTML: this.html }); }
+    render() {
+      return Vue.h('div', { class: 'view', innerHTML: this.html });
+    },
   };
-}());
+})();

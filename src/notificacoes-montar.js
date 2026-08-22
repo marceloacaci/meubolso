@@ -13,10 +13,12 @@
 function montarNotificacoes(deps) {
   const { dividas, hoje, em3, t, dadosCarregados } = deps;
   if (!dadosCarregados || !dividas) return [];
-  let atrasadas = 0, avencer = 0;
+  let atrasadas = 0,
+    avencer = 0;
   for (const d of dividas) {
-    const ps = (d.parcelas || []).filter(p => p.status === 'pendente' || !p.status);
-    let divAtrasada = false, divAVencer = false;
+    const ps = (d.parcelas || []).filter((p) => p.status === 'pendente' || !p.status);
+    let divAtrasada = false,
+      divAVencer = false;
     for (const p of ps) {
       const v = p.vencimento
         ? new Date(p.vencimento + (p.vencimento.length === 10 ? 'T00:00:00' : ''))
@@ -30,8 +32,10 @@ function montarNotificacoes(deps) {
     else if (divAVencer) avencer++;
   }
   const msgs = [];
-  if (atrasadas > 0) msgs.push({ titulo: t('notif.titulo'), corpo: t('notif.atrasadas').replace('{n}', atrasadas) });
-  if (avencer > 0) msgs.push({ titulo: t('notif.titulo'), corpo: t('notif.aVencer').replace('{n}', avencer) });
+  if (atrasadas > 0)
+    msgs.push({ titulo: t('notif.titulo'), corpo: t('notif.atrasadas').replace('{n}', atrasadas) });
+  if (avencer > 0)
+    msgs.push({ titulo: t('notif.titulo'), corpo: t('notif.aVencer').replace('{n}', avencer) });
   // Lembrete de pontuar (gamificação) — leve e motivacional.
   msgs.push({ titulo: t('notif.titulo'), corpo: t('notif.pontuar') });
   return msgs;

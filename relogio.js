@@ -16,9 +16,17 @@
   const OFFSET_BRA = -3 * 3600 * 1000; // UTC-3 em ms
 
   const DIA_SEMANA = {
-    pt: ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'],
+    pt: [
+      'domingo',
+      'segunda-feira',
+      'terça-feira',
+      'quarta-feira',
+      'quinta-feira',
+      'sexta-feira',
+      'sábado',
+    ],
     en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    es: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+    es: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
   };
   const MESES = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
   const FUSO = { pt: 'Brasília', en: 'Brasilia', es: 'Brasilia' };
@@ -26,8 +34,10 @@
   function lerIdioma() {
     try {
       const v = (window.localStorage && window.localStorage.getItem('appIdioma')) || 'pt';
-      return (v === 'en' || v === 'es') ? v : 'pt';
-    } catch (e) { return 'pt'; }
+      return v === 'en' || v === 'es' ? v : 'pt';
+    } catch (e) {
+      return 'pt';
+    }
   }
 
   function texto() {
@@ -35,24 +45,39 @@
     const lang = lerIdioma();
     const dia = (DIA_SEMANA[lang] || DIA_SEMANA.pt)[d.getUTCDay()] || '';
     const diaCap = dia.charAt(0).toUpperCase() + dia.slice(1);
-    const data = diaCap + ', ' + String(d.getUTCDate()).padStart(2, '0') + '/' +
-      MESES[d.getUTCMonth()] + '/' + d.getUTCFullYear();
+    const data =
+      diaCap +
+      ', ' +
+      String(d.getUTCDate()).padStart(2, '0') +
+      '/' +
+      MESES[d.getUTCMonth()] +
+      '/' +
+      d.getUTCFullYear();
     let hora;
     if (lang === 'en') {
       // EN: formato 12h com AM/PM.
       let h = d.getUTCHours();
-      const sufixo = (h >= 12) ? 'PM' : 'AM';
-      h = h % 12; if (h === 0) h = 12;
-      hora = String(h).padStart(2, '0') + ':' +
-        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
-        String(d.getUTCSeconds()).padStart(2, '0') + ' ' + sufixo;
+      const sufixo = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      if (h === 0) h = 12;
+      hora =
+        String(h).padStart(2, '0') +
+        ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') +
+        ':' +
+        String(d.getUTCSeconds()).padStart(2, '0') +
+        ' ' +
+        sufixo;
     } else {
       // PT e ES: formato 24h.
-      hora = String(d.getUTCHours()).padStart(2, '0') + ':' +
-        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+      hora =
+        String(d.getUTCHours()).padStart(2, '0') +
+        ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') +
+        ':' +
         String(d.getUTCSeconds()).padStart(2, '0');
     }
-    const ico = (typeof ICON !== 'undefined' && ICON.relogio) ? ICON.relogio : '';
+    const ico = typeof ICON !== 'undefined' && ICON.relogio ? ICON.relogio : '';
     return (ico ? ico + ' ' : '') + data + ', ' + hora + ' (' + (FUSO[lang] || FUSO.pt) + ')';
   }
 
@@ -65,7 +90,9 @@
     try {
       el.innerHTML = texto();
       el.title = el.textContent;
-    } catch (e) { /* nunca quebra o app */ }
+    } catch (e) {
+      /* nunca quebra o app */
+    }
   }
 
   render();
@@ -75,7 +102,9 @@
 
   // Reage à troca de idioma feita em outro escopo (app.js).
   if (typeof window.addEventListener === 'function') {
-    window.addEventListener('storage', (e) => { if (e.key === 'appIdioma') render(); });
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'appIdioma') render();
+    });
     window.addEventListener('idiomaAlterado', render);
   }
 })();
