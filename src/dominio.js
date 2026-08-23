@@ -381,6 +381,77 @@ function desbloqueiosConcluidos(acoes) {
 }
 
 // ============================================================
+// S11 — Segurança de dados: undo de exclusão e retenção da lixeira
+// ============================================================
+// Toda exclusão no app é soft-delete (move para estado.lixeira com _excluidoEm).
+// Estas funções são PURAS: recebem a lixeira e `agora` como argumento.
+
+// Tipos de coleção na lixeira (mesmos de estado.lixeira).
+const TIPOS_LIXEIRA = ['dividas', 'carteiras', 'recorrentes', 'metas', 'pagamentos'];
+
+// Retenção padrão: itens da lixeira expiram após RETENCAO_DIAS.
+const RETENCAO_DIAS = 30;
+function msRetencao() {
+  return RETENCAO_DIAS * 24 * 60 * 60 * 1000;
+}
+
+// Remove da lixeira itens com _excluidoEm anterior a (agora - RETENCAO_DIAS).
+// MUTA a lixeira recebida (remove os expirados) e retorna o nº de purgados.
+// Tolerante a lixeira undefined (DB legado/corrompido sem a chave): trata como vazia.
+function purgarLixeiraExpirados(lixeira, agora = Date.now()) {
+  lixeira = lixeira || {};
+  let purgados = 0;
+  for (const tipo of TIPOS_LIXEIRA) {
+    const antes = (lixeira[tipo] || []).length;
+    lixeira[tipo] = (lixeira[tipo] || []).filter((x) => {
+      if (!x._excluidoEm) return true; // sem data = nunca expira
+      const expiraEm = new Date(x._excluidoEm).getTime() + msRetencao();
+      if (Number.isNaN(expiraEm)) return true;
+      // Mantém até completar RETENCAO_DIAS: expira só quando o prazo JÁ PASSOU
+      // (expiraEm < agora). Exatamente no limite (expiraEm === agora) ainda não
+      // expirou — o item só some ao cruzar o limite.
+      return expiraEm >= agora;
+    });
+    purgados += antes - (lixeira[tipo] || []).length;
+  }
+  return purgados;
+}
+
+// Conta itens atualmente expirados (para UI: badge/botão "limpar expirados").
+function contarLixeiraExpirados(lixeira, agora = Date.now()) {
+  lixeira = lixeira || {};
+  let n = 0;
+  for (const tipo of TIPOS_LIXEIRA) {
+    for (const x of lixeira[tipo] || []) {
+      if (!x._excluidoEm) continue;
+      const expiraEm = new Date(x._excluidoEm).getTime() + msRetencao();
+      if (!Number.isNaN(expiraEm) && expiraEm < agora) n++;
+    }
+  }
+  return n;
+}
+
+// S11-B6: seleciona a EXCLUSÃO MAIS RECENTE (para o undo global Ctrl+Z).
+// Retorna { tipo, item } do item com _excluidoEm máximo, ou null se vazia.
+function selecionarUltimaExclusao(lixeira) {
+  let alvo = null;
+  let alvoTipo = null;
+  for (const tipo of TIPOS_LIXEIRA) {
+    if (tipo === 'pagamentos') continue; // pagamentos são restaurados junto da dívida
+    const itens = lixeira[tipo] || [];
+    for (const item of itens) {
+      if (!item._excluidoEm) continue;
+      if (!alvo || item._excluidoEm > alvo._excluidoEm) {
+        alvo = item;
+        alvoTipo = tipo;
+      }
+    }
+  }
+  if (!alvo || !alvoTipo) return null;
+  return { tipo: alvoTipo, item: alvo };
+}
+
+// ============================================================
 // SPRINT 5 — Busca, filtros, ordenação e paginação (funções puras)
 // ============================================================
 
@@ -549,6 +620,12 @@ const API = {
   xpConsistencia,
   acoesDesbloqueio,
   desbloqueiosConcluidos,
+  // S11: segurança de dados (undo + retenção da lixeira).
+  RETENCAO_DIAS,
+  msRetencao,
+  purgarLixeiraExpirados,
+  contarLixeiraExpirados,
+  selecionarUltimaExclusao,
 };
 
 // Anexa ao global (window no browser / globalThis no Node) para app.js continuar

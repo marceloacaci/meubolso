@@ -374,6 +374,13 @@ var pt = {
   'toast.carteiraRestaurada': 'Carteira restaurada da lixeira.',
   'toast.recorrenteRestaurado': 'Recorrente restaurado da lixeira.',
   'toast.metaRestaurada': 'Meta restaurada da lixeira.',
+  'undo.nada': 'Nada para desfazer.',
+  'undo.feito': 'Exclusão desfeita — item restaurado.',
+  'lixeira.expiradosAviso':
+    'Você tem {n} item(ns) na lixeira com mais de {dias} dias. Eles serão removidos automaticamente.',
+  'lixeira.limparExpirados': 'Limpar expirados',
+  'lixeira.semExpirados': 'Nenhum item expirado na lixeira.',
+  'lixeira.expiradosLimpos': '{n} item(ns) expirado(s) removido(s) definitivamente.',
   'relogio.fuso': 'Brasília',
   'restaurar.titulo': 'Restaurar backup',
   'resumo.dividasAtivas': 'Dívidas ativas',

@@ -1537,6 +1537,9 @@ async function carregar() {
     },
     gamificacao: novo.gamificacao || { xp: 0, nivel: 1, ultimoAcesso: '' },
   });
+  // S11-B7b: aplica a política de retenção de 30 dias logo ao carregar
+  // (remove itens da lixeira expirados sem gravar — só normaliza em memória).
+  purgarLixeiraExpirados();
   dadosCarregados = true; // estado populado: persistir() liberado
   // S6-4: rastreia o perfil efetivamente logado (cujos dados estão em estado)
   // para a tag "Ativo" na seleção de perfil.
@@ -3101,6 +3104,34 @@ async function restaurarItemLixeira(tipo, id, msg) {
   render();
 }
 
+// S11-B6: Undo global (Ctrl+Z). Desfaz a EXCLUSÃO MAIS RECENTE (soft-delete) de
+// qualquer tipo, restaurando o item da lixeira para o estado ativo. A lógica de
+// seleção é pura e vive em src/dominio.js (selecionarUltimaExclusao) — aqui só
+// adaptamos para o estado reativo e dispara a restauração existente.
+function desfazerUltimaExclusao() {
+  const alvo = selecionarUltimaExclusao(estado.lixeira);
+  if (!alvo || !alvo.item) {
+    toast(t('undo.nada'), 'info');
+    return;
+  }
+  restaurarItemLixeira(alvo.tipo, alvo.item.id, t('undo.feito'));
+}
+
+// S11-B7b: retenção de 30 dias na lixeira. As funções puras estão em
+// src/dominio.js (purgarLixeiraExpirados / contarLixeiraExpirados); aqui apenas
+// aplicamos sobre o estado reativo.
+function limparLixeiraExpirados() {
+  const n = purgarLixeiraExpirados(estado.lixeira);
+  if (n === 0) {
+    toast(t('lixeira.semExpirados'), 'info');
+    return;
+  }
+  persistir().then(() => {
+    toast(t('lixeira.expiradosLimpos', { n }));
+    render();
+  });
+}
+
 // --- Excluir definitivamente um item da lixeira por tipo ---
 async function esvaziarLixeiraItem(tipo, id) {
   abrirConfirmacao({
@@ -4414,6 +4445,7 @@ const handlers = {
   'esvaziar-lixeira-carteira': (id) => esvaziarLixeiraItem('carteiras', id),
   'esvaziar-lixeira-recorrente': (id) => esvaziarLixeiraItem('recorrentes', id),
   'esvaziar-lixeira-meta': (id) => esvaziarLixeiraItem('metas', id),
+  'limpar-lixeira-expirados': () => limparLixeiraExpirados(),
   'novo-pagamento': () => {
     if (bloquearSeNaoCarregado()) return;
     novoPagamento();
@@ -5016,6 +5048,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (k === 'e') {
           e.preventDefault();
           if (typeof exportarDados === 'function') exportarDados();
+          return;
+        }
+        if (k === 'z') {
+          // S11-B6: desfazer a última exclusão (soft-delete → lixeira).
+          e.preventDefault();
+          if (typeof desfazerUltimaExclusao === 'function') desfazerUltimaExclusao();
           return;
         }
       }

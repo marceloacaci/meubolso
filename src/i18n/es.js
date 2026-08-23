@@ -372,6 +372,13 @@ var es = {
   'toast.carteiraRestaurada': 'Cartera restaurada de la papelera.',
   'toast.recorrenteRestaurado': 'Recurrente restaurado de la papelera.',
   'toast.metaRestaurada': 'Meta restaurada de la papelera.',
+  'undo.nada': 'Nada que deshacer.',
+  'undo.feito': 'Eliminación deshecha — ítem restaurado.',
+  'lixeira.expiradosAviso':
+    'Tienes {n} ítem(s) en la papelera con más de {dias} días. Se eliminarán automáticamente.',
+  'lixeira.limparExpirados': 'Limpiar expirados',
+  'lixeira.semExpirados': 'Ningún ítem expirado en la papelera.',
+  'lixeira.expiradosLimpos': '{n} ítem(s) expirado(s) eliminado(s) definitivamente.',
   'relogio.fuso': 'Brasil',
   'restaurar.titulo': 'Restaurar copia',
   'resumo.dividasAtivas': 'Deudas activas',

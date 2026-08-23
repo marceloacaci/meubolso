@@ -1,7 +1,8 @@
 // Render function da Lixeira (recuperação de itens excluídos: dívidas,
 // carteiras, recorrentes e metas).
-// Script clássico carregado após app.js: consome globais (estado, t, fmt, ICON,
-// escapeHtml, CATEGORIAS, RECORRENTE_CATS) e registra window.__mbRender.lixeira.
+// Script clássico carregado após app.js: consome globais (estado, t, ti, fmt, ICON,
+// escapeHtml, CATEGORIAS, RECORRENTE_CATS, RETENCAO_DIAS, contarLixeiraExpirados)
+// e registra window.__mbRender.lixeira.
 window.__mbRender = window.__mbRender || {};
 window.__mbRender.lixeira = function renderLixeira() {
   const L = estado.lixeira || {
@@ -131,17 +132,27 @@ window.__mbRender.lixeira = function renderLixeira() {
       .join('')
   );
 
+  const expirados = typeof contarLixeiraExpirados === 'function' ? contarLixeiraExpirados() : 0;
+
   return `
     <div class="page-header">
       <h2>${ICON.lixeira} ${t('lixeira.titulo')}</h2>
       ${
         total > 0
           ? `
-        <button class="btn btn-outline-danger" data-acao="esvaziar-lixeira-tudo">${ICON.lixeira || ''} ${t('acao.esvaziar')}</button>
-      `
+        <button class="btn btn-outline-danger" data-acao="esvaziar-lixeira-tudo">${ICON.lixeira || ''} ${t('acao.esvaziar')}</button>`
           : ''
       }
     </div>
+    ${
+      total > 0 && expirados > 0
+        ? `
+    <div class="alert alert-warning raised-card d-flex align-items-center justify-content-between gap-2" role="status">
+      <span>${ti('lixeira.expiradosAviso', { n: expirados, dias: RETENCAO_DIAS })}</span>
+      <button class="btn btn-sm btn-warning" data-acao="limpar-lixeira-expirados">${t('lixeira.limparExpirados')}</button>
+    </div>`
+        : ''
+    }
     ${
       total === 0
         ? `

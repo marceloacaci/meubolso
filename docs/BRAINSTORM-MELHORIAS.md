@@ -45,8 +45,8 @@
 | B3 | **Backup rotativo de 7 gerações** em vez de 1 | P | ⭐⭐⭐ | Backup de 1 geração não protege contra erro descoberto tardiamente |
 | B4 | **Recuperação automática** a partir do `.bak` quando o principal falha | P | ⭐⭐⭐ | Hoje o app abre vazio e assusta o usuário |
 | B5 | **Log de auditoria** append-only de operações (event sourcing leve) | G | ⭐⭐ | Habilita undo global e reconstrução do estado |
-| B6 | **Undo/Redo** (Ctrl+Z) | M | ⭐⭐⭐ | A exclusão hoje é irreversível — principal fonte de ansiedade |
-| B7 | **Lixeira** com retenção de 30 dias | P | ⭐⭐ | Alternativa mais barata que B6 |
+| B6 | **Undo/Redo** (Ctrl+Z) | M | ⭐⭐⭐ | A exclusão hoje é irreversível — principal fonte de ansiedade | ✅ **S11** (Ctrl+Z desfaz última exclusão restaurando da lixeira) |
+| B7 | **Lixeira** com retenção de 30 dias | P | ⭐⭐ | Alternativa mais barata que B6 | ✅ **S11** (retenção 30d + botão "Limpar expirados"; a lixeira em si já existia) |
 | B8 | **Criptografia opcional por senha** (AES-256-GCM, `node:crypto`) | M | ⭐⭐ | Dados financeiros em claro no disco |
 | B9 | **Escrita incremental / debounce inteligente** | M | ⭐ | Só relevante com estado grande. Não otimizar cedo |
 | B10 | **Verificação de integridade** (hash SHA-256 no arquivo) | P | ⭐⭐ | Detecta corrupção antes de mostrar dado errado |

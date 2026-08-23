@@ -209,6 +209,26 @@ hábito (streak/XP) e multiperfis 2.0 (sync + família). Suíte Vitest **172/172
 
 ---
 
+## Sprint 11 — Segurança de dados (22/ago/2026) · ✅ **FEITO**
+
+> Ciclo proposto após S10 (backlog remanescente). Inspeção no código mostrou que a
+> **Lixeira (B7)** JÁ EXISTIA e funcionava (soft-delete + restaurar + esvaziar em
+> `app.js` e `views/lixeira.js`); o que faltava no eixo "segurança de dados" era
+> **undo** e **retenção**. Suíte Vitest subiu de **172 → 182** testes verdes.
+
+| ID | Tarefa | Status | Refs |
+|----|--------|--------|------|
+| S11-B6 | **Undo global (Ctrl+Z)**: desfaz a última exclusão (soft-delete) restaurando da lixeira; atalho `Ctrl+Z` no handler de teclado | ✅ FEITO | `desfazerUltimaExclusao`/`selecionarUltimaExclusao` (`src/dominio.js`, `app.js`); atalho em `app.js` (keydown) |
+| S11-B7b | **Retenção de 30 dias** na lixeira: purga automática ao carregar + botão "Limpar expirados" (aviso quando há itens vencidos) | ✅ FEITO | `purgarLixeiraExpirados`/`contarLixeiraExpirados` (`src/dominio.js`); `views/lixeira.js`; `app.js` (carga + handler) |
+| S11 | i18n pt/en/es (undo/retenção) + testes de regressão do domínio | ✅ FEITO | `src/i18n/{pt,en,es}.js`; `tests/s11-seguranca.test.js` (10 casos) |
+
+> Nota de robustez: `purgarLixeiraExpirados`/`contarLixeiraExpirados` toleram
+> `lixeira` undefined (DB legado sem a chave), evitando crash na carga.
+
+**Marco:** ✅ **S11 entregue** — undo (Ctrl+Z) + retenção 30d na lixeira. Suíte Vitest **182/182 verdes**.
+
+---
+
 ## Distribuição de esforço
 
 ```

@@ -373,6 +373,13 @@ var en = {
   'toast.carteiraRestaurada': 'Wallet restored from trash.',
   'toast.recorrenteRestaurado': 'Recurring restored from trash.',
   'toast.metaRestaurada': 'Goal restored from trash.',
+  'undo.nada': 'Nothing to undo.',
+  'undo.feito': 'Deletion undone — item restored.',
+  'lixeira.expiradosAviso':
+    'You have {n} item(s) in trash older than {dias} days. They will be removed automatically.',
+  'lixeira.limparExpirados': 'Clear expired',
+  'lixeira.semExpirados': 'No expired items in trash.',
+  'lixeira.expiradosLimpos': '{n} expired item(s) removed permanently.',
   'relogio.fuso': 'Brasilia',
   'restaurar.titulo': 'Restore backup',
   'resumo.dividasAtivas': 'Active debts',
