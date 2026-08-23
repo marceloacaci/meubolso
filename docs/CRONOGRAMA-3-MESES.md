@@ -148,7 +148,7 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 
 > **Atualização (16/ago/2026):** o plano original previa 6 sprints até **v2.1.0**.
 > Após o fechamento, foi entregue o **S6-7 (Multiperfis)**, elevando a versão para
-> **v2.1.0**. A suíte Vitest está em **126/126 testes verdes**. Para os próximos passos
+> **v2.1.0**. A suíte Vitest estava em **126/126 testes verdes**. Para os próximos passos
 > (integridade numérica, auditoria, retenção e Multiperfis 2.0), ver
 > `docs/BRAINSTORM-MELHORIAS.md` (rodada de 16/ago).
 
@@ -157,6 +157,55 @@ implícitas via `window.MeuBolso`. Mitigação: extrair **só funções puras** 
 > em títulos/textos/labels; correção de cantos quadrados (`--radius` restaurada); card de Insights
 > com fundo consistente; seção "Novidades" no Sobre. Suíte Vitest em **126/126 testes verdes**.
 > Detalhes em `docs/RELATORIO-ATUALIZACOES.md`.
+
+> **Atualização (22/ago/2026) — EXTENSÃO COMPLETA:** as Sprints 7–10 (propostas no brainstorm
+> de 16/ago como "próximos ~3 meses") FORAM ENTREGUES e estão na `master`/`v2.1.0`. O ciclo
+> planejado S1–S10 está **100% concluído**. Suíte Vitest em **172/126→172 testes verdes**.
+> Detalhes abaixo (seção "Sprints 7–10 — extensão pós-v2.1.0") e em `docs/AS-BUILT.md`.
+
+---
+
+## Sprints 7–10 — extensão pós-v2.1.0 (entregues 19–22/ago/2026) · ✅ **FEITO**
+
+> Ciclo proposto no brainstorm (rodada 16/ago). Corrige a dívida técnica confirmada por
+> execução (float/fuso/níveis) e fecha confiança/retenção/multiperfis 2.0. Todas na `master`,
+> versão 2.1.0. Suíte Vitest subiu de **126 → 172** testes verdes.
+
+### Sprint 7 — Integridade numérica · ✅ **FEITO**
+| ID | Tarefa | Status | Refs |
+|----|--------|--------|------|
+| S7-C11 | Dinheiro em **centavos inteiros** (`somaDinheiro`/`numDinheiro`); fim da deriva de float | ✅ FEITO | `src/dominio.js` (totalDivida/totalPago/saldoDivida/valorPagoParcela); `tests/repro-bugs.test.js` (0,1+0,2=0,30) |
+| S7-C12 | `hojeLocal()` em fuso de **Brasília** (`hoje()` = `hojeLocal`); fim do UTC | ✅ FEITO | `src/dominio.js:hojeLocal`; `app.js:75-77` |
+| S7-E4 | `nivelDe()` segue a tabela `NIVEIS` (corrigido o dessasarmônico); barra via `progressoNivel()` | ✅ FEITO | `src/dominio.js:nivelDe/progressoNivel`; `tests/repro-bugs.test.js` |
+| S7 | Suíte de **regressão do domínio** (centavos/fuso/níveis) | ✅ FEITO | `tests/repro-bugs.test.js` |
+| S7 | Dicas de autores + contagem de dívidas atrasadas no dropdown de notificação + relevo raised 70% | ✅ FEITO | commit `8832814` |
+
+### Sprint 8 — Confiança & auditoria · ✅ **FEITO**
+| ID | Tarefa | Status | Refs |
+|----|--------|--------|------|
+| S8-B10 | **Hash SHA-256** do arquivo de dados (detecção de corrupção antes de exibir) + sidecar | ✅ FEITO | `src/cripto.js:sha256Arquivo`; commit `f3d4ea7` (B10 sha256 sidecar) |
+| S8-C10 | **IPC unificado**: um único `salvarAgora` → handler `dados:salvar-agora` (fim do `salvar`/`salvar-agora` duplicado) | ✅ FEITO | `preload.js:23`; `tests/s8-auditoria.test.js` |
+| S8-C5 | **Prettier** adotado; codebase reformatada + lint no CI | ✅ FEITO | commit `6e45a85` |
+| S8 | Gate de **lint no CI** | ✅ FEITO | commit `6adfb6b` |
+
+### Sprint 9 — Hábito & retenção · ✅ **FEITO**
+| ID | Tarefa | Status | Refs |
+|----|--------|--------|------|
+| S9-E2 | **Streak** de dias sem atraso (`streakDiasSemAtraso`) | ✅ FEITO | `src/dominio.js`; `tests/s9-habito.test.js` |
+| S9-E3 | **XP de consistência** por streak (`xpConsistencia`) | ✅ FEITO | `src/dominio.js`; `tests/s9-habito.test.js` |
+| S9 | Resumo mensal / desbloqueios por consistência (`acoesDesbloqueio`, `desbloqueiosConcluidos`) | ✅ FEITO | `src/dominio.js`; `tests/s9-habito.test.js` |
+| S9 | UI de hábito ligada ao runtime + notificações nativas de vencimento | ✅ FEITO | commit `dc740bc` |
+
+### Sprint 10 — Multiperfis 2.0 · ✅ **FEITO**
+| ID | Tarefa | Status | Refs |
+|----|--------|--------|------|
+| S10-B11 | **Sync de pasta** externa (OneDrive/Dropbox) com espelho fiel + detecção de conflito | ✅ FEITO | `src/perfis.js:sincronizarPasta`; `tests/s10-multiperfis.test.js` |
+| S10-H5 | **Modo família** leve (marcar perfil compartilhado / convite) | ✅ FEITO | `src/perfis.js:perfilFamiliar`; `preload.js` (perfilFamiliar) |
+| S10-E5 | Níveis além do 10 (prestígio) | ✅ FEITO | `src/dominio.js` |
+| S10 | UI de perfis 2.0 ligada ao runtime (seletor, dialog de pasta, tag família) | ✅ FEITO | commit `dc740bc` |
+
+**Marco:** ✅ **S1–S10 100% concluído** — v2.1.0 com integridade numérica, auditoria SHA-256,
+hábito (streak/XP) e multiperfis 2.0 (sync + família). Suíte Vitest **172/172 verdes**.
 
 ---
 

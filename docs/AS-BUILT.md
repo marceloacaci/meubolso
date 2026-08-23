@@ -22,9 +22,11 @@
 | 14/ago/2026 | **fix(S4)** validação visual em runtime pegou `estado.recorrentes/metas` undefined no load (DB vazio/legado); corrigido em `carregar()`, estado inicial e `fallbackData()` | `app.js` (carregar + estado), `main.js` (fallbackData); `validate-s4.cjs` (validação funcional Electron) |
 | 14/ago/2026 | **Sprint 6** hardening e saída do Beta — S6-1 (CSP sem `unsafe-eval`, Vue 3 runtime-only + render functions), S6-2 (auditoria XSS, `escapeHtml`/`escapeAttr` sistemáticos, `validate-xss.cjs`), S6-3 (criptografia AES-256-GCM opt-in em `src/cripto.js` + IPC + UI), S6-4 (auditoria a11y WCAG 2.1 AA: skip-link, `:focus-visible` global, contraste medido 6.12/7.32, `audit-a11y.cjs` 8/8), S6-5 (teste de carga 500 dívidas/5000 pagamentos; índice de pagamentos por dividaId em `src/dominio.js` reduz `resumoParcelas`×500 de 93ms→4,7ms), S6-6 (ADRs em `docs/ADR.md`, `CHANGELOG.md`, As-Built/CRONOGRAMA atualizados) · **v2.1.0** | `index.html` (CSP/script-src), `vendor/vue.runtime.global.prod.js`, `views/*.js` (render fns), `src/ui/modais.js`, `src/cripto.js`, `src/dominio.js` (índice pagamentos), `styles.css` (foco/skip-link/barra), `scripts/audit-a11y.cjs`, `scripts/bench-carga.cjs`, `docs/ADR.md`, `docs/auditoria/ACCESSIBILITY-WCAG21-AA.md`, `CHANGELOG.md` |
 | 16/ago/2026 | **S6-7 Multiperfis**: seleção/troca de perfil, criptografia por perfil, tag "Ativo" no perfil efetivamente logado, card de usuário (busto SVG) na sidebar, Configurações Rápidas com barra minimalista de **Dados** (ícones Backup/Exportar/Importar/Restaurar) e card **Perfis de dados** · **v2.1.0** · suíte Vitest **126/126** | `app.js` (bloquearSeNaoCarregado→seletor, boot abre seletor antes do desbloqueio, concederXpAcessoDiario só em login real, atualizarPerfisInfo com card de usuário), `index.html` (`#gear-panel` mini Dados + card Perfis), `styles.css` (`.sidebar-usuario`, `.gear-mini`, `.gear-grupo-col`, fonte gear-opt 14px), `views/configuracoes.js`, i18n pt/en/es (`perfil.atual`="Ativo"/"Active"/"Activo") |
-| 19/ago/2026 | **UI/Theme pass 2**: relevo raised (50/50) em scrollbar (thumb com linha cortante, track neutro, estados hover/active; hex fixos por tema p/ contornar `color-mix` em `::-webkit-scrollbar-thumb`), `.btn-ghost` (Cancelar/Voltar/ação secundária) com raised; contraste absoluto (preto/branco) em títulos/textos/labels via `--text`/`--text-muted` (venceu `!important` do Bootstrap em `.text-secondary`); cards de filtros isolados via `:has([data-filtro])`; `.page-header` com raised + sombra e título/botão centralizados na linha do relevo (padding simétrico); correção de cantos quadrados (variável `--radius` restaurada). Card de Insights com fundo consistente. Seção "Novidades" no Sobre. Skill `fcs` (verificação obrigatória por inspeção/execução). · suíte Vitest **126/126** | `styles.css` (`:root`, `[data-theme="dark"]`, scrollbar, `.btn`, `.btn-ghost`, `.card`, `.list-group-item`, `.text-secondary`, `.page-header`), `src/ui/modais.js`, `views/sobre.js`, i18n pt/en/es (`sobre.novidades*`), `docs/RELATORIO-ATUALIZACOES.md`, `README.md`, `package.json` (v2.1.0) |
+| 22/ago/2026 | **S7–S10 (extensão pós-v2.1.0)**: S7 integridade numérica (centavos `somaDinheiro`/`numDinheiro`, `hojeLocal()` fuso BR, `nivelDe()` segue `NIVEIS`), S8 auditoria (SHA-256 `sha256Arquivo` + sidecar, IPC unificado `salvarAgora`→`dados:salvar-agora`, Prettier + lint no CI), S9 hábito (streak `streakDiasSemAtraso`, XP consistência `xpConsistencia`, desbloqueios), S10 multiperfis 2.0 (sync de pasta `sincronizarPasta`, modo família `perfilFamiliar`, níveis além do 10) · suíte Vitest **172/172** | commits `04d599f`→`dc740bc`; `src/dominio.js`, `src/cripto.js`, `src/perfis.js`, `preload.js`, `views/*`, `tests/s{7,8,9,10}*` |
 
-> Status verificado por suíte automatizada: **126/126 testes** Vitest verdes (`npm run test`) em 19/ago/2026. Auditoria a11y (`scripts/audit-a11y.cjs`) PASSOU em **8/8 critérios WCAG 2.1 AA** (skip-link 2.4.1, #app tabindex 4.1.2, foco visível 2.4.7, ícones aria-hidden 1.1.1, contraste AA claro/escuro 1.4.3) com **0 erros de console**. Teste de carga (`scripts/bench-carga.cjs`): `resumoParcelas`×500 dívidas **4,67 ms** (limite 100 ms); todas as operações de domínio < 15 ms. `app.js` reduzido de 3.519 → 2.613 LOC na refatoração pós-S3.
+> Status verificado por suíte automatizada: **172/172 testes** Vitest verdes (`npm run test`) em 22/ago/2026 (S1–S10). Auditoria a11y (`scripts/audit-a11y.cjs`) PASSOU em **8/8 critérios WCAG 2.1 AA** (skip-link 2.4.1, #app tabindex 4.1.2, foco visível 2.4.7, ícones aria-hidden 1.1.1, contraste AA claro/escuro 1.4.3) com **0 erros de console**. Teste de carga (`scripts/bench-carga.cjs`): `resumoParcelas`×500 dívidas **4,67 ms** (limite 100 ms); todas as operações de domínio < 15 ms. `app.js` reduzido de 3.519 → 2.613 LOC na refatoração pós-S3.
+
+> Estado anterior (19/ago/2026): 126/126 testes verdes; saída do Beta (v2.1.0).
 
 > Status verificado por suíte automatizada: **126/126 testes** Vitest verdes (`npm run test`) em 19/ago/2026. Validação funcional em runtime (`validate-s5.cjs`) PASSOU em **6/6 itens** (S5-4, S5-1, S5-5, S5-2, S5-3, S5-6) com **0 erros de console**. Ajuste de bug em `filtrarDividas`: critério de status passou a considerar o status real das parcelas (quitado = todas pagas; em dia = sem atraso) em vez de saldo.
 
@@ -35,9 +37,9 @@
 | Item | Valor |
 |------|-------|
 | Produto | **MeuBolso** |
-| Versão | `1.0.0` (Beta) |
+| Versão | `2.1.0` (estável, saiu do Beta em 19/ago/2026; S1–S10 concluídos em 22/ago) |
 | appId | `com.meubolso.app` |
-| Tipo | Aplicação desktop *standalone*, offline, mono-usuário |
+| Tipo | Aplicação desktop *standalone*, offline, multi-perfil (modo família) |
 | Domínio | Finanças pessoais — dívidas, parcelas, pagamentos, carteiras |
 | Licença | MIT |
 | Repositório | https://github.com/marceloacaci/meubolso |
@@ -55,7 +57,7 @@
 | Gráficos | Chart.js (UMD) | vendored (`vendor/chart.umd.js`) |
 | Persistência | **Arquivo JSON** via `fs.writeFileSync` | `main.js:57-93` |
 | Build de front | **Nenhum** (sem webpack/vite/babel/TS) | scripts JS carregados direto pelo `index.html` |
-| Testes | **Vitest** (domínio financeiro, gamificação, sprints) | `tests/*.test.js` — **108 casos verdes** (`npm run test`) |
+| Testes | **Vitest** (domínio financeiro, gamificação, sprints) | `tests/*.test.js` — **172 casos verdes** (`npm run test`) |
 
 > Nota histórica importante: a persistência passou por `node:sqlite` → `sql.js` (WASM)
 > → **JSON puro**. O estado atual é JSON simples e síncrono. Ver ADR sugerido em

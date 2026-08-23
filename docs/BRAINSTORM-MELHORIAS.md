@@ -7,9 +7,9 @@
 > Legenda de esforço: **P** ≤ 8h · **M** 8–24h · **G** > 24h
 > Impacto: ⭐ baixo · ⭐⭐ médio · ⭐⭐⭐ alto
 >
-> **Status de implementação (atualizado em 16/ago/2026):** várias ideias deste
-> brainstorm já viraram realidade nas Sprints 1–6. Itens entregues estão marcados
-> com ✅ na coluna de Nota:
+> **Status de implementação (atualizado em 22/ago/2026):** o ciclo S1–S10 está **100%
+> concluído** (v2.1.0). S7–S10 — propostas neste brainstorm em 16/ago — JÁ FORAM ENTREGUES
+> (commits de 19–22/ago). Suíte Vitest em **172/172 testes verdes** (subiu de 126).
 > - **S1**: B1 (escrita atômica) ✅ · B2 (schema + migrações) ✅ · B3 (backup rotativo 7 gerações) ✅ · B4 (recuperação do .bak) ✅
 > - **S4**: A1 (juros e CET) ✅ · A2 (simulador avalanche × bola de neve) ✅ · A3 (despesas recorrentes) ✅ · A4 (metas financeiras) ✅
 > - **S5**: busca/filtros, ordenação/paginação, export CSV/PDF, notificações de vencimento, atalhos e anexos de comprovante ✅
@@ -219,15 +219,18 @@ privado" está maduro. Próximo salto de valor = **confiança nos números** e
 4. **Zero nuvem por princípio.** Open Finance (H2) só como modo opt-in isolado.
 
 ### Proposta de Sprints (próximos ~3 meses)
+> **Status (22/ago/2026): TODAS ENTREGUES** — S7–S10 estão na `master`/v2.1.0. Ver
+> `docs/CRONOGRAMA-3-MESES.md` (seção "Sprints 7–10") para os refs de cada item.
 
-| Sprint | Tema | Itens-chave | Esforço | Valor |
-|--------|------|-------------|:--------:|------|
-| **S7** | **Integridade numérica** | C11 (centavos inteiros), C12 (fuso BR), E4 (tabela NÍVEIS × nivelDe), testes de regressão do domínio | M | Crítico |
-| **S8** | **Confiança & auditoria** | C10 (unificar IPC duplicado), C5 (ESLint/Prettier+CI), B10 (hash SHA-256 de integridade), C2 (expandir suíte de testes) | M | Alto |
-| **S9** | **Hábito & retenção** | E2 (streak sem atraso), E6 (resumo mensal), D3 (notificação nativa de vencimento), D9 (estados vazios) | M | Alto |
-| **S10** | **Multiperfis 2.0** | B11 (sync por pasta OneDrive/Dropbox com detecção de conflito), H5 (modo família leve: convite de perfil), E5 (níveis além do 10) | G | Médio |
+| Sprint | Tema | Itens-chave | Esforço | Valor | Status |
+|--------|------|-------------|:--------:|------|--------|
+| **S7** | **Integridade numérica** | C11 (centavos inteiros), C12 (fuso BR), E4 (tabela NÍVEIS × nivelDe), testes de regressão do domínio | M | Crítico | ✅ FEITO |
+| **S8** | **Confiança & auditoria** | C10 (unificar IPC duplicado), C5 (ESLint/Prettier+CI), B10 (hash SHA-256 de integridade), C2 (expandir suíte de testes) | M | Alto | ✅ FEITO |
+| **S9** | **Hábito & retenção** | E2 (streak sem atraso), E6 (resumo mensal), D3 (notificação nativa de vencimento), D9 (estados vazios) | M | Alto | ✅ FEITO |
+| **S10** | **Multiperfis 2.0** | B11 (sync por pasta OneDrive/Dropbox com detecção de conflito), H5 (modo família leve: convite de perfil), E5 (níveis além do 10) | G | Médio | ✅ FEITO |
 
 ### Cronograma sugerido (12 semanas)
+> Entregue integralmente entre 19–22/ago/2026 (ciclo adiantado). Suíte Vitest **172/172**.
 - **Semanas 1–3 (S7):** correção de float (centavos) + fuso BR + tabela de níveis.
   Entrega: `npm run test` continua verde; nova suíte de regressão de domínio.
 - **Semanas 4–6 (S8):** lint/CI + hash de integridade + IPC único. Entrega: porta
@@ -237,12 +240,14 @@ privado" está maduro. Próximo salto de valor = **confiança nos números** e
 - **Semanas 10–12 (S10):** sync por pasta + modo família leve. Entrega: multiperfis
   úteis entre dispositivos.
 
-### Top 5 próximos passos (agora)
-1. **S7-C11** — migrar soma de dinheiro para centavos inteiros (evita deriva).
-2. **S7-C12** — `hoje()` em fuso de Brasília (corrige vencimentos/atraso).
-3. **S7-E4** — alinhar `NIVEIS` e `nivelDe()` (nível correto em todo o XP).
-4. **S8-B10** — SHA-256 do arquivo para detectar corrupção antes de exibir.
-5. **S9-E2** — streak de dias sem atraso (mecânica de hábito de alto impacto).
+### Top 5 próximos passos (após S1–S10)
+> S7–S10 concluídos. Os itens abaixo já foram entregues; o roadmap remanescente
+> (ainda NÃO prometido em sprint) está em A5/A6/B6/C9 etc.
+1. ~~S7-C11 — centavos inteiros~~ ✅ entregue
+2. ~~S7-C12 — `hoje()` fuso BR~~ ✅ entregue
+3. ~~S7-E4 — `NIVEIS` × `nivelDe()`~~ ✅ entregue
+4. ~~S8-B10 — SHA-256 de integridade~~ ✅ entregue
+5. ~~S9-E2 — streak de dias sem atraso~~ ✅ entregue
 
 ### O que deliberadamente NÃO entrará no roadmap
 - **A5 (orçamento 50/30/20)** e **H2 (Open Finance):** mudam a proposta de valor

@@ -42,6 +42,9 @@ globalThis.window.api = {
   perfilListar: () => Promise.resolve({ perfis: [], ativo: null }),
   notificarNativa: () => Promise.resolve({ ok: true }),
   larguraBase: () => Promise.resolve(1366),
+  // S8-C10: IPC unificado expõe `salvarAgora` (antes havia `salvar`/`salvar-agora`
+  // duplicados). O app real chama `window.api.salvarAgora(estado)` em persistir().
+  salvarAgora: () => Promise.resolve({ ok: true }),
   on: () => {},
 };
 globalThis.I18N = {
