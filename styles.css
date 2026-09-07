@@ -1072,6 +1072,40 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-color: var(--primary);
   color: #fff;
 }
+/* ============================================================
+   Efeito "afundado" ao clicar (Configurações)
+   Ao pressionar o botão, o relevo raised INVERTE (a luz passa para BAIXO,
+   gradiente to top) e entra uma sombra INTERNA (inset), fazendo o botão
+   parecer afundado/pressionado para dentro em vez de saltado. Scoped à página
+   de Configurações por ora (expansível ao resto do app depois).
+   As regras :active têm igual/menor especificidade que as :hover anteriores,
+   mas vêm DEPOIS no arquivo, então ganham durante o clique. ============= */
+.config-secao .gear-opt:not(.active):active {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--bg) 70%, white) 0%,
+    var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+.config-secao .gear-opt.active:active {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--primary) 70%, white) 0%,
+    var(--primary) 100%);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+/* Chumaço de cor de acento (.gear-cor): tem gradiente raised (var(--sw) com
+   topo claro) — também inverte no clique + encolhe levemente (afundado). */
+.gear-cor:active {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--sw) 70%, white) 0%,
+    var(--sw) 100%);
+  transform: scale(0.94);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
 .config-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; flex-wrap: wrap; }
 .config-linha > span { font-size: calc(14px * var(--app-font-scale)); }
 .config-acoes { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
