@@ -23,6 +23,40 @@ const pg = (valor, dividaId = 'd1', parcelaId = 'p1', extra = {}) =>
   );
 
 // ---------- BUG 2 ----------
+test('BUG3-fix: push de pagamento no MESMO array apos index-build nao fica stale (0% pago)', () => {
+  // Fluxo real do app: renderização constrói o índice em cache, depois o
+  // pagamento é push'ed no MESMO array de referência (app.js novoPagamento e
+  // lancarPagamentoParcela). Antes da correção, _indicePorDivida retornava o
+  // snapshot antigo -> tela Pagamentos mostrava 0% pago mesmo com pagamento
+  // salvo corretamente. Correção: comparar length do array no cache.
+  const d = divida(); // p1=100, p2=200
+  const pagamentos = [];
+  const antes = resumoParcelas(d, pagamentos); // build do índice
+  expect(antes.valorPago).toBe(0);
+  pagamentos.push(pg(100, d.id, 'p1')); // push no MESMO array (in-place)
+  sincronizarParcela(d, 'p1', pagamentos);
+  const depois = resumoParcelas(d, pagamentos); // reconsulta
+  expect(depois.valorPago).toBe(100);
+  expect(depois.percentualPago).toBe(33);
+  expect(d.parcelas[0].valorPago).toBe(100);
+  expect(d.parcelas[0].status).toBe('pago');
+  expect(totalPago(d, pagamentos)).toBe(100);
+});
+
+test('BUG3-fix: splice/remocao in-place tambem reflete no indice (nao stale)', () => {
+  const d = divida();
+  const pagamentos = [pg(100, d.id, 'p1'), pg(50, d.id, 'p2')];
+  resumoParcelas(d, pagamentos); // build
+  const r0 = resumoParcelas(d, pagamentos);
+  expect(r0.valorPago).toBe(150);
+  pagamentos.splice(0, 1); // remove p1 in-place
+  sincronizarParcela(d, 'p1', pagamentos);
+  const r1 = resumoParcelas(d, pagamentos);
+  expect(r1.valorPago).toBe(50); // p2 ainda conta
+  expect(d.parcelas[0].valorPago).toBe(0);
+  expect(d.parcelas[0].status).toBe('pendente');
+});
+
 test('BUG2: após registrar pagamento de 100, resumoParcelas mostra valorPago=100', () => {
   const d = divida();
   const pagamentos = [pg(100, d.id, 'p1')];

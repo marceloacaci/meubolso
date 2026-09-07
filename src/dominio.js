@@ -57,18 +57,23 @@ function totalDivida(d) {
 // a cada mutação em estado.pagamentos). Reduz totalPago/resumoParcelas de
 // O(P) para O(pagamentos da dívida) — sem ele, 500 dívidas × 5000 pagamentos
 // ultrapassava 100 ms (S6-5).
-const _cacheIndice = new Map(); // arrayPagamentos -> Map<dividaId, pagamento[]>
+const _cacheIndice = new Map(); // arrayPagamentos -> { len, idx: Map<dividaId, pagamento[]> }
 function _indicePorDivida(pagamentos) {
   if (!pagamentos) return new Map();
   const cached = _cacheIndice.get(pagamentos);
-  if (cached) return cached;
+  // O índice é um SNAPSHOT do array. O app muta estado.pagamentos in-place via
+  // push/splice (ex.: registrar pagamento em app.js), sem trocar a referência.
+  // Sem comparar o length, o cache retorna um índice STALE e o pagamento recém
+  // lançado é ignorado -> tela Pagamentos mostra 0% pago (bug real do MeuBolso).
+  // Verificar length detecta push/splice; filter/reassign troca a referência.
+  if (cached && cached.len === pagamentos.length) return cached.idx;
   const idx = new Map();
   for (const p of pagamentos) {
     if (!p || !p.dividaId) continue;
     if (!idx.has(p.dividaId)) idx.set(p.dividaId, []);
     idx.get(p.dividaId).push(p);
   }
-  _cacheIndice.set(pagamentos, idx);
+  _cacheIndice.set(pagamentos, { len: pagamentos.length, idx });
   return idx;
 }
 
