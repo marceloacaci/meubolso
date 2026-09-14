@@ -33,7 +33,7 @@ window.__mbRender.painel = function renderPainel() {
     <div class="row row-cols-1 row-cols-lg-3 g-3 mb-4">
       <div class="col">
         <div class="card h-100">
-          <div class="card-body chart-card-body">
+          <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.categoria')}</h3>
             <div class="chart-wrap">${graficoPizza(metricas.porCategoria)}</div>
             ${
@@ -52,7 +52,7 @@ window.__mbRender.painel = function renderPainel() {
 
       <div class="col">
         <div class="card h-100">
-          <div class="card-body chart-card-body">
+          <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.composicao')}</h3>
             <div class="chart-wrap">${graficoRosca(metricas)}</div>
             <div class="legend">
@@ -65,7 +65,7 @@ window.__mbRender.painel = function renderPainel() {
 
       <div class="col">
         <div class="card h-100">
-          <div class="card-body chart-card-body">
+          <div class="card-body">
             <h3 class="h6 text-secondary text-uppercase mb-2">${t('painel.status')}</h3>
             <div class="chart-wrap">${graficoBarrasStatus(metricas.porStatus)}</div>
             <div class="legend">
