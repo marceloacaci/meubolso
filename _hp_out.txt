@@ -1,0 +1,18 @@
+
+[7340:0914/045713.504:ERROR:net\disk_cache\cache_util_win.cc:25] Unable to move the cache: Acesso negado. (0x5)
+[7340:0914/045713.505:ERROR:net\disk_cache\disk_cache.cc:284] Unable to create cache
+[7340:0914/045713.505:ERROR:gpu\ipc\host\gpu_disk_cache.cc:737] Gpu Cache Creation failed: -2
+[7340:0914/045713.505:ERROR:net\disk_cache\cache_util_win.cc:25] Unable to move the cache: Acesso negado. (0x5)
+[7340:0914/045713.505:ERROR:net\disk_cache\disk_cache.cc:284] Unable to create cache
+[7340:0914/045713.505:ERROR:gpu\ipc\host\gpu_disk_cache.cc:737] Gpu Cache Creation failed: -2
+[7340:0914/045713.508:ERROR:net\disk_cache\cache_util_win.cc:25] Unable to move the cache: Acesso negado. (0x5)
+[7340:0914/045713.508:ERROR:net\disk_cache\disk_cache.cc:284] Unable to create cache
+[7340:0914/045713.508:ERROR:gpu\ipc\host\gpu_disk_cache.cc:737] Gpu Cache Creation failed: -2
+RESULT__{
+  "outerAntes": 129,
+  "outerDepois": 129,
+  "activeDepois": [
+    0
+  ],
+  "hoverOffsetSustentado": false
+}

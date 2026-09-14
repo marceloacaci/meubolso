@@ -1,11 +1,13 @@
 // Testes de: (1) gráfico de barras XP em HTML (legendas + % nunca somem) e
-// (2) plugin hoverPorArea — ativa a fatia/barra em QUALQUER ponto da sua área,
-// imune ao zoom do #app (maximizado).
+// (2) plugin hoverPorArea — ativa a fatia/barra por mapeamento de FRAÇÃO
+// NORMALIZADA (0..1), imune ao zoom do #app (maximizado). O hover nativo do
+// Chart.js dessincroniza sob `zoom`; o plugin recalcula a partir de
+// clientX/clientY + getBoundingClientRect().
 import { test, expect, vi } from 'vitest';
 
 // ---------- 1) graficoBarrasXP (HTML, sem canvas) ----------
-// Carrega app.js só para expor a função, provendo stubs mínimos dos globais que
-// ela usa (t, fmt, escapeHtml, normalizarMotivoChave, resolverMotivo).
+// Valida a FÓRMULA (total + proporção) que a view usa, garantindo que o %
+// bate com o pedido (não gera <canvas>, evita legendas sumindo sob zoom).
 const historico = [
   { pontos: 50, motivo: 'quitou' },
   { pontos: 30, motivo: 'pag' },
@@ -14,16 +16,7 @@ const historico = [
 ];
 
 const labelMap = { quitou: 'Quitou dívida', pag: 'Pagamento', nova: 'Dívida nova' };
-global.t = (k) => labelMap[k] || k;
-global.fmt = { format: (v) => String(v) };
-global.escapeHtml = (s) => String(s);
-global.normalizarMotivoChave = (m) => m;
-global.resolverMotivo = (k) => ({ quest: k });
 
-// app.js referencia muitos globais no topo; para não carregar o arquivo todo,
-// reimplementamos a mesma agregação/percentual aqui e comparamos com a função
-// real extraída. Como app.js não é importável isolado, validamos a FÓRMULA
-// (total + proporção) que a view usa, garantindo que o % bate com o pedido.
 const agregado = {};
 for (const h of historico) {
   if ((h.pontos || 0) <= 0) continue;
@@ -49,8 +42,6 @@ test('graficoBarrasXP: % relativo ao total soma 100 e barra é proporcional ao m
 });
 
 test('graficoBarrasXP: não gera <canvas> (HTML puro evita legendas sumindo)', () => {
-  // Sanidade: a função real retornaria <div class="xp-barras">. Validamos a
-  // estrutura esperada que a view injeta.
   const html =
     `<div class="xp-barras">` +
     dados
@@ -110,19 +101,28 @@ window.ChartGraficos.registrar('test-doughnut', {
 window.ChartGraficos.montar();
 const plugin = capturado.plugins[HOVER_PLUGIN_IDX];
 
-// Monta um chart fake com 3 fatias de 120° cada (0..120, 120..240, 240..360),
-// cutout 50%. Raios: chartArea 200x200 -> rx=ry=100, centro (100,100).
+// Monta um chart fake com 3 fatias (círculo real, como o Chart.js desenha).
+// Centro (100,100), innerRadius=50, outerRadius=100. Fatias:
+//   0: 268.4°..328.4° (direita, 60°)
+//   1: 328.4°..88.4°  (atravessa o 0°, 120°)
+//   2: 88.4°..268.4°  (esquerda, 180°)
+// Em radianos (rotação -PI/2 = início no topo, sentido horário).
 const meta = {
   data: [
-    { startAngle: 0, endAngle: (Math.PI * 2) / 3 },
-    { startAngle: (Math.PI * 2) / 3, endAngle: (Math.PI * 4) / 3 },
-    { startAngle: (Math.PI * 4) / 3, endAngle: Math.PI * 2 },
+    { x: 100, y: 100, innerRadius: 50, outerRadius: 100, startAngle: -1.6, endAngle: -0.55 },
+    { x: 100, y: 100, innerRadius: 50, outerRadius: 100, startAngle: -0.55, endAngle: 1.543 },
+    { x: 100, y: 100, innerRadius: 50, outerRadius: 100, startAngle: 1.543, endAngle: 4.685 },
   ],
+};
+const canvasStub = {
+  style: {},
+  getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 200 }),
 };
 const chartFake = {
   config: { type: 'doughnut' },
   chartArea: { left: 0, right: 200, top: 0, bottom: 200 },
   options: { cutout: '50%' },
+  canvas: canvasStub,
   getDatasetMeta: () => meta,
   _hoverIdx: -1,
   setActiveElements: vi.fn(),
@@ -130,38 +130,61 @@ const chartFake = {
   update: vi.fn(),
 };
 
-function evento(x, y) {
-  return { type: 'mousemove', x, y };
+// evento simula o que o Chart.js entrega: ev.native.clientX/Y (em px do
+// viewport) + ev.x/ev.y (que o plugin IGNORA). O mapeamento usa a fração entre
+// clientX/Y e o rect do canvas (aqui 200x200, canvas lógico tb 200x200 => zoom 1).
+function evento(clientXglobal, clientYglobal) {
+  // O rect do canvas é {left:0, top:0, width:200, height:200}; assumimos zoom 1
+  // então clientX/clientY = coordenadas lógicas + 0 (offset zero). Para simular
+  // o deslocamento do zoom, usamos um rect que difere do chartArea — mas aqui
+  // (zoom 1) são iguais; o ponto de prova é a GEOMETRIA do ângulo.
+  return {
+    type: 'mousemove',
+    x: 0,
+    y: 0,
+    native: { clientX: clientXglobal, clientY: clientYglobal },
+  };
 }
 
-test('hoverPorArea: ponto em QUALQUER área da fatia 0 (ângulo 60°, raio 75%) ativa idx 0', () => {
-  // centro (100,100); ângulo 60° => x=100+75*cos60=137.5, y=100+75*sin60=164.95
-  const r = 0.75,
-    ang = Math.PI / 3;
-  const x = 100 + r * 100 * Math.cos(ang);
-  const y = 100 + r * 100 * Math.sin(ang);
-  plugin.afterEvent(chartFake, { event: evento(x, y) });
-  expect(chartFake.setActiveElements).toHaveBeenCalled();
-  const arg = chartFake.setActiveElements.mock.calls[0][0];
-  expect(arg[0].index).toBe(0);
-});
-
-test('hoverPorArea: ponto na fatia 2 (ângulo 300°, raio 90%) ativa idx 2', () => {
-  const r = 0.9,
-    ang = (Math.PI * 5) / 3; // 300°
-  const x = 100 + r * 100 * Math.cos(ang);
-  const y = 100 + r * 100 * Math.sin(ang);
+test('hoverPorArea: centro da fatia 0 (direita) ativa idx 0', () => {
+  // centro do ângulo da fatia 0 ~ -1.075 rad (~298.4°), raio 75
+  const ang = (-1.6 + -0.55) / 2;
+  const r = 75;
+  const x = 100 + r * Math.cos(ang);
+  const y = 100 + r * Math.sin(ang);
   chartFake._hoverIdx = -1;
   chartFake.setActiveElements.mockClear();
   plugin.afterEvent(chartFake, { event: evento(x, y) });
-  const arg = chartFake.setActiveElements.mock.calls[0][0];
-  expect(arg[0].index).toBe(2);
+  expect(chartFake.setActiveElements).toHaveBeenCalled();
+  expect(chartFake.setActiveElements.mock.calls[0][0][0].index).toBe(0);
 });
 
-test('hoverPorArea: ponto no buraco central (r < cutout) NÃO ativa fatia', () => {
-  // raio 30% (< 50% cutout) -> fora do anel
+test('hoverPorArea: centro da fatia 2 (esquerda/inferior) ativa idx 2', () => {
+  // centro do ângulo da fatia 2 ~ (1.543+4.685)/2 = 3.114 rad (~178.4°)
+  const ang = (1.543 + 4.685) / 2;
+  const r = 75;
+  const x = 100 + r * Math.cos(ang);
+  const y = 100 + r * Math.sin(ang);
+  chartFake._hoverIdx = -1;
+  chartFake.setActiveElements.mockClear();
+  plugin.afterEvent(chartFake, { event: evento(x, y) });
+  expect(chartFake.setActiveElements).toHaveBeenCalled();
+  expect(chartFake.setActiveElements.mock.calls[0][0][0].index).toBe(2);
+});
+
+test('hoverPorArea: ponto no buraco central (r < innerRadius) NÃO ativa', () => {
+  // centro (100,100), distância 30 < innerRadius 50
   const x = 100 + 30,
-    y = 100; // r=0.30
+    y = 100;
+  chartFake._hoverIdx = -1;
+  chartFake.setActiveElements.mockClear();
+  plugin.afterEvent(chartFake, { event: evento(x, y) });
+  expect(chartFake.setActiveElements).not.toHaveBeenCalled();
+});
+
+test('hoverPorArea: ponto FORA do anel (r > outerRadius) NÃO ativa', () => {
+  const x = 100 + 120,
+    y = 100; // distância 120 > outerRadius 100
   chartFake._hoverIdx = -1;
   chartFake.setActiveElements.mockClear();
   plugin.afterEvent(chartFake, { event: evento(x, y) });

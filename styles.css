@@ -600,10 +600,38 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
+/* Hover do botão padrão: lift + sombra, SEM trocar a cor de fundo (padrão dos
+   botões de Configurações). */
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Afundado no clique (botões de relevo --bg): gradiente invertido + sombra interna. */
+.btn:active,
+.btn:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
 .btn-primary { background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%); color: #fff; }
-.btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-hover); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Afundado no clique (botão de fundo colorido --primary): mantém a cor primária
+   invertida + sombra interna, sem trocar de cor no hover. */
+.btn-primary:active,
+.btn-primary:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
 .btn-ghost { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text-muted); }
-.btn-ghost:hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); }
+.btn-ghost:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); color: var(--text); }
+/* Afundado no clique (botão fantasma/neutro): igual ao .btn de relevo. */
+.btn-ghost:active,
+.btn-ghost:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  color: var(--text);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
 /* Botão "Limpar filtros": borda simples inativa; vermelha (borda+fonte) quando
    há filtro ativo, para sinalizar que algo está filtrando. Tooltip detalhada
    (via title) explica o que será restaurado. */
@@ -932,8 +960,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.chart-wrap { width: 100%; height: 230px; position: relative; overflow: hidden; }
-.chart-wrap canvas { width: 100% !important; height: 100% !important; display: block; }
+.chart-card-body { height: 100%; display: flex; flex-direction: column; }
+.chart-wrap { flex: 1 1 auto; width: 100%; min-height: 0; position: relative; overflow: hidden; }
+/* O canvas é gerido pelo Chart.js (responsive:true + maintainAspectRatio:false),
+   que define o tamanho via atributos e estilo inline. NÃO forçar width/height
+   com !important: isso dessincroniza o tamanho FÍSICO (hit-test desenhado pelo
+   Chart.js) do tamanho VISUAL imposto pelo CSS quando o #app está sob `zoom`
+   (janela maximizada) — quebrando o foco/hover/destaque das fatias e barras. */
+.chart-wrap canvas { display: block; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted); }
 .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
@@ -1170,6 +1204,14 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .nivel-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.nivel-btn:active,
+.nivel-btn:active:hover {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--bg) 70%, white) 0%,
+    var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
 
 /* Tela de Gamificação */
 .config-grid--wide { max-width: 1000px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
@@ -1523,6 +1565,24 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: transform 0.2s, color 0.2s, background 0.2s;
 }
 .relogio-gear:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Afundado no clique (tema claro): gradiente invertido + sombra interna. O estado
+   aberto ([aria-expanded="true"]) mantém a cor primária invertida no clique. */
+.relogio-gear:active,
+.relogio-gear:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  color: var(--text-muted);
+  border-color: var(--border);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+.relogio-gear[aria-expanded="true"]:active,
+.relogio-gear[aria-expanded="true"]:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
 /* Gira apenas o ícone (não o botão) para não descentralizar o botão. */
 .relogio-gear span[data-ico] { display: inline-flex; transition: transform 0.2s; }
 .relogio-gear:hover span[data-ico] { transform: rotate(35deg); }
@@ -1614,6 +1674,29 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .gear-opt--sm:hover { transform: translateY(-1px); }
 .gear-opt:hover { box-shadow: var(--shadow-hover); }
+/* ===== Afundado no clique — .gear-opt (menu rápido / gear-panel, tema claro) =====
+   Igual ao efeito da página de Configurações: gradiente invertido (to top) + sombra
+   INTERNA (inset) + translateY(0) + borda mantida. Regra separada do :hover para o
+   efeito não sumir ao soltar o hover enquanto clicado. O botão ATIVO mantém --primary. */
+.gear-opt:not(.active):active,
+.gear-opt:not(.active):active:hover {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--bg) 70%, white) 0%,
+    var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+.gear-opt.active:active,
+.gear-opt.active:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--primary) 70%, white) 0%,
+    var(--primary) 100%);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
 /* No hover (de botões NÃO ativos), a imagem/ícone (SVG inline ou <img>) também
    ganha a cor de destaque, igual ao texto — garante o efeito "texto + imagem"
    no hover mesmo quando o ícone não herda currentColor por padrão.
@@ -1989,6 +2072,9 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   font-size: calc(22px * var(--app-font-scale));
   line-height: 1;
   padding: 0;
+  /* Alinha o glifo "×" um pouco mais acima dentro do círculo: o padding-bottom
+     empurra o conteúdo para cima (o flexbox centraliza no espaço restante). */
+  padding-bottom: 2px;
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
@@ -2001,6 +2087,16 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   border-color: var(--border);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+/* Afundado no clique: gradiente inverte (to top) + sombra INTERNA (inset), mantendo
+   o relevo "pressionado" mesmo com o mouse ainda em cima (:active:hover). Regra
+   separada do :hover para o efeito não sumir ao soltar o hover enquanto clicado. */
+.modal-fechar:active,
+.modal-fechar:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border) !important;
 }
 .modal-card h2 { padding-right: 36px; }
 
@@ -2105,6 +2201,29 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
 /* No hover da aba (não-ativa): fundo raised + lift + sombra — sem mudar cor de
    texto nem de ícone (estes herdam a cor normal do pai). */
 .sidebar-nav .nav-link:not(.active):hover { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* ===== Afundado no clique — menu lateral (sidebar-nav .nav-link, tema claro) =====
+   Igual aos botões de Configurações: gradiente invertido (to top) + sombra INTERNA
+   (inset) + translateY(0) + borda mantida. Regra separada do :hover para o efeito
+   não sumir ao soltar o hover enquanto clicado. O item ATIVO mantém --primary. */
+.sidebar-nav .nav-link:not(.active):active,
+.sidebar-nav .nav-link:not(.active):active:hover {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--bg) 70%, white) 0%,
+    var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+.sidebar-nav .nav-link.active:active,
+.sidebar-nav .nav-link.active:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--primary) 70%, white) 0%,
+    var(--primary) 100%);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
 
 /* Cards Bootstrap alinhados ao estilo de cartão do app. */
 .card { background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%); border-color: var(--border); box-shadow: var(--shadow); }
@@ -2549,6 +2668,17 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .gear-opt.active {
   border-color: var(--primary);
 }
+/* ===== Engrenagem ABERTA no tema escuro =====
+   O bloco cristal ([data-theme="dark"] .relogio-gear) — mesma especificidade 0,2,0
+   mas escrito DEPOIS no arquivo — sobrescrevia o fundo primário do estado
+   [aria-expanded="true"]. Esta regra (0,3,0) restaura a cor de destaque no fundo
+   quando a engrenagem está aberta, igual ao tema claro. */
+[data-theme="dark"] .relogio-gear[aria-expanded="true"] {
+  color: #fff;
+  border-color: var(--primary);
+  background-color: var(--primary);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+}
 
 /* ===== Hover tema escuro — cards/botões gerais (equiparados aos cards de Configurações) =====
    No hover: lift (translateY -1px) + borda e fonte na cor de destaque (--primary)
@@ -2566,6 +2696,42 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: var(--shadow-hover);
 }
 
+/* ===== Afundado no clique — tema escuro (botão fechar dos modais) =====
+   Igual ao tema claro: gradiente invertido (to top) + sombra INTERNA (inset)
+   + borda escura (--border-dark). Regra separada do :hover para o efeito
+   "pressionado" não sumir quando o mouse ainda está em cima. */
+[data-theme="dark"] .modal-fechar:active,
+[data-theme="dark"] .modal-fechar:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
+}
+
+/* ===== Afundado no clique — tema escuro (botões .btn / .btn-ghost / .btn-primary) =====
+   Igual ao tema claro: gradiente invertido (to top) + sombra INTERNA (inset) +
+   translateY(0) + borda mantida. Regra separada do :hover para o efeito "pressionado"
+   não sumir ao soltar o hover enquanto clicado. Neutros mantêm --border-dark; o
+   .btn-primary mantém a cor primária invertida. */
+[data-theme="dark"] .btn:not(.btn-primary):active,
+[data-theme="dark"] .btn:not(.btn-primary):active:hover,
+[data-theme="dark"] .btn-ghost:active,
+[data-theme="dark"] .btn-ghost:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
+}
+[data-theme="dark"] .btn-primary:active,
+[data-theme="dark"] .btn-primary:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
 /* ===== Menu lateral — tema escuro (hover equiparado aos cards de Configurações) =====
    Hover (não-ativo): lift (translateY -1px) + borda e fonte na cor de destaque
    (--primary) + sombra difusa branca (--shadow-hover). A imagem/ícone acompanha
@@ -2573,6 +2739,55 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .sidebar-nav .nav-link:not(.active):hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+/* ===== Afundado no clique — menu lateral (tema escuro) =====
+   Igual ao tema claro: gradiente invertido + sombra interna + borda escura
+   mantida. O item ATIVO mantém a cor primária invertida. */
+[data-theme="dark"] .sidebar-nav .nav-link:not(.active):active,
+[data-theme="dark"] .sidebar-nav .nav-link:not(.active):active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
+}
+[data-theme="dark"] .sidebar-nav .nav-link.active:active,
+[data-theme="dark"] .sidebar-nav .nav-link.active:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Afundado no clique — engrenagem (relogio-gear) tema escuro =====
+   Igual ao tema claro: gradiente invertido + sombra interna + borda mantida.
+   O estado aberto ([aria-expanded="true"]) mantém a cor primária invertida. */
+[data-theme="dark"] .relogio-gear:active,
+[data-theme="dark"] .relogio-gear:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  color: var(--text-muted);
+  border-color: var(--border-dark);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .relogio-gear[aria-expanded="true"]:active,
+[data-theme="dark"] .relogio-gear[aria-expanded="true"]:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Afundado no clique — botão do card de pontos (nivel-btn) tema escuro =====
+   Neutro: gradiente invertido + sombra interna + borda escura mantida. */
+[data-theme="dark"] .nivel-btn:active,
+[data-theme="dark"] .nivel-btn:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
 }
 
 /* ===== Página de Configuração — tema escuro (bloco dedicado) =====
@@ -2603,6 +2818,25 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .gear-panel .gear-opt:not(.active):hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+/* ===== Afundado no clique — .gear-opt (gear-panel) tema escuro =====
+   Igual ao tema claro: gradiente invertido + sombra interna + borda mantida.
+   O botão ATIVO mantém a cor primária invertida. */
+[data-theme="dark"] .gear-panel .gear-opt:not(.active):active,
+[data-theme="dark"] .gear-panel .gear-opt:not(.active):active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
+}
+[data-theme="dark"] .gear-panel .gear-opt.active:active,
+[data-theme="dark"] .gear-panel .gear-opt.active:active:hover {
+  background-color: var(--primary);
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 /* "Card exibidor" (o painel que abre ao clicar na engrenagem): no tema
    escuro, ganha sombra difusa branca no hover para realce, igual aos cards.
@@ -2676,5 +2910,31 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   background: color-mix(in srgb, var(--primary) 8%, var(--surface));
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+
+/* ============================================================
+   Efeito cristal (glassmorphism) — relógio/data, engrenagem,
+   card de botões da engrenagem e modais (login/cadastro), nos
+   DOIS temas. Replica o .page-header: fundo semitransparente +
+   blur do conteúdo atrás. A engrenagem ABERTA ([aria-expanded])
+   mantém a cor primária (não recebe cristal). ============== */
+:root:not([data-theme="dark"]) .relogio-brasilia,
+:root:not([data-theme="dark"]) .relogio-gear:not([aria-expanded="true"]),
+:root:not([data-theme="dark"]) .gear-panel,
+:root:not([data-theme="dark"]) .modal-card {
+  background-color: rgba(250, 250, 250, 0.35);
+  background-image: linear-gradient(to bottom, rgba(250, 250, 250, 0.42) 0%, rgba(240, 240, 240, 0.22) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+[data-theme="dark"] .relogio-brasilia,
+[data-theme="dark"] .relogio-gear:not([aria-expanded="true"]),
+[data-theme="dark"] .gear-panel,
+[data-theme="dark"] .modal-card {
+  background-color: rgba(22, 25, 30, 0.35);
+  background-image: linear-gradient(to bottom, rgba(28, 32, 39, 0.42) 0%, rgba(16, 18, 22, 0.22) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-color: var(--border-dark);
 }
 

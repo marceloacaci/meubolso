@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"><title>hover persist</title>
+<style>
+  html,body{margin:0;padding:0}
+  #app{zoom:1.45;width:600px;height:400px;padding:20px}
+  .chart-wrap{width:400px;height:260px;position:relative}
+  .chart-wrap canvas{display:block}
+</style>
+</head>
+<body>
+  <div id="app"><div class="chart-wrap"><canvas id="c1"></canvas></div></div>
+  <script src="vendor/chart.umd.js"></script>
+  <script>
+    const hoverPorArea = {
+    id: 'hoverPorArea',
+    afterEvent(chart, args) {
+      const ev = args && args.event;
+      if (!ev) return;
+      const meta = chart.getDatasetMeta(0);
+      if (!meta || !meta.data || !meta.data.length) return;
+      const type = chart.config.type;
+      const setCursor = (ativo) => {
+        try {
+          chart.canvas.style.cursor = ativo ? 'pointer' : 'default';
+        } catch (_) {}
+      };
+      if (ev.type === 'mouseout') {
+        chart._hoverIdx = -1;
+        chart.setActiveElements([]);
+        if (chart.tooltip) chart.tooltip.setActiveElements([]);
+        setCursor(false);
+        return;
+      }
+      if (ev.type !== 'mousemove') return;
+      const ca = chart.chartArea;
+      if (!ca) return;
+      // Mapeia a posição real do mouse (clientX/Y) para coordenadas LÓGICAS do
+      // chartArea por fração normalizada 0..1 — imune a zoom/dpr. O rect visual
+      // (getBoundingClientRect) sempre reflete a área EXIBIDA (incluindo o zoom);
+      // ca/geometrias são unidades lógicas do Chart.js.
+      const rect =
+        chart.canvas && chart.canvas.getBoundingClientRect
+          ? chart.canvas.getBoundingClientRect()
+          : null;
+      if (rect && rect.width && rect.height && ev.native) {
+        const relX = (ev.native.clientX - rect.left) / rect.width;
+        const relY = (ev.native.clientY - rect.top) / rect.height;
+        ev.x = ca.left + relX * (ca.right - ca.left);
+        ev.y = ca.top + relY * (ca.bottom - ca.top);
+      }
+      const cx = (ca.left + ca.right) / 2;
+      const cy = (ca.top + ca.bottom) / 2;
+
+      if (type === 'doughnut' || type === 'pie') {
+        // Centro e raio REAIS do círculo desenhado (o doughnut do Chart.js é um
+        // círculo, não elipse: outerRadius = min(rx,ry)). Usamos o raio do anel
+        // real e atan2(dy,dx) — igual ao hit-test nativo — para decidir a fatia.
+        const first = meta.data[0];
+        const rcx = first.x !== undefined ? first.x : cx;
+        const rcy = first.y !== undefined ? first.y : cy;
+        const inner = first.innerRadius || 0;
+        const outer = first.outerRadius || 1;
+        const dx = ev.x - rcx,
+          dy = ev.y - rcy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < inner || dist > outer) {
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
+          setCursor(false);
+          return;
+        }
+        let pa = Math.atan2(dy, dx);
+        if (pa < -0.5 * Math.PI) pa += 2 * Math.PI;
+        pa = ((pa % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        let idx = -1;
+        for (let i = 0; i < meta.data.length; i++) {
+          const el = meta.data[i];
+          let s = ((el.startAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          let e = ((el.endAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          const inArc = s <= e ? pa >= s && pa <= e : pa >= s || pa <= e;
+          if (inArc) {
+            idx = i;
+            break;
+          }
+        }
+        if (idx < 0) {
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
+          setCursor(false);
+          return;
+        }
+        if (idx === chart._hoverIdx) return;
+        chart._hoverIdx = idx;
+        chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
+        if (chart.tooltip)
+          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        setCursor(true);
+      } else if (type === 'bar') {
+        // Barras: ativa a coluna sob o ponteiro, só dentro da ÁREA COLORIDA
+        // (rótulos do eixo x ficam abaixo do chartArea e NÃO contam).
+        if (ev.y < ca.top || ev.y > ca.bottom) {
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
+          setCursor(false);
+          return;
+        }
+        const x = ev.x;
+        let idx = -1;
+        for (let i = 0; i < meta.data.length; i++) {
+          const el = meta.data[i];
+          const xc = el.x !== undefined ? el.x : el.getCenterPoint ? el.getCenterPoint().x : null;
+          const half =
+            (el.width !== undefined ? el.width : el.getProps ? el.getProps(['width']).width : 0) /
+            2;
+          if (xc != null && half && Math.abs(x - xc) <= half) {
+            idx = i;
+            break;
+          }
+        }
+        if (idx < 0 || idx === chart._hoverIdx) return;
+        chart._hoverIdx = idx;
+        chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
+        if (chart.tooltip)
+          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        setCursor(true);
+      }
+    },
+  };
+  window.__hp = hoverPorArea;
+    var chart = new Chart(document.getElementById('c1'),{
+      type:'doughnut',
+      data:{labels:['A','B','C'],datasets:[{data:[1,2,3],backgroundColor:['#f00','#0f0','#00f'],borderWidth:2,hoverOffset:12}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,devicePixelRatio:(window.devicePixelRatio||1),
+        interaction:{mode:'nearest',intersect:true},
+        rotation:-Math.PI/2,cutout:'62%',
+        plugins:{legend:{display:false},hoverPorArea:{}}
+      },
+      plugins:[hoverPorArea]
+    });
+    window.__chart = chart;
+    document.title='DONE';
+  </script>
+</body>
+</html>

@@ -78,12 +78,13 @@
   };
 
   // Plugin: hover por ÁREA TOTAL da fatia/barra (imune ao zoom CSS do #app).
-  // O Chart.js nativo às vezes falha ao detectar o hover quando o canvas está
-  // ampliado por `zoom` (maximizado): o hit-test usa coordenadas do canvas que
-  // não batem com o ponteiro. Este plugin recalcula a fatia ativa a partir das
-  // coordenadas lógicas do evento (event.x/event.y já normalizadas pelo Chart)
-  // e dos ângulos/raios reais de cada elemento — ativando a fatia em QUALQUER
-  // ponto da sua área, não só no centro exato.
+  // Ao maximizar, o #app recebe `zoom: var(--app-width-scale)` e o hit-test
+  // NATIVO do Chart.js (getElementsAtEventForMode) dessincroniza: o `ve()` interno
+  // usa offsetX/offsetY do evento, que sob `zoom` ficam deslocados em relação ao
+  // chartArea, deixando o hover "morto"/na fatia errada. Este plugin NÃO confia
+  // em ev.x/ev.y — mapeia a posição do mouse por FRAÇÃO NORMALIZADA (0..1) entre o
+  // rect visual do canvas e o chartArea LÓGICO, o que é imune a zoom/dpr/qualquer
+  // escala. A geometria (startAngle/endAngle/raio) está sempre em unidades lógicas.
   const hoverPorArea = {
     id: 'hoverPorArea',
     afterEvent(chart, args) {
@@ -92,89 +93,98 @@
       const meta = chart.getDatasetMeta(0);
       if (!meta || !meta.data || !meta.data.length) return;
       const type = chart.config.type;
+      const setCursor = (ativo) => {
+        try {
+          chart.canvas.style.cursor = ativo ? 'pointer' : 'default';
+        } catch (_) {}
+      };
       if (ev.type === 'mouseout') {
         chart._hoverIdx = -1;
         chart.setActiveElements([]);
         if (chart.tooltip) chart.tooltip.setActiveElements([]);
+        setCursor(false);
         return;
       }
       if (ev.type !== 'mousemove') return;
       const ca = chart.chartArea;
       if (!ca) return;
-      // Coordenadas CORRETAS considerando zoom CSS do #app (janela maximizada).
-      // O Chart.js entrega ev.x/ev.y normalizadas, mas quando o canvas está sob
-      // `transform: scale()` (--app-width-scale > 1), essas coordenadas deixam
-      // de bater com o chartArea e o hover "quebra" ao maximizar. Recalculamos
-      // a partir do MouseEvent nativo e do rect visual do canvas, escalando pela
-      // razão entre o tamanho interno do canvas e o tamanho exibido.
+      // Mapeia a posição real do mouse (clientX/Y) para coordenadas LÓGICAS do
+      // chartArea por fração normalizada 0..1 — imune a zoom/dpr. O rect visual
+      // (getBoundingClientRect) sempre reflete a área EXIBIDA (incluindo o zoom);
+      // ca/geometrias são unidades lógicas do Chart.js.
       const rect =
         chart.canvas && chart.canvas.getBoundingClientRect
           ? chart.canvas.getBoundingClientRect()
           : null;
       if (rect && rect.width && rect.height && ev.native) {
-        const scaleX = chart.width / rect.width;
-        const scaleY = chart.height / rect.height;
-        ev.x = (ev.native.clientX - rect.left) * scaleX;
-        ev.y = (ev.native.clientY - rect.top) * scaleY;
+        const relX = (ev.native.clientX - rect.left) / rect.width;
+        const relY = (ev.native.clientY - rect.top) / rect.height;
+        ev.x = ca.left + relX * (ca.right - ca.left);
+        ev.y = ca.top + relY * (ca.bottom - ca.top);
       }
       const cx = (ca.left + ca.right) / 2;
       const cy = (ca.top + ca.bottom) / 2;
 
       if (type === 'doughnut' || type === 'pie') {
-        const rx = (ca.right - ca.left) / 2;
-        const ry = (ca.bottom - ca.top) / 2;
-        if (!rx || !ry) return;
-        const dx = ev.x - cx,
-          dy = ev.y - cy;
-        // Normaliza para um círculo unitário (o doughnut pode ser elíptico).
-        const nx = dx / rx,
-          ny = dy / ry;
-        const r = Math.hypot(nx, ny);
-        const cutRaw = chart.options.cutout;
-        const cut = (typeof cutRaw === 'string' ? parseFloat(cutRaw) : cutRaw || 0) / 100;
-        if (r < cut || r > 1.0) {
-          // fora do anel
+        // Centro e raio REAIS do círculo desenhado (o doughnut do Chart.js é um
+        // círculo, não elipse: outerRadius = min(rx,ry)). Usamos o raio do anel
+        // real e atan2(dy,dx) — igual ao hit-test nativo — para decidir a fatia.
+        const first = meta.data[0];
+        const rcx = first.x !== undefined ? first.x : cx;
+        const rcy = first.y !== undefined ? first.y : cy;
+        const inner = first.innerRadius || 0;
+        const outer = first.outerRadius || 1;
+        const dx = ev.x - rcx,
+          dy = ev.y - rcy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < inner || dist > outer) {
           if (chart._hoverIdx !== -1) {
             chart._hoverIdx = -1;
             chart.setActiveElements([]);
             if (chart.tooltip) chart.tooltip.setActiveElements([]);
           }
+          setCursor(false);
           return;
         }
         let pa = Math.atan2(dy, dx);
+        if (pa < -0.5 * Math.PI) pa += 2 * Math.PI;
         pa = ((pa % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         let idx = -1;
         for (let i = 0; i < meta.data.length; i++) {
           const el = meta.data[i];
-          let s = el.startAngle,
-            e = el.endAngle;
-          s = ((s % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-          e = ((e % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          let s = ((el.startAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          let e = ((el.endAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
           const inArc = s <= e ? pa >= s && pa <= e : pa >= s || pa <= e;
           if (inArc) {
             idx = i;
             break;
           }
         }
-        if (idx < 0 || idx === chart._hoverIdx) return;
+        if (idx < 0) {
+          if (chart._hoverIdx !== -1) {
+            chart._hoverIdx = -1;
+            chart.setActiveElements([]);
+            if (chart.tooltip) chart.tooltip.setActiveElements([]);
+          }
+          setCursor(false);
+          return;
+        }
+        if (idx === chart._hoverIdx) return;
         chart._hoverIdx = idx;
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
           chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
-        chart.update('none');
+        setCursor(true);
       } else if (type === 'bar') {
-        // Barras: ativa a barra cuja coluna (x) o ponteiro está em cima — cobre
-        // toda a altura do plot, não só a barra em si.
-        // IMPORTANTE (item 6): só considera a ÁREA COLORIDA do gráfico. Os
-        // rótulos do eixo x ficam ABAIXO do chartArea; se o mouse estiver sobre
-        // o texto do label, NÃO devemos ativar a barra (antes contava o label
-        // como parte da abrangência). Por isso checamos o Y dentro do chartArea.
+        // Barras: ativa a coluna sob o ponteiro, só dentro da ÁREA COLORIDA
+        // (rótulos do eixo x ficam abaixo do chartArea e NÃO contam).
         if (ev.y < ca.top || ev.y > ca.bottom) {
           if (chart._hoverIdx !== -1) {
             chart._hoverIdx = -1;
             chart.setActiveElements([]);
             if (chart.tooltip) chart.tooltip.setActiveElements([]);
           }
+          setCursor(false);
           return;
         }
         const x = ev.x;
@@ -195,7 +205,7 @@
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
           chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
-        chart.update('none');
+        setCursor(true);
       }
     },
   };
@@ -216,13 +226,16 @@
   function montar() {
     destruirTodos();
     if (!pendentes || !Object.keys(pendentes).length) return;
-    // Escala de largura (viewport): ao maximizar, turbina o devicePixelRatio
-    // para nitidez dos gráficos e amplia as fontes internas/legendas.
+    // Escala de largura (viewport): amplia as fontes internas/legendas ao
+    // maximizar. NÃO inflamos o devicePixelRatio com a escala — o CSS `zoom`
+    // do #app já rasteriza o canvas com nitidez; inflar o dpr aqui causaria
+    // ESCALONAMENTO DUPLO (canvas físico × escala × dpr) e dessincronizaria o
+    // hit-test do hover. O plugin hoverPorArea cuida do hover sob zoom.
     const escala =
       parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue('--app-width-scale')
       ) || 1;
-    const dpr = Math.max(1, (window.devicePixelRatio || 1) * (escala > 1 ? escala : 1));
+    const dpr = window.devicePixelRatio || 1;
 
     for (const id of Object.keys(pendentes)) {
       const el = document.getElementById(id);
@@ -256,11 +269,8 @@
               responsive: true,
               maintainAspectRatio: false,
               devicePixelRatio: dpr,
-              // Hit-test: só ativa se o ponteiro ESTÁ na barra (intersect), não
-              // em ponto próximo (corrige item 6: rótulos do eixo x NÃO contam
-              // como área da fatia). O plugin hoverPorArea cuida da ativação por
-              // coluna (qualquer altura da barra) e limpa quando o mouse sai da
-              // área colorida.
+              // Hit-test NATIVO: intersect:true ativa a barra só quando o ponteiro
+              // está sobre ela (rótulos do eixo x ficam fora do chartArea).
               interaction: { mode: 'nearest', intersect: true },
               animation: { duration: 900, easing: 'easeOutQuart' },
               scales: {
@@ -275,11 +285,6 @@
                 legend: { display: false },
                 tooltip: { callbacks: { label: (ctx) => ' ' + cfg.fmt(ctx.parsed.y) } },
                 hoverPorArea: {},
-              },
-              onHover: (e, els) => {
-                try {
-                  e.native.target.style.cursor = els && els.length ? 'pointer' : 'default';
-                } catch (_) {}
               },
             },
             plugins: [hoverPorArea],
@@ -306,10 +311,8 @@
               maintainAspectRatio: false,
               devicePixelRatio: dpr,
               layout: { padding: 16 }, // folga p/ o hoverOffset (fatias se separam) não estourar o canvas
-              // Hit-test: só ativa se o ponteiro ESTÁ na fatia (intersect), não
-              // em ponto próximo (corrige item 6: cantos do canvas / fora do
-              // anel NÃO contam como área da fatia). O plugin hoverPorArea cuida
-              // da ativação por ângulo+raio em QUALQUER ponto da fatia.
+              // Hit-test NATIVO: intersect:true ativa a fatia só quando o ponteiro
+              // está dentro dela (fora do anel / cantos não contam).
               interaction: { mode: 'nearest', intersect: true },
               rotation: -Math.PI / 2, // início no topo (0°), varrendo como relógio
               cutout: '62%',
@@ -324,11 +327,6 @@
                 tooltip: { callbacks: { label: (ctx) => ' ' + cfg.fmt(ctx.parsed) } },
                 textoCentral: { label: cfg.centroLabel, valor: cfg.centroValor, escala: escala },
                 hoverPorArea: {},
-              },
-              onHover: (e, els) => {
-                try {
-                  e.native.target.style.cursor = els && els.length ? 'pointer' : 'default';
-                } catch (_) {}
               },
             },
             plugins: [textoCentral, hoverPorArea],
