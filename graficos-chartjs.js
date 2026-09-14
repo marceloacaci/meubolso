@@ -102,6 +102,7 @@
         chart._hoverIdx = -1;
         chart.setActiveElements([]);
         if (chart.tooltip) chart.tooltip.setActiveElements([]);
+        chart.update('none');
         setCursor(false);
         return;
       }
@@ -174,6 +175,7 @@
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
           chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        chart.update('none');
         setCursor(true);
       } else if (type === 'bar') {
         // Barras: ativa a coluna sob o ponteiro, só dentro da ÁREA COLORIDA
