@@ -51,12 +51,12 @@
       const cy = (chartArea.top + chartArea.bottom) / 2;
       const t = coresTema();
       // Fonte escala com a largura da janela (nitidez ao maximizar).
-      const s = o.escala && o.escala > 1 ? o.escala : 1;
+      const s = o.escala && o.escala > 1 ? Math.sqrt(o.escala) : 1;
       // Tamanho base reduzido; encolhe conforme o nº de casas do valor para
       // não estourar o círculo interior e aproveitar melhor a área.
-      const baseValor = 15,
-        baseLabel = 12;
-      const casas = (o.valor || '').replace(/[^\d]/g, '').length; // dígitos do valor
+      const baseValor = 12,
+        baseLabel = 10;
+      const casas = (o.valor || '').replace(/[^\\d]/g, '').length; // dígitos do valor
       const reducao = casas >= 8 ? 0.6 : casas >= 6 ? 0.72 : casas >= 4 ? 0.82 : 1;
       const fv = Math.max(8, Math.round(baseValor * s * reducao));
       const fl = Math.max(7, Math.round(baseLabel * s * (casas >= 6 ? 0.85 : 1)));
@@ -81,7 +81,7 @@
   // Ao maximizar, o #app recebe `zoom: var(--app-width-scale)` e o hit-test
   // NATIVO do Chart.js (getElementsAtEventForMode) dessincroniza: o `ve()` interno
   // usa offsetX/offsetY do evento, que sob `zoom` ficam deslocados em relação ao
-  // chartArea, deixando o hover "morto"/na fatia errada. Este plugin NÃO confia
+  // chartArea, deixando o hover \"morto\"/na fatia errada. Este plugin NÃO confia
   // em ev.x/ev.y — mapeia a posição do mouse por FRAÇÃO NORMALIZADA (0..1) entre o
   // rect visual do canvas e o chartArea LÓGICO, o que é imune a zoom/dpr/qualquer
   // escala. A geometria (startAngle/endAngle/raio) está sempre em unidades lógicas.
@@ -109,20 +109,17 @@
       if (ev.type !== 'mousemove') return;
       const ca = chart.chartArea;
       if (!ca) return;
-      // Mapeia a posição real do mouse (clientX/Y) para coordenadas LÓGICAS do
-      // chartArea por fração normalizada 0..1 — imune a zoom/dpr. O rect visual
-      // (getBoundingClientRect) sempre reflete a área EXIBIDA (incluindo o zoom);
-      // ca/geometrias são unidades lógicas do Chart.js.
-      const rect =
-        chart.canvas && chart.canvas.getBoundingClientRect
-          ? chart.canvas.getBoundingClientRect()
-          : null;
-      if (rect && rect.width && rect.height && ev.native) {
-        const relX = (ev.native.clientX - rect.left) / rect.width;
-        const relY = (ev.native.clientY - rect.top) / rect.height;
-        ev.x = ca.left + relX * (ca.right - ca.left);
-        ev.y = ca.top + relY * (ca.bottom - ca.top);
-      }
+      // Map clientX/Y to logical coordinates (chartArea) accounting for padding, border, zoom, and devicePixelRatio.
+      // Use normalized fraction between visual rect and logical chartArea to be immune to zoom/dpr.
+      const canvas = chart.canvas;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect || !rect.width || !rect.height) return;
+      const clientX = ev.native ? ev.native.clientX : ev.clientX;
+      const clientY = ev.native ? ev.native.clientY : ev.clientY;
+      const relX = (clientX - rect.left) / rect.width;
+      const relY = (clientY - rect.top) / rect.height;
+      ev.x = ca.left + relX * (ca.right - ca.left);
+      ev.y = ca.top + relY * (ca.bottom - ca.top);
       const cx = (ca.left + ca.right) / 2;
       const cy = (ca.top + ca.bottom) / 2;
 
@@ -136,17 +133,15 @@
         const inner = first.innerRadius || 0;
         const outer = first.outerRadius || 1;
         const dx = ev.x - rcx,
-          dy = ev.y - rcy;
-        const dist = Math.hypot(dx, dy);
-        if (dist < inner || dist > outer) {
-          if (chart._hoverIdx !== -1) {
-            chart._hoverIdx = -1;
-            chart.setActiveElements([]);
-            if (chart.tooltip) chart.tooltip.setActiveElements([]);
-          }
-          setCursor(false);
-          return;
-        }
+                dy = ev.y - rcy;
+              const dist = Math.hypot(dx, dy);
+              if (dist < inner || dist > outer) {
+                // mouse está dentro do furo ou fora do raio externo, mas ainda no canvas
+                // não ativa nenhuma fatia; mantemos cursor padrão para evitar confusão
+                setCursor(false);
+                chart.update('none');
+                return false;
+              }
         let pa = Math.atan2(dy, dx);
         if (pa < -0.5 * Math.PI) pa += 2 * Math.PI;
         pa = ((pa % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
@@ -162,21 +157,23 @@
           }
         }
         if (idx < 0) {
-          if (chart._hoverIdx !== -1) {
-            chart._hoverIdx = -1;
-            chart.setActiveElements([]);
-            if (chart.tooltip) chart.tooltip.setActiveElements([]);
-          }
+          // dentro da área do doughnut mas não sobre nenhuma fatia (ex.: exatamente na fronteira ou entre fatias)
+          // mantém o último estado ativo para evitar piscar, mas muda cursor para padrão
           setCursor(false);
-          return;
+          chart.update('none');
+          return false;
         }
-        if (idx === chart._hoverIdx) return;
+        if (idx === chart._hoverIdx) {
+          setCursor(true);
+          return false;
+        }
         chart._hoverIdx = idx;
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
           chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
         chart.update('none');
         setCursor(true);
+        return false;
       } else if (type === 'bar') {
         // Barras: ativa a coluna sob o ponteiro, só dentro da ÁREA COLORIDA
         // (rótulos do eixo x ficam abaixo do chartArea e NÃO contam).
@@ -207,6 +204,7 @@
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
           chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: ev.x, y: ev.y });
+        chart.update('none');
         setCursor(true);
       }
     },
@@ -278,7 +276,7 @@
               scales: {
                 x: {
                   grid: { display: false },
-                  ticks: { color: t.muted, font: { size: Math.round(10 * escala) } },
+                  ticks: { color: t.muted, font: { size: Math.round(10 * Math.sqrt(escala)) } },
                   border: { display: false },
                 },
                 y: { display: false, grid: { display: false }, beginAtZero: true },
@@ -318,6 +316,7 @@
               interaction: { mode: 'nearest', intersect: true },
               rotation: -Math.PI / 2, // início no topo (0°), varrendo como relógio
               cutout: '62%',
+              hover: { mode: null }, // desativa efeito visual de hover (separação, mudança de cor)
               animation: {
                 animateRotate: true,
                 animateScale: true,
