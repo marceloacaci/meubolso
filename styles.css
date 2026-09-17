@@ -966,10 +966,67 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    com !important: isso dessincroniza o tamanho FÍSICO (hit-test desenhado pelo
    Chart.js) do tamanho VISUAL imposto pelo CSS quando o #app está sob `zoom`
    (janela maximizada) — quebrando o foco/hover/destaque das fatias e barras. */
-.chart-wrap canvas { display: block; }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: calc(12px * var(--app-font-scale)); color: var(--text-muted); }
-.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.chart-wrap canvas { display: block; outline: none !important; }
+
+/* Modo Mega Brain Quântico: Legendas Interativas e Hover Fluido */
+.chart-card-body {
+  display: flex;
+  flex-direction: column;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 12px;
+  transition: opacity 0.2s ease;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: calc(12px * var(--app-font-scale));
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  border-radius: 6px;
+  padding: 3px 6px;
+  margin: -3px -6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+.legend-item:hover,
+.legend-item.legend-item-active {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  transform: translateY(-1px);
+}
+.legend-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.legend-item:hover .legend-dot,
+.legend-item.legend-item-active .legend-dot {
+  transform: scale(1.35);
+  box-shadow: 0 0 8px currentColor;
+}
+.legend.has-active .legend-item:not(.legend-item-active) {
+  opacity: 0.35;
+  filter: grayscale(20%);
+}
+.legend-label {
+  white-space: nowrap;
+}
+.legend-valor {
+  font-variant-numeric: tabular-nums;
+  margin-left: 2px;
+  color: var(--text);
+}
 
 /* Card "XP por atividade" (Gamificação): barras em HTML/CSS — legenda à
    esquerda, barra no meio (proporcional ao maior valor) e +XP/% à direita.
@@ -980,6 +1037,17 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   grid-template-columns: minmax(110px, 1.4fr) 2.2fr auto auto;
   align-items: center;
   gap: 10px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  margin: -3px -6px;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+.xp-barra-linha:hover {
+  background-color: color-mix(in srgb, var(--primary) 8%, transparent);
+  transform: translateX(2px);
+}
+.xp-barras:hover .xp-barra-linha:not(:hover) {
+  opacity: 0.55;
 }
 .xp-barra-label {
   font-size: calc(13px * var(--app-font-scale));

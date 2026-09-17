@@ -198,3 +198,88 @@ test('hoverPorArea: mouseout limpa a seleção', () => {
   expect(chartFake.setActiveElements).toHaveBeenCalledWith([]);
   expect(chartFake._hoverIdx).toBe(-1);
 });
+
+test('hoverPorArea sob zoom maximizado (1.45x): mapeia corretamente coordenadas lógicas e ativa fatia', () => {
+  // Simula tela maximizada com zoom de 1.45x
+  // Canvas lógico: 200x200
+  // Canvas visual (getBoundingClientRect): 290x290 (200 * 1.45), posicionado em left: 150, top: 80
+  const zoomCanvas = {
+    style: {},
+    getBoundingClientRect: () => ({ left: 150, top: 80, width: 290, height: 290 }),
+  };
+  const zoomChart = {
+    ...chartFake,
+    width: 200,
+    height: 200,
+    canvas: zoomCanvas,
+    _hoverIdx: -1,
+    setActiveElements: vi.fn(),
+    tooltip: { setActiveElements: vi.fn() },
+    update: vi.fn(),
+  };
+
+  // Ponto no centro da fatia 0 no espaço lógico (200x200):
+  const ang = (-1.6 + -0.55) / 2;
+  const r = 75;
+  const logicalTargetX = 100 + r * Math.cos(ang);
+  const logicalTargetY = 100 + r * Math.sin(ang);
+
+  // Coordenada física do mouse na tela maximizada (clientX/Y):
+  // clientX = left + logicalTargetX * 1.45
+  // clientY = top + logicalTargetY * 1.45
+  const clientX = 150 + logicalTargetX * 1.45;
+  const clientY = 80 + logicalTargetY * 1.45;
+
+  plugin.afterEvent(zoomChart, {
+    event: {
+      type: 'mousemove',
+      native: { clientX, clientY },
+    },
+  });
+
+  expect(zoomChart.setActiveElements).toHaveBeenCalled();
+  expect(zoomChart.setActiveElements.mock.calls[0][0][0].index).toBe(0);
+  expect(zoomChart._hoverIdx).toBe(0);
+});
+
+test('hoverPorArea sob zoom maximizado (1.45x) em gráfico de barras: ativa coluna correta', () => {
+  const barMeta = {
+    data: [
+      { x: 30, width: 24, getProps: () => ({ width: 24 }) },
+      { x: 70, width: 24, getProps: () => ({ width: 24 }) },
+      { x: 110, width: 24, getProps: () => ({ width: 24 }) },
+    ],
+  };
+  const barCanvas = {
+    style: {},
+    getBoundingClientRect: () => ({ left: 200, top: 100, width: 290, height: 290 }),
+  };
+  const barChart = {
+    config: { type: 'bar' },
+    chartArea: { left: 10, right: 190, top: 20, bottom: 180 },
+    width: 200,
+    height: 200,
+    canvas: barCanvas,
+    getDatasetMeta: () => barMeta,
+    _hoverIdx: -1,
+    setActiveElements: vi.fn(),
+    tooltip: { setActiveElements: vi.fn() },
+    update: vi.fn(),
+  };
+
+  // Alvo: coluna 1 (x lógico = 70, y lógico = 100)
+  const clientX = 200 + (70 / 200) * 290;
+  const clientY = 100 + (100 / 200) * 290;
+
+  plugin.afterEvent(barChart, {
+    event: {
+      type: 'mousemove',
+      native: { clientX, clientY },
+    },
+  });
+
+  expect(barChart.setActiveElements).toHaveBeenCalled();
+  expect(barChart.setActiveElements.mock.calls[0][0][0].index).toBe(1);
+  expect(barChart._hoverIdx).toBe(1);
+});
+

@@ -1369,6 +1369,14 @@ function graficoPizza(dados) {
       centroLabel: t('grafico.total'),
       centroValor: fmt.format(total),
       fmt: (v) => fmt.format(v),
+      items: ordenado.map((d) => ({
+        label: d.label,
+        valor: d.valor,
+        valorFmt: fmt.format(d.valor),
+        pct: total > 0 ? ((d.valor / total) * 100).toFixed(1) + '%' : '0%',
+        cor: d.cor,
+      })),
+      total: total,
     });
   }
   return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.dividaCategoria')}"></canvas></div>`;
@@ -1382,11 +1390,30 @@ function graficoRosca(m) {
     if (m.totalGeral > 0) {
       const pago = m.totalPago / m.totalGeral;
       const aberto = 1 - pago;
-      if (aberto > 0) segs.push({ label: t('grafico.emAberto'), v: aberto, c: '#c1121f' });
-      if (pago > 0) segs.push({ label: t('grafico.pago'), v: pago, c: '#2d6a4f' });
-      if (!segs.length) segs.push({ label: t('grafico.pago'), v: 1, c: '#2d6a4f' });
+      // Pago primeiro (índice 0) seguido de Em Aberto para alinhar com a legenda
+      if (pago > 0)
+        segs.push({
+          label: t('grafico.pago'),
+          v: pago,
+          valorAbs: m.totalPago,
+          c: '#2d6a4f',
+        });
+      if (aberto > 0)
+        segs.push({
+          label: t('grafico.emAberto'),
+          v: aberto,
+          valorAbs: m.saldo,
+          c: '#c1121f',
+        });
+      if (!segs.length)
+        segs.push({
+          label: t('grafico.pago'),
+          v: 1,
+          valorAbs: m.totalPago,
+          c: '#2d6a4f',
+        });
     } else {
-      segs.push({ label: t('grafico.semDivida'), v: 1, c: '#e5e7eb' });
+      segs.push({ label: t('grafico.semDivida'), v: 1, valorAbs: 0, c: '#e5e7eb' });
     }
     window.ChartGraficos.registrar(id, {
       tipo: 'doughnut',
@@ -1396,6 +1423,14 @@ function graficoRosca(m) {
       centroLabel: t('grafico.quitado'),
       centroValor: m.progresso.toFixed(0) + '%',
       fmt: (v) => (v * 100).toFixed(0) + '%',
+      items: segs.map((s) => ({
+        label: s.label,
+        valor: s.v,
+        valorFmt: s.valorAbs > 0 ? fmt.format(s.valorAbs) : (s.v * 100).toFixed(0) + '%',
+        pct: (s.v * 100).toFixed(1) + '%',
+        cor: s.c,
+      })),
+      total: 1,
     });
   }
   return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.pagoVsAberto')}"></canvas></div>`;
@@ -1405,13 +1440,22 @@ function graficoRosca(m) {
 function graficoBarrasStatus(dados) {
   if (!dados.length) return '<p class="stat-sub">' + t('grafico.semParcelas') + '</p>';
   const id = 'chart-barras-status-' + __graficoSeq++;
+  const totalParcelas = dados.reduce((acc, d) => acc + (d.qtd || 0), 0);
   if (window.ChartGraficos) {
     window.ChartGraficos.registrar(id, {
       tipo: 'bar',
       labels: dados.map((d) => d.label),
       valores: dados.map((d) => d.qtd),
       cores: dados.map((d) => d.cor),
-      fmt: (v) => v + ' parcelas',
+      fmt: (v) => v + (v === 1 ? ' parcela' : ' parcelas'),
+      items: dados.map((d) => ({
+        label: d.label,
+        qtd: d.qtd,
+        valorFmt: d.qtd + (d.qtd === 1 ? ' parcela' : ' parcelas'),
+        pct: totalParcelas > 0 ? ((d.qtd / totalParcelas) * 100).toFixed(1) + '%' : '0%',
+        cor: d.cor,
+      })),
+      total: totalParcelas,
     });
   }
   return `<div class="chart-wrap"><canvas id="${id}" role="img" aria-label="${t('grafico.status')}"></canvas></div>`;
