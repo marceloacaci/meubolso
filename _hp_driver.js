@@ -2,10 +2,26 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 let win;
-function finish(code) { try { if (win) win.close(); } catch (_) {} setTimeout(() => { try { app.exit(code); } catch (_) { process.exit(code); } }, 50); }
+function finish(code) {
+  try {
+    if (win) win.close();
+  } catch (_) {}
+  setTimeout(() => {
+    try {
+      app.exit(code);
+    } catch (_) {
+      process.exit(code);
+    }
+  }, 50);
+}
 
 app.whenReady().then(async () => {
-  win = new BrowserWindow({ width: 900, height: 700, show: false, webPreferences: { contextIsolation: true, nodeIntegration: false } });
+  win = new BrowserWindow({
+    width: 900,
+    height: 700,
+    show: false,
+    webPreferences: { contextIsolation: true, nodeIntegration: false },
+  });
   await win.loadFile(path.join(__dirname, '_hp.html'));
   await new Promise((r) => setTimeout(r, 1800));
 
@@ -40,12 +56,22 @@ app.whenReady().then(async () => {
 
   const a = JSON.parse(antes);
   const d = JSON.parse(depois);
-  console.log('RESULT__' + JSON.stringify({
-    outerAntes: a.outerAntes,
-    outerDepois: d.outerDepois,
-    activeDepois: d.active,
-    hoverOffsetSustentado: d.outerDepois > a.outerAntes,
-  }, null, 2));
+  console.log(
+    'RESULT__' +
+      JSON.stringify(
+        {
+          outerAntes: a.outerAntes,
+          outerDepois: d.outerDepois,
+          activeDepois: d.active,
+          hoverOffsetSustentado: d.outerDepois > a.outerAntes,
+        },
+        null,
+        2
+      )
+  );
   finish(0);
 });
-setTimeout(() => { console.log('TIMEOUT__'); finish(2); }, 15000);
+setTimeout(() => {
+  console.log('TIMEOUT__');
+  finish(2);
+}, 15000);

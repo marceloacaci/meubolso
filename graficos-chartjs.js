@@ -133,15 +133,15 @@
         const inner = first.innerRadius || 0;
         const outer = first.outerRadius || 1;
         const dx = ev.x - rcx,
-                dy = ev.y - rcy;
-              const dist = Math.hypot(dx, dy);
-              if (dist < inner || dist > outer) {
-                // mouse está dentro do furo ou fora do raio externo, mas ainda no canvas
-                // não ativa nenhuma fatia; mantemos cursor padrão para evitar confusão
-                setCursor(false);
-                chart.update('none');
-                return false;
-              }
+          dy = ev.y - rcy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < inner || dist > outer) {
+          // mouse está dentro do furo ou fora do raio externo, mas ainda no canvas
+          // não ativa nenhuma fatia; mantemos cursor padrão para evitar confusão
+          setCursor(false);
+          chart.update('none');
+          return false;
+        }
         let pa = Math.atan2(dy, dx);
         if (pa < -0.5 * Math.PI) pa += 2 * Math.PI;
         pa = ((pa % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
