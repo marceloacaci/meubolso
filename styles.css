@@ -2926,7 +2926,9 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 }
 /* Tema escuro — remove lift no clique (active) nos botões do card Aparência/Configurações */
 [data-theme="dark"] .config-secao .gear-opt:not(.active):active,
-[data-theme="dark"] .config-secao .gear-opt.active:active {
+[data-theme="dark"] .config-secao .gear-opt.active:active,
+[data-theme="dark"] .config-secao .card-btn:active,
+[data-theme="dark"] .config-secao .gear-cor:active {
   transform: none;
   box-shadow: var(--shadow);
 }
