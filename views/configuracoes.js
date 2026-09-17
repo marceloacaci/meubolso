@@ -26,6 +26,12 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
               <button class="gear-opt ${temaAtual === 'dark' ? 'active' : ''}" data-tema="dark" title="${t('tema.escuroTitle')}">${ICON.lua} ${t('tema.escuro')}</button>
             </div>
           </div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="config-secao h-100 fonte">
+          <h3>${t('config.fonte')}</h3>
           <div class="config-linha">
             <span>${t('config.fonte')} (${tamFonte})</span>
             <div class="gear-grupo gear-fonte-btns" role="group" aria-label="${t('config.fonte')}">
