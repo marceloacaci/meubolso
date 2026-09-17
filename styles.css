@@ -1210,8 +1210,16 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
     var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
-  transform: translateY(0);
+  transform: none;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+/* Remove lift no clique (active) para TODOS os botões do card Configurações (tema claro) */
+.config-secao .gear-opt:not(.active):active,
+.config-secao .gear-opt.active:active,
+.config-secao .card-btn:active,
+.config-secao .gear-cor:active {
+  transform: none;
+  box-shadow: var(--shadow);
 }
 /* Chumaço de cor de acento (.gear-cor): tem gradiente raised (var(--sw) com
    topo claro) — também inverte no clique + encolhe levemente (afundado). */
@@ -2915,6 +2923,12 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .config-secao .gear-opt.active:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+/* Tema escuro — remove lift no clique (active) nos botões do card Aparência/Configurações */
+[data-theme="dark"] .config-secao .gear-opt:not(.active):active,
+[data-theme="dark"] .config-secao .gear-opt.active:active {
+  transform: none;
+  box-shadow: var(--shadow);
 }
 /* Tema escuro — hover dos .gear-opt do menu rápido (gear-panel): mesma
    consistência do card de Configurações — lift + sombra difusa branca,
