@@ -120,4 +120,3 @@ test('ChartGraficos: registra gráfico de barras com suporte a hover rico e tool
   expect(capturado.type).toBe('bar');
   expect(capturado.options.plugins.tooltip.enabled).toBe(true);
 });
-

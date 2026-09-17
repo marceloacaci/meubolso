@@ -321,7 +321,10 @@
     if (!ctx || typeof ctx.measureText !== 'function') {
       const medEstimada = texto.length * maxDesejado * 0.55;
       if (medEstimada <= larguraMax) return maxDesejado;
-      return Math.max(minPermitido, Math.min(maxDesejado, Math.floor(maxDesejado * (larguraMax / medEstimada))));
+      return Math.max(
+        minPermitido,
+        Math.min(maxDesejado, Math.floor(maxDesejado * (larguraMax / medEstimada)))
+      );
     }
     ctx.font = `${peso} ${maxDesejado}px ${familia}`;
     const med = ctx.measureText(texto).width;
@@ -367,11 +370,12 @@
       // Obtém o raio interno real da rosca do primeiro elemento (ou estimativa pelo chartArea)
       const meta = chart.getDatasetMeta && chart.getDatasetMeta(0);
       const firstArc = meta && meta.data && meta.data[0];
-      const diametroEst = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+      const diametroEst = Math.min(
+        chartArea.right - chartArea.left,
+        chartArea.bottom - chartArea.top
+      );
       const innerRadius =
-        firstArc && firstArc.innerRadius > 0
-          ? firstArc.innerRadius
-          : (diametroEst / 2) * 0.62;
+        firstArc && firstArc.innerRadius > 0 ? firstArc.innerRadius : (diametroEst / 2) * 0.62;
 
       // Raio seguro com 10% de margem contra a borda interna da rosca
       const safeR = Math.max(12, innerRadius * 0.9);
@@ -632,8 +636,8 @@
       }
 
       // Largura e altura lógicas da área de renderização do Chart.js
-      const chartW = chart.width || (ca ? ca.right : (rect ? rect.width : 1));
-      const chartH = chart.height || (ca ? ca.bottom : (rect ? rect.height : 1));
+      const chartW = chart.width || (ca ? ca.right : rect ? rect.width : 1);
+      const chartH = chart.height || (ca ? ca.bottom : rect ? rect.height : 1);
 
       // Coordenadas lógicas precisas 1:1 no espaço do canvas do Chart.js
       const logicalX = fracX * chartW;
@@ -731,9 +735,11 @@
         let menorDist = Infinity;
         for (let i = 0; i < meta.data.length; i++) {
           const el = meta.data[i];
-          const xc = el.x !== undefined ? el.x : (el.getCenterPoint ? el.getCenterPoint().x : null);
+          const xc = el.x !== undefined ? el.x : el.getCenterPoint ? el.getCenterPoint().x : null;
           if (xc == null) continue;
-          const half = (el.width !== undefined ? el.width : (el.getProps ? el.getProps(['width']).width : 0)) / 2;
+          const half =
+            (el.width !== undefined ? el.width : el.getProps ? el.getProps(['width']).width : 0) /
+            2;
           const tolerance = Math.max(half, 14);
           const d = Math.abs(logicalX - xc);
           if (d <= tolerance && d < menorDist) {
@@ -756,7 +762,10 @@
         chart._hoverIdx = idx;
         chart.setActiveElements([{ datasetIndex: 0, index: idx }]);
         if (chart.tooltip)
-          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: logicalX, y: logicalY });
+          chart.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], {
+            x: logicalX,
+            y: logicalY,
+          });
         aplicarEstiloHover(chart, idx);
         chart.update('none');
         setCursor(true);

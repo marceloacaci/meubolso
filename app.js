@@ -1188,7 +1188,10 @@ function atualizarBadges() {
     (acc, d) => acc + (d.parcelas || []).filter((p) => (p.status || 'pendente') !== 'pago').length,
     0
   );
-  const { proximas, atrasadas } = calcularVencimentos();
+  // Usa filtro VAZIO para o badge de vencimentos NÃO ser afetado pela busca
+  // da página atual (ex.: ao pesquisar em "Dívidas", o badge "Vencimentos"
+  // deve mostrar o total real de próximas/atrasadas, não filtrado pelo termo).
+  const { proximas, atrasadas } = calcularVencimentos({});
 
   const setBadge = (id, valor, alerta = false) => {
     const el = document.getElementById(id);
@@ -2560,20 +2563,72 @@ async function persistir(silencio = false) {
 
 // ---------- Roteamento de views ----------
 let viewAtual = 'painel';
+// Filtros independentes por view (página). Cada view tem seu próprio estado de filtro.
+let filtrosPorView = {
+  painel: {},
+  dividas: {},
+  pagamentos: {},
+  vencimentos: {},
+  carteiras: {},
+  recorrentes: {},
+  metas: {},
+  relatorio: {},
+  juros: {},
+  simulador: {},
+  configuracoes: {},
+  lixeira: {},
+  sobre: {},
+  filtros: {}, // página de filtros avançados
+};
+// Filtro ativo da view atual (referência ao objeto em filtrosPorView[viewAtual])
+let filtroAtual = filtrosPorView.painel;
+
+function getFiltroPadrao() {
+  return {
+    texto: '',
+    categoria: '',
+    status: '',
+    periodo: '',
+    periodoDe: '',
+    periodoAte: '',
+    periodoDeDia: '',
+    periodoDeMes: '',
+    periodoDeAno: '',
+    periodoAteDia: '',
+    periodoAteMes: '',
+    periodoAteAno: '',
+    ordenar: 'descricao',
+    asc: true,
+    pagina: 1,
+    porPagina: 12,
+  };
+}
+
 function setView(v) {
-  // Saiu da página de Filtros: limpa os campos preenchidos para não vazarem
-  // para a próxima visita (o filtro é um estado compartilhado entre views).
-  if (viewAtual === 'filtros' && v !== 'filtros' && typeof limparFiltro === 'function') {
-    limparFiltro();
+  if (viewAtual !== v) {
+    // Limpa os filtros da view que está sendo deixada (volta ao estado original)
+    filtrosPorView[viewAtual] = getFiltroPadrao();
+    // Desfoca campo de busca ativo antes da troca de tela
+    try {
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    } catch (_) {}
+    window.__focoBusca = null;
+    window.__trocandoView = true;
   }
   viewAtual = v;
-  if (window.__viewRef) window.__viewRef.value = v; // ref reativo: troca a view no root Vue
+  // Carrega o filtro da nova view (ou cria vazio se não existir)
+  filtroAtual = filtrosPorView[v] || getFiltroPadrao();
+  // Garante que o objeto existe no mapa
+  if (!filtrosPorView[v]) filtrosPorView[v] = filtroAtual;
+  // Sincroniza com estado.filtro para compatibilidade com código existente
+  estado.filtro = filtroAtual;
+
+  if (window.__viewRef) window.__viewRef.value = v;
   document.querySelectorAll('.tab').forEach((t) => {
     t.classList.toggle('active', t.dataset.view === v);
   });
-  // Ao abrir "Sobre", busca as informações reais do sistema (versões) via IPC.
-  // O render() só incrementa o tick; quando as infos chegarem, render() roda
-  // de novo e a view "Sobre" exibe os dados atualizados.
   if (v === 'sobre' && !_sobreInfoCache) {
     obterInfoSistema().then(() => {
       if (viewAtual === 'sobre') render();
@@ -2594,36 +2649,22 @@ function focarBusca() {
 // S5-1/S5-5: atualiza um campo do filtro/ordenação e re-renderiza.
 // Aceita também um objeto parcial. Reseta a página ao filtrar.
 function definirFiltro(campo, valor) {
-  if (typeof estado.filtro !== 'object' || estado.filtro === null) {
-    estado.filtro = {
-      texto: '',
-      categoria: '',
-      status: '',
-      periodo: '',
-      periodoDe: '',
-      periodoAte: '',
-      periodoDeDia: '',
-      periodoDeMes: '',
-      periodoDeAno: '',
-      periodoAteDia: '',
-      periodoAteMes: '',
-      periodoAteAno: '',
-      ordenar: 'descricao',
-      asc: true,
-      pagina: 1,
-      porPagina: 12,
-    };
+  if (typeof filtroAtual !== 'object' || filtroAtual === null) {
+    filtroAtual = getFiltroPadrao();
+    filtrosPorView[viewAtual] = filtroAtual;
   }
   if (typeof campo === 'object') {
-    Object.assign(estado.filtro, campo);
+    Object.assign(filtroAtual, campo);
   } else {
-    estado.filtro[campo] = valor;
-    if (campo !== 'pagina') estado.filtro.pagina = 1;
+    filtroAtual[campo] = valor;
+    if (campo !== 'pagina') filtroAtual.pagina = 1;
     // Recompõe periodoDe/periodoAte só quando um dos selects dia/mês/ano muda.
     // Se o próprio periodoDe/periodoAte foi passado direto (objeto ou string),
     // NÃO recompõe — senão o valor seria apagado pelos campos auxiliares vazios.
     if (/^periodo(De|Ate)(Dia|Mes|Ano)$/.test(campo)) recomporPeriodoFiltro();
   }
+  // Sincroniza com estado.filtro para compatibilidade
+  estado.filtro = filtroAtual;
   render();
 }
 
@@ -2648,24 +2689,9 @@ function recomporPeriodoFiltro() {
 }
 
 function limparFiltro() {
-  estado.filtro = {
-    texto: '',
-    categoria: '',
-    status: '',
-    periodo: '',
-    periodoDe: '',
-    periodoAte: '',
-    periodoDeDia: '',
-    periodoDeMes: '',
-    periodoDeAno: '',
-    periodoAteDia: '',
-    periodoAteMes: '',
-    periodoAteAno: '',
-    ordenar: 'descricao',
-    asc: true,
-    pagina: 1,
-    porPagina: estado.filtro ? estado.filtro.porPagina : 12,
-  };
+  filtroAtual = getFiltroPadrao();
+  filtrosPorView[viewAtual] = filtroAtual;
+  estado.filtro = filtroAtual;
   render();
 }
 

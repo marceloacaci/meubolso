@@ -282,4 +282,3 @@ test('hoverPorArea sob zoom maximizado (1.45x) em gráfico de barras: ativa colu
   expect(barChart.setActiveElements.mock.calls[0][0][0].index).toBe(1);
   expect(barChart._hoverIdx).toBe(1);
 });
-

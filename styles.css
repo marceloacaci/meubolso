@@ -316,9 +316,24 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .btn-cta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; font-weight: 600; }
 
 /* Campo de busca com ícone de lupa à esquerda (S5-1 / melhorias de busca). */
-.input-com-lupa { position: relative; display: flex; align-items: center; }
-.input-com-lupa .input-lupa { position: absolute; left: 10px; display: inline-flex; align-items: center; color: var(--text-muted); pointer-events: none; }
+.input-com-lupa { position: relative; display: flex; align-items: center; transition: transform 0.15s, box-shadow 0.15s; }
+.input-com-lupa .input-lupa { position: absolute; left: 10px; display: inline-flex; align-items: center; color: var(--text-muted); pointer-events: none; transition: color 0.15s; }
 .input-com-lupa .form-control { padding-left: 32px; }
+
+/* Lupa permanece visível e destaca no hover/focus do container do campo.
+   O hover no .input-com-lupa evita que a lupa "some" quando o input recebe
+   translateY(-1px) (o container não se move, só o input interno). */
+.input-com-lupa:hover .input-lupa,
+.input-com-lupa:focus-within .input-lupa {
+  color: var(--primary);
+}
+
+/* O container recebe o lift visual no hover/focus, mantendo a lupa alinhada. */
+.input-com-lupa:hover,
+.input-com-lupa:focus-within {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
 
 /* Botão "Limpar" dos filtros: borda/cor de destaque (igual ao botão Ativar da
    página de Configurações) para destacar a ação de limpar filtros. */
@@ -2328,8 +2343,14 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
   border-color: var(--border); box-shadow: none;
+  border-radius: var(--bs-border-radius);
 }
-.form-control:focus, .form-select:focus { border-color: var(--border); box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2); }
+.form-control:focus, .form-select:focus { 
+  border-color: var(--border); 
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2);
+  /* Focus ring arredondado (Bootstrap usa box-shadow quadrado que "corta" os cantos) */
+  border-radius: var(--bs-border-radius);
+}
 .form-label { font-size: calc(12px * var(--app-font-scale)); font-weight: 600; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
 .form-text { color: var(--text-muted); }
@@ -2590,6 +2611,23 @@ input:not([type="checkbox"]):not([type="radio"]),
 select, textarea, .form-control, .form-select {
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s;
 }
+
+/* EVITA que o input com lupa se mova no hover/focus (o container .input-com-lupa
+   não se move; se o input interno der translateY(-1px), a lupa absoluta fica
+   desalinhada e "some"). O lift visual fica no container, não no input. */
+.input-com-lupa .form-control:hover,
+.input-com-lupa .form-control:focus,
+.input-com-lupa input:hover,
+.input-com-lupa input:focus,
+.input-com-lupa textarea:hover,
+.input-com-lupa textarea:focus,
+.input-com-lupa select:hover,
+.input-com-lupa select:focus,
+.input-com-lupa .form-select:hover,
+.input-com-lupa .form-select:focus {
+  transform: none !important;
+}
+
 input:not([type="checkbox"]):not([type="radio"]):hover,
 select:hover, textarea:hover, .form-control:hover, .form-select:hover,
 input:not([type="checkbox"]):not([type="radio"]):focus,
