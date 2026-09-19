@@ -224,7 +224,7 @@ var en = {
   'form.opcional': 'optional',
   'form.parcelas': 'Installments',
   'form.status': 'Status',
-  'form.valorPago': 'Amount paid ($)',
+  'form.valorPago': 'Amount paid',
   'form.valorParcela': 'Installment amount',
   'form.vencimento': 'Due date',
   'game.faltamNivel': 'Need',

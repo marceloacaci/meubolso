@@ -2746,7 +2746,7 @@ function parcelasParaFormulario(n, parcelasExistentes = []) {
             <select name="ps${i}">${opts}</select>
           </div>
           <div class="campo full parcela-pagamento" id="pagamento-parcela-${i}" style="${mostraPagamento ? '' : 'display:none'}">
-            <label>${t('form.valorPago')} (${t('moeda')})</label>
+            <label>${t('form.valorPago')}</label>
             <input type="text" inputmode="decimal" step="0.01" min="0" name="pvpg${i}" placeholder="${t('form.exValorParcela') || '0,00'}" value="${existente ? (Number(existente.valorPago) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}" />
             <label>${t('form.dataPagamento')}</label>
             <input type="date" name="pdpg${i}" value="${existente ? existente.dataPagamento || '' : ''}" />
@@ -3264,7 +3264,7 @@ function novoPagamento(dividaPreSelecionada = null) {
       },
       {
         name: 'valor',
-        label: t('form.valorPago') + ' (' + t('moeda') + ')',
+        label: t('form.valorPago'),
         type: 'text',
         inputmode: 'decimal',
         step: '0.01',
@@ -3403,7 +3403,7 @@ function editarPagamento(p) {
       },
       {
         name: 'valor',
-        label: t('form.valorPago') + ' (' + t('moeda') + ')',
+        label: t('form.valorPago'),
         type: 'text',
         inputmode: 'decimal',
         step: '0.01',
@@ -3657,7 +3657,7 @@ function lancarPagamentoParcela(d, parc) {
     <form id="form-parcela" novalidate>
       <div id="campos-form">
         <div class="campo">
-          <label>${t('form.valorPago')} (${t('moeda')})</label>
+          <label>${t('form.valorPago')}</label>
           <input type="text" inputmode="decimal" step="0.01" min="0" name="valor" placeholder="0,00" value="${existente ? (Number(existente.valor) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}" required />
         </div>
         <div class="campo">

@@ -225,7 +225,7 @@ var es = {
   'form.opcional': 'opcional',
   'form.parcelas': 'Cuotas',
   'form.status': 'Estado',
-  'form.valorPago': 'Importe pagado ($)',
+  'form.valorPago': 'Importe pagado',
   'form.valorParcela': 'Importe de la cuota',
   'form.vencimento': 'Vencimiento',
   'game.faltamNivel': 'Faltan',

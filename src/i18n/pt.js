@@ -224,7 +224,7 @@ var pt = {
   'form.opcional': 'opcional',
   'form.parcelas': 'Parcelas',
   'form.status': 'Status',
-  'form.valorPago': 'Valor pago (R$)',
+  'form.valorPago': 'Valor pago',
   'form.valorParcela': 'Valor da parcela',
   'form.vencimento': 'Vencimento',
   'game.faltamNivel': 'Faltam',
