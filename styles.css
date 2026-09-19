@@ -1875,6 +1875,18 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
 .notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
+   Mesmo padrão dos .gear-opt: gradiente invertido (to top) + sombra interna (inset)
+   + translateY(0) + borda mantida. Regra separada do :hover para o efeito não sumir
+   ao soltar o hover enquanto clicado. */
+.notif-dd-trigger:active,
+.notif-dd-trigger:active:hover {
+  background-image: linear-gradient(to top,
+    color-mix(in srgb, var(--bg) 70%, white) 0%,
+    var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
 /* Quando o dropdown está ABERTO (trigger "selecionado"), mantém a aparência de
    hover — borda, texto e seta (imagem) na cor de destaque do sistema — porém com
    a sombra suavizada (igual aos botões em repouso). Fica assim enquanto o painel
@@ -2997,6 +3009,15 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .gear-panel .gear-mini-btn:active:hover,
 [data-theme="dark"] .gear-panel .gear-card-btn:active,
 [data-theme="dark"] .gear-panel .gear-card-btn:active:hover {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-color: var(--border-dark) !important;
+}
+/* ===== Afundado no clique — .notif-dd-trigger (tema escuro) =====
+   Mesmo padrão dos .gear-opt: gradiente invertido + sombra interna + borda mantida. */
+[data-theme="dark"] .notif-dd-trigger:active,
+[data-theme="dark"] .notif-dd-trigger:active:hover {
   background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
