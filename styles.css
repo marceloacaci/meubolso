@@ -1875,14 +1875,16 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
 .notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-/* Hover no trigger (tema claro): borda e texto na cor de destaque + lift + shadow-hover.
-   Garante que o hover funcione mesmo quando aria-expanded="true" (dropdown aberto). */
+/* Hover no trigger (tema claro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
 .notif-dd-trigger:hover,
 .notif-dd-trigger[aria-expanded="true"]:hover {
-  border-color: var(--primary);
-  color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+}
+/* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
+.notif-dd-trigger[aria-expanded="true"] {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 /* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
    Mesmo padrão dos .gear-opt: gradiente invertido (to top) + sombra interna (inset)
@@ -1956,12 +1958,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-color: var(--primary);
   color: #fff;
 }
-/* Hover do item: igual ao hover dos demais botões (gradiente raised + sobe 1px + sombra).
-   Itens NÃO ativos: borda e texto na cor de destaque + lift + shadow-hover. */
+/* Hover do item: lift + shadow-hover (SEM mudança de cor de borda/fonte).
+   Itens NÃO ativos: lift + shadow-hover. */
 .notif-dd-item:not(.active):hover,
 .notif-dd-item:not(.active):focus-visible {
-  border-color: var(--primary);
-  color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
   outline: none;
@@ -3061,26 +3061,20 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
   border-color: var(--border-dark) !important;
 }
-/* Hover no trigger (tema escuro): borda e texto na cor de destaque + lift + shadow-hover. */
+/* Hover no trigger (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
 [data-theme="dark"] .notif-dd-trigger:hover,
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"]:hover {
-  border-color: var(--primary);
-  color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
-[data-theme="dark"] .notif-dd-item.active:hover { box-shadow: var(--shadow-hover); }
-/* ===== Notif dropdown items — tema escuro =====
-   Item selecionado (ativo): raised na cor de destaque do sistema. */
-[data-theme="dark"] .notif-dd-item.active {
-  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
-  border-color: var(--primary);
-  color: #fff;
 }
-/* Hover itens não ativos: borda e texto na cor de destaque + lift + shadow-hover. */
+/* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
+[data-theme="dark"] .notif-dd-trigger[aria-expanded="true"] {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+/* Hover do item (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
 [data-theme="dark"] .notif-dd-item:not(.active):hover,
 [data-theme="dark"] .notif-dd-item:not(.active):focus-visible {
-  border-color: var(--primary);
-  color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
   outline: none;
@@ -3089,7 +3083,6 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   transform: translateY(-1px); 
   box-shadow: var(--shadow-hover); 
 }
-/* Afundado no clique — itens não ativos. */
 [data-theme="dark"] .notif-dd-item:not(.active):active,
 [data-theme="dark"] .notif-dd-item:not(.active):active:hover {
   background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
