@@ -1949,6 +1949,13 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
+/* Item selecionado (ativo): raised na cor de destaque do sistema (mesma regra de
+   .gear-opt.active), com texto branco para contraste. */
+.notif-dd-item.active {
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  border-color: var(--primary);
+  color: #fff;
+}
 /* Hover do item: igual ao hover dos demais botões (gradiente raised + sobe 1px + sombra).
    Itens NÃO ativos: borda e texto na cor de destaque + lift + shadow-hover. */
 .notif-dd-item:not(.active):hover,
@@ -3058,9 +3065,15 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
-}
+[data-theme="dark"] .notif-dd-item.active:hover { box-shadow: var(--shadow-hover); }
 /* ===== Notif dropdown items — tema escuro =====
-   Hover itens não ativos: borda e texto na cor de destaque + lift + shadow-hover. */
+   Item selecionado (ativo): raised na cor de destaque do sistema. */
+[data-theme="dark"] .notif-dd-item.active {
+  background-color: var(--primary); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
+  border-color: var(--primary);
+  color: #fff;
+}
+/* Hover itens não ativos: borda e texto na cor de destaque + lift + shadow-hover. */
 [data-theme="dark"] .notif-dd-item:not(.active):hover,
 [data-theme="dark"] .notif-dd-item:not(.active):focus-visible {
   border-color: var(--primary);
