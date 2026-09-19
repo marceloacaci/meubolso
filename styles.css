@@ -1967,7 +1967,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   outline: none;
 }
 /* Item ATIVO no hover: mantém fundo primário, lift + shadow-hover. */
-.notif-dd-item.active:hover { box-shadow: var(--shadow-hover); }
+.notif-dd-item.active:hover { 
+  transform: translateY(-1px); 
+  box-shadow: var(--shadow-hover); 
+}
 /* ===== Afundado no clique — .notif-dd-item (tema claro) =====
    Mesmo padrão dos .gear-opt: gradiente invertido (to top) + sombra interna (inset)
    + translateY(0) + borda mantida. */
@@ -3082,7 +3085,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: var(--shadow-hover);
   outline: none;
 }
-[data-theme="dark"] .notif-dd-item.active:hover { box-shadow: var(--shadow-hover); }
+[data-theme="dark"] .notif-dd-item.active:hover { 
+  transform: translateY(-1px); 
+  box-shadow: var(--shadow-hover); 
+}
 /* Afundado no clique — itens não ativos. */
 [data-theme="dark"] .notif-dd-item:not(.active):active,
 [data-theme="dark"] .notif-dd-item:not(.active):active:hover {
