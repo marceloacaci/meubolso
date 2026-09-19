@@ -1875,6 +1875,15 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
 .notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+/* Hover no trigger (tema claro): borda e texto na cor de destaque + lift + shadow-hover.
+   Garante que o hover funcione mesmo quando aria-expanded="true" (dropdown aberto). */
+.notif-dd-trigger:hover,
+.notif-dd-trigger[aria-expanded="true"]:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
 /* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
    Mesmo padrão dos .gear-opt: gradiente invertido (to top) + sombra interna (inset)
    + translateY(0) + borda mantida. Regra separada do :hover para o efeito não sumir
@@ -3022,6 +3031,14 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
   border-color: var(--border-dark) !important;
+}
+/* Hover no trigger (tema escuro): borda e texto na cor de destaque + lift + shadow-hover. */
+[data-theme="dark"] .notif-dd-trigger:hover,
+[data-theme="dark"] .notif-dd-trigger[aria-expanded="true"]:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
 }
 /* "Card exibidor" (o painel que abre ao clicar na engrenagem): no tema
    escuro, ganha sombra difusa branca no hover para realce, igual aos cards.
