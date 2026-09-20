@@ -1213,14 +1213,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
     var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
-  transform: none;
+  transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
-/* Remove lift no clique (active) para TODOS os botões do card Configurações (tema claro) */
-.config-secao .gear-opt:not(.active):active,
-.config-secao .gear-opt:not(.active):active:hover,
-.config-secao .gear-opt.active:active,
-.config-secao .gear-opt.active:active:hover,
+/* Remove lift no clique (active) para card-btn e gear-cor do card Configurações (tema claro)
+   .gear-opt mantém o efeito afundado com inset shadow igual ao menu lateral */
 .config-secao .card-btn:active,
 .config-secao .card-btn:active:hover,
 .config-secao .gear-cor:active,
@@ -3009,13 +3006,14 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 }
 /* Tema escuro — remove lift no clique (active) nos botões do card Aparência/Configurações
    Mesma semântica do tema claro: hover=lift, active=afundado (inset para gear-opt, shadow normal para outros)
-   Igual para :active e :active:hover — efeito afundado persistente mesmo ao soltar hover enquanto clicado */
+   Igual para :active e :active:hover — efeito afundado persistente mesmo ao soltar hover enquanto clicado
+   .gear-opt usa transform: translateY(0) igual ao menu lateral; card-btn/gear-cor usam transform: none */
 [data-theme="dark"] .config-secao .gear-opt:not(.active):active,
 [data-theme="dark"] .config-secao .gear-opt:not(.active):active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
     var(--raised-bg-base) 100%);
-  transform: none;
+  transform: translateY(0);
   box-shadow:
     inset 0 2px 5px rgba(0, 0, 0, 0.30),
     inset 0 -1px 0 rgba(255, 255, 255, 0.15);
@@ -3028,7 +3026,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
     var(--primary) 100%);
   border-color: var(--primary);
   color: #fff;
-  transform: none;
+  transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 [data-theme="dark"] .config-secao .card-btn:active,
