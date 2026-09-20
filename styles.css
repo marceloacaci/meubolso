@@ -1196,14 +1196,17 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    de Configurações por ora (expansível ao resto do app depois).
    As regras :active têm igual/menor especificidade que as :hover anteriores,
    mas vêm DEPOIS no arquivo, então ganham durante o clique. ============= */
-.config-secao .gear-opt:not(.active):active {
+/* Igual para :active e :active:hover — efeito afundado persistente mesmo ao soltar hover enquanto clicado */
+.config-secao .gear-opt:not(.active):active,
+.config-secao .gear-opt:not(.active):active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
     var(--raised-bg-base) 100%);
   transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
 }
-.config-secao .gear-opt.active:active {
+.config-secao .gear-opt.active:active,
+.config-secao .gear-opt.active:active:hover {
   background-color: var(--primary);
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--primary) 70%, white) 0%,
@@ -1215,9 +1218,13 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 /* Remove lift no clique (active) para TODOS os botões do card Configurações (tema claro) */
 .config-secao .gear-opt:not(.active):active,
+.config-secao .gear-opt:not(.active):active:hover,
 .config-secao .gear-opt.active:active,
+.config-secao .gear-opt.active:active:hover,
 .config-secao .card-btn:active,
-.config-secao .gear-cor:active {
+.config-secao .card-btn:active:hover,
+.config-secao .gear-cor:active,
+.config-secao .gear-cor:active:hover {
   transform: none;
   box-shadow: var(--shadow);
 }
@@ -3001,8 +3008,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: var(--shadow-hover);
 }
 /* Tema escuro — remove lift no clique (active) nos botões do card Aparência/Configurações
-   Mesma semântica do tema claro: hover=lift, active=afundado (inset para gear-opt, shadow normal para outros) */
-[data-theme="dark"] .config-secao .gear-opt:not(.active):active {
+   Mesma semântica do tema claro: hover=lift, active=afundado (inset para gear-opt, shadow normal para outros)
+   Igual para :active e :active:hover — efeito afundado persistente mesmo ao soltar hover enquanto clicado */
+[data-theme="dark"] .config-secao .gear-opt:not(.active):active,
+[data-theme="dark"] .config-secao .gear-opt:not(.active):active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
     var(--raised-bg-base) 100%);
@@ -3011,7 +3020,8 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
     inset 0 2px 5px rgba(0, 0, 0, 0.30),
     inset 0 -1px 0 rgba(255, 255, 255, 0.15);
 }
-[data-theme="dark"] .config-secao .gear-opt.active:active {
+[data-theme="dark"] .config-secao .gear-opt.active:active,
+[data-theme="dark"] .config-secao .gear-opt.active:active:hover {
   background-color: var(--primary);
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--primary) 70%, white) 0%,
@@ -3022,7 +3032,9 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 [data-theme="dark"] .config-secao .card-btn:active,
-[data-theme="dark"] .config-secao .gear-cor:active {
+[data-theme="dark"] .config-secao .card-btn:active:hover,
+[data-theme="dark"] .config-secao .gear-cor:active,
+[data-theme="dark"] .config-secao .gear-cor:active:hover {
   transform: none;
   box-shadow: var(--shadow);
 }
