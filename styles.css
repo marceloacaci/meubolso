@@ -1831,6 +1831,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-panel .gear-opt:not(.active),
 .gear-panel .gear-card-btn {
   background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  border-color: var(--border);
 }
 /* Active no gear-panel: raised na cor de destaque (regra dedicada). */
 .gear-panel .gear-opt.active {
@@ -1840,7 +1841,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 .gear-panel .gear-opt:hover,
 .gear-panel .gear-card-btn:hover,
-.gear-panel .gear-mini-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.gear-panel .gear-mini-btn:hover { 
+  transform: translateY(-1px); 
+  box-shadow: var(--shadow-hover); 
+  border-color: var(--border);
+}
 /* ===== Afundado no clique — .gear-opt (gear-panel, tema claro) =====
    Igual ao menu lateral: gradiente invertido (to top) + sombra interna (inset)
    + translateY(0) + borda mantida. Regra separada do :hover para o efeito não sumir
