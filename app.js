@@ -4942,12 +4942,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       const dd = ddTrigger.closest('.notif-dd');
       const panel = dd && dd.querySelector('.notif-dd-panel');
       if (panel) {
-        const abrir = panel.hidden;
-        fecharDropdownsFrequencia();
-        if (abrir) {
+        const jaAberto = !panel.hidden;
+        if (!jaAberto) {
+          // Só abre se estiver fechado; se já aberto, NÃO fecha ao clicar no trigger
+          fecharDropdownsFrequencia();
           panel.hidden = false;
           ddTrigger.setAttribute('aria-expanded', 'true');
         }
+        // Se já estava aberto, não faz nada (mantém aberto)
       }
       return;
     }
