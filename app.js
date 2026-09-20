@@ -4939,6 +4939,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // seleção de item já trata o change via delegação abaixo (ou direto aqui).
     const ddTrigger = e.target.closest('.notif-dd-trigger');
     if (ddTrigger) {
+      // Ignora click se foi cancelado (mousedown no trigger mas mouseup fora)
+      if (ddClickCancelled) {
+        ddClickCancelled = false;
+        return;
+      }
       const dd = ddTrigger.closest('.notif-dd');
       const panel = dd && dd.querySelector('.notif-dd-panel');
       if (panel) {
@@ -4955,6 +4960,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const ddItem = e.target.closest('.notif-dd-item');
     if (ddItem) {
+      // Ignora click se foi cancelado (mousedown no item mas mouseup fora)
+      if (ddClickCancelled) {
+        ddClickCancelled = false;
+        return;
+      }
       const v = parseInt(ddItem.dataset.min, 10);
       // Marca o item ativo e fecha o painel antes de disparar o change.
       const dd = ddItem.closest('.notif-dd');
@@ -4990,11 +5000,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // S7: cancelar click do dropdown de frequência se mousedown no elemento
   // mas mouseup fora dele (arrastar para fora antes de soltar).
   let ddActiveTarget = null;
+  let ddClickCancelled = false;
   document.addEventListener('mousedown', (e) => {
     const trigger = e.target.closest('.notif-dd-trigger');
     const item = e.target.closest('.notif-dd-item');
     if (trigger || item) {
       ddActiveTarget = trigger || item;
+      ddClickCancelled = false;
     }
   });
   document.addEventListener(
@@ -5007,8 +5019,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           (trigger && trigger === ddActiveTarget) || (item && item === ddActiveTarget);
         if (!sameTarget) {
           // Mouseup fora do elemento onde fez mousedown -> cancela o click
-          // Previne que o listener de 'click' acima execute a ação.
-          e.stopImmediatePropagation();
+          // Marca flag para o listener de click ignorar
+          ddClickCancelled = true;
         }
         ddActiveTarget = null;
       }
