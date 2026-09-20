@@ -1879,7 +1879,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .notif-dd-trigger:hover,
 .notif-dd-trigger[aria-expanded="true"]:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-hover) !important;
   border-color: var(--border);
 }
 /* Estado aberto (dropdown visível): mantém lift + shadow-hover (profundidade) enquanto o card estiver colapsado, sem cor de destaque. */
