@@ -1882,10 +1882,10 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow-hover);
   border-color: var(--border);
 }
-/* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
+/* Estado aberto (dropdown visível): mantém lift + shadow-hover (profundidade) enquanto o card estiver colapsado, sem cor de destaque. */
 .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-hover);
   border-color: var(--border);
 }
 /* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
@@ -3065,10 +3065,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: var(--shadow-hover);
   border-color: var(--border-dark);
 }
-/* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
+/* Estado aberto (dropdown visível): mantém lift + shadow-hover (profundidade) enquanto o card estiver colapsado, sem cor de destaque. */
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-hover);
   border-color: var(--border-dark);
 }
 /* Hover do item (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
