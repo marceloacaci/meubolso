@@ -1875,15 +1875,20 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
 .notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); border-color: var(--border); }
-/* Hover no trigger (tema claro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
-.notif-dd-trigger:hover,
-.notif-dd-trigger[aria-expanded="true"]:hover {
-  transform: translateY(0) !important;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+/* Hover no trigger (tema claro): lift + shadow-hover (SEM mudança de cor de borda/fonte) — apenas quando dropdown FECHADO. */
+.notif-dd-trigger:not([aria-expanded="true"]):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
   border-color: var(--border);
 }
 /* Estado aberto (dropdown visível): mantém efeito "afundado" (igual :active) enquanto o card estiver aberto, sem cor de destaque. */
 .notif-dd-trigger[aria-expanded="true"] {
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border);
+}
+/* Hover do estado aberto: mantém efeito afundado (NÃO lift), igual ao :active. */
+.notif-dd-trigger[aria-expanded="true"]:hover {
   transform: translateY(0) !important;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
   border-color: var(--border);
@@ -3058,15 +3063,20 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
   border-color: var(--border-dark) !important;
 }
-/* Hover no trigger (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
-[data-theme="dark"] .notif-dd-trigger:hover,
-[data-theme="dark"] .notif-dd-trigger[aria-expanded="true"]:hover {
-  transform: translateY(0) !important;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+/* Hover no trigger (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte) — apenas quando dropdown FECHADO. */
+[data-theme="dark"] .notif-dd-trigger:not([aria-expanded="true"]):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
   border-color: var(--border-dark);
 }
 /* Estado aberto (dropdown visível): mantém efeito "afundado" (igual :active) enquanto o card estiver aberto, sem cor de destaque. */
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"] {
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border-dark);
+}
+/* Hover do estado aberto: mantém efeito afundado (NÃO lift), igual ao :active. */
+[data-theme="dark"] .notif-dd-trigger[aria-expanded="true"]:hover {
   transform: translateY(0) !important;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
   border-color: var(--border-dark);
