@@ -2800,7 +2800,8 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .dropdown-menu,
 [data-theme="dark"] .offcanvas,
 [data-theme="dark"] .modal-content,
-[data-theme="dark"] .tooltip {
+[data-theme="dark"] .tooltip,
+[data-theme="dark"] .notif-dd-trigger {
   border-color: var(--border-dark);
 }
 
