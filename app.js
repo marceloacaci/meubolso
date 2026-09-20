@@ -4949,12 +4949,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (panel) {
         const jaAberto = !panel.hidden;
         if (!jaAberto) {
-          // Só abre se estiver fechado; se já aberto, NÃO fecha ao clicar no trigger
+          // Só abre se estiver fechado
           fecharDropdownsFrequencia();
           panel.hidden = false;
           ddTrigger.setAttribute('aria-expanded', 'true');
+        } else {
+          // Já estava aberto -> clicar no trigger fecha o dropdown (descolapsa)
+          fecharDropdownsFrequencia();
         }
-        // Se já estava aberto, não faz nada (mantém aberto)
       }
       return;
     }
