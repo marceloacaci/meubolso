@@ -2801,7 +2801,9 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .offcanvas,
 [data-theme="dark"] .modal-content,
 [data-theme="dark"] .tooltip,
-[data-theme="dark"] .notif-dd-trigger {
+[data-theme="dark"] .notif-dd-trigger,
+[data-theme="dark"] .notif-dd-item,
+[data-theme="dark"] .notif-dd-panel {
   border-color: var(--border-dark);
 }
 
