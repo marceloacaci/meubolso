@@ -4983,6 +4983,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     // Fecha qualquer dropdown de frequência ao clicar fora dele.
+    // NÃO fecha se o click foi cancelado (mousedown no dropdown mas mouseup fora)
+    if (ddClickCancelled) {
+      ddClickCancelled = false;
+      return;
+    }
     if (!e.target.closest('.notif-dd')) fecharDropdownsFrequencia();
     // Navegação por data-view (sidebar OU qualquer botão, ex.: "Ver detalhes" do game).
     const nav = e.target.closest('[data-view]');
