@@ -1874,17 +1874,19 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
-.notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.notif-dd-trigger:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); border-color: var(--border); }
 /* Hover no trigger (tema claro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
 .notif-dd-trigger:hover,
 .notif-dd-trigger[aria-expanded="true"]:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+  border-color: var(--border);
 }
 /* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
 .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
   box-shadow: var(--shadow);
+  border-color: var(--border);
 }
 /* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
    Mesmo padrão dos .gear-opt: gradiente invertido (to top) + sombra interna (inset)
@@ -3058,11 +3060,13 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"]:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+  border-color: var(--border-dark);
 }
 /* Estado aberto (dropdown visível): mantém lift + shadow suave, sem cor de destaque. */
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
   box-shadow: var(--shadow);
+  border-color: var(--border-dark);
 }
 /* Hover do item (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
 [data-theme="dark"] .notif-dd-item:not(.active):hover,
