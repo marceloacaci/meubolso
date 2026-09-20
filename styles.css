@@ -1885,7 +1885,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Estado aberto (dropdown visível): mantém lift + shadow-hover (profundidade) enquanto o card estiver colapsado, sem cor de destaque. */
 .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-hover) !important;
   border-color: var(--border);
 }
 /* ===== Afundado no clique — .notif-dd-trigger (tema claro) =====
@@ -1902,8 +1902,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-color: var(--border);
 }
 /* Hover do painel sobre o trigger NÃO se aplica quando o botão está :active
-   (evita conflito de especificidade com o efeito "afundado"). */
-.notif-dd:hover .notif-dd-trigger:not(:active) {
+   OU quando o dropdown está aberto (aria-expanded=true) — mantém shadow-hover. */
+.notif-dd:hover .notif-dd-trigger:not(:active):not([aria-expanded="true"]) {
   transform: translateY(-1px);
   box-shadow: var(--shadow);
 }
@@ -3068,7 +3068,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 /* Estado aberto (dropdown visível): mantém lift + shadow-hover (profundidade) enquanto o card estiver colapsado, sem cor de destaque. */
 [data-theme="dark"] .notif-dd-trigger[aria-expanded="true"] {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-hover) !important;
   border-color: var(--border-dark);
 }
 /* Hover do item (tema escuro): lift + shadow-hover (SEM mudança de cor de borda/fonte). */
