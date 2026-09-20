@@ -4985,6 +4985,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     handlers[acao]?.(id, alvo);
   });
 
+  // S7: cancelar click do dropdown de frequência se mousedown no elemento
+  // mas mouseup fora dele (arrastar para fora antes de soltar).
+  let ddActiveTarget = null;
+  document.addEventListener('mousedown', (e) => {
+    const trigger = e.target.closest('.notif-dd-trigger');
+    const item = e.target.closest('.notif-dd-item');
+    if (trigger || item) {
+      ddActiveTarget = trigger || item;
+    }
+  });
+  document.addEventListener(
+    'mouseup',
+    (e) => {
+      if (ddActiveTarget) {
+        const trigger = e.target.closest('.notif-dd-trigger');
+        const item = e.target.closest('.notif-dd-item');
+        const sameTarget =
+          (trigger && trigger === ddActiveTarget) || (item && item === ddActiveTarget);
+        if (!sameTarget) {
+          // Mouseup fora do elemento onde fez mousedown -> cancela o click
+          // Previne que o listener de 'click' acima execute a ação.
+          e.stopImmediatePropagation();
+        }
+        ddActiveTarget = null;
+      }
+    },
+    true
+  ); // capture phase para interceptar antes do listener de click
+
   // Delegação para preferências (tema / idioma / fonte) — funcionam onde
   // estiverem, inclusive dentro da view Configurações (renderizada dinamicamente).
   document.addEventListener('click', (e) => {
