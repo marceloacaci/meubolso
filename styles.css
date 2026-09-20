@@ -1168,9 +1168,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Efeito "saltado" (raised) nos BOTÕES da página de Configurações (não-ativos):
    metade superior mais clara que a metade inferior (tom --bg). O :not(.active)
    garante que o botão ativo use a regra base .gear-opt.active (cor de destaque
-   com raised), mantendo a padronização. */
+   com raised), mantendo a padronização. IGUAL ao botão de frequência (.notif-dd-trigger). */
 .config-secao .gear-opt:not(.active) {
-  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--bg) 100%);
+  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
 }
 /* No hover da página de Configurações, o texto também ganha a cor de
