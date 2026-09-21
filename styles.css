@@ -1835,6 +1835,11 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-panel .gear-mini-btn {
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
+/* Botão de frequência no gear-panel: largura auto (ajusta pelo conteúdo) */
+.gear-panel #gear-notif-intervalo .notif-dd-trigger {
+  width: auto;
+  min-width: 0;
+}
 .gear-panel .gear-opt:not(.active),
 .gear-panel .gear-card-btn {
   background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
@@ -1900,8 +1905,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .notif-dd { position: relative; display: inline-block; }
 .notif-dd-trigger {
   display: inline-flex; align-items: center; gap: 4px;
-  width: 140px;
-  min-width: 140px;
+  width: auto;
+  min-width: 0;
   white-space: nowrap;
   padding: 6px 8px 6px 12px;
   font-weight: 600; font-size: calc(14px * var(--app-font-scale));
@@ -1971,7 +1976,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
    (mouse sobre o próprio painel ou sobre o trigger) ganha a sombra de realce. */
 .notif-dd-panel {
   position: absolute; z-index: 30; top: calc(100% + 6px); left: 0;
-  min-width: max(var(--notif-dd-w, 100%), 140px);
+  min-width: var(--notif-dd-w, 100%);
   display: flex; flex-direction: column; gap: 4px;
   padding: 6px;
   background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
