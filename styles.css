@@ -2057,8 +2057,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-mini { display: flex; gap: 6px; }
 .gear-mini-btn {
   flex: 0 0 auto;
-  width: 72px;
-  min-width: 72px;
+  width: 36px;
+  min-width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
