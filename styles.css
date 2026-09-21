@@ -3343,3 +3343,15 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   border-color: var(--border-dark);
 }
 
+/* ===== Modal seleção de perfil (tela inicial) — borda cinza igual Configurações (tema claro) =====
+   Botões usam classes Bootstrap (.btn, .btn-primary, .btn-ghost).
+   Borda cinza (--border) no tema claro, igual aos botões .gear-opt da Configurações (menu lateral). */
+.perfil-lista .btn-primary,
+.perfil-lista .btn-ghost {
+  border: 1px solid var(--border) !important;
+}
+[data-theme="dark"] .perfil-lista .btn-primary,
+[data-theme="dark"] .perfil-lista .btn-ghost {
+  border: 1px solid var(--border-dark) !important;
+}
+
