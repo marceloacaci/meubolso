@@ -1749,6 +1749,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
   min-height: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 /* Variante compacta (tabelas: editar/excluir em linha). Mantém o raised + borda. */
 .gear-opt--sm {
@@ -2094,6 +2097,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   border-radius: 8px;
   cursor: pointer;
   font-size: calc(14px * var(--app-font-scale));
+  box-sizing: border-box;
+  line-height: 1;
   transition: border-color .15s, color .15s, background .15s, box-shadow .15s, transform .15s;
 }
 .gear-mini-btn:hover {
@@ -2115,8 +2120,17 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   padding: 6px 10px;
   font-size: calc(14px * var(--app-font-scale));
   min-height: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  line-height: 1;
 }
-.gear-cripto { width: auto; justify-content: flex-start; }
+.gear-cripto { 
+  width: auto; 
+  justify-content: flex-start; 
+  height: 36px;
+  box-sizing: border-box;
+  line-height: 1;
+}
 /* "Desativar criptografia" (cripto ativa) e "Ativar criptografia" (cripto
    inativa): ambos IGUAIS aos demais botões do menu (.gear-opt cinza), sem cor
    vermelha/verde. O hover herda .gear-opt:hover (borda/fonte na cor de
