@@ -88,19 +88,10 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
         <section class="config-secao h-100">
           <h3>${t('notif.secao')}</h3>
           <p class="text-secondary small">${t('notif.descricao')}</p>
-          <div class="config-linha">
-            <span>${t('notif.ativo')}</span>
-            <button class="gear-opt ${notif.ativo ? 'active' : ''}" data-acao="notif-toggle" aria-pressed="${notif.ativo}">
-              ${ICON.sino}${notif.ativo ? '<span class="notif-check">✓</span>' : ''} ${notif.ativo ? t('notif.ativo') : t('notif.ativar')}
-            </button>
-          </div>
-          <div class="config-linha">
-            <span>${t('notif.intervalo')}</span>
-            <div class="notif-dd-host" data-notif-dd-host>${renderDropdownFrequenciaHTML(notif.intervaloMin)}</div>
-          </div>
-          <div class="config-linha">
-            <span>${t('notif.testeLabel')}</span>
-            <button class="gear-opt" data-acao="notif-testar" title="${t('notif.testeTitle')}">${ICON.sino} ${t('notif.testar')}</button>
+          <div class="gear-grupo gear-grupo-col gear-col-auto" role="group" aria-label="Notificações">
+            <button class="gear-opt" id="gear-notif-toggle" data-acao="notif-toggle" aria-pressed="${notif.ativo}"><span data-ico="sino"></span> <span class="notif-check" hidden>✓</span> <span class="notif-label">${notif.ativo ? t('notif.ativo') : t('notif.ativar')}</span></button>
+            <div class="notif-dd-host" id="gear-notif-intervalo" data-notif-dd-host></div>
+            <button class="gear-opt" data-acao="notif-testar" title="${t('notif.testeTitle')}"><span data-ico="sino"></span> <span data-i18n="notif.testar">${t('notif.testar')}</span></button>
           </div>
         </section>
       </div>
