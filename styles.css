@@ -2005,7 +2005,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .notif-dd-panel[hidden] { display: none; }
 .notif-dd-item {
   display: block; width: 100%; text-align: left;
-  padding: 7px 10px;
+  padding: 8px 8px;
   font-weight: 600; font-size: calc(14px * var(--app-font-scale));
   color: var(--text);
   background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
