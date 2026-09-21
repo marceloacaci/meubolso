@@ -96,7 +96,7 @@ window.__mbRender.configuracoes = function renderConfiguracoes() {
           </div>
           <div class="config-linha">
             <span>${t('notif.intervalo')}</span>
-            ${renderDropdownFrequenciaHTML(notif.intervaloMin)}
+            <div class="notif-dd-host" data-notif-dd-host>${renderDropdownFrequenciaHTML(notif.intervaloMin)}</div>
           </div>
           <div class="config-linha">
             <span>${t('notif.testeLabel')}</span>

@@ -1991,6 +1991,12 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   box-shadow: var(--shadow);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
+/* Host do dropdown (tanto no gear-panel quanto na página Configurações):
+   display: inline-flex para que o trigger tenha largura natural (width:auto)
+   e não seja esticado pelo container pai (flex/space-between). */
+.notif-dd-host {
+  display: inline-flex;
+}
 /* Hover do card (mouse sobre o painel OU sobre o trigger que o abriu): realce. */
 .notif-dd-panel:hover,
 .notif-dd:hover .notif-dd-panel {
