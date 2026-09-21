@@ -1174,6 +1174,9 @@ function sincronizarGearNotificacoes() {
     // não é re-renderizado pelo Vue); depois mantém sincronizado com o estado.
     if (!host.querySelector('.notif-dd')) {
       host.innerHTML = renderDropdownFrequenciaHTML(prefs.intervaloMin || 5);
+      // Mede e fixa a largura do trigger na primeira montagem
+      const dd = host.querySelector('.notif-dd');
+      if (dd) ajustarLarguraDropdownFrequencia(dd);
     } else {
       sincronizarDropdownsFrequencia(prefs.intervaloMin || 5);
     }
