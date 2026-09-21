@@ -85,14 +85,8 @@ test('dropdown frequencia: clique persiste intervaloMin e sincroniza gear-panel'
     '<div id="app"></div>' + '<div class="gear-panel"><div id="gear-notif-intervalo"></div></div>';
   const app = document.getElementById('app');
   app.innerHTML = window.__mbRender.configuracoes();
-  // O host do gear-panel de teste é o que está dentro de .gear-panel
-  const host = document.querySelector('.gear-panel #gear-notif-intervalo');
-  // A view Configurações agora tem seu próprio #gear-notif-intervalo com .notif-dd-host
-  // Popula ambos os dropdowns chamando sincronizarGearNotificacoes (igual ao app real)
-  if (typeof sincronizarGearNotificacoes === 'function') sincronizarGearNotificacoes();
-  // Copia o dropdown populado da Configurações para o host de teste do gear-panel
-  const sourceHost = app.querySelector('#gear-notif-intervalo');
-  host.innerHTML = sourceHost?.querySelector('.notif-dd')?.outerHTML ?? '';
+  const host = document.getElementById('gear-notif-intervalo');
+  host.innerHTML = app.querySelector('.notif-dd').outerHTML;
   // jsdom NÃO tem motor de layout (getBoundingClientRect retorna 0), então
   // stubamos para simular larguras proporcionais ao texto e exercitar a lógica
   // de "largura fixa = maior rótulo (todas as línguas)".
