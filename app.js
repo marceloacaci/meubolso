@@ -4956,6 +4956,20 @@ document.addEventListener('DOMContentLoaded', async () => {
           fecharDropdownsFrequencia();
           panel.hidden = false;
           ddTrigger.setAttribute('aria-expanded', 'true');
+          // Scroll suave para mostrar o painel colapsado inteiro
+          requestAnimationFrame(() => {
+            const gearPanel = dd.closest('.gear-panel');
+            if (gearPanel) {
+              const panelRect = panel.getBoundingClientRect();
+              const gearPanelRect = gearPanel.getBoundingClientRect();
+              const panelBottom = panelRect.bottom;
+              const gearPanelBottom = gearPanelRect.bottom;
+              if (panelBottom > gearPanelBottom) {
+                const scrollNeeded = panelBottom - gearPanelBottom + 8; // 8px padding extra
+                gearPanel.scrollBy({ top: scrollNeeded, behavior: 'smooth' });
+              }
+            }
+          });
         } else {
           // Já estava aberto -> clicar no trigger fecha o dropdown (descolapsa)
           fecharDropdownsFrequencia();
