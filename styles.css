@@ -3345,13 +3345,20 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 
 /* ===== Modal seleção de perfil (tela inicial) — borda cinza igual Configurações (tema claro) =====
    Botões usam classes Bootstrap (.btn, .btn-primary, .btn-ghost).
-   Borda cinza (--border) no tema claro, igual aos botões .gear-opt da Configurações (menu lateral). */
-.perfil-lista .btn-primary,
-.perfil-lista .btn-ghost {
+   Borda cinza (--border = #cfcfcf) no tema claro, igual aos botões .gear-opt da Configurações (menu lateral).
+   Inclui botão de fechar (X circular) e todos os botões do modal. */
+:root:not([data-theme="dark"]) .perfil-lista .btn-primary,
+:root:not([data-theme="dark"]) .perfil-lista .btn-ghost,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar .x,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar-circle {
   border: 1px solid var(--border) !important;
 }
 [data-theme="dark"] .perfil-lista .btn-primary,
-[data-theme="dark"] .perfil-lista .btn-ghost {
+[data-theme="dark"] .perfil-lista .btn-ghost,
+[data-theme="dark"] .perfil-lista .modal-fechar,
+[data-theme="dark"] .perfil-lista .modal-fechar .x,
+[data-theme="dark"] .perfil-lista .modal-fechar-circle {
   border: 1px solid var(--border-dark) !important;
 }
 
