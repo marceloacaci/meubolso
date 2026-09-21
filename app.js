@@ -815,16 +815,20 @@ function renderDropdownFrequenciaHTML(valor) {
 // painel) para que o botão tenha tamanho fixo = maior texto da lista em
 // qualquer idioma. Assim o botão não muda de tamanho ao trocar de intervalo
 // nem ao trocar o idioma do app.
-function ajustarLarguraDropdownFrequencia(dd) {
+function ajustarLarguraDropdownFrequencia(dd, apenasIdiomaAtual = false) {
   const trigger = dd.querySelector('.notif-dd-trigger');
   const valEl = dd.querySelector('.notif-dd-valor');
   if (!trigger || !valEl) return;
   const intervalos = window.NOTIF_INTERVALOS || [5, 30, 60, 180, 300, 600, 1440];
-  // Reúne todas as strings de rótulo (idioma atual + demais traduções) por min.
+  // Reúne strings de rótulo por min.
   const chavesPorMin = {};
   intervalos.forEach((min) => {
     const chave = 'notif.int' + min;
-    const langs = typeof I18N === 'object' && I18N ? Object.keys(I18N) : [idiomaAtual];
+    const langs = apenasIdiomaAtual
+      ? [idiomaAtual]
+      : typeof I18N === 'object' && I18N
+        ? Object.keys(I18N)
+        : [idiomaAtual];
     const textos = [];
     langs.forEach((l) => {
       const txt =
@@ -875,7 +879,7 @@ function sincronizarDropdownsFrequencia(min) {
     });
     const panel = dd.querySelector('.notif-dd-panel');
     if (panel) panel.hidden = true;
-    ajustarLarguraDropdownFrequencia(dd);
+    ajustarLarguraDropdownFrequencia(dd, true);
   });
 }
 
@@ -883,9 +887,12 @@ function sincronizarDropdownsFrequencia(min) {
 // Necessário porque a view de Configurações é re-renderizada via v-html a cada
 // tick do Vue, recriando o DOM do dropdown e apagando o width inline fixado.
 // Roda após cada render() para garantir que o botão fique travado no maior
-// texto (entre todas as línguas), independente da opção selecionada.
+// texto (APENAS do idioma atual = menor tamanho possível, igual ao gear-panel),
+// independente da opção selecionada.
 function ajustarLargurasDropdownFrequencia() {
-  document.querySelectorAll('.notif-dd').forEach((dd) => ajustarLarguraDropdownFrequencia(dd));
+  document
+    .querySelectorAll('.notif-dd')
+    .forEach((dd) => ajustarLarguraDropdownFrequencia(dd, true));
 }
 
 // Fecha qualquer dropdown de frequência aberto (delegação de clique fora /
@@ -1174,9 +1181,9 @@ function sincronizarGearNotificacoes() {
     // não é re-renderizado pelo Vue); depois mantém sincronizado com o estado.
     if (!host.querySelector('.notif-dd')) {
       host.innerHTML = renderDropdownFrequenciaHTML(prefs.intervaloMin || 5);
-      // Mede e fixa a largura do trigger na primeira montagem
+      // Mede e fixa a largura do trigger na primeira montagem (apenas idioma atual = menor, igual ao gear-panel)
       const dd = host.querySelector('.notif-dd');
-      if (dd) ajustarLarguraDropdownFrequencia(dd);
+      if (dd) ajustarLarguraDropdownFrequencia(dd, true);
     } else {
       sincronizarDropdownsFrequencia(prefs.intervaloMin || 5);
     }
