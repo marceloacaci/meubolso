@@ -2896,6 +2896,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .gear-opt.active {
   border-color: var(--primary);
 }
+/* gear-panel .gear-opt.active no tema escuro: borda suave igual ao botão frequência (--border-dark) */
+[data-theme="dark"] .gear-panel .gear-opt.active {
+  border-color: var(--border-dark);
+}
 /* ===== Engrenagem ABERTA no tema escuro =====
    O bloco cristal ([data-theme="dark"] .relogio-gear) — mesma especificidade 0,2,0
    mas escrito DEPOIS no arquivo — sobrescrevia o fundo primário do estado
@@ -3073,11 +3077,12 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 }
 /* Tema escuro — hover dos .gear-opt do menu rápido (gear-panel): mesma
    consistência do card de Configurações — lift + sombra difusa branca,
-   borda/fonte na cor de destaque (--primary). O estado normal (borda
+   borda na cor suave (--border-dark). O estado normal (borda
    branca suave) já é coberto pelo bloco [data-theme="dark"] … :not(:hover). */
 [data-theme="dark"] .gear-panel .gear-opt:not(.active):hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
+  border-color: var(--border-dark);
 }
 /* ===== Afundado no clique — .gear-opt (gear-panel) tema escuro =====
    Igual ao tema claro: gradiente invertido + sombra interna + borda mantida.
@@ -3094,7 +3099,7 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   background-color: var(--primary);
   background-image: linear-gradient(to top, color-mix(in srgb, var(--primary) 70%, white) 0%, var(--primary) 100%);
   color: #fff;
-  border-color: var(--primary);
+  border-color: var(--border-dark) !important;
   transform: translateY(0);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
