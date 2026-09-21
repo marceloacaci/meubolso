@@ -2057,9 +2057,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-mini { display: flex; gap: 6px; }
 .gear-mini-btn {
   flex: 0 0 auto;
-  width: 56px;
-  min-width: 56px;
-  height: 56px;
+  width: 72px;
+  min-width: 72px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2067,7 +2067,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   background-color: var(--bg);
   background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 15px;
   transition: border-color .15s, color .15s, background .15s, box-shadow .15s, transform .15s;
@@ -2078,7 +2078,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   transform: translateY(-1px);
 }
 .gear-mini-btn:hover svg { color: var(--text); }
-.gear-mini-btn svg { width: 22px; height: 22px; display: block; transition: color 0.15s; }
+.gear-mini-btn svg { width: 18px; height: 18px; display: block; transition: color 0.15s; }
 /* Texto dos botões de dados no gear-panel: permanece Oculto (minimalista,
    só ícone) em ambos os modos — conforme pedido de voltar à versão compacta. */
 .gear-mini-txt { display: none; }
