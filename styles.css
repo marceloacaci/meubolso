@@ -1923,6 +1923,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+  min-height: 36px;
 }
 /* Mantém o raised consistente (a variável --raised-bg-base é ajustada por tema). */
 .notif-dd-trigger:not([aria-expanded="true"]):hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); border-color: var(--border); }
