@@ -1827,10 +1827,16 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .gear-panel .gear-opt,
 .gear-panel .gear-card-btn {
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
-  width: 140px;
-  min-width: 140px;
+  width: auto;
+  min-width: 0;
   align-self: flex-start;
   min-height: 36px;
+}
+/* Botão de frequência no gear-panel: largura fixa igual ao Configurações */
+.gear-panel .gear-opt[data-acao="notif-testar"] + .notif-dd-host .notif-dd-trigger,
+.gear-panel #gear-notif-intervalo .notif-dd-trigger {
+  width: 140px;
+  min-width: 140px;
 }
 .gear-panel .gear-mini-btn {
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
@@ -1901,8 +1907,8 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 .notif-dd { position: relative; display: inline-block; }
 .notif-dd-trigger {
   display: inline-flex; align-items: center; gap: 4px;
-  width: 140px;
-  min-width: 140px;
+  width: auto;
+  min-width: 0;
   white-space: nowrap;
   padding: 6px 8px 6px 12px;
   font-weight: 600; font-size: calc(14px * var(--app-font-scale));
