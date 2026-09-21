@@ -2056,16 +2056,29 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
 /* Barra minimalista de ícones de backup (Dados) no menu rápido. */
 .gear-mini { display: flex; gap: 6px; }
 .gear-mini-btn {
-  flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center;
-  padding: 7px 0;
+  flex: 0 0 auto;
+  width: 56px;
+  min-width: 56px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
-  background-color: var(--bg); background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
-  color: var(--text); border-radius: 8px; cursor: pointer; font-size: 15px;
-  transition: border-color .15s, color .15s, background .15s;
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%);
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: border-color .15s, color .15s, background .15s, box-shadow .15s, transform .15s;
 }
-.gear-mini-btn:hover { color: var(--text); box-shadow: var(--shadow-hover); }
+.gear-mini-btn:hover {
+  color: var(--text);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
 .gear-mini-btn:hover svg { color: var(--text); }
-.gear-mini-btn svg { width: 18px; height: 18px; display: block; transition: color 0.15s; }
+.gear-mini-btn svg { width: 20px; height: 20px; display: block; transition: color 0.15s; }
 /* Texto dos botões de dados no gear-panel: permanece Oculto (minimalista,
    só ícone) em ambos os modos — conforme pedido de voltar à versão compacta. */
 .gear-mini-txt { display: none; }
@@ -3078,6 +3091,13 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
    borda na cor suave (--border-dark). O estado normal (borda
    branca suave) já é coberto pelo bloco [data-theme="dark"] … :not(:hover). */
 [data-theme="dark"] .gear-panel .gear-opt:not(.active):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border-dark);
+}
+/* Tema escuro — hover dos .gear-mini-btn do menu rápido (gear-panel):
+   mesmo padrão dos .gear-opt — lift + shadow-hover + borda suave. */
+[data-theme="dark"] .gear-panel .gear-mini-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
   border-color: var(--border-dark);
