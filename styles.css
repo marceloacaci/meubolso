@@ -1993,6 +1993,9 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* Item selecionado (ativo): raised na cor de destaque do sistema (mesma regra de
    .gear-opt.active), com texto branco para contraste. */
