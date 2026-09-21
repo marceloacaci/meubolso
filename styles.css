@@ -3089,11 +3089,13 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   box-shadow: var(--shadow-hover);
 }
 /* (Removido: vazava para os botões .gear-opt internos — ver regra clara.) */
-[data-theme="dark"] .config-secao .gear-opt:not(.active):hover {
+[data-theme="dark"] .config-secao .gear-opt:not(.active):hover,
+[data-theme="dark"] .config-secao .gear-fonte:not(.active):hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
 }
-[data-theme="dark"] .config-secao .gear-opt.active:hover {
+[data-theme="dark"] .config-secao .gear-opt.active:hover,
+[data-theme="dark"] .config-secao .gear-fonte.active:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
 }
@@ -3102,7 +3104,9 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
    Igual para :active e :active:hover — efeito afundado persistente mesmo ao soltar hover enquanto clicado
    .gear-opt usa transform: translateY(0) igual ao menu lateral; card-btn/gear-cor usam transform: none */
 [data-theme="dark"] .config-secao .gear-opt:not(.active):active,
-[data-theme="dark"] .config-secao .gear-opt:not(.active):active:hover {
+[data-theme="dark"] .config-secao .gear-fonte:not(.active):active,
+[data-theme="dark"] .config-secao .gear-opt:not(.active):active:hover,
+[data-theme="dark"] .config-secao .gear-fonte:not(.active):active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
     var(--raised-bg-base) 100%);
@@ -3112,7 +3116,9 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
     inset 0 -1px 0 rgba(255, 255, 255, 0.15);
 }
 [data-theme="dark"] .config-secao .gear-opt.active:active,
-[data-theme="dark"] .config-secao .gear-opt.active:active:hover {
+[data-theme="dark"] .config-secao .gear-fonte.active:active,
+[data-theme="dark"] .config-secao .gear-opt.active:active:hover,
+[data-theme="dark"] .config-secao .gear-fonte.active:active:hover {
   background-color: var(--primary);
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--primary) 70%, white) 0%,
