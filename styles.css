@@ -3348,11 +3348,11 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
    Ajusta bordas para combinar com .gear-opt da página Configurações (menu lateral). */
 .perfil-lista .btn-primary,
 .perfil-lista .btn-ghost {
-  border-color: var(--border);
+  border: 1px solid var(--border);
 }
 [data-theme="dark"] .perfil-lista .btn-primary,
 [data-theme="dark"] .perfil-lista .btn-ghost {
-  border-color: var(--border-dark);
+  border: 1px solid var(--border-dark);
 }
 /* Hover: lift + borda/fonte na cor de destaque (igual .gear-opt) */
 .perfil-lista .btn-primary:hover,
