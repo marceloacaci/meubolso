@@ -2124,6 +2124,7 @@ body.janela-larga .logo-titulo { font-size: calc(18px * var(--app-font-scale)); 
   box-sizing: border-box;
   line-height: 1;
 }
+.gear-fonte .ico-svg { width: 18px; height: 18px; vertical-align: 0; }
 .gear-cripto { 
   width: auto; 
   justify-content: flex-start; 
