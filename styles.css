@@ -3343,43 +3343,58 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   border-color: var(--border-dark);
 }
 
-/* ===== Modal seleção de perfil (tela inicial) — bordas iguais à Configurações =====
+/* ===== Modal seleção de perfil (tela inicial) — bordas/estilo iguais à Configurações =====
    Botões usam classes Bootstrap (.btn, .btn-primary, .btn-ghost).
-   Ajusta bordas para combinar com .gear-opt da página Configurações (menu lateral). */
+   Ajusta para combinar com .gear-opt da página Configurações (menu lateral):
+   - Neutros (bg raised, borda --border), hover = lift + borda/fonte --primary
+   - Active = afundado (gradiente invertido + inset), NÃO muda bg para --primary
+   - .btn-primary.perfil-escolher: NÃO usa bg --primary (diferente do Bootstrap padrão) */
 .perfil-lista .btn-primary,
 .perfil-lista .btn-ghost {
   border: 1px solid var(--border) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  color: var(--text) !important;
 }
 [data-theme="dark"] .perfil-lista .btn-primary,
 [data-theme="dark"] .perfil-lista .btn-ghost {
   border: 1px solid var(--border-dark) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  color: var(--text) !important;
 }
-/* Hover: lift + borda/fonte na cor de destaque (igual .gear-opt) */
+/* Hover: lift + borda/fonte na cor de destaque (igual .gear-opt) — NÃO muda background */
 .perfil-lista .btn-primary:hover,
 .perfil-lista .btn-ghost:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-hover) !important;
 }
 [data-theme="dark"] .perfil-lista .btn-primary:hover,
 [data-theme="dark"] .perfil-lista .btn-ghost:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-hover) !important;
 }
-/* Active: efeito afundado (igual .gear-opt:active) */
+/* Active: efeito afundado (igual .gear-opt:active) — NÃO muda bg para --primary */
 .perfil-lista .btn-primary:active,
 .perfil-lista .btn-primary:active:hover,
 .perfil-lista .btn-ghost:active,
 .perfil-lista .btn-ghost:active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
-    var(--raised-bg-base) 100%);
-  transform: translateY(0);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
-  border-color: var(--border);
+    var(--raised-bg-base) 100%) !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border) !important;
 }
 [data-theme="dark"] .perfil-lista .btn-primary:active,
 [data-theme="dark"] .perfil-lista .btn-primary:active:hover,
@@ -3387,9 +3402,11 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] .perfil-lista .btn-ghost:active:hover {
   background-image: linear-gradient(to top,
     color-mix(in srgb, var(--bg) 70%, white) 0%,
-    var(--raised-bg-base) 100%);
-  transform: translateY(0);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+    var(--raised-bg-base) 100%) !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
   border-color: var(--border-dark) !important;
 }
 
