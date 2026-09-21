@@ -1701,6 +1701,7 @@ body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: flex-start;
   transform-origin: bottom right;
   animation: gear-expand 0.18s ease-out;
   /* Sem zoom: o zoom no painel (×1.45 no maximizado) estourava o monitor e
