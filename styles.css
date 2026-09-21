@@ -2892,13 +2892,11 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
   border-color: var(--border-dark);
 }
-/* gear-opt ATIVO/Destacado mantém a cor de destaque na borda (não a clara). */
-[data-theme="dark"] .gear-opt.active {
-  border-color: var(--primary);
-}
-/* gear-panel .gear-opt.active no tema escuro: borda suave igual ao botão frequência (--border-dark) */
-[data-theme="dark"] .gear-panel .gear-opt.active {
+[data-theme="dark"] .gear-panel .gear-opt:not(.active) {
   border-color: var(--border-dark);
+}
+[data-theme="dark"] .gear-panel .gear-opt.active {
+  border-color: var(--border-dark) !important;
 }
 /* ===== Engrenagem ABERTA no tema escuro =====
    O bloco cristal ([data-theme="dark"] .relogio-gear) — mesma especificidade 0,2,0
