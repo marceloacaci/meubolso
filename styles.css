@@ -3341,12 +3341,35 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   backdrop-filter: blur(14px) saturate(140%);
   border-color: var(--border-dark);
-/* ===== Modal seleção de perfil (tela inicial) — borda cinza igual Configurações (tema claro) =====
-   Botões da tela de seleção de perfil: apenas ajusta a borda para ser igual
-   aos botões .gear-opt da Configurações (menu lateral). NÃO altera background/fonte.
+/* ===== Modal seleção de perfil (tela inicial) — borda igual Configurações (tema claro) =====
+   Botões e cards da tela de seleção de perfil: a borda deve ser a mesma cor
+   dos elementos da tela de Configurações (acessada pelo menu lateral).
    
-   Referência: .gear-opt da Configurações usa border: 1px solid var(--border) 
-   (cinza #cfcfcf no claro, branco suave no escuro). */
+   Referência: 
+   - .config-secao: border: 1px solid var(--border)
+   - .gear-opt: border: 1px solid var(--border) (no estado não-ativo)
+   - .card-btn: border: 1px solid var(--border)
+   - .config-acoes .btn-ghost: border: 1px solid var(--border)
+   - .perfil-linha (na Configurações): border: 1px solid var(--border)
+   
+   No tema claro: var(--border) = #cfcfcf (cinza médio)
+   No tema escuro: var(--border-dark) = branco suave
+   
+   Elementos:
+   - .perfil-lista (lista de perfis)
+   - .perfil-linha (linha de cada perfil na lista)
+   - .btn-primary (botão "Selecionar")
+   - .btn-ghost (botão "⚙ Gerenciar") 
+   - .gear-opt (botões de ação dentro de .perfil-linha)
+   - .card-botoes (contêiner de botões)
+   - .modal-fechar (botão X de fechar do modal)
+   - .modal-fechar .x (X circular)
+   - .modal-fechar-circle (círculo do X)
+   - .card-botoes (contêiner dos botões) */
+:root:not([data-theme="dark"]) .perfil-lista,
+:root:not([data-theme="dark"]) .perfil-lista .perfil-linha,
+:root:not([data-theme="dark"]) .perfil-lista .card-botoes,
+:root:not([data-theme="dark"]) .perfil-lista .gear-opt,
 :root:not([data-theme="dark"]) .perfil-lista .btn-primary,
 :root:not([data-theme="dark"]) .perfil-lista .btn-ghost,
 :root:not([data-theme="dark"]) .perfil-lista .modal-fechar,
@@ -3354,6 +3377,10 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
 :root:not([data-theme="dark"]) .perfil-lista .modal-fechar-circle {
   border: 1px solid var(--border) !important;
 }
+[data-theme="dark"] .perfil-lista,
+[data-theme="dark"] .perfil-lista .perfil-linha,
+[data-theme="dark"] .perfil-lista .card-botoes,
+[data-theme="dark"] .perfil-lista .gear-opt,
 [data-theme="dark"] .perfil-lista .btn-primary,
 [data-theme="dark"] .perfil-lista .btn-ghost,
 [data-theme="dark"] .perfil-lista .modal-fechar,
