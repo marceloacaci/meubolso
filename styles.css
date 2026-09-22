@@ -3343,34 +3343,97 @@ input[type="checkbox"]:focus, input[type="radio"]:focus {
   border-color: var(--border-dark);
 }
 
-/* ===== Modal seleção de perfil (tela inicial) — borda cinza igual Configurações (tema claro) =====
-   Botões usam classes Bootstrap (.btn, .btn-primary, .btn-ghost).
-   Borda cinza escuro (--border) no tema claro, igual aos botões .gear-opt da Configurações (menu lateral).
-   Inclui botão de fechar (X circular) e todos os botões do modal. */
+/* ===== Modal seleção de perfil (tela inicial) — borda igual Configurações (MEGA QUÂNTICO) =====
+   Replicando EXATAMENTE o padrão de .gear-opt e .card-btn (S6-4):
+   - background raised (#bg + gradiente)
+   - borda 1px solid var(--border) no claro (#cfcfcf), var(--border-dark) no escuro
+   - box-shadow: var(--shadow)
+   - hover: lift + shadow-hover (sem mudar bg/border até o hover)
+   - active: afundado (gradiente invertido + inset shadow + translateY(0))
+   
+   MEGA QUÂNTICO: Forçando IDÔNTICO ao .gear-opt da Configurações (menu lateral) */
 :root:not([data-theme="dark"]) .perfil-lista .btn-primary,
-:root:not([data-theme="dark"]) .perfil-lista .btn-primary:hover,
-:root:not([data-theme="dark"]) .perfil-lista .btn-primary:focus,
-:root:not([data-theme="dark"]) .perfil-lista .btn-primary:active,
 :root:not([data-theme="dark"]) .perfil-lista .btn-ghost,
-:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:hover,
-:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:focus,
-:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:active,
 :root:not([data-theme="dark"]) .perfil-lista .modal-fechar,
 :root:not([data-theme="dark"]) .perfil-lista .modal-fechar .x,
 :root:not([data-theme="dark"]) .perfil-lista .modal-fechar-circle {
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
   border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text) !important;
+  font-size: calc(13px * var(--app-font-scale)) !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s !important;
+}
+:root:not([data-theme="dark"]) .perfil-lista .btn-primary:hover,
+:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:hover,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar:hover,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar .x:hover,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar-circle:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-hover) !important;
+}
+:root:not([data-theme="dark"]) .perfil-lista .btn-primary:active,
+:root:not([data-theme="dark"]) .perfil-lista .btn-primary:active:hover,
+:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:active,
+:root:not([data-theme="dark"]) .perfil-lista .btn-ghost:active:hover,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar:active,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar:active:hover,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar .x:active,
+:root:not([data-theme="dark"]) .perfil-lista .modal-fechar-circle:active {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
 }
 [data-theme="dark"] .perfil-lista .btn-primary,
-[data-theme="dark"] .perfil-lista .btn-primary:hover,
-[data-theme="dark"] .perfil-lista .btn-primary:focus,
-[data-theme="dark"] .perfil-lista .btn-primary:active,
 [data-theme="dark"] .perfil-lista .btn-ghost,
-[data-theme="dark"] .perfil-lista .btn-ghost:hover,
-[data-theme="dark"] .perfil-lista .btn-ghost:focus,
-[data-theme="dark"] .perfil-lista .btn-ghost:active,
 [data-theme="dark"] .perfil-lista .modal-fechar,
 [data-theme="dark"] .perfil-lista .modal-fechar .x,
 [data-theme="dark"] .perfil-lista .modal-fechar-circle {
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
   border: 1px solid var(--border-dark) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text) !important;
+  font-size: calc(13px * var(--app-font-scale)) !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s !important;
+}
+[data-theme="dark"] .perfil-lista .btn-primary:hover,
+[data-theme="dark"] .perfil-lista .btn-ghost:hover,
+[data-theme="dark"] .perfil-lista .modal-fechar:hover,
+[data-theme="dark"] .perfil-lista .modal-fechar .x:hover,
+[data-theme="dark"] .perfil-lista .modal-fechar-circle:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: var(--bg) !important;
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-hover) !important;
+}
+[data-theme="dark"] .perfil-lista .btn-primary:active,
+[data-theme="dark"] .perfil-lista .btn-primary:active:hover,
+[data-theme="dark"] .perfil-lista .btn-ghost:active,
+[data-theme="dark"] .perfil-lista .btn-ghost:active:hover,
+[data-theme="dark"] .perfil-lista .modal-fechar:active,
+[data-theme="dark"] .perfil-lista .modal-fechar:active:hover,
+[data-theme="dark"] .perfil-lista .modal-fechar .x:active,
+[data-theme="dark"] .perfil-lista .modal-fechar-circle:active {
+  background-image: linear-gradient(to top, color-mix(in srgb, var(--bg) 70%, white) 0%, var(--raised-bg-base) 100%) !important;
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border-dark) !important;
+  color: var(--text) !important;
 }
 
